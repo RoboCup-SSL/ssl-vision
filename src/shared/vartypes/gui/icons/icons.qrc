@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/icons/vartypes" >
+        <file>list.png</file>
+        <file>external.png</file>
+        <file>time.png</file>
+        <file>node.png</file>
+    </qresource>
+</RCC>
