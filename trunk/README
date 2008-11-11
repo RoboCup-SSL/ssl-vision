@@ -24,7 +24,7 @@
  - qmake (should come with QT)
  - OpenGL
  - GLU
- - libdc1394
+ - libdc1394 Version >= 2.0
  - libjpeg
 
 ========================
@@ -83,7 +83,7 @@
 ===================
  DC1394 Parameters
 ===================
-   If you expand the tree the capture parameters are in
+   If you expand the tree then the capture parameters are in
    "Image Capture/DC1394/Capture Settings"
    
    Furthermore, conversion settings are in
@@ -124,3 +124,19 @@
    to false, so the bus is not being flooded with too much control
    data and has full bandwidth available for the video streaming.
 
+====================================
+ Storage of Settings and Parameters 
+====================================
+
+   When you quit the application normally (by closing the window
+   not thru Ctrl-C) then all settings and parameters will
+   automatically be written to a set of xml files.
+
+   All settings should be automatically restored during the next
+   program start.
+
+   In case the files should ever become corrupted, or the
+   program refuses to start completely when parsing the XML files
+   (this should normally never occur) then simply delete all
+   XML files and restart. The program should restore its default
+   settings.
