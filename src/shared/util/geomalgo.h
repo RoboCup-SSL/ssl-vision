@@ -22,6 +22,7 @@
 #ifndef __GEOM_ALGO_H__
 #define __GEOM_ALGO_H__
 
+#include <stdio.h>
 #include "gvector.h"
 
 namespace GVector {
