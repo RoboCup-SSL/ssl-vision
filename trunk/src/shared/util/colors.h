@@ -23,6 +23,7 @@
 #define COLORS
 #include <string>
 #include <math.h>
+#include <string.h>
 using namespace std;
 
 enum ColorSpace {

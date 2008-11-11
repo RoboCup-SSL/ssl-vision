@@ -31,6 +31,7 @@
           http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm
 */
 
+#include <iostream>
 #include "gvector.h"
 #ifndef QUATERNION_H
 #define QUATERNION_H
