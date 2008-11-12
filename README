@@ -30,10 +30,6 @@
 ========================
  Hardware Requirements:
 ========================
- Currently, the system assumes that you have two DCAM firewire cameras
- connected to INDEPENDENT busses (e.g. two firewire cards, not two
- different ports on the same card/bus).
-
  The system supports 1394B / Firewire 800, but it's also backward compatible
  with 1394A.
 
