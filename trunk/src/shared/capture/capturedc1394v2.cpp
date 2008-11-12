@@ -1112,6 +1112,17 @@ bool CaptureDC1394v2::startCapture()
 
   camera = dc1394_camera_new(dc1394_instance, cam_list->ids[cam_id].guid);
 
+  // Acquire free iso channel on firewire bus; allows to run two cameras on one bus
+  int channel;
+  if(dc1394_iso_allocate_channel(camera, 0xffff , &channel) != DC1394_SUCCESS)
+    printf("CaptureDC1394v2 Info: Could not allocate channel\n");
+  else {
+    if(dc1394_video_set_iso_channel(camera, channel) != DC1394_SUCCESS)
+      printf("CaptureDC1394v2 Info: Could not set channel\n");
+    else
+      printf("CaptureDC1394vc Info: got iso channel: %d\n", channel);
+  }
+
   //disable any previous activity on that camera:
   dc1394_capture_stop(camera);
   dc1394_video_set_transmission(camera,DC1394_OFF);
@@ -1289,7 +1300,7 @@ dc1394error_t dc1394_format7_get_packets_per_frame(dc1394camera_t *camera, dc139
 
   
 
-  if (dc1394_capture_setup(camera, ring_buffer_size, DC1394_CAPTURE_FLAGS_DEFAULT) != DC1394_SUCCESS) {
+  if (dc1394_capture_setup(camera, ring_buffer_size, DC1394_CAPTURE_FLAGS_CHANNEL_ALLOC /*DC1394_CAPTURE_FLAGS_DEFAULT */ ) != DC1394_SUCCESS) {
     fprintf(stderr,"CaptureDC1394v2 Error: unable to setup capture. Maybe selected combination of Format/Resolution is not supported?\n");
     #ifndef VDATA_NO_QT
       mutex.unlock();
