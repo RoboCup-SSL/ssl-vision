@@ -61,18 +61,34 @@ HEADERS += $${PREFIX}/gui/realtimedisplaywidget.h
 SOURCES += $${PREFIX}/plugins/visionplugin.cpp
 HEADERS += $${PREFIX}/plugins/visionplugin.h
 
-##############
-### STACKS ###
+SOURCES += $${PREFIX}/plugins/plugin_colorcalib.cpp
+HEADERS += $${PREFIX}/plugins/plugin_colorcalib.h
+
+SOURCES += $${PREFIX}/plugins/plugin_colorthreshold.cpp
+HEADERS += $${PREFIX}/plugins/plugin_colorthreshold.h
+
+SOURCES += $${PREFIX}/plugins/plugin_visualize.cpp
+HEADERS += $${PREFIX}/plugins/plugin_visualize.h
+
+############################
+### SINGLE-CAMERA STACKS ###
 
 SOURCES += $${PREFIX}/stacks/visionstack.cpp
 HEADERS += $${PREFIX}/stacks/visionstack.h
 
-SOURCES += $${PREFIX}/stacks/stacks.cpp
+SOURCES += $${PREFIX}/stacks/stack_robocup_ssl.cpp
+HEADERS += $${PREFIX}/stacks/stack_robocup_ssl.h
+
 HEADERS += $${PREFIX}/stacks/stacks.h
+
+
+###########################
+### MULTI-CAMERA STACKS ###
 
 SOURCES += $${PREFIX}/stacks/multivisionstack.cpp
 HEADERS += $${PREFIX}/stacks/multivisionstack.h
 
-SOURCES += $${PREFIX}/stacks/multistacks.cpp
-HEADERS += $${PREFIX}/stacks/multistacks.h
+SOURCES += $${PREFIX}/stacks/multistack_robocup_ssl.cpp
+HEADERS += $${PREFIX}/stacks/multistack_robocup_ssl.h
 
+HEADERS += $${PREFIX}/stacks/multistacks.h

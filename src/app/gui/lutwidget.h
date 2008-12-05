@@ -43,13 +43,15 @@ protected:
     GLLUTWidget * gllut;
     QToolBar * toolbar;
     void updateList(LUT3D * lut);
+    LUTChannelMode _mode;
 protected slots:
     void selectChannel(int c);
 public:
+    GLLUTWidget * getGLLUTWidget();
     void samplePixel(const yuv & color);
-    void sampleImage(const rgbImage & img);
+    void sampleImage(const RawImage & img);
     void focusInEvent ( QFocusEvent * event );
-    LUTWidget(LUT3D * lut);
+    LUTWidget(LUT3D * lut, LUTChannelMode mode);
     ~LUTWidget();
 };
 

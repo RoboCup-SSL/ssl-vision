@@ -1,4 +1,4 @@
-#all files below belong to the vartype system:
+#all shared utility classes
 
 PREFIX = $${SHARED_DIR}/util
 
@@ -7,11 +7,16 @@ INCLUDEPATH += $${PREFIX}
 SOURCES += $${PREFIX}/global_random.cpp
 HEADERS += $${PREFIX}/global_random.h
 
+HEADERS += $${PREFIX}/image_interface.h
+
 SOURCES += $${PREFIX}/image.cpp
 HEADERS += $${PREFIX}/image.h
 
 SOURCES += $${PREFIX}/image_io.cpp
 HEADERS += $${PREFIX}/image_io.h
+
+SOURCES += $${PREFIX}/conversions.cpp
+HEADERS += $${PREFIX}/conversions.h
 
 SOURCES += $${PREFIX}/qgetopt.cpp
 HEADERS += $${PREFIX}/qgetopt.h

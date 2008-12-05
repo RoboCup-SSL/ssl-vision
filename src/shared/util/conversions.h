@@ -24,25 +24,31 @@
 
 #include "util.h"
 #include "colors.h"
+#ifndef NO_DC1394_CONVERSIONS
+  #include <dc1394/conversions.h>
+#endif
+
 //#include "ccvt.h"
 
 //-------------------------------------------------
 //NOTE full image conversion routines (yuv->rgb) in this file
 //     have been measured to be REALLY slow
-//     You will be way better off using e.g. libdc1394's conversions.
+//     Some functions will use dc1394 for speedup (if available)
 //-------------------------------------------------
 
-namespace Conversions {
 
+class Conversions {
+
+public:
 // base conversion methods for each pixel group
-inline void yuv2rgb(int y, int u, int v, int & r, int & g, int & b) 
+inline static void yuv2rgb(int y, int u, int v, int & r, int & g, int & b) 
 {
   r = bound(y         + ((v*1436) >>10), 0, 255);
   g = bound(y - ((u*352 + v*731) >> 10), 0, 255);
   b = bound(y + ((u*1814) >> 10)       , 0, 255);
 }
 
-inline rgb yuv2rgb(yuv const &in)
+inline static rgb yuv2rgb(yuv const &in)
 {
   int r, g, b;
   int y, u, v;
@@ -58,25 +64,25 @@ inline rgb yuv2rgb(yuv const &in)
   return (col);
 }
 
-inline rgb rgba2rgb(rgb const &in) {
+inline static rgb rgba2rgb(rgb const &in) {
   rgb out;
   out.set(in.r,in.g,in.b);
   return out;
 }
 
-inline rgba rgb2rgba(rgb const &in, unsigned char alpha=0) {
+inline static  rgba rgb2rgba(rgb const &in, unsigned char alpha=0) {
   rgba out;
   out.set(in.r,in.g,in.b,alpha);
   return out;
 }
 
-inline void rgb2yuv(int r, int g, int b, int & y, int & u, int & v) 
+inline static void rgb2yuv(int r, int g, int b, int & y, int & u, int & v) 
 {
   y = bound((306*r + 601*g + 117*b)  >> 10, 0, 255);
   u = bound(((-172*r - 340*g + 512*b) >> 10)  + 128, 0, 255);
   v = bound(((512*r - 429*g - 83*b) >> 10) + 128, 0, 255);
 }
-inline yuv rgb2yuv(rgb const &in)
+inline static yuv rgb2yuv(rgb const &in)
 {
   yuv col;
   int y, u, v;
@@ -89,25 +95,20 @@ inline yuv rgb2yuv(rgb const &in)
 }
   
 
-// convert frames
-void bgr2rgb (unsigned char *src, unsigned char *dest, int NumPixels);
-void rgb2bgr (unsigned char *src, unsigned char *dest, int NumPixels);
-void rgb482rgb (unsigned char *src, unsigned char *dest, int NumPixels);
-void uyv2rgb (unsigned char *src, unsigned char *dest, int NumPixels);
-void uyvy2rgb (unsigned char *src, unsigned char *dest, int NumPixels);
-void uyvy2bgr (unsigned char *src, unsigned char *dest, int NumPixels);
-void uyyvyy2rgb (unsigned char *src, unsigned char *dest, int NumPixels);
-void y2rgb (unsigned char *src, unsigned char *dest, int NumPixels);
-void y162rgb (unsigned char *src, unsigned char *dest, int NumPixels, int bits);
+//DC1394 accelerated:
+static void uyvy2rgb (unsigned char *src, unsigned char *dest, int width, int height);
 
-}
+//others (non-accelerated):
+static void uyyvyy2rgb (unsigned char *src, unsigned char *dest, int width, int height);
+static void y2rgb (unsigned char *src, unsigned char *dest, int width, int height);
+static void bgr2rgb (unsigned char *src, unsigned char *dest, int width, int height);
+static void rgb2bgr (unsigned char *src, unsigned char *dest, int width, int height);
+static void rgb482rgb (unsigned char *src, unsigned char *dest, int width, int height);
+static void uyv2rgb (unsigned char *src, unsigned char *dest, int width, int height);
+static void uyvy2bgr (unsigned char *src, unsigned char *dest, int width, int height);
+static void y162rgb (unsigned char *src, unsigned char *dest, int width, int height, int bits);
 
-// This functino is the only one that is dependent
-// on the IEEE1394 header. So we will only remove it
-// from compilation if IEEE1394 is not defined
 
-// convert using a particular mode setting -- uses IEEE1394 definitions
-//void convert_to_rgb(unsigned char *src, unsigned char *dest, 
-//		    int width, int height, int mode, 
-//		    int bits=8);
+};
+
 #endif

@@ -152,3 +152,8 @@ double VisionPlugin::getTimeProcessing() {
 double VisionPlugin::getTimePostProcessing() {
   return time_post;
 }
+
+void VisionPlugin::slotKeyPressEvent ( QKeyEvent * event ) {
+  keyPressEvent(event);
+}
+

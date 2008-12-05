@@ -127,6 +127,7 @@ void CaptureThread::refresh() {
 void CaptureThread::run() {
     CaptureStats * stats;
     bool changed;
+
     while(true) {
       if (rb!=0) {
         int idx=rb->curWrite();
@@ -164,6 +165,8 @@ void CaptureThread::run() {
             stack_mutex.unlock();
           }
         } else {
+          stats->total=d->number=counter->getTotal();
+          stats->fps_capture=counter->getFPS(changed);
           //we are not capturing...chill this thread out...
           capture_mutex.unlock();
           usleep(100);

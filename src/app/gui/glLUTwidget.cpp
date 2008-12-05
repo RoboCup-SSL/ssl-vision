@@ -188,7 +188,7 @@ void GLLUTWidget::drawLine( int x0, int y0, int x1, int y1 , QMouseEvent * event
 
 void GLLUTWidget::drawPixel(int x, int y, QMouseEvent * event) {
   //this will draw 9 pixels at the same time
-  if ((event->modifiers() & Qt::AltModifier) != 0x00) {
+  if ((event->modifiers() & Qt::ControlModifier) != 0x00) {
     if (x > 0) {
       drawSinglePixel(x-1,y,event);
       if (y > 0)  drawSinglePixel(x-1,y-1,event);
@@ -211,26 +211,38 @@ void GLLUTWidget::drawSinglePixel(int x, int y, QMouseEvent * event) {
     //perform drawing ops on mask value
     //redraw texture
     //check whether we are in removal mode:
-    if ((event->modifiers() & Qt::ControlModifier) != 0x00) {
+    if ((event->modifiers() & Qt::AltModifier) != 0x00) {
       //remove all
       mask=0x00;
     } else if ((event->modifiers() & Qt::ShiftModifier) != 0x00) {
       //remove current channel
-      mask=mask & (~(0x01 << state.channel));
-    } else {
-      if (actionExclusiveMode->isChecked()) {
-        mask=(0x01 << state.channel);
+      if (_mode==LUTChannelMode_Numeric) {
+        mask=0x00;
       } else {
-        mask|=(0x01 << state.channel);
+        mask=mask & (~(0x01 << state.channel));
+      }
+    } else {
+      if (_mode==LUTChannelMode_Numeric) {
+        mask=state.channel;
+      } else {
+        if (actionExclusiveMode->isChecked()) {
+          mask=(0x01 << state.channel);
+        } else {
+          mask|=(0x01 << state.channel);
+        }
       }
     }
 
     _lut->set_preshrunk(state.slice_idx,x,y,mask);
 
-    if (actionViewToggleOtherChannels->isChecked()==false) {
-      slices[state.slice_idx]->selection->surface.setPixel(x,y,maskToRGBA(_lut,(0x01 << state.channel) & mask));
-    } else {
+    if (_mode==LUTChannelMode_Numeric) {
       slices[state.slice_idx]->selection->surface.setPixel(x,y,maskToRGBA(_lut,mask));
+    } else {
+      if (actionViewToggleOtherChannels->isChecked()==false) {
+        slices[state.slice_idx]->selection->surface.setPixel(x,y,maskToRGBA(_lut,(0x01 << state.channel) & mask));
+      } else {
+        slices[state.slice_idx]->selection->surface.setPixel(x,y,maskToRGBA(_lut,mask));
+      }
     }
 
 }
@@ -250,16 +262,21 @@ void GLLUTWidget::setChannel(int c) {
 
 void GLLUTWidget::drawEvent ( QMouseEvent * event )
 {
+  
  //get coordinates
   int x;
   int y;
   if (glPixel2LUTCoordinates(event,x,y)==true) {
-    
+    _lut->lock();
     if ((event->button() == Qt::RightButton)) {
       //if right mouse button:
+      //FIXME: add a (if direct statement)
+      
         if (state.continuing_undo==false) editStore();
-        _lut->maskFillYZ(state.slice_idx, x,y,((event->modifiers() & Qt::ControlModifier) != 0x00) ? (~(0x00)) : (0x01 << state.channel),
-                            (event->modifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) != 0x00,actionViewToggleOtherChannels->isChecked(),actionExclusiveMode->isChecked());
+        _lut->maskFillYZ(state.slice_idx, x,y,
+                          (_mode==LUTChannelMode_Numeric) ? state.channel : (((event->modifiers() & Qt::AltModifier) != 0x00) ? (~(0x00)) : (0x01 << state.channel)),
+                          _mode,
+                           (event->modifiers() & (Qt::ShiftModifier | Qt::AltModifier)) != 0x00,actionViewToggleOtherChannels->isChecked(),actionExclusiveMode->isChecked());
         drawSlice(slices[state.slice_idx], _lut, state.slice_idx,false, true,false);
 
     //update texture
@@ -282,6 +299,7 @@ void GLLUTWidget::drawEvent ( QMouseEvent * event )
     }
     //update texture
     slices[state.slice_idx]->selection_update_pending=true;
+    _lut->unlock();
     this->redraw();
   }
 }
@@ -321,10 +339,11 @@ void GLLUTWidget::mouseMoveEvent ( QMouseEvent * event )
 }
 
 
-GLLUTWidget::GLLUTWidget(QWidget *parent) : QGLWidget(parent)
+GLLUTWidget::GLLUTWidget(LUTChannelMode mode, QWidget *parent) : QGLWidget(parent)
 {
   rb=0;
   _lut=0;
+  _mode=mode;
   needs_init=false;
   gl_ready=false;
   view_mode=VIEW_SINGLE;
@@ -395,7 +414,10 @@ GLLUTWidget::GLLUTWidget(QWidget *parent) : QGLWidget(parent)
   actionViewToggleOtherChannels->setShortcut(QKeySequence("o"));
   actionViewToggleOtherChannels->setShortcutContext(Qt::WidgetShortcut);
   actionViewToggleOtherChannels->setToolTip("Display All Channels");
-  addAction(actionViewToggleOtherChannels);
+  if (mode==LUTChannelMode_Bitwise) {
+    addAction(actionViewToggleOtherChannels);
+  }
+
 
   QAction * actionSep = new QAction(this);
   actionSep->setSeparator(true);
@@ -431,12 +453,16 @@ GLLUTWidget::GLLUTWidget(QWidget *parent) : QGLWidget(parent)
   actionExclusiveMode->setShortcut(QKeySequence("x"));
   actionExclusiveMode->setShortcutContext(Qt::WidgetShortcut);
   actionExclusiveMode->setToolTip("Exclusive Channel Mode");
-  addAction(actionExclusiveMode);
+  if (mode==LUTChannelMode_Bitwise) {
+    addAction(actionExclusiveMode);
+  } else {
+    actionExclusiveMode->setChecked(true);
+  }
 
   QAction * actionClearSampler = new QAction(this);
   actionClearSampler->setObjectName("actionClearSampler");
   actionClearSampler->setIcon(QIcon(":/icons/xload.png"));
-  actionClearSampler->setShortcut(QKeySequence("Space"));
+  actionClearSampler->setShortcut(QKeySequence("c"));
   actionClearSampler->setShortcutContext(Qt::WidgetShortcut);
   actionClearSampler->setToolTip("Clear Sampler");
   addAction(actionClearSampler);
@@ -787,18 +813,21 @@ inline rgba GLLUTWidget::maskToRGBA(LUT3D * lut, const lut_mask_t & m) {
     return rgba(0,0,0,0);
   } else {
     rgb result(0,0,0);
-    for (int i=0;i<(int)lut->channels.size();i++) {
-      if ((m & (0x01 << i)) != 0x00) {
-        result+=lut->channels[i].draw_color;
+    if (_mode==LUTChannelMode_Numeric) {
+      result=lut->channels[m].draw_color;
+    } else {
+      for (int i=0;i<(int)lut->channels.size();i++) {
+        if ((m & (0x01 << i)) != 0x00) {
+          result+=lut->channels[i].draw_color;
+        }
       }
     }
-    return rgb2rgba(result,255);
+    return Conversions::rgb2rgba(result,255);
   }
 }
 
 void GLLUTWidget::drawSlice(Slice * s, LUT3D * lut, int idx, bool draw_bg, bool draw_selection, bool draw_sampler) {
   if (lut->getColorSpace()==CSPACE_YUV) {
-  
     unsigned char  xn=lut->getSizeY();
     unsigned char  yn=lut->getSizeZ();
     //printf("size: %d   max: %d    bits: %d     shift: %d \n"
@@ -807,9 +836,9 @@ void GLLUTWidget::drawSlice(Slice * s, LUT3D * lut, int idx, bool draw_bg, bool 
       for (unsigned char  y=0;y<yn;y++) {
         //printf("yn: %d\n",(yn/2)-1);
         //printf("lut: %d\n",lut->lut2normZ((yn/2)-1));
-        if (draw_bg) s->bg->surface.setPixel( x,y,rgb2rgba(yuv2rgb(yuv(lut->lut2normX(idx),lut->lut2normY(x),lut->lut2normZ(y))),128));
+        if (draw_bg) s->bg->surface.setPixel( x,y,Conversions::rgb2rgba(Conversions::yuv2rgb(yuv(lut->lut2normX(idx),lut->lut2normY(x),lut->lut2normZ(y))),128));
         if (draw_selection) {
-          if (actionViewToggleOtherChannels->isChecked()==false) {
+          if ((_mode==LUTChannelMode_Bitwise) && (actionViewToggleOtherChannels->isChecked()==false)) {
             s->selection->surface.setPixel( x,y,maskToRGBA(lut,(0x01 << state.channel) & lut->get_preshrunk(idx,x,y)));
           } else {
             s->selection->surface.setPixel( x,y,maskToRGBA(lut,lut->get_preshrunk(idx,x,y)));
@@ -864,7 +893,14 @@ void GLLUTWidget::init() {
 
 void GLLUTWidget::wheelEvent ( QWheelEvent * event )
 {
-  cam.wheelEvent(event);
+  if (view_mode==VIEW_CUBE) {
+    cam.wheelEvent(event);
+  } else {
+    int delta=event->delta() / 120;
+    if (delta == 0) delta=((event->delta() > 0) ? 1 : 0);
+    state.slice_idx=max(min(state.slice_idx+delta,(int)slices.size()-1),0);
+    event->accept();
+  }
   redraw();
 }
 
@@ -890,7 +926,7 @@ void GLLUTWidget::callZoomFit()
 void GLLUTWidget::callHelp()
 {
   QMessageBox::information(this,"Keyboard and Mouse shortcuts",
-                           "Left-Click: Draw\nRight-Click: Fill\nShift-Modifier: Erase Current Channel\nCtrl-Modifier: Erase All Channels\nAlt-Modifier: 9 pixel stroke\na / z: Move through slices\nm: switch drawing (m)odes\nb: toggle (b)ackground\ni (while focused on the visualization frame): sample entire image\n");
+                           "Left-Click: Draw\nRight-Click: Fill\nShift-Modifier: Erase Current Channel\nCtrl-Modifier: 9 pixel stroke\na / z or MouseWheel: Move through slices\nm: switch drawing (m)odes\nb: toggle (b)ackground\ni:  sample entire image\nc: clear sampler\n");
 }
 
 void GLLUTWidget::switchMode()
@@ -915,6 +951,12 @@ void GLLUTWidget::keyPressEvent ( QKeyEvent * event )
   } else if (event->key()==Qt::Key_A) {
     if (state.slice_idx < (int)slices.size()-1) state.slice_idx++;
     this->redraw(); //upgl
+  } else if (event->key()==Qt::Key_I) {
+    signalKeyPressEvent(event);
+    event->accept();
+  } else if (event->key()==Qt::Key_C) {
+    signalKeyPressEvent(event);
+    event->accept();    
   } else if (event->key()==Qt::Key_Z) {
     if (state.slice_idx > 0) state.slice_idx--;
     this->redraw(); //upgl
@@ -954,22 +996,69 @@ void GLLUTWidget::samplePixel(const yuv & color) {
   
 }
 
-void GLLUTWidget::sampleImage(const rgbImage & img) {
+void GLLUTWidget::sampleImage(const RawImage & img) {
   //compute slice it sits on:
+  ColorFormat source_format=img.getColorFormat();
+  
   int n=img.getNumPixels();
-  rgb * color_rgb=img.getData();
+  
   yuv color;
   int i=0;
   
-  for (int j=0;j<n;j++) {
-    color=rgb2yuv(*color_rgb);
-    i=_lut->norm2lutX(color.y);
-    if (i >= 0 && i < (int)slices.size()) {
-      slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
-      slices[i]->sampler_update_pending=true;
+  if (img.getWidth() > 1 && img.getHeight() > 1) {
+    if (source_format==COLOR_RGB8) {
+      rgbImage rgb_img(img);
+      rgb * color_rgb=rgb_img.getPixelData();
+      for (int j=0;j<n;j++) {
+        color=Conversions::rgb2yuv(*color_rgb);
+        i=_lut->norm2lutX(color.y);
+        if (i >= 0 && i < (int)slices.size()) {
+          slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
+          slices[i]->sampler_update_pending=true;
+        }
+        color_rgb++;
+      }
+    } else if (source_format==COLOR_YUV444) {    
+      yuvImage yuv_img(img);
+      yuv * color_yuv=yuv_img.getPixelData();
+      for (int j=0;j<n;j++) {
+        color=(*color_yuv);
+        i=_lut->norm2lutX(color.y);
+        if (i >= 0 && i < (int)slices.size()) {
+          slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
+          slices[i]->sampler_update_pending=true;
+        }
+        color_yuv++;
+      }
+    } else if (source_format==COLOR_YUV422_UYVY) {
+        uyvy * color_uyvy = (uyvy*)img.getData();
+        uyvy color_uyvy_tmp;
+        for (int j=0;j<n;j+=2) {
+          color_uyvy_tmp=(*color_uyvy);
+          color.u=color_uyvy_tmp.u;
+          color.v=color_uyvy_tmp.v;
+  
+          color.y=color_uyvy_tmp.y1;
+          i=_lut->norm2lutX(color.y);
+          if (i >= 0 && i < (int)slices.size()) {
+            slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
+            slices[i]->sampler_update_pending=true;
+          }
+  
+          color.y=color_uyvy_tmp.y2;
+          i=_lut->norm2lutX(color.y);
+          if (i >= 0 && i < (int)slices.size()) {
+            slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
+            slices[i]->sampler_update_pending=true;
+          }
+          color_uyvy++;
+        }
+    } else {
+      fprintf(stderr,"Unable to sample colors from frame of format: %s\n",Colors::colorFormatToString(source_format).c_str());
+      fprintf(stderr,"Currently supported are rgb8, yuv444, and yuv422 (UYVY).\n");
+      fprintf(stderr,"(Feel free to add more conversions to glLUTwidget.cpp).\n");
     }
-    color_rgb++;
-  }
+   }
   redraw();
 
 }

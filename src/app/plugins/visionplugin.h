@@ -160,6 +160,9 @@ public:
     double getTimeProcessing();
     double getTimePostProcessing();
 
+public slots:
+    void slotKeyPressEvent ( QKeyEvent * event );
+
 };
 
 #endif

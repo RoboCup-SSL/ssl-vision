@@ -30,7 +30,7 @@
 #include <libraw1394/raw1394.h>
 #include <dc1394/control.h>
 #include <dc1394/conversions.h>
-#include "conversions.h"
+//#include "conversions.h"
 #ifndef VDATA_NO_QT
   #include <QMutex>
 #else

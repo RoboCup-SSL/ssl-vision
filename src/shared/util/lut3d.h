@@ -26,6 +26,7 @@
 #include <assert.h>
 #include <vector>
 #include <string>
+#include <qmutex.h>
 #include "VarTypes.h"
 #define LUTFILL_MAXDEPTH 10000
 #define LUTFILL_PUSH(XL, XR, Y, DY) \
@@ -36,10 +37,14 @@
     
 
 /// We allow 32 distinct channels (bitwise)
-typedef uint32_t lut_mask_t;
+typedef uint8_t lut_mask_t;
 
 using namespace std;
-using namespace Conversions;
+
+enum LUTChannelMode {
+  LUTChannelMode_Numeric, //each YUV color is mapped to exactly one channel. Channels are numerated
+  LUTChannelMode_Bitwise  //each YUV color is mapped to a bitmask, each bit represents a channel
+};
 
 struct LINESEGMENT { int xl, xr, y, dy; } ;
 
@@ -92,7 +97,7 @@ class LUT3D{
     VarBlob * v_blob;
     VarList * v_settings;
     vector<LUTChannel> channels;
-
+    QMutex mutex;
   public:
     LUT3D(unsigned int x_bits=7, unsigned int y_bits=7, unsigned int z_bits=7, string filename="3dlut.xml") {
       assert(x_bits <= 8 && y_bits <= 8 && z_bits <= 8);
@@ -121,6 +126,12 @@ class LUT3D{
       reset();
     };
 
+    void lock() {
+      mutex.lock();
+    }
+    void unlock() {
+      mutex.unlock();
+    }
     VarList * getSettings() {
       return v_settings;
     }
@@ -130,6 +141,7 @@ class LUT3D{
         fprintf(stderr,"invalid channel selected in getChannel(...)\n");
       }
       return channels[idx];
+
     }
 
     void setChannel(unsigned int idx, LUTChannel c) {
@@ -144,27 +156,27 @@ class LUT3D{
       return channels.size();
     }
 
-    int getSizeX() {
+    int getSizeX() const {
       return ((0x01 << (X_BITS)));
     }
 
-    int getSizeY() {
+    int getSizeY() const {
       return ((0x01 << (Y_BITS)));
     }
 
-    int getSizeZ() {
+    int getSizeZ() const {
       return ((0x01 << (Z_BITS)));
     }
 
-    int getMaxX() {
+    int getMaxX() const {
       return ((0x01 << (X_BITS)) - 0x01);
     }
 
-    int getMaxY() {
+    int getMaxY() const {
       return ((0x01 << (Y_BITS)) - 0x01);
     }
 
-    int getMaxZ() {
+    int getMaxZ() const {
       return ((0x01 << (Z_BITS)) - 0x01);
     }
 
@@ -176,38 +188,44 @@ class LUT3D{
       delete v_settings;
     };
 
-    virtual ColorSpace getColorSpace() {
+    virtual ColorSpace getColorSpace() const {
       return CSPACE_UNDEFINED;
     }
 
     void reset() {
+      lock();
       memset(LUT,0x00,LUT_SIZE*sizeof(lut_mask_t));
+      unlock();
     };
 
-    inline lut_mask_t * getPointer(unsigned char x, unsigned char y,unsigned char z) {
+    lut_mask_t * getTable() const {
+      return LUT;
+    }
+
+    inline lut_mask_t * getPointer(unsigned char x, unsigned char y,unsigned char z) const {
       return LUT + (((x >> X_SHIFT) << Z_AND_Y_BITS) | ((y >> Y_SHIFT) << Z_BITS) | (z >> Z_SHIFT));
     }
 
-    inline lut_mask_t * getPointerPreshrunk(unsigned char x, unsigned char y,unsigned char z) {
+    inline lut_mask_t * getPointerPreshrunk(unsigned char x, unsigned char y,unsigned char z) const {
       return LUT + (((x) << Z_AND_Y_BITS) | ((y) << Z_BITS) | (z));
     }
 
-    inline unsigned char norm2lutX(unsigned char x) {
+    inline unsigned char norm2lutX(unsigned char x) const {
       return(x >> X_SHIFT);
     }
-    inline unsigned char norm2lutY(unsigned char y) {
+    inline unsigned char norm2lutY(unsigned char y) const {
       return(y >> Y_SHIFT);
     }
-    inline unsigned char norm2lutZ(unsigned char z) {
+    inline unsigned char norm2lutZ(unsigned char z) const {
       return(z >> Z_SHIFT);
     }
-    inline unsigned char lut2normX(unsigned char x) {
+    inline unsigned char lut2normX(unsigned char x) const {
       return(x << X_SHIFT);
     }
-    inline unsigned char lut2normY(unsigned char y) {
+    inline unsigned char lut2normY(unsigned char y) const {
       return(y << Y_SHIFT);
     }
-    inline unsigned char lut2normZ(unsigned char z) {
+    inline unsigned char lut2normZ(unsigned char z) const {
       return(z << Z_SHIFT);
     }
 
@@ -232,16 +250,19 @@ class LUT3D{
     }
 
     void copyChannels(const LUT3D & other) {
+      lock();
       int n=other.getChannelCount();
       channels.clear();
       for (int i=0;i<n;i++) {
         channels.push_back(other.getChannel(i));
       }
+      unlock();
     }
 
-    void loadRoboCupChannels() {
+    void loadRoboCupChannels(LUTChannelMode mode) {
+      lock();
       channels.clear();
-
+      if (mode==LUTChannelMode_Numeric) channels.push_back(LUTChannel("<Clear>",RGB::Black));
       channels.push_back(LUTChannel("Field Green",RGB::DarkGreen));
       channels.push_back(LUTChannel("Orange",RGB::Orange));
       channels.push_back(LUTChannel("Yellow",RGB::Yellow));
@@ -251,19 +272,24 @@ class LUT3D{
       channels.push_back(LUTChannel("Green",RGB::Green));
       channels.push_back(LUTChannel("White",RGB::White));
       channels.push_back(LUTChannel("Black",RGB::Black));
+      unlock();
     }
 
-    void loadBlackWhite() {
+    void loadBlackWhite(LUTChannelMode mode) {
+      lock();
       channels.clear();
+      if (mode==LUTChannelMode_Numeric) channels.push_back(LUTChannel("<Clear>",RGB::Black));
       channels.push_back(LUTChannel("White",RGB::White));
       channels.push_back(LUTChannel("Black",RGB::Black));
+      unlock();
     }
 
 
     void maskFillYZ(unsigned char slice_x, unsigned char origin_y, unsigned char origin_z,
-                            lut_mask_t new_color, bool remove
+                            lut_mask_t new_color, LUTChannelMode mode, bool remove
                               = false, bool check_exact = true, bool write_exclusive = false)
     {
+
       /// This function fills an area in the y/z plane of an LUT for a given x-slice
       /// if check_exact is true then we only extend to pixels matching exactly the origin's mask
       ///                if it's false then we extend to pixels matching any one of the origin's mask's channels
@@ -271,6 +297,12 @@ class LUT3D{
       ///              if it's false then we OR the target pixel with the new_color
       /// the special case is where new_color is 0 in which we go into erase mode.
       ///              in this case if write_exclusive is false, we will subtract the origins color's from the current pixel
+      /// Note that the values of check_exact and write_exclusive only matter if mode is
+      /// LUTChannelMode_Bitwise. They are ignored if mode is LUTChannelMode_Numeric.
+      if (mode==LUTChannelMode_Numeric) {
+        check_exact=true;
+        write_exclusive=true;
+      }
 
       int x=origin_y;
       int y=origin_z;
@@ -289,7 +321,11 @@ class LUT3D{
       }
       else {
         //see if the origin is already fully removed of newcolor
-        if ( (old_color & new_color) == 0x00 ) return;
+        if (mode==LUTChannelMode_Bitwise) {
+          if ( (old_color & new_color) == 0x00 ) return;
+        } else {
+          if ( old_color==0x00 ) return;
+        }
       }
 
       if( (x < 0) || (x > x_max_index) || (y < 0) || (y > y_max_index) ) return;
@@ -303,7 +339,10 @@ class LUT3D{
         //for( x = x1; x >= 0 && (check_exact ? (get_preshrunk(slice_x,x,y) == old_color) : ((get_preshrunk(slice_x,x,y) & old_color) != 0x00)); --x )
         for( x = x1; x >= 0 && (check_exact ? (get_preshrunk(slice_x,x,y) == old_color) : (((get_preshrunk(slice_x,x,y) & new_color) == 0x00) == (remove ? false : true)) ); --x )
           (remove ?
-            set_preshrunk(slice_x,x,y,get_preshrunk(slice_x,x,y) & (~new_color)) :
+            ((mode==LUTChannelMode_Bitwise) ? 
+              (set_preshrunk(slice_x,x,y,get_preshrunk(slice_x,x,y) & (~new_color))) :
+              (set_preshrunk(slice_x,x,y,0x00)))
+              :
             (write_exclusive ?
               set_preshrunk(slice_x,x,y,new_color) :
               set_preshrunk(slice_x,x,y,get_preshrunk(slice_x,x,y) | (new_color))));
@@ -322,7 +361,10 @@ class LUT3D{
           //for( ; x<=getMaxY() && (check_exact ? (get_preshrunk(slice_x,x,y) == old_color) : ((get_preshrunk(slice_x,x,y) & old_color) != 0x00)); ++x )
           for( ; x<=getMaxY() && (check_exact ? (get_preshrunk(slice_x,x,y) == old_color) : (((get_preshrunk(slice_x,x,y) & new_color) == 0x00) == (remove ? false : true))); ++x )
             (remove ?
-              set_preshrunk(slice_x,x,y,get_preshrunk(slice_x,x,y) & (~new_color)) :
+              ((mode==LUTChannelMode_Bitwise) ? 
+              (set_preshrunk(slice_x,x,y,get_preshrunk(slice_x,x,y) & (~new_color))) :
+              (set_preshrunk(slice_x,x,y,0x00)))
+              :
               (write_exclusive ?
                 set_preshrunk(slice_x,x,y,new_color) :
                 set_preshrunk(slice_x,x,y,get_preshrunk(slice_x,x,y) | (new_color))));
@@ -358,14 +400,14 @@ class RGBLUT : public LUT3D {
     for (int r=0;r<=255;r++) {
       for (int g=0;g<=255;g++) {
         for (int b=0;b<=255;b++) {
-          rgb2yuv(r,g,b,y,u,v);
+          Conversions::rgb2yuv(r,g,b,y,u,v);
           set((unsigned char)r,(unsigned char)g,(unsigned char)b,lut->get((unsigned char)y,(unsigned char)u,(unsigned char)v));
         }
       }
     }
   }
 
-  virtual ColorSpace getColorSpace() {
+  virtual ColorSpace getColorSpace() const {
     return CSPACE_RGB;
   }
 
@@ -386,14 +428,14 @@ class YUVLUT : public LUT3D {
     for (int y=0;y<=255;y++) {
       for (int u=0;u<=255;u++) {
         for (int v=0;v<=255;v++) {
-          yuv2rgb(y,u,v,r,g,b);
+          Conversions::yuv2rgb(y,u,v,r,g,b);
           set((unsigned char)y,(unsigned char)u,(unsigned char)v,lut->get((unsigned char)r,(unsigned char)g,(unsigned char)b));
         }
       }
     }
   }
 
-  virtual ColorSpace getColorSpace() {
+  virtual ColorSpace getColorSpace() const {
     return CSPACE_YUV;
   }
 

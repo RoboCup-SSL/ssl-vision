@@ -1,4 +1,4 @@
-#all files below belong to the vartype system:
+#all opengl-related classes
 
 PREFIX = $${SHARED_DIR}/gl
 

@@ -29,6 +29,8 @@
 #include "visionstack.h"
 #include "capturestats.h"
 
+#include "timer.h"
+
 /*!
   \class   CaptureThread
   \brief   A thread for capturing and processing video data
@@ -54,6 +56,7 @@ protected:
   VarTrigger * c_reset;
   VarTrigger * c_refresh;
   VarBool * c_auto_refresh;
+  Timer timer;
 
 public slots:
   bool init();

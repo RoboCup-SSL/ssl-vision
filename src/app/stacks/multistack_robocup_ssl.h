@@ -13,41 +13,31 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    captureinterface.h
-  \brief   C++ Implementation: CaptureInterface
-  \author  Stefan Zickler, (C) 2008
+  \file    multistack_robocup_ssl.h
+  \brief   C++ Interface: multistack_robocup_ssl
+  \author  Author Name, 2008
 */
 //========================================================================
+#ifndef MULTISTACK_ROBOCUP_SSL_H
+#define MULTISTACK_ROBOCUP_SSL_H
 
-#include "captureinterface.h"
+#include "multivisionstack.h"
+#include "stack_robocup_ssl.h"
 
-CaptureInterface::CaptureInterface(VarList * _settings)
-{
-  if (_settings!=0) {
-    settings=_settings;
-  } else {
-    settings=new VarList("capture settings");
-  }
-}
+using namespace std;
 
+/*!
+  \class   MultiStackRoboCupSSL
+  \brief   The multi-camera vision processing stack used for the RoboCup SSL vision system.
+  \author  Stefan Zickler, (C) 2008
+*/
+class MultiStackRoboCupSSL : public MultiVisionStack {
+  protected:
 
-CaptureInterface::~CaptureInterface()
-{
-  delete settings;
-}
+  public:
+  MultiStackRoboCupSSL(RenderOptions * _opts, int cameras);
+  virtual string getSettingsFileName();
+  virtual ~MultiStackRoboCupSSL();
+};
 
-
-bool CaptureInterface::resetBus() {
-  return true;
-}
-
-void CaptureInterface::readAllParameterValues() {
-
-}
-
-bool CaptureInterface::copyAndConvertFrame(const RawImage & src, RawImage & target) {
-  target.ensure_allocation(target.getColorFormat(),src.getWidth(),src.getHeight());
-  target.setTime(src.getTime());
-  memcpy(target.getData(),src.getData(),src.getNumBytes());
-  return true;
-}
+#endif

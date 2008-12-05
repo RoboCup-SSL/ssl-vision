@@ -13,41 +13,35 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    captureinterface.h
-  \brief   C++ Implementation: CaptureInterface
-  \author  Stefan Zickler, (C) 2008
+  \file    plugin_colorthreshold.h
+  \brief   C++ Interface: plugin_colorthreshold
+  \author  Author Name, 2008
 */
 //========================================================================
+#ifndef PLUGIN_COLORTHRESHOLD_H
+#define PLUGIN_COLORTHRESHOLD_H
 
-#include "captureinterface.h"
+#include <visionplugin.h>
+#include "lut3d.h"
+#include "cmvision_threshold.h"
 
-CaptureInterface::CaptureInterface(VarList * _settings)
+/**
+	@author Stefan Zickler
+*/
+class PluginColorThreshold : public VisionPlugin
 {
-  if (_settings!=0) {
-    settings=_settings;
-  } else {
-    settings=new VarList("capture settings");
-  }
-}
+protected:
+  YUVLUT * lut;
+public:
+    PluginColorThreshold(FrameBuffer * _buffer, YUVLUT * _lut);
 
+    ~PluginColorThreshold();
 
-CaptureInterface::~CaptureInterface()
-{
-  delete settings;
-}
+    virtual ProcessResult process(FrameData * data, RenderOptions * options);
 
+    virtual VarList * getSettings();
 
-bool CaptureInterface::resetBus() {
-  return true;
-}
+    virtual string getName();
+};
 
-void CaptureInterface::readAllParameterValues() {
-
-}
-
-bool CaptureInterface::copyAndConvertFrame(const RawImage & src, RawImage & target) {
-  target.ensure_allocation(target.getColorFormat(),src.getWidth(),src.getHeight());
-  target.setTime(src.getTime());
-  memcpy(target.getData(),src.getData(),src.getNumBytes());
-  return true;
-}
+#endif

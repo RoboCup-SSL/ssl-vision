@@ -1,4 +1,4 @@
- //========================================================================
+//========================================================================
 //  This software is free: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License Version 3,
 //  as published by the Free Software Foundation.
@@ -41,7 +41,8 @@ enum ColorFormat {
   COLOR_RGB8,
   COLOR_RGBA8,
   COLOR_YUV411,
-  COLOR_YUV422,
+  COLOR_YUV422_UYVY,
+  COLOR_YUV422_YUYV,
   COLOR_YUV444,
   COLOR_MONO16,
   COLOR_MONO8,
@@ -64,8 +65,10 @@ public:
       return COLOR_RGBA8;
     } else if (strcmp(s,"yuv411")==0) {
       return COLOR_YUV411;
-    } else if (strcmp(s,"yuv422")==0) {
-      return COLOR_YUV422;
+    } else if (strcmp(s,"yuv422_uyvy")==0) {
+      return COLOR_YUV422_UYVY;
+    } else if (strcmp(s,"yuv422_yuyv")==0) {
+      return COLOR_YUV422_YUYV;
     } else if (strcmp(s,"yuv444")==0) {
       return COLOR_YUV444;
     } else if (strcmp(s,"mono16")==0) {
@@ -93,8 +96,10 @@ public:
       return ("rgba");
     } else if (f==COLOR_YUV411) {
       return ("yuv411");
-    } else if (f==COLOR_YUV422) {
-      return ("yuv422");
+    } else if (f==COLOR_YUV422_UYVY) {
+      return ("yuv422_uyvy");
+    } else if (f==COLOR_YUV422_YUYV) {
+      return ("yuv422_yuyv");
     } else if (f==COLOR_YUV444) {
       return ("yuv444");
     } else if (f==COLOR_MONO16) {
@@ -337,6 +342,98 @@ public:
   };
 };
 
+
+template <class num, ColorFormat fmt>
+class ColorYUYV {
+public:
+//DATA:
+  num y1;
+  num u;
+  num y2;
+  num v;
+
+//METHODS:
+  ColorYUYV() {
+    y1=u=y2=v=0;
+  };
+  ColorYUYV(const ColorYUV<num, fmt> &c) {
+    y1=y2=c.y;
+    u=c.u;
+    v=c.v;
+  };
+  ColorYUYV(const ColorYUYV<num, fmt> &c) {
+    y1=c.y1;
+    y2=c.y2;
+    u=c.u;
+    v=c.v;
+  };
+  ColorYUYV(num _y1, num _u, num _y2, num _v) {
+    y1=_y1;
+    u=_u;
+    y2=_y2;
+    v=_v;
+  };
+  ~ColorYUYV() {
+  };
+  static const ColorFormat getColorFormat() {
+    return fmt;
+  }
+  bool operator ==(const ColorYUYV<num, fmt> &c) const {
+    return (y1==c.y1 && u==c.u && y2==c.y2 && v==c.v);
+  };
+  ColorYUYV<num, fmt> operator *(double f) const {
+    ColorYUYV<num, fmt> result(y1*f,u*f,y2*f,v*f);
+    return result;
+  };
+};
+
+
+
+template <class num, ColorFormat fmt>
+class ColorUYVY {
+public:
+//DATA:
+  num u;
+  num y1;
+  num v;
+  num y2;
+
+//METHODS:
+  ColorUYVY() {
+    u=y1=v=y2=0;
+  };
+  ColorUYVY(const ColorYUV<num, fmt> &c) {
+    y1=y2=c.y;
+    u=c.u;
+    v=c.v;
+  };
+  ColorUYVY(const ColorUYVY<num, fmt> &c) {
+    y1=c.y1;
+    y2=c.y2;
+    u=c.u;
+    v=c.v;
+  };
+  ColorUYVY(num _u, num _y1, num _v, num _y2) {
+    u=_u;
+    y1=_y1;
+    v=_v;
+    y2=_y2;
+  };
+  ~ColorUYVY() {
+  };
+  static const ColorFormat getColorFormat() {
+    return fmt;
+  }
+  bool operator ==(const ColorYUYV<num, fmt> &c) const {
+    return (u==c.u && y1==c.y1 && v==c.v && y2==c.y2);
+  };
+  ColorUYVY<num, fmt> operator *(double f) const {
+    ColorUYVY<num, fmt> result(u*f,y1*f,v*f,y2*f);
+    return result;
+  };
+};
+
+
 typedef ColorRGB<unsigned char,COLOR_RGB8> rgb;
 typedef ColorRGBA<unsigned char,COLOR_RGBA8> rgba;
 typedef ColorYUV<unsigned char,COLOR_YUV444> yuv;
@@ -345,6 +442,9 @@ typedef ColorGrey<uint16_t,COLOR_MONO16> grey16;
 typedef ColorGrey<uint8_t,COLOR_RAW8> raw8;
 typedef ColorGrey<uint16_t,COLOR_RAW16> raw16;
 typedef ColorGrey<uint32_t,COLOR_RAW32> raw32;
+typedef ColorYUYV<uint8_t,COLOR_YUV422_UYVY> yuyv;
+typedef ColorUYVY<uint8_t,COLOR_YUV422_UYVY> uyvy;
+ 
 
 namespace RGB {
   static const rgb Black = rgb(  0,  0,  0 );
