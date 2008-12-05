@@ -46,7 +46,7 @@ int RawImage::getHeight() const
   return height;
 }
 
-ColorFormat RawImage::getFormat() const
+ColorFormat RawImage::getColorFormat() const
 {
   return format;
 }
@@ -71,7 +71,19 @@ int RawImage::getNumBytes() const
   return computeImageSize(format,getNumPixels());
 }
 
-void RawImage::setFormat(ColorFormat f)
+int RawImage::getNumColorBlocks() const {
+  int pixelCount=width*height;
+  switch (getColorFormat()) {
+    case COLOR_YUV422_UYVY:
+    return pixelCount/2;
+    case COLOR_YUV411:
+    return pixelCount/4;
+    default:
+    return pixelCount;
+  }
+}
+
+void RawImage::setColorFormat(ColorFormat f)
 {
   format=f;
 }
@@ -123,7 +135,7 @@ void  RawImage::ensure_allocation (ColorFormat fmt, int w, int h)
 
 void RawImage::clear()
 {
-  allocate(getFormat(),0,0);
+  allocate(getColorFormat(),0,0);
 };
 
 int RawImage::computeImageSize(ColorFormat fmt, int pixelCount)
@@ -135,7 +147,7 @@ int RawImage::computeImageSize(ColorFormat fmt, int pixelCount)
     return pixelCount*4;
     case COLOR_YUV444:
     return pixelCount*3;
-    case COLOR_YUV422:
+    case COLOR_YUV422_UYVY:
     return pixelCount*2;
     case COLOR_YUV411:
     return pixelCount*3/2;

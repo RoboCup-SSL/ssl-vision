@@ -136,8 +136,11 @@ class GLLUTWidget : public QGLWidget, public RealTimeDisplayWidget
     void resize(int w, int h)
     {
       bg->surface.allocate(w,h);
+      bg->surface.fillBlack();
       selection->surface.allocate(w,h);
+      selection->surface.fillBlack();
       sampler->surface.allocate(w,h);
+      sampler->surface.fillBlack();
     }
   };
 
@@ -158,6 +161,7 @@ protected:
   void editClearAll(); //clears both the redo and undo buffer
 protected:
 
+  LUTChannelMode _mode;
   QMutex m;
   GLint viewport[4];
   GLdouble projMatrix[16];
@@ -208,9 +212,9 @@ public:
     QGLWidget::setObjectName(s);
   }
 
-  void sampleImage(const rgbImage & img);
+  void sampleImage(const RawImage & img);
 
-  GLLUTWidget(QWidget *parent = 0);
+  GLLUTWidget(LUTChannelMode mode, QWidget *parent = 0);
   virtual ~GLLUTWidget();
 
   virtual void focusInEvent ( QFocusEvent * event )
@@ -259,7 +263,7 @@ public slots:
   void clearSampler();
 signals:
   void updateVideoStats(VideoStats);
-
+  void signalKeyPressEvent ( QKeyEvent * event );
 };
 
 #endif /*GLWIDGET_H_*/

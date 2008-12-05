@@ -21,6 +21,7 @@
 
 #ifndef RAWIMAGE_H
 #define RAWIMAGE_H
+#include "image_interface.h"
 #include "colors.h"
 
 /*!
@@ -35,7 +36,7 @@
   For an image class providing higher level processing functions, look at
   Image and its template instantiations rgbImage, rgbaImage, greyImage etc.
 */
-class RawImage
+class RawImage : public ImageInterface
 {
   protected:
   /// pointer to capture buffer
@@ -61,14 +62,15 @@ class RawImage
   //accessors:
   int getWidth() const;
   int getHeight() const;
-  ColorFormat getFormat() const;
+  ColorFormat getColorFormat() const;
   double getTime() const;
   unsigned char * getData() const;
   int getNumBytes() const;
+  int getNumColorBlocks() const;
   int getNumPixels() const;
 
   //mutators:
-  void setFormat(ColorFormat f);
+  void setColorFormat(ColorFormat f);
   void setWidth(int w);
   void setHeight(int h);
   void setTime(double t);
@@ -79,6 +81,7 @@ class RawImage
 
   //helpers:
   static int computeImageSize(ColorFormat fmt, int pixelCount);
+
 };
 
 #endif

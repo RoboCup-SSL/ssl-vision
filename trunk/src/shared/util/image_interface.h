@@ -13,41 +13,25 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    captureinterface.h
-  \brief   C++ Implementation: CaptureInterface
-  \author  Stefan Zickler, (C) 2008
+  \file    image_interface.h
+  \brief   C++ Interface: image_interface
+  \author  Stefan Zickler, 2008
 */
 //========================================================================
+#ifndef __IMAGE_INTERFACE_H__
+#define __IMAGE_INTERFACE_H__
+#include "colors.h"
 
-#include "captureinterface.h"
-
-CaptureInterface::CaptureInterface(VarList * _settings)
+class ImageInterface
 {
-  if (_settings!=0) {
-    settings=_settings;
-  } else {
-    settings=new VarList("capture settings");
-  }
-}
+public:
+  virtual int getWidth() const = 0;
+  virtual int getHeight() const = 0;
+  virtual ColorFormat getColorFormat() const = 0;
+  virtual unsigned char * getData() const = 0;
+  virtual int getNumBytes() const = 0;
+  virtual int getNumPixels() const = 0;
+  virtual ~ImageInterface() {};
+};
 
-
-CaptureInterface::~CaptureInterface()
-{
-  delete settings;
-}
-
-
-bool CaptureInterface::resetBus() {
-  return true;
-}
-
-void CaptureInterface::readAllParameterValues() {
-
-}
-
-bool CaptureInterface::copyAndConvertFrame(const RawImage & src, RawImage & target) {
-  target.ensure_allocation(target.getColorFormat(),src.getWidth(),src.getHeight());
-  target.setTime(src.getTime());
-  memcpy(target.getData(),src.getData(),src.getNumBytes());
-  return true;
-}
+#endif

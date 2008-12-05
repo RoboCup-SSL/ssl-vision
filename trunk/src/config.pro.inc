@@ -1,5 +1,6 @@
 CONFIG -= warn_off
-CONFIG += debug
+CONFIG -= debug
+CONFIG += release
 CONFIG += qt
 CONFIG += console
 

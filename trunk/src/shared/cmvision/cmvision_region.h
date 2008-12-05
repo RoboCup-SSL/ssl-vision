@@ -13,41 +13,23 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    captureinterface.h
-  \brief   C++ Implementation: CaptureInterface
-  \author  Stefan Zickler, (C) 2008
+  \file    cmvision_region.h
+  \brief   C++ Interface: cmvision_region
+  \author  Author Name, 2008
 */
 //========================================================================
+#ifndef CMVISION_REGION_H
+#define CMVISION_REGION_H
 
-#include "captureinterface.h"
+/**
+	@author Author Name
+*/
+class CMVisionRegion{
+public:
+    CMVisionRegion();
 
-CaptureInterface::CaptureInterface(VarList * _settings)
-{
-  if (_settings!=0) {
-    settings=_settings;
-  } else {
-    settings=new VarList("capture settings");
-  }
-}
+    ~CMVisionRegion();
 
+};
 
-CaptureInterface::~CaptureInterface()
-{
-  delete settings;
-}
-
-
-bool CaptureInterface::resetBus() {
-  return true;
-}
-
-void CaptureInterface::readAllParameterValues() {
-
-}
-
-bool CaptureInterface::copyAndConvertFrame(const RawImage & src, RawImage & target) {
-  target.ensure_allocation(target.getColorFormat(),src.getWidth(),src.getHeight());
-  target.setTime(src.getTime());
-  memcpy(target.getData(),src.getData(),src.getNumBytes());
-  return true;
-}
+#endif

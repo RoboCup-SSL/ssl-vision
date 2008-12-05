@@ -22,30 +22,33 @@
 #include "glwidget.h"
 
 void GLWidget::mouseAction ( QMouseEvent * event, pixelloc loc ) {
+  (void)loc;
   if ( ( event->buttons() & Qt::RightButton ) !=0 ) {
     //Right mouse button...drag image
     QPoint offset=mouseStart-event->pos();
     zoom.setPan ( mouseStartPanX- ( ( double ) offset.x() / ( zoom.getZoom() * zoom.getFlipXval() * vpW ) ),
                   mouseStartPanY- ( ( double ) offset.y() / ( zoom.getZoom() * zoom.getFlipYval() * vpH ) ) );
-  } else if ( ( event->buttons() & Qt::LeftButton ) !=0 ) {
+  } /* else if ( ( event->buttons() & Qt::LeftButton ) !=0 ) {
     //Left mouse button...color-pick from image.
     if ( rb!=0 ) {
       rb->lockRead();
       int idx=rb->curRead();
       FrameData * frame = rb->getPointer ( idx );
-      rgbImage img ( frame->video );
-      //rgbImage & img=frame->fullvideo;
-      //img.fromRawImage(frame->fullvideo);
+      VisualizationFrame * vis_frame=(VisualizationFrame *)(frame->map.get("vis_frame"));
+      if (vis_frame!=0 && vis_frame->valid==true) {
 
-      if ( loc.x < img.getWidth() && loc.y < img.getHeight() && loc.x >=0 && loc.y >=0 ) {
-        if ( img.getWidth() > 1 && img.getHeight() > 1 ) {
-          colorPicker->setColor ( img.getPixel ( loc.x,loc.y ) );
-          //img.setPixel(loc.x,loc.y,rgb(255,0,0));
+        rgbImage & img = vis_frame->data;
+
+        if ( loc.x < img.getWidth() && loc.y < img.getHeight() && loc.x >=0 && loc.y >=0 ) {
+          if ( img.getWidth() > 1 && img.getHeight() > 1 ) {
+            colorPicker->setColor ( img.getPixel ( loc.x,loc.y ) );
+            //img.setPixel(loc.x,loc.y,rgb(255,0,0));
+          }
         }
       }
       rb->unlockRead();
     }
-  }
+  }*/
   redraw();
 }
 
@@ -85,13 +88,13 @@ GLWidget::GLWidget ( QWidget *parent ) : QGLWidget ( parent ) {
   //not needed because we are remote triggering this:
   //startTimer(1);
 
-  setMinimumSize ( 60,40 );
+  /*setMinimumSize ( 60,40 );
   colorPicker=new ColorPicker();
   actionColorPicker=new QWidgetAction ( this );
   actionColorPicker->setDefaultWidget ( ( QWidget * ) colorPicker );
   actionColorPicker->setVisible ( true );
   actionColorPicker->setToolTip ( "RGB Color Picker\n(Left click in image to use)" );
-  addAction ( actionColorPicker );
+  addAction ( actionColorPicker );*/
 
   QAction * actionSave = new QAction ( this );
   actionSave->setObjectName ( "actionSave" );
@@ -162,7 +165,7 @@ GLWidget::GLWidget ( QWidget *parent ) : QGLWidget ( parent ) {
 }
 
 GLWidget::~GLWidget() {
-  delete colorPicker;
+  //delete colorPicker;
 }
 
 
@@ -217,11 +220,10 @@ void GLWidget::paintGL() {
     rb->lockRead();
     int idx=rb->curRead();
     FrameData * frame = rb->getPointer ( idx );
-    //if (frame->fullvideo.getData() != 0 && frame->fullvideo.getWidth() >= 1 && frame->fullvideo.getHeight() >=1) {
-    if ( frame->video.getData() != 0 && frame->video.getWidth() >= 1 && frame->video.getHeight() >=1 ) {
-      rgbImage img ( frame->video );
+    VisualizationFrame * vis_frame=(VisualizationFrame *)(frame->map.get("vis_frame"));
+    if (vis_frame!=0 && vis_frame->valid==true && vis_frame->data.getData() != 0 && vis_frame->data.getWidth() >= 1 && vis_frame->data.getHeight() >=1 ) {
+      rgbImage & img = vis_frame->data;
       if ( img.getWidth() > 1 && img.getHeight() > 1 ) {
-
         glPushMatrix();
         zoom.setup ( img.getWidth(), img.getHeight(), vpW,vpH,true );
         pixelloc orig=zoom.zoom ( 0, 0 );
@@ -347,8 +349,15 @@ void GLWidget::saveImage() {
     rb->lockRead();
     int idx=rb->curRead();
     FrameData * frame = rb->getPointer ( idx );
-    temp.copy ( rgbImage ( frame->video ) );
-    rb->unlockRead();
+
+    VisualizationFrame * vis_frame=(VisualizationFrame *)(frame->map.get("vis_frame"));
+    if (vis_frame !=0 && vis_frame->valid) {
+      temp.copy ( vis_frame->data );
+      rb->unlockRead();
+    } else {
+      rb->unlockRead();
+      return;
+    }
   }
   if ( temp.getWidth() > 1 && temp.getHeight() > 1 ) {
     QFileDialog dialog ( this,

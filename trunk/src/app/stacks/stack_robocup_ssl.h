@@ -13,41 +13,37 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    captureinterface.h
-  \brief   C++ Implementation: CaptureInterface
-  \author  Stefan Zickler, (C) 2008
+  \file    stack_robocup_ssl.h
+  \brief   C++ Interface: stack_robocup_ssl
+  \author  Author Name, 2008
 */
 //========================================================================
+#ifndef STACK_ROBOCUP_SSL_H
+#define STACK_ROBOCUP_SSL_H
 
-#include "captureinterface.h"
+#include "visionstack.h"
+#include "lut3d.h"
+#include "plugin_colorcalib.h"
+#include "plugin_visualize.h"
+#include "plugin_colorthreshold.h"
 
-CaptureInterface::CaptureInterface(VarList * _settings)
-{
-  if (_settings!=0) {
-    settings=_settings;
-  } else {
-    settings=new VarList("capture settings");
-  }
-}
+using namespace std;
+
+/*!
+  \class   StackRoboCupSSL
+  \brief   The single camera vision stack implementation used for the RoboCup SSL
+  \author  Stefan Zickler, (C) 2008
+           multiple of these stacks are run in parallel using the MultiStackRoboCupSSL
+*/
+class StackRoboCupSSL : public VisionStack {
+  protected:
+  YUVLUT * lut_yuv;
+  string _cam_settings_filename;
+  public:
+  StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, string cam_settings_filename);
+  virtual string getSettingsFileName();
+  virtual ~StackRoboCupSSL();
+};
 
 
-CaptureInterface::~CaptureInterface()
-{
-  delete settings;
-}
-
-
-bool CaptureInterface::resetBus() {
-  return true;
-}
-
-void CaptureInterface::readAllParameterValues() {
-
-}
-
-bool CaptureInterface::copyAndConvertFrame(const RawImage & src, RawImage & target) {
-  target.ensure_allocation(target.getColorFormat(),src.getWidth(),src.getHeight());
-  target.setTime(src.getTime());
-  memcpy(target.getData(),src.getData(),src.getNumBytes());
-  return true;
-}
+#endif

@@ -54,7 +54,7 @@ MainWindow::MainWindow()
 
     GLWidget * gl=new GLWidget();
     gl->setRingBuffer(multi_stack->threads[i]->getFrameBuffer());
-
+    gl->setVisionStack(s);
     QString label = "Camera " + QString::number(i);
 
     VarList * threadvar = new VarList(label.toStdString());
@@ -62,9 +62,19 @@ MainWindow::MainWindow()
     threadvar->addChild(s->getSettings());
     //iterate through plugin variables
 
+    QSplitter * stack_widget = new QSplitter(Qt::Horizontal);
+    stack_widgets.push_back(stack_widget);
+    QSplitter * stack_vis_splitter = new QSplitter(Qt::Vertical);
+    stack_widget->addWidget(stack_vis_splitter);
+    QTabWidget * stack_control_tab = new QTabWidget();
+    stack_control_tab->setTabPosition(QTabWidget::East);
+    stack_widget->addWidget(stack_control_tab);
+
     VideoWidget * w=new VideoWidget(label,gl);
     display_widgets.push_back(gl);
     threadvar->addChild(multi_stack->threads[i]->getSettings());
+
+    stack_vis_splitter->addWidget(w);
     //iterate through all plugins
     unsigned int n=s->stack.size();
     for (unsigned int j=0;j<n;j++) {
@@ -72,17 +82,28 @@ MainWindow::MainWindow()
       if (p->isSharedAmongStacks() && i==0) {
         //this is a shared global plugin...
         //add it to global pane
-        stackvar->addChild(p->getSettings());
+        if (p->getSettings()!=0) stackvar->addChild(p->getSettings());
+
+        QWidget * tmp_control = p->getControlWidget();
+        if (tmp_control!=0) right_tab->addTab(tmp_control,QString::fromStdString(p->getName()));
+      
+        QWidget * tmp_vis = p->getVisualizationWidget();
+        if (tmp_vis!=0) splitter2->addWidget(tmp_vis);
+      
       } else {
-        threadvar->addChild(p->getSettings());
+        if (p->getSettings()!=0) threadvar->addChild(p->getSettings());
         //this is a local plugin relating only to a single thread
         //add it to the context.
+        QWidget * tmp_control = p->getControlWidget();
+        if (tmp_control!=0) stack_control_tab->addTab(tmp_control,QString::fromStdString(p->getName()));
+      
+        QWidget * tmp_vis = p->getVisualizationWidget();
+        if (tmp_vis!=0) stack_vis_splitter->addWidget(tmp_vis);
       }
     }
-
     stackvar->addChild(threadvar);
 
-    splitter2->addWidget(w);
+    splitter2->addWidget(stack_widget);
   }
 
   //FINISHED STRUCTURAL TREE

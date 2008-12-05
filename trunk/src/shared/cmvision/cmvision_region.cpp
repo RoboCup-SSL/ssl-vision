@@ -13,11 +13,20 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    stacks.cpp
-  \brief   A collection of single-camera vision stacks
-  \author  Stefan Zickler, (C) 2008
+  \file    cmvision_region.cpp
+  \brief   C++ Implementation: cmvision_region
+  \author  Author Name, 2008
 */
 //========================================================================
+#include "cmvision_region.h"
 
-#include "stacks.h"
+CMVisionRegion::CMVisionRegion()
+{
+}
+
+
+CMVisionRegion::~CMVisionRegion()
+{
+}
+
 

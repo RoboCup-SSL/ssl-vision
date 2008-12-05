@@ -60,10 +60,9 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   settings->addChild(dcam_parameters  = new VarList("Camera Parameters"));
   
   //=======================CONVERSION SETTINGS=======================
-  conversion_settings->addChild(v_colorout=new VarStringEnum("convert to mode",Colors::colorFormatToString(COLOR_RGB8)));
+  conversion_settings->addChild(v_colorout=new VarStringEnum("convert to mode",Colors::colorFormatToString(COLOR_YUV422_UYVY)));
   v_colorout->addItem(Colors::colorFormatToString(COLOR_RGB8));
-  v_colorout->addItem(Colors::colorFormatToString(COLOR_RGB16));
-  v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV411));
+  v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV422_UYVY));
   
   conversion_settings->addChild(v_debayer=new VarBool("de-bayer",false));
   conversion_settings->addChild(v_debayer_pattern=new VarStringEnum("de-bayer pattern",colorFilterToString(DC1394_COLOR_FILTER_MIN)));
@@ -82,7 +81,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   capture_settings->addChild(v_fps              = new VarInt("framerate",60));
   capture_settings->addChild(v_width            = new VarInt("width",640));
   capture_settings->addChild(v_height           = new VarInt("height",480));
-  capture_settings->addChild(v_colormode        = new VarStringEnum("capture mode",Colors::colorFormatToString(COLOR_YUV411)));
+  capture_settings->addChild(v_colormode        = new VarStringEnum("capture mode",Colors::colorFormatToString(COLOR_YUV422_UYVY)));
   v_colormode->addItem(Colors::colorFormatToString(COLOR_RGB8));
   v_colormode->addItem(Colors::colorFormatToString(COLOR_RGB16));
   v_colormode->addItem(Colors::colorFormatToString(COLOR_RAW8));
@@ -90,7 +89,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   v_colormode->addItem(Colors::colorFormatToString(COLOR_MONO8));
   v_colormode->addItem(Colors::colorFormatToString(COLOR_MONO16));
   v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV411));
-  v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV422));
+  v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV422_UYVY));
   v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV444));
   capture_settings->addChild(v_format           = new VarStringEnum("capture format",captureModeToString(CAPTURE_MODE_MIN)));
   for (int i = CAPTURE_MODE_MIN; i <= CAPTURE_MODE_MAX; i++) {
@@ -978,7 +977,7 @@ bool CaptureDC1394v2::startCapture()
         native_unavailable = true;
       }
     } else if (width==320 && height==240) {
-      if (capture_format==COLOR_YUV422) {
+      if (capture_format==COLOR_YUV422_UYVY) {
         dcformat=DC1394_VIDEO_MODE_320x240_YUV422;
       } else {
         native_unavailable = true;
@@ -986,7 +985,7 @@ bool CaptureDC1394v2::startCapture()
     } else if (width==640 && height==480) {
       if (capture_format==COLOR_YUV411) {
         dcformat=DC1394_VIDEO_MODE_640x480_YUV411;
-      } else if (capture_format==COLOR_YUV422) {
+      } else if (capture_format==COLOR_YUV422_UYVY) {
         dcformat=DC1394_VIDEO_MODE_640x480_YUV422;
       } else if (capture_format==COLOR_RGB8) {
         dcformat=DC1394_VIDEO_MODE_640x480_RGB8;
@@ -998,7 +997,7 @@ bool CaptureDC1394v2::startCapture()
         native_unavailable = true;
       }
     } else if (width==800 && height==600) {
-      if (capture_format==COLOR_YUV422) {
+      if (capture_format==COLOR_YUV422_UYVY) {
         dcformat=DC1394_VIDEO_MODE_800x600_YUV422;
       } else if (capture_format==COLOR_RGB8) {
         dcformat=DC1394_VIDEO_MODE_800x600_RGB8;
@@ -1010,7 +1009,7 @@ bool CaptureDC1394v2::startCapture()
         native_unavailable = true;
       }
     } else if (width==1024 && height==768) {
-      if (capture_format==COLOR_YUV422) {
+      if (capture_format==COLOR_YUV422_UYVY) {
         dcformat=DC1394_VIDEO_MODE_1024x768_YUV422;
       } else if (capture_format==COLOR_RGB8) {
         dcformat=DC1394_VIDEO_MODE_1024x768_RGB8;
@@ -1022,7 +1021,7 @@ bool CaptureDC1394v2::startCapture()
         native_unavailable = true;
       }
     } else if (width==1280 && height==960) {
-      if (capture_format==COLOR_YUV422) {
+      if (capture_format==COLOR_YUV422_UYVY) {
         dcformat=DC1394_VIDEO_MODE_1280x960_YUV422;
       } else if (capture_format==COLOR_RGB8) {
         dcformat=DC1394_VIDEO_MODE_1280x960_RGB8;
@@ -1034,7 +1033,7 @@ bool CaptureDC1394v2::startCapture()
         native_unavailable = true;
       }
     } else if (width==1600 && height==1200) {
-      if (capture_format==COLOR_YUV422) {
+      if (capture_format==COLOR_YUV422_UYVY) {
         dcformat=DC1394_VIDEO_MODE_1600x1200_YUV422;
       } else if (capture_format==COLOR_RGB8) {
         dcformat=DC1394_VIDEO_MODE_1600x1200_RGB8;
@@ -1187,7 +1186,7 @@ bool CaptureDC1394v2::startCapture()
     dc1394color_coding_t color_coding=DC1394_COLOR_CODING_MONO8;
     if (capture_format==COLOR_YUV411) {
         color_coding=DC1394_COLOR_CODING_YUV411;
-    } else if (capture_format==COLOR_YUV422) {
+    } else if (capture_format==COLOR_YUV422_UYVY) {
         color_coding=DC1394_COLOR_CODING_YUV422;
     } else if (capture_format==COLOR_YUV444) {
         color_coding=DC1394_COLOR_CODING_YUV444;
@@ -1341,7 +1340,7 @@ dc1394error_t dc1394_format7_get_packets_per_frame(dc1394camera_t *camera, dc139
 
 bool CaptureDC1394v2::copyFrame(const RawImage & src, RawImage & target)
 {
-  return convertFrame(src,target,src.getFormat());
+  return convertFrame(src,target,src.getColorFormat());
 }
 
 bool CaptureDC1394v2::copyAndConvertFrame(const RawImage & src, RawImage & target)
@@ -1361,7 +1360,7 @@ bool CaptureDC1394v2::convertFrame(const RawImage & src, RawImage & target, Colo
   #ifndef VDATA_NO_QT
     mutex.lock();
   #endif
-  ColorFormat src_fmt=src.getFormat();
+  ColorFormat src_fmt=src.getColorFormat();
   if (target.getData()==0) {
     //allocate target, if it does not exist yet
     target.allocate(output_fmt,src.getWidth(),src.getHeight());
@@ -1420,14 +1419,16 @@ bool CaptureDC1394v2::convertFrame(const RawImage & src, RawImage & target, Colo
       dc1394_convert_to_RGB8(src.getData(),target.getData(), width, height, 0,
                        DC1394_COLOR_CODING_YUV411, 8);
       //Conversions::uyyvyy2rgb (src.getData(), target.getData(), src.getNumPixels());
-    } else if (src_fmt==COLOR_YUV422 && output_fmt==COLOR_RGB8) {
+    } else if (src_fmt==COLOR_YUV422_UYVY && output_fmt==COLOR_RGB8) {
         dc1394_convert_to_RGB8(src.getData(),target.getData(), width, height, DC1394_BYTE_ORDER_UYVY,
                        DC1394_COLOR_CODING_YUV422, 8);
+    } else if (src_fmt==COLOR_YUV422_YUYV && output_fmt==COLOR_RGB8) {
+        dc1394_convert_to_RGB8(src.getData(),target.getData(), width, height, DC1394_BYTE_ORDER_YUYV,
+                       DC1394_COLOR_CODING_YUV422, 8);                       
       //Conversions::uyvy2rgb (src.getData(), target.getData(), src.getNumPixels());
     } else if (src_fmt==COLOR_YUV444 && output_fmt==COLOR_RGB8) {
       dc1394_convert_to_RGB8(src.getData(),target.getData(), width, height, 0,
                        DC1394_COLOR_CODING_YUV444, 8);
-                       printf("hmm\n");
       //Conversions::uyv2rgb (src.getData(), target.getData(), src.getNumPixels());
     } else {
       fprintf(stderr,"Cannot copy and convert frame...unknown conversion selected from: %s to %s\n",Colors::colorFormatToString(src_fmt).c_str(),Colors::colorFormatToString(output_fmt).c_str());
@@ -1449,7 +1450,7 @@ RawImage CaptureDC1394v2::getFrame()
     mutex.lock();
   #endif
   RawImage result;
-  result.setFormat(capture_format);
+  result.setColorFormat(capture_format);
   result.setWidth(width);
   result.setHeight(height);
   //result.size= RawImage::computeImageSize(format, width*height);

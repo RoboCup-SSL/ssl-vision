@@ -22,14 +22,15 @@
 
 #include "lutwidget.h"
 
-LUTWidget::LUTWidget(LUT3D * lut)
+LUTWidget::LUTWidget(LUT3D * lut, LUTChannelMode mode)
 {
+  _mode=mode;
   toolbar=new QToolBar();
   vbox=new QBoxLayout(QBoxLayout::TopToBottom);
   hbox=new QBoxLayout(QBoxLayout::LeftToRight);
   list=new QListWidget();
   label=new QLabel();
-  gllut=new GLLUTWidget(this);
+  gllut=new GLLUTWidget(mode,this);
   gllut->setLUT(lut);
   updateList(lut);
   connect(list,SIGNAL(currentRowChanged(int)),this, SLOT(selectChannel(int)));
@@ -93,7 +94,7 @@ void LUTWidget::samplePixel(const yuv & color) {
   gllut->samplePixel( color );
 }
 
-void LUTWidget::sampleImage(const rgbImage & img) {
+void LUTWidget::sampleImage(const RawImage & img) {
   gllut->sampleImage( img );
 }
 
@@ -111,6 +112,10 @@ void LUTWidget::focusInEvent ( QFocusEvent * event ) {
   (void)event;
   //forward the focus to the actual widget that we contain
   gllut->setFocus(Qt::OtherFocusReason);
+}
+
+GLLUTWidget * LUTWidget::getGLLUTWidget() {
+  return gllut;
 }
 
 /*void LUTWidget::setLUT(LUT3D * lut) {

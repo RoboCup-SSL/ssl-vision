@@ -1,4 +1,4 @@
-#all files below belong to the vartype system:
+#all classes for capturing video:
 
 PREFIX = $${SHARED_DIR}/capture
 

@@ -13,10 +13,29 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    multistacks.cpp
-  \brief   A collection of useful MultiVisionStacks
-  \author  Stefan Zickler, (C) 2008
+  \file    multistack_robocup_ssl.cpp
+  \brief   C++ Implementation: multistack_robocup_ssl
+  \author  Author Name, 2008
 */
 //========================================================================
-#include "multistacks.h"
+#include "multistack_robocup_ssl.h"
+
+MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) : MultiVisionStack("RoboCup SSL Multi-Cam",_opts) {
+  //add parameter for number of cameras
+  createThreads(cameras);
+  unsigned int n = threads.size();
+  for (unsigned int i = 0; i < n;i++) {
+    threads[i]->setFrameBuffer(new FrameBuffer(5));
+    threads[i]->setStack(new StackRoboCupSSL(_opts,threads[i]->getFrameBuffer(),"robocup-ssl-cam-" + QString::number(i).toStdString()));
+    }
+    //TODO: make LUT widgets aware of each other for easy data-sharing
+}
+
+string MultiStackRoboCupSSL::getSettingsFileName() {
+  return "robocup-ssl";
+}
+
+MultiStackRoboCupSSL::~MultiStackRoboCupSSL() {
+  stop();
+}
 

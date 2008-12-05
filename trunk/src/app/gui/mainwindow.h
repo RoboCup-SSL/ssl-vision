@@ -61,6 +61,7 @@ public:
   vector<VarData * > world;
   VarTreeModel * tmodel;
   vector<RealTimeDisplayWidget *> display_widgets;
+  vector<QSplitter *> stack_widgets;
   RenderOptions * opts;
 
   MultiVisionStack * multi_stack;

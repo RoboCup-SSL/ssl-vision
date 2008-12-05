@@ -38,6 +38,7 @@
 #include "colorpicker.h"
 #include "visionstack.h"
 #include <QWidgetAction>
+#include "plugin_visualize.h"
 
 /*!
   \class   GLWidget
@@ -61,7 +62,7 @@ protected:
   QAction * actionBB;
   QAction * actionOn;
   QWidgetAction * actionColorPicker;
-  ColorPicker * colorPicker;
+  //ColorPicker * colorPicker;
   virtual void initializeGL();
   virtual void paintGL();
   virtual void resizeGL(int width, int height);
@@ -162,6 +163,10 @@ public slots:
 
 signals:
   void updateVideoStats(VideoStats);
+  void signalMouseAction ( QMouseEvent * event, pixelloc loc );
+  void signalKeyPressEvent ( QKeyEvent * event );
+
+
 
 };
 

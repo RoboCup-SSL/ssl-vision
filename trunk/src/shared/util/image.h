@@ -29,6 +29,7 @@
 #include <string>
 #include "colors.h"
 #include "util.h"
+#include "image_interface.h"
 #include "rawimage.h"
 #include "image_io.h"
 
@@ -37,7 +38,7 @@
   \brief A template-based 2D raster-image class
 */
 template <class PIXEL>
-class Image
+class Image : public ImageInterface
 {
 public:
   //Variables:
@@ -49,7 +50,7 @@ public:
   //this does a shallow copy (it needs the raw image's data to keep existing
   void fromRawImage(const RawImage & img)
   {
-    if (PIXEL::getColorFormat() == img.getFormat()) {
+    if (PIXEL::getColorFormat() == img.getColorFormat()) {
       clear();
       _external=true;
       data=(PIXEL *)img.getData();
@@ -61,7 +62,7 @@ public:
   }
 
   void copyToRawImage(RawImage & img) {
-    if (PIXEL::getColorFormat() == img.getFormat() && img.getNumBytes() == getNumBytes()) {
+    if (PIXEL::getColorFormat() == img.getColorFormat() && img.getNumBytes() == getNumBytes()) {
       memcpy(img.getData(),getData(),getNumBytes());
       img.setWidth( getWidth());
       img.setHeight( getHeight());
@@ -162,17 +163,22 @@ public:
 
   void fillColor(const PIXEL & color) {
     int count=getNumPixels();
-    PIXEL * p=getData();
+    PIXEL * p=getPixelData();
     for (int i=0;i<count;i++) {
       (*p)=color;
       p++;
     }
   }
 
-  PIXEL * getData  () const
+  PIXEL * getPixelData  () const
   {
     return data;
   };
+
+  unsigned char * getData() const
+  {
+    return (unsigned char *) data;
+  }
 
   PIXEL getPixel (int number) const
   {
@@ -227,7 +233,7 @@ public:
   
   bool save(string filename) {
    if (PIXEL::getColorFormat()==COLOR_RGB8) {
-   	 return ImageIO::writeRGB(getData(), getWidth() , getHeight() ,filename.c_str());
+   	 return ImageIO::writeRGB(getPixelData(), getWidth() , getHeight() ,filename.c_str());
    } else {
    	//TODO: saving of formats other than pure RGB
    	//      is not yet supported
@@ -244,7 +250,7 @@ public:
 
   void subtract(const Image &source) {
     if (source.getNumPixels()==getNumPixels()) {
-      register PIXEL * a=getData();
+      register PIXEL * a=getPixelData();
       register PIXEL * b=source.getData();
       register unsigned int i;
       register unsigned int pixelCount=getNumPixels();
@@ -257,7 +263,7 @@ public:
   }
   
   void convertToIntensity() {
-      register PIXEL * a=getData();
+      register PIXEL * a=getPixelData();
       register unsigned int i;
       register unsigned int pixelCount=getNumPixels();
       for (i=0;i<pixelCount;i++) {
@@ -267,7 +273,7 @@ public:
   }
   
   void binarizeGreyImage(unsigned int threshold) {
-      register PIXEL * a=getData();
+      register PIXEL * a=getPixelData();
       register unsigned int i;
       register unsigned int pixelCount=getNumPixels();
       for (i=0;i<pixelCount;i++) {
@@ -279,7 +285,7 @@ public:
 
 
   void binarizeChanneledImage(unsigned int threshold_r,unsigned int threshold_g,unsigned int threshold_b) {
-      register PIXEL * a=getData();
+      register PIXEL * a=getPixelData();
       register unsigned int i;
       register unsigned int pixelCount=getNumPixels();
       for (i=0;i<pixelCount;i++) {
@@ -310,6 +316,13 @@ typedef Image<rgba> rgbaImage;
 */
 typedef Image<yuv>  yuvImage;
 
+//*!
+//  \class uyvyImage
+//  \brief a YUV422 image as it is typically transmitted by IEEE1394
+//*/
+//typedef Image<uyvy> uyvyImage;
+
+
 /*!
   \class greyImage
   \brief an 8-bit greyscale image class, based on the Image template class
@@ -329,8 +342,8 @@ class Images
 public:
   static void convert(const rgbImage & a, greyImage & b) {
     if (a.getNumPixels()==b.getNumPixels()) {
-      rgb * p1=a.getData();
-      grey * p2=b.getData();
+      rgb * p1=a.getPixelData();
+      grey * p2=b.getPixelData();
       int n=a.getNumPixels();
       for (int i=0;i<n;i++) {
         p2->v=(p1->getIntensity());
@@ -343,8 +356,8 @@ public:
   }
   static void convert(const rgbImage & a, rgbaImage & b) {
     if (a.getNumPixels()==b.getNumPixels()) {
-      rgb * p1=a.getData();
-      rgba * p2=b.getData();
+      rgb * p1=a.getPixelData();
+      rgba * p2=b.getPixelData();
       int n=a.getNumPixels();
       for (int i=0;i<n;i++) {
         p2->set(p1->r,p1->g,p1->b);
@@ -358,8 +371,8 @@ public:
 
   static void RGBAsetAlpha(const greyImage & a, rgbaImage & b) {
     if (a.getNumPixels()==b.getNumPixels()) {
-      grey * p1=a.getData();
-      rgba * p2=b.getData();
+      grey * p1=a.getPixelData();
+      rgba * p2=b.getPixelData();
       int n=a.getNumPixels();
       for (int i=0;i<n;i++) {
         p2->a = p1->v;
@@ -373,8 +386,8 @@ public:
 
   static void RGBAsetRGB(const rgbImage & a, rgbaImage & b) {
     if (a.getNumPixels()==b.getNumPixels()) {
-      rgb * p1=a.getData();
-      rgba * p2=b.getData();
+      rgb * p1=a.getPixelData();
+      rgba * p2=b.getPixelData();
       int n=a.getNumPixels();
       for (int i=0;i<n;i++) {
         p2->r = p1->r;
