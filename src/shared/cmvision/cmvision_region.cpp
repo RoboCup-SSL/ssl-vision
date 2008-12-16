@@ -53,7 +53,7 @@ void CMVisionRegion::encodeRuns(Image<raw8> * tmap, CMVision::Runlist * runlist)
 
   // initialize terminator restore
   save = map[0];
-
+  int height_minus_one=height-1;
   j = 0;
   for(y=0; y<height; y++){
     row = &map[y * width];
@@ -61,8 +61,12 @@ void CMVisionRegion::encodeRuns(Image<raw8> * tmap, CMVision::Runlist * runlist)
     // restore previous terminator and store next
     // one in the first pixel on the next row
     row[0] = save;
-    save = row[width];
-    row[width] = 255;
+    // following if-block added by Stefan
+    // make sure we don't exceed original image:
+    if (y!=height_minus_one) {
+      save = row[width];
+      row[width] = 255;
+    }
     r.y = y;
 
     x = 0;
@@ -74,15 +78,17 @@ void CMVisionRegion::encodeRuns(Image<raw8> * tmap, CMVision::Runlist * runlist)
       while(row[x] == m) x++;
 
       if(m != clear || x>=width){
-	r.color = m; 
-	r.width = x - l;
-	r.parent = j;
-	runs[j++] = r;
+        r.color = m; 
+        r.width = x - l;
+        r.parent = j;
+        runs[j++] = r;
 
         // printf("run (%d,%d):%d %d\n",r.x,r.y,r.width,r.color);
 
-	if(j >= max_runs){
-          row[width] = save;
+        if(j >= max_runs){
+          if (y!=height_minus_one) {
+            row[width] = save;
+          }
           runlist->setUsedRuns(j);
           return;
         }
