@@ -223,6 +223,9 @@ public:
   bool operator ==(const ColorGrey<num, fmt> &c) const {
     return (v==c.v);
   };
+  bool operator !=(const ColorGrey<num, fmt> &c) const {
+    return (v!=c.v);
+  };
 
   num inline getIntensity() {
     return v;

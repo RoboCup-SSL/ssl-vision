@@ -31,6 +31,15 @@ StackRoboCupSSL::StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, strin
 
     stack.push_back(new PluginColorThreshold(_fb,lut_yuv));
 
+    //initialize the runlength encoder...
+    //we don't expect more than 100k runs per image
+    stack.push_back(new PluginRunlengthEncode(_fb,50000));
+
+    //initialize the blob finder
+    //we don't expect more than 10k blobs per image
+    stack.push_back(new PluginFindBlobs(_fb,lut_yuv, 10000));
+
+
     PluginVisualize * vis=new PluginVisualize(_fb);
     vis->setThresholdingLUT(lut_yuv);
     stack.push_back(vis);
