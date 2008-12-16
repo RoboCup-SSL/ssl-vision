@@ -13,39 +13,35 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    stack_robocup_ssl.h
-  \brief   C++ Interface: stack_robocup_ssl
+  \file    plugin_find_blobs.h
+  \brief   C++ Interface: plugin_find_blobs
   \author  Author Name, 2008
 */
 //========================================================================
-#ifndef STACK_ROBOCUP_SSL_H
-#define STACK_ROBOCUP_SSL_H
+#ifndef PLUGIN_FIND_BLOBS_H
+#define PLUGIN_FIND_BLOBS_H
 
-#include "visionstack.h"
+#include <visionplugin.h>
 #include "lut3d.h"
-#include "plugin_colorcalib.h"
-#include "plugin_visualize.h"
-#include "plugin_colorthreshold.h"
-#include "plugin_runlength_encode.h"
-#include "plugin_find_blobs.h"
-
-using namespace std;
-
-/*!
-  \class   StackRoboCupSSL
-  \brief   The single camera vision stack implementation used for the RoboCup SSL
-  \author  Stefan Zickler, (C) 2008
-           multiple of these stacks are run in parallel using the MultiStackRoboCupSSL
+#include "cmvision_region.h"
+/**
+	@author Stefan Zickler
 */
-class StackRoboCupSSL : public VisionStack {
-  protected:
-  YUVLUT * lut_yuv;
-  string _cam_settings_filename;
-  public:
-  StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, string cam_settings_filename);
-  virtual string getSettingsFileName();
-  virtual ~StackRoboCupSSL();
-};
+class PluginFindBlobs : public VisionPlugin
+{
+protected:
+  YUVLUT * lut;
+  int max_regions;
+public:
+    PluginFindBlobs(FrameBuffer * _buffer, YUVLUT * _lut, int _max_regions);
 
+    ~PluginFindBlobs();
+
+    virtual ProcessResult process(FrameData * data, RenderOptions * options);
+
+    virtual VarList * getSettings();
+
+    virtual string getName();
+};
 
 #endif

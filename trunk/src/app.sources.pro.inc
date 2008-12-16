@@ -67,6 +67,12 @@ HEADERS += $${PREFIX}/plugins/plugin_colorcalib.h
 SOURCES += $${PREFIX}/plugins/plugin_colorthreshold.cpp
 HEADERS += $${PREFIX}/plugins/plugin_colorthreshold.h
 
+SOURCES += $${PREFIX}/plugins/plugin_runlength_encode.cpp
+HEADERS += $${PREFIX}/plugins/plugin_runlength_encode.h
+
+SOURCES += $${PREFIX}/plugins/plugin_find_blobs.cpp
+HEADERS += $${PREFIX}/plugins/plugin_find_blobs.h
+
 SOURCES += $${PREFIX}/plugins/plugin_visualize.cpp
 HEADERS += $${PREFIX}/plugins/plugin_visualize.h
 

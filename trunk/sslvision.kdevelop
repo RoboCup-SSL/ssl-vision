@@ -17,7 +17,7 @@
   <kdevcustomproject>
     <run>
       <directoryradio>executable</directoryradio>
-      <mainprogram>./bin/vision</mainprogram>
+      <mainprogram>/home/szickler/devel/ssl-vision/./bin/vision</mainprogram>
       <programargs/>
       <globaldebugarguments/>
       <globalcwd>.</globalcwd>
@@ -139,6 +139,9 @@
         <default/>
       </environments>
     </make>
+    <general>
+      <activedir>src/shared/util</activedir>
+    </general>
   </kdevcustomproject>
   <kdevdebugger>
     <general>
