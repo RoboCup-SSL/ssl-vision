@@ -194,11 +194,11 @@ static dc1394color_filter_t stringToColorFilter(const char * s) {
 static string colorFilterToString(dc1394color_filter_t f) {
   if (f==DC1394_COLOR_FILTER_RGGB) {
     return "rggb";
-  } else if (f==DC1394_COLOR_FILTER_RGGB) {
-    return "gbrg";
   } else if (f==DC1394_COLOR_FILTER_GBRG) {
-    return "grbg";
+    return "gbrg";
   } else if (f==DC1394_COLOR_FILTER_GRBG) {
+    return "grbg";
+  } else if (f==DC1394_COLOR_FILTER_BGGR) {
     return "bggr";
   } else {
     return "rggb";
@@ -260,8 +260,6 @@ enum CaptureMode {
   CAPTURE_MODE_FORMAT_7_MODE_5,
   CAPTURE_MODE_FORMAT_7_MODE_6,
   CAPTURE_MODE_FORMAT_7_MODE_7,
-  //780 x 580
-  //*/
 };
 #define CAPTURE_MODE_MIN CAPTURE_MODE_AUTO
 #define CAPTURE_MODE_MAX CAPTURE_MODE_FORMAT_7_MODE_7

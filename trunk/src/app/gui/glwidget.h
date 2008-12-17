@@ -64,7 +64,7 @@ protected:
   QWidgetAction * actionColorPicker;
   //ColorPicker * colorPicker;
   virtual void initializeGL();
-  virtual void paintGL();
+  //virtual void paintGL();
   virtual void resizeGL(int width, int height);
   void wheelEvent ( QWheelEvent * event );
   void keyPressEvent ( QKeyEvent * event );
@@ -118,7 +118,7 @@ public:
     }
   }
 
-
+  void setupViewPort ( int width, int height );
 
   virtual void displayLoopEvent(bool frame_changed, RenderOptions * opts)
   {
@@ -151,7 +151,8 @@ public:
 
   virtual void redraw()
   {
-    updateGL();
+    repaint();
+    //updateGL();
   }
 
 public slots:

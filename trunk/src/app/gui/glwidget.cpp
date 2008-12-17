@@ -80,11 +80,11 @@ void GLWidget::mouseMoveEvent ( QMouseEvent * event ) {
 }
 
 
-GLWidget::GLWidget ( QWidget *parent ) : QGLWidget ( parent ) {
+GLWidget::GLWidget ( QWidget *parent ) : QGLWidget ( QGLFormat(QGL::SampleBuffers), parent ) {
   rb_bb=0;
   rb=0;
   stack=0;
-
+ setAutoFillBackground(false);
   //not needed because we are remote triggering this:
   //startTimer(1);
 
@@ -170,7 +170,7 @@ GLWidget::~GLWidget() {
 
 
 void GLWidget::initializeGL() {
-  qglClearColor ( QColor ( 64,64,128 ) );
+  /*qglClearColor ( QColor ( 64,64,128 ) );
   //DISABLE EVERYTHING
   //trying to make video-rendering as fast as possible
   glShadeModel ( GL_FLAT );
@@ -180,6 +180,33 @@ void GLWidget::initializeGL() {
   glBlendFunc ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
   glEnable ( GL_TEXTURE_2D );
+  
+  
+  
+  
+  
+  
+  //qpainter stuff:
+  
+       glEnable(GL_DEPTH_TEST);
+     glEnable(GL_CULL_FACE);
+     glEnable(GL_LIGHTING);
+     glEnable(GL_LIGHT0);
+     glEnable(GL_MULTISAMPLE);
+  
+  */
+  
+  
+  
+  //end of qpainter stuff
+  
+  
+  
+  
+  
+  
+  
+  
   /*    glDisable(GL_DEPTH_TEST);
       glDisable(GL_FOG);
       glDisable(GL_LIGHTING);
@@ -205,55 +232,117 @@ void GLWidget::initializeGL() {
 
 }
 
-void GLWidget::paintGL() {
+void GLWidget::paintEvent ( QPaintEvent * e ) {
+  ( void ) e;
+  
+  
   if ( actionOn->isChecked() ==false ) return;
+  
+  
+   makeCurrent();
+   glMatrixMode(GL_MODELVIEW);
+   glPushMatrix();
+    qglClearColor ( QColor ( 64,64,128 ) );
+  //DISABLE EVERYTHING
+  //trying to make video-rendering as fast as possible
+  //glShadeModel ( GL_FLAT );
+  glEnable ( GL_ALPHA_TEST );
+  glEnable ( GL_BLEND );
+  glEnable ( GL_STENCIL_TEST );
+  glBlendFunc ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+  glEnable ( GL_TEXTURE_2D );
+  
+  
+  //qpainter stuff:
+  glEnable(GL_CULL_FACE);
+  glEnable(GL_MULTISAMPLE);
+ 
+  setupViewPort(width(), height());
+  
+  //end of qpainter stuff
+  
+  
+  
+  
+  
+  
+  
+  
   glPushAttrib ( GL_ALL_ATTRIB_BITS );
   glMatrixMode ( GL_PROJECTION );
   glLoadIdentity();
   glPushMatrix();
-  glMatrixMode ( GL_MODELVIEW );
-  glLoadIdentity();
-  glPushMatrix();
-
-  glClear ( GL_COLOR_BUFFER_BIT );
-  if ( rb!=0 ) {
-    rb->lockRead();
-    int idx=rb->curRead();
-    FrameData * frame = rb->getPointer ( idx );
-    VisualizationFrame * vis_frame=(VisualizationFrame *)(frame->map.get("vis_frame"));
-    if (vis_frame!=0 && vis_frame->valid==true && vis_frame->data.getData() != 0 && vis_frame->data.getWidth() >= 1 && vis_frame->data.getHeight() >=1 ) {
-      rgbImage & img = vis_frame->data;
-      if ( img.getWidth() > 1 && img.getHeight() > 1 ) {
-        glPushMatrix();
-        zoom.setup ( img.getWidth(), img.getHeight(), vpW,vpH,true );
-        pixelloc orig=zoom.zoom ( 0, 0 );
-
-        glPushMatrix();
-        glRasterPos2i ( 0,0 );
-        glBitmap ( 0,0,0,0,orig.x,-orig.y,0 );
-        glPixelZoom ( zoom.getZoom() * zoom.getFlipXval(),zoom.getZoom() * zoom.getFlipYval() * -1.0 );
-        glDrawPixels ( img.getWidth(), img.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, img.getData() );
-        glPopMatrix();
-
-        glPopMatrix();
+    
+    glMatrixMode ( GL_MODELVIEW );
+    glLoadIdentity();
+    glPushMatrix();
+    
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      if ( rb!=0 ) {
+        rb->lockRead();
+        int idx=rb->curRead();
+        FrameData * frame = rb->getPointer ( idx );
+        VisualizationFrame * vis_frame=(VisualizationFrame *)(frame->map.get("vis_frame"));
+        if (vis_frame!=0 && vis_frame->valid==true && vis_frame->data.getData() != 0 && vis_frame->data.getWidth() >= 1 && vis_frame->data.getHeight() >=1 ) {
+          rgbImage & img = vis_frame->data;
+          if ( img.getWidth() > 1 && img.getHeight() > 1 ) {
+            glPushMatrix();
+            zoom.setup ( img.getWidth(), img.getHeight(), vpW,vpH,true );
+            pixelloc orig=zoom.zoom ( 0, 0 );
+    
+            glPushMatrix();
+            glRasterPos2i ( 0,0 );
+            glBitmap ( 0,0,0,0,orig.x,-orig.y,0 );
+            glPixelZoom ( zoom.getZoom() * zoom.getFlipXval(),zoom.getZoom() * zoom.getFlipYval() * -1.0 );
+            glDrawPixels ( img.getWidth(), img.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, img.getData() );
+            glPopMatrix();
+    
+            glPopMatrix();
+          }
+    
+        }
+        rb->unlockRead();
       }
+      
+      glMatrixMode ( GL_MODELVIEW );
+    glPopMatrix();
 
-    }
-    rb->unlockRead();
-  }
-  glPopAttrib();
-  glMatrixMode ( GL_MODELVIEW );
-  glPopMatrix();
+
   glMatrixMode ( GL_PROJECTION );
   glPopMatrix();
+  glPopAttrib();
+
+  /// new qpainter overlay stuff
+  QTransform trans=zoom.getQTransform(false);
+  QPainter painter;
+  painter.begin((QGLWidget*)this);
+  painter.setRenderHint(QPainter::Antialiasing);
+
+  //painter.save();
+  //painter.setTransform(trans);
+  //painter.fillRect(QRect(0, 0, 60, 60),
+  //                     QColor(255, 192, 64,200));
+  //painter.restore();
+
+  painter.end();
+
+  /// end of qpainter overlay stuff
+
+
+  glMatrixMode ( GL_MODELVIEW );
+  glPopMatrix();
+
+
+
+
 
   c_draw.count();
   //updateVideoStats(stats);
 }
 
 
-void GLWidget::resizeGL ( int width, int height ) {
-
+void GLWidget::setupViewPort ( int width, int height ) {
   glViewport ( 0, 0, width, height );
   glOrtho ( 0, width, 0, height, -1, 1 );
 
@@ -262,7 +351,9 @@ void GLWidget::resizeGL ( int width, int height ) {
   vpH=height;
   if ( vpW < 1 ) vpW=1;
   if ( vpH < 1 ) vpH=1;
-
+}
+void GLWidget::resizeGL ( int width, int height ) {
+  setupViewPort(width,height);
 }
 
 
@@ -295,7 +386,7 @@ void GLWidget::callZoomFit() {
 
 void GLWidget::callHelp() {
   QMessageBox::information ( this,"Keyboard and Mouse shortcuts",
-                             "Left-Click: Pick RGB Color\nArrow-Keys (or Right-Drag Mouse): Panning\nPage Up/Down (or Mousewheel): Zooming\nHome: Reset Zoom to 100%\nSpace: Reset Zoom to Best Fit\nCtrl-b: Toggle Bounding Boxes\nCtrl-f: Toggle Fullscreen\nCtrl-w: Toggle Detach Window" );
+                             "Left-Click: Pick RGB Color\nArrow-Keys (or Right-Drag Mouse): Panning\nPage Up/Down (or Mousewheel): Zooming\nHome: Reset Zoom to 100%\nSpace: Reset Zoom to Best Fit\nCtrl-f: Toggle Fullscreen\nCtrl-w: Toggle Detach Window" );
 }
 
 void GLWidget::keyPressEvent ( QKeyEvent * event ) {
@@ -332,10 +423,6 @@ void GLWidget::keyPressEvent ( QKeyEvent * event ) {
   }
 }
 
-void GLWidget::paintEvent ( QPaintEvent * e ) {
-  ( void ) e;
-  redraw();
-}
 
 void GLWidget::flipImage() {
   this->zoom.setFlipX ( actionFlipH->isChecked() );

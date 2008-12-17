@@ -15,7 +15,8 @@
 /*!
   \file    cmvision_region.h
   \brief   C++ Interface: cmvision_region
-  \author  Author Name, 2008
+  \author  James Bruce (Original CMVision implementation and algorithms),
+           Some code restructuring, and data structure changes: Stefan Zickler 2008
 */
 //========================================================================
 #ifndef CMVISION_REGION_H
@@ -36,13 +37,13 @@ public:
 };
 
 
-class Runlist {
+class RunList {
 private:
   Run * runs;
   int max_runs;
   int used_runs;
 public:
-  Runlist(int _max_runs) {
+  RunList(int _max_runs) {
     runs=new Run[_max_runs];
     max_runs=_max_runs;
     used_runs=0;
@@ -53,7 +54,7 @@ public:
   int getUsedRuns() {
     return used_runs;
   }
-  ~Runlist() {
+  ~RunList() {
     delete[] runs;
   }
 public:
@@ -89,13 +90,13 @@ class Region{
     {return(y2-y1+1);}
 };
 
-class Regionlist {
+class RegionList {
 private:
   Region * regions;
   int max_regions;
   int used_regions;
 public:
-  Regionlist(int _max_regions) {
+  RegionList(int _max_regions) {
     regions=new Region[_max_regions];
     max_regions=_max_regions;
     used_regions=0;
@@ -106,7 +107,7 @@ public:
   int getUsedRegions() {
     return used_regions;
   }
-  ~Regionlist() {
+  ~RegionList() {
     delete[] regions;
   }
 public:
@@ -119,6 +120,57 @@ public:
 };
 
 
+class RegionLinkedList {
+protected:
+  Region * _first;
+  int _num;
+public:
+  RegionLinkedList() {
+    reset();
+  }
+  Region * getInitialElement() {
+    return _first;
+  }
+  int getNumRegions() {
+   return _num;
+  };
+  void setFront(Region * r) {
+    _first=r;
+  }
+  void setNum(int num) {
+    _num=num;
+  }
+  void reset() {
+    _first=0;
+    _num=0;
+  }
+  inline void insertFront(Region * r) {
+    r->next=_first;
+    _first=r;
+    _num++;
+  }
+};
+
+class ColorRegionList {
+private:
+  RegionLinkedList * color_regions;
+  int num_color_regions;
+public:
+  ColorRegionList(int _num_color_regions) {
+    color_regions=new RegionLinkedList[_num_color_regions];
+    num_color_regions=_num_color_regions;
+  }
+  ~ColorRegionList() {
+    delete[] color_regions;
+  }
+public:
+  RegionLinkedList * getColorRegionArrayPointer() {
+    return color_regions;
+  }
+  int getNumColorRegions() {
+    return num_color_regions;
+  }
+};
 
 };
 
@@ -153,9 +205,14 @@ public:
 
     ~CMVisionRegion();
 
-    static void encodeRuns(Image<raw8> * tmap, CMVision::Runlist * runlist);
-    static void connectComponents(CMVision::Runlist * runlist);
-    static void extractRegions(CMVision::Regionlist * reglist, CMVision::Runlist * runlist);
+    static void encodeRuns(Image<raw8> * tmap, CMVision::RunList * runlist);
+    static void connectComponents(CMVision::RunList * runlist);
+    static void extractRegions(CMVision::RegionList * reglist, CMVision::RunList * runlist);
+    //returns the max area found:
+    static int  separateRegions(CMVision::ColorRegionList * colorlist, CMVision::RegionList * reglist, int min_area);
+
+    static CMVision::Region * sortRegionListByArea(CMVision::Region *list,int passes);
+    static void sortRegions(CMVision::ColorRegionList * colors,int max_area);
 
 };
 
