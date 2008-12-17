@@ -36,9 +36,9 @@ PluginRunlengthEncode::~PluginRunlengthEncode()
 ProcessResult PluginRunlengthEncode::process(FrameData * data, RenderOptions * options) {
   (void)options;
 
-  CMVision::Runlist * runlist;
-  if ((runlist=(CMVision::Runlist *)data->map.get("cmv_runlist")) == 0) {
-    runlist=(CMVision::Runlist *)data->map.insert("cmv_runlist",new CMVision::Runlist(_max_runs));
+  CMVision::RunList * runlist;
+  if ((runlist=(CMVision::RunList *)data->map.get("cmv_runlist")) == 0) {
+    runlist=(CMVision::RunList *)data->map.insert("cmv_runlist",new CMVision::RunList(_max_runs));
   }
 
   Image<raw8> * img_thresholded = 0;

@@ -163,6 +163,23 @@ class Zoom {
 
     }
 
+    QTransform getQTransform ( bool center_origin ) {
+
+      if ( center_origin ) {
+        QTransform t ( zoomFactor * flipX, 0.0,0.0,zoomFactor * flipY,
+                       ( ( - img_center_x )   + ( zoomCenterX * SURFACE_WIDTH ) ) * ( zoomFactor * flipX ) ,
+                       ( ( - img_center_y )   + ( zoomCenterY * SURFACE_HEIGHT ) ) * ( zoomFactor * flipY ) );
+
+        return t;
+      } else {
+              QTransform t ( zoomFactor * flipX, 0.0,0.0,zoomFactor * flipY,
+                       ( ( - img_center_x )   + ( zoomCenterX * SURFACE_WIDTH ) ) * ( zoomFactor * flipX ) + SURFACE_WIDTH / 2.0,
+                       ( ( - img_center_y )   + ( zoomCenterY * SURFACE_HEIGHT ) ) * ( zoomFactor * flipY ) + SURFACE_HEIGHT / 2.0 );
+
+        return t;
+      }
+
+    }
 
     pixelloc zoom ( int x, int y ) {
       pixelloc result;

@@ -15,7 +15,8 @@
 /*!
   \file    cmvision_region.cpp
   \brief   C++ Implementation: cmvision_region
-  \author  Author Name, 2008
+  \author  James Bruce (Original CMVision implementation and algorithms),
+           Some code restructuring, and data structure changes: Stefan Zickler 2008
 */
 //========================================================================
 #include "cmvision_region.h"
@@ -30,7 +31,7 @@ CMVisionRegion::~CMVisionRegion()
 }
 
 
-void CMVisionRegion::encodeRuns(Image<raw8> * tmap, CMVision::Runlist * runlist)
+void CMVisionRegion::encodeRuns(Image<raw8> * tmap, CMVision::RunList * runlist)
 // Changes the flat array version of the thresholded image into a run
 // length encoded version, which speeds up later processing since we
 // only have to look at the points where values change.
@@ -102,7 +103,7 @@ void CMVisionRegion::encodeRuns(Image<raw8> * tmap, CMVision::Runlist * runlist)
 
 
 
-void CMVisionRegion::connectComponents(CMVision::Runlist * runlist)
+void CMVisionRegion::connectComponents(CMVision::RunList * runlist)
 // Connect components using four-connecteness so that the runs each
 // identify the global parent of the connected region they are a part
 // of.  It does this by scanning adjacent rows and merging where
@@ -183,7 +184,7 @@ void CMVisionRegion::connectComponents(CMVision::Runlist * runlist)
 
 
 
-void CMVisionRegion::extractRegions(CMVision::Regionlist * reglist, CMVision::Runlist * runlist)
+void CMVisionRegion::extractRegions(CMVision::RegionList * reglist, CMVision::RunList * runlist)
 // Takes the list of runs and formats them into a region table,
 // gathering the various statistics along the way.  num is the number
 // of runs in the rmap array, and the number of unique regions in
@@ -255,44 +256,47 @@ void CMVisionRegion::extractRegions(CMVision::Regionlist * reglist, CMVision::Ru
 
 
 
-#if 0
-template <class color_class_state_t,class region_t>
-int SeparateRegions(color_class_state_t *color,int colors,
-		    region_t *reg,int num)
+int CMVisionRegion::separateRegions(CMVision::ColorRegionList * colorlist, CMVision::RegionList * reglist, int min_area)
 // Splits the various regions in the region table a separate list for
 // each color.  The lists are threaded through the table using the
 // region's 'next' field.  Returns the maximal area of the regions,
 // which can be used later to speed up sorting.
 {
-  region_t *p;
+  CMVision::Region * p;
   int i; // ,l;
-  int c;
+  uint8_t c;
   int area,max_area;
+  int num_regions=reglist->getUsedRegions();
+  CMVision::Region * reg = reglist->getRegionArrayPointer();
+  int num_colors=colorlist->getNumColorRegions();
+  CMVision::RegionLinkedList * color=colorlist->getColorRegionArrayPointer();
 
   // clear out the region list head table
-  for(i=0; i<colors; i++){
-    color[i].list = NULL;
-    color[i].num  = 0;
+  for(i=0; i<num_colors; i++){
+    color[i].reset();
   }
 
   // step over the table, adding successive
   // regions to the front of each list
   max_area = 0;
-  for(i=0; i<num; i++){
+  for(i=0; i<num_regions; i++){
     p = &reg[i];
-    c = p->color;
+    c = p->color.v;
     area = p->area;
-
-    if(area >= color[c].min_area){
-      if(area > max_area) max_area = area;
-      color[c].num++;
-      p->next = color[c].list;
-      color[c].list = p;
+    if (c >= num_colors) {
+      printf("Found a color of index %d...but colorlist is only allocated for a max index of %d\n",c,num_colors-1);
+    } else {
+      if(area >= min_area){
+        if(area > max_area) max_area = area;
+        color[c].insertFront(p);
+      }
     }
   }
 
   return(max_area);
 }
+
+
 
 // These are the tweaking values for the radix sort given below
 // Feel free to change them, though these values seemed to work well
@@ -303,12 +307,11 @@ int SeparateRegions(color_class_state_t *color,int colors,
 #define CMV_RADIX (1 << CMV_RBITS)
 #define CMV_RMASK (CMV_RADIX-1)
 
-template <class region_t>
-region_t *SortRegionListByArea(region_t *list,int passes)
+CMVision::Region * CMVisionRegion::sortRegionListByArea(CMVision::Region *list,int passes)
 // Sorts a list of regions by their area field.
 // Uses a linked list based radix sort to process the list.
 {
-  region_t *tbl[CMV_RADIX],*p,*pn;
+  CMVision::Region *tbl[CMV_RADIX],*p,*pn;
   int slot,shift;
   int i,j;
 
@@ -347,13 +350,11 @@ region_t *SortRegionListByArea(region_t *list,int passes)
   return(list);
 }
 
-template <class color_class_state_t>
-void SortRegions(color_class_state_t *color,int colors,int max_area)
+void CMVisionRegion::sortRegions(CMVision::ColorRegionList * colors,int max_area)
 // Sorts entire region table by area, using the above
 // function to sort each threaded region list.
 {
   int i,p;
-
   // do minimal number of passes sufficient to touch all set bits
   p = 0;
   while(max_area != 0){
@@ -361,12 +362,16 @@ void SortRegions(color_class_state_t *color,int colors,int max_area)
     p++;
   }
 
+  int num_colors=colors->getNumColorRegions();
+  CMVision::RegionLinkedList * color = colors->getColorRegionArrayPointer();
   // sort each list
-  for(i=0; i<colors; i++){
-    color[i].list = SortRegionListByArea(color[i].list,p);
+  for(i=0; i<num_colors; i++){
+    color[i].setFront(sortRegionListByArea(color[i].getInitialElement(),p));
   }
 }
 
+
+#if 0
 template <class region_t,class rle_t>
 int FindStart(rle_t *rmap,int left,int right,int x)
 // This function uses binary search to find the leftmost run whose
