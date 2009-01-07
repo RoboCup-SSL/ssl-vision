@@ -85,10 +85,10 @@
    Furthermore, conversion settings are in
    "Image Capture/DC1394/Conversion Settings"
 
-   "convert to mode" should currently be "rgb" to display data
-   (realtime yuv display for better performance might be added later)
+   "convert to mode" should currently be "yuv422"
 
-   "capture mode" should be one of the YUV modes e.g. "yuv411" or "rgb"
+   for best performance, "capture mode" should also be "yuv422",
+   but can also be a different format such as "yuv411" or "rgb"
 
    Alternatively, if you desire, you can do de-bayering in software,
    but this will take extra CPU cycles. To do so, you would set the

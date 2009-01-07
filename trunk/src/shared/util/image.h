@@ -198,13 +198,74 @@ public:
     return((data+(width*y)+x));
   }
 
-  void setPixel (int x,int y, PIXEL val)
+  inline void setPixel (int x,int y, PIXEL val)
   {
     if (x >= 0 && y >=0 && x<width && y<height) {
       (*(data+(width*y)+x))=val;
     }
   }
   
+
+  void drawLine (int x0, int y0, int x1, int y1 , PIXEL val)
+  {
+
+  int x, y, dx, dy, sx, sy, ax, ay, decy, decx;
+  x = x0;
+  y = y0;
+  dx = x1 - x0;
+  dy = y1 - y0;
+  if ( dx > 0 ) {
+    sx = 1;
+  } else {
+    if ( dx < 0 ) {
+      sx = -1;
+      dx = -dx;
+    } else {
+      sx = 0;
+    }
+  }
+  if ( dy > 0 ) {
+    sy = 1;
+  } else {
+    if ( dy < 0 ) {
+      sy = -1;
+      dy = -dy;
+    } else {
+      sy = 0;
+    }
+  }
+  ax = 2 * dx;
+  ay = 2 * dy;
+  if ( dy <= dx ) {
+    for ( decy = ay - ax; ; x = x + sx, decy = decy + ay ) {
+      setPixel(x,y,val);
+      //TABLE [_curstep] [ x ][ y ] = color;
+      if ( x == x1 ) break;
+      if ( decy >= 0 ) {
+        decy = decy - ax;
+        y = y + sy;
+      }
+    }
+  } else {
+    for ( decx = ax - ay; ; y = y + sy, decx = decx + ax ) {
+      setPixel(x,y,val);
+
+      if ( y == y1 ) break;
+      if ( decx >= 0 ) {
+        decx = decx - ay;
+        x = x + sx;
+      }
+    }
+  }
+
+}
+
+
+
+
+
+
+
   bool load(string filename) {
   (void)filename;
    if ((PIXEL::getColorFormat()==COLOR_RGB8) || (PIXEL::getColorFormat()==COLOR_RGBA8)) {
@@ -400,7 +461,6 @@ public:
       fprintf(stderr,"Cannot convert image of different sizes\n");
     }
   }
-  
   
 };
 
