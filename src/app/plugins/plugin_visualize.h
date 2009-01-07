@@ -25,6 +25,7 @@
 #include "image.h"
 #include "conversions.h"
 #include "lut3d.h"
+#include "cmvision_region.h"
 
 /**
 	@author Stefan Zickler
@@ -54,7 +55,8 @@ protected:
   VarBool * _v_image;
   VarBool * _v_greyscale;
   VarBool * _v_thresholded;
-  
+  VarBool * _v_blobs;
+
   LUT3D * _threshold_lut;
 public:
     PluginVisualize(FrameBuffer * _buffer);

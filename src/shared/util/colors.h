@@ -162,7 +162,7 @@ public:
     g=_g;
     b=_b;
   };
-  static const ColorFormat getColorFormat() {
+  static ColorFormat getColorFormat() {
     return fmt;
   }
   bool operator ==(const ColorRGB<num, fmt> &c) const {
@@ -217,7 +217,7 @@ public:
   };
   ~ColorGrey() {
   };
-  static const ColorFormat getColorFormat() {
+  static ColorFormat getColorFormat() {
     return fmt;
   }
   bool operator ==(const ColorGrey<num, fmt> &c) const {
@@ -296,7 +296,7 @@ public:
     b=_b;
     a=_a;
   }
-  static const ColorFormat getColorFormat() {
+  static ColorFormat getColorFormat() {
     return fmt;
   }
   bool operator ==(const ColorRGBA<num, fmt> &c) const {
@@ -333,7 +333,7 @@ public:
   };
   ~ColorYUV() {
   };
-  static const ColorFormat getColorFormat() {
+  static ColorFormat getColorFormat() {
     return fmt;
   }
   bool operator ==(const ColorYUV<num, fmt> &c) const {
@@ -378,7 +378,7 @@ public:
   };
   ~ColorYUYV() {
   };
-  static const ColorFormat getColorFormat() {
+  static ColorFormat getColorFormat() {
     return fmt;
   }
   bool operator ==(const ColorYUYV<num, fmt> &c) const {
@@ -424,7 +424,7 @@ public:
   };
   ~ColorUYVY() {
   };
-  static const ColorFormat getColorFormat() {
+  static ColorFormat getColorFormat() {
     return fmt;
   }
   bool operator ==(const ColorYUYV<num, fmt> &c) const {

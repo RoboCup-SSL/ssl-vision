@@ -30,6 +30,7 @@ PluginVisualize::PluginVisualize(FrameBuffer * _buffer)
   _settings->addChild(_v_image=new VarBool("image", true));
   _settings->addChild(_v_greyscale=new VarBool("greyscale", true));
   _settings->addChild(_v_thresholded=new VarBool("thresholded", true));
+  _settings->addChild(_v_blobs=new VarBool("blobs", true));
   _threshold_lut=0;
 }
 
@@ -115,21 +116,40 @@ ProcessResult PluginVisualize::process(FrameData * data, RenderOptions * options
       }
     }
 
-    
-    //_threshold_lut->getChannel(0).draw_color
-    vis_frame->valid=true;
-    //otherwise...blank it out.
-    
+
+
+    if (_v_blobs->getBool()==true) {
+      //draw blob finding results:
+  
+      CMVision::ColorRegionList * colorlist;
+      colorlist=(CMVision::ColorRegionList *)data->map.get("cmv_colorlist");
+      if (colorlist!=0) {
+        CMVision::RegionLinkedList * regionlist;
+        regionlist = colorlist->getColorRegionArrayPointer();
+        for (int i=0;i<colorlist->getNumColorRegions();i++) {
+          rgb blob_draw_color;
+          if (_threshold_lut!=0) {
+            blob_draw_color= _threshold_lut->getChannel(i).draw_color;
+          } else {
+            blob_draw_color.set(255,255,255);
+          }
+          CMVision::Region * blob=regionlist[i].getInitialElement();
+          while (blob != 0) {
+            vis_frame->data.drawLine(blob->x1,blob->y1,blob->x2,blob->y1,blob_draw_color);
+            vis_frame->data.drawLine(blob->x1,blob->y1,blob->x1,blob->y2,blob_draw_color);
+            vis_frame->data.drawLine(blob->x1,blob->y2,blob->x2,blob->y2,blob_draw_color);
+            vis_frame->data.drawLine(blob->x2,blob->y1,blob->x2,blob->y2,blob_draw_color);
+            blob=blob->next;
+          }
+        }
+      }
+    }
     //transfer image...optionally applying filtering effects
-    
-    
-    //check for availability of thresholdation results...
-    
     
     //check for availability of geometric calibration data...
     
     
-    
+    vis_frame->valid=true;
   } else {
     vis_frame->valid=false;
   }
