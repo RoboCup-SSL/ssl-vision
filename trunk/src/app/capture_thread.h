@@ -1,4 +1,4 @@
-//========================================================================
+// //========================================================================
 //  This software is free: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License Version 3,
 //  as published by the Free Software Foundation.
@@ -28,8 +28,6 @@
 #include "framecounter.h"
 #include "visionstack.h"
 #include "capturestats.h"
-
-#include "timer.h"
 
 /*!
   \class   CaptureThread

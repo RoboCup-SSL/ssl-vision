@@ -2,7 +2,7 @@
 <kdevelop>
   <general>
     <author>Author Name</author>
-    <email></email>
+    <email/>
     <version>1</version>
     <projectmanagement>KDevCustomProject</projectmanagement>
     <primarylanguage>C++</primarylanguage>
@@ -10,16 +10,16 @@
     <projectname>sslvision</projectname>
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
-    <description></description>
-    <defaultencoding></defaultencoding>
+    <description/>
+    <defaultencoding/>
     <versioncontrol>kdevsubversion</versioncontrol>
   </general>
   <kdevcustomproject>
     <run>
       <directoryradio>executable</directoryradio>
       <mainprogram>/home/szickler/devel/ssl-vision/./bin/vision</mainprogram>
-      <programargs></programargs>
-      <globaldebugarguments></globaldebugarguments>
+      <programargs/>
+      <globaldebugarguments/>
       <globalcwd>.</globalcwd>
       <useglobalprogram>false</useglobalprogram>
       <terminal>false</terminal>
@@ -114,13 +114,13 @@
     </blacklist>
     <build>
       <buildtool>make</buildtool>
-      <builddir></builddir>
+      <builddir/>
     </build>
     <other>
       <prio>0</prio>
-      <otherbin></otherbin>
-      <defaulttarget></defaulttarget>
-      <otheroptions></otheroptions>
+      <otherbin/>
+      <defaulttarget/>
+      <otheroptions/>
       <selectedenvironment>default</selectedenvironment>
       <environments>
         <default/>
@@ -131,9 +131,9 @@
       <numberofjobs>0</numberofjobs>
       <prio>0</prio>
       <dontact>false</dontact>
-      <makebin></makebin>
-      <defaulttarget></defaulttarget>
-      <makeoptions></makeoptions>
+      <makebin/>
+      <defaulttarget/>
+      <makeoptions/>
       <selectedenvironment>default</selectedenvironment>
       <environments>
         <default/>
@@ -145,11 +145,11 @@
   </kdevcustomproject>
   <kdevdebugger>
     <general>
-      <dbgshell></dbgshell>
-      <gdbpath></gdbpath>
-      <configGdbScript></configGdbScript>
-      <runShellScript></runShellScript>
-      <runGdbScript></runGdbScript>
+      <dbgshell/>
+      <gdbpath/>
+      <configGdbScript/>
+      <runShellScript/>
+      <runGdbScript/>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>
@@ -209,10 +209,10 @@
   </kdevdoctreeview>
   <kdevfilecreate>
     <filetypes>
-      <type icon="source_h" ext="h" create="template" name="C/C++ Header" >
+      <type icon="source_h" ext="h" name="C/C++ Header" create="template" >
         <descr>A new empty header file for C or C++.</descr>
       </type>
-      <type icon="source_cpp" ext="cpp" create="template" name="C++ Source" >
+      <type icon="source_cpp" ext="cpp" name="C++ Source" create="template" >
         <descr>A new empty C++ file.</descr>
       </type>
     </filetypes>
@@ -227,8 +227,8 @@
       <includestyle>3</includestyle>
       <root>/usr/lib/qt-3.3</root>
       <designerintegration>EmbeddedKDevDesigner</designerintegration>
-      <qmake>/usr/bin/qmake</qmake>
-      <designer></designer>
+      <qmake>/usr/lib/qt-3.3/bin/qmake</qmake>
+      <designer>/usr/lib/qt-3.3/bin/designer</designer>
       <designerpluginpaths/>
     </qt>
     <references/>
@@ -256,7 +256,7 @@
       <includePaths>.;</includePaths>
     </codecompletion>
     <creategettersetter>
-      <prefixGet></prefixGet>
+      <prefixGet/>
       <prefixSet>set</prefixSet>
       <prefixVariable>m_,_</prefixVariable>
       <parameterName>theValue</parameterName>
@@ -290,7 +290,7 @@
     <projectdoc>
       <docsystem>Doxygen Documentation Collection</docsystem>
       <docurl>doc/html/index.html</docurl>
-      <usermanualurl></usermanualurl>
+      <usermanualurl/>
     </projectdoc>
   </kdevdocumentation>
   <ctagspart>
