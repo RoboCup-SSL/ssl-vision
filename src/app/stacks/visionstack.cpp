@@ -50,6 +50,9 @@ void VisionStack::process(FrameData * data) {
   double b=0.0;
   unsigned int n=stack.size();
   VisionPlugin * p;
+  double total=0.0;
+  bool show_timing = false;
+  if (show_timing) printf("----------\n");
   for (unsigned int i=0;i<n;i++) {
     p=stack[i];
     p->lock();
@@ -57,8 +60,13 @@ void VisionStack::process(FrameData * data) {
     p->process(data,opts);
     b=GetTimeSec();
     p->setTimeProcessing(b-a);
+    total+=(p->getTimeProcessing());
+    if (show_timing) {
+      printf("Plugin %s: %fms\n",p->getName().c_str(),  p->getTimeProcessing() * 1000.0);
+    }
     p->unlock();
   }
+  if (show_timing) printf("Total time: %fms\n",total * 1000.0);
   //counter_proc+=1.0;
 }
 

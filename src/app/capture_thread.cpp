@@ -139,7 +139,6 @@ void CaptureThread::run() {
         if (capture->isCapturing()) {
           RawImage pic_raw=capture->getFrame();
           capture->copyAndConvertFrame( pic_raw,d->video);
-          capture->releaseFrame();
           capture_mutex.unlock();
 
           counter->count();
@@ -157,13 +156,17 @@ void CaptureThread::run() {
             rb->nextWrite(true);
           }
 
-
           if (changed) {
             if (c_auto_refresh->getBool()==true) capture->readAllParameterValues();
             stack_mutex.lock();
             stack->updateTimingStatistics();
             stack_mutex.unlock();
           }
+
+          capture_mutex.lock();
+          capture->releaseFrame();
+          capture_mutex.unlock();
+
         } else {
           stats->total=d->number=counter->getTotal();
           stats->fps_capture=counter->getFPS(changed);
