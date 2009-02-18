@@ -34,6 +34,8 @@ src/app/plugins/plugin_colorcalib.cpp
 src/app/plugins/plugin_colorcalib.h
 src/app/plugins/plugin_colorthreshold.cpp
 src/app/plugins/plugin_colorthreshold.h
+src/app/plugins/plugin_detect_balls.cpp
+src/app/plugins/plugin_detect_balls.h
 src/app/plugins/plugin_find_blobs.cpp
 src/app/plugins/plugin_find_blobs.h
 src/app/plugins/plugin_runlength_encode.cpp
@@ -62,6 +64,8 @@ src/shared/capture/captureinterface.cpp
 src/shared/capture/captureinterface.h
 src/shared/capture/sources.pro.inc
 src/shared/cmvision
+src/shared/cmvision/cmvision_histogram.cpp
+src/shared/cmvision/cmvision_histogram.h
 src/shared/cmvision/cmvision_region.cpp
 src/shared/cmvision/cmvision_region.h
 src/shared/cmvision/cmvision_threshold.cpp

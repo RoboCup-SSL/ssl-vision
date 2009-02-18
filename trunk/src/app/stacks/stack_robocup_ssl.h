@@ -28,6 +28,7 @@
 #include "plugin_colorthreshold.h"
 #include "plugin_runlength_encode.h"
 #include "plugin_find_blobs.h"
+#include "plugin_detect_balls.h"
 
 using namespace std;
 

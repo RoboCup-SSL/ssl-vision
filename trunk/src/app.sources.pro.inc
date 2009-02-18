@@ -73,6 +73,9 @@ HEADERS += $${PREFIX}/plugins/plugin_runlength_encode.h
 SOURCES += $${PREFIX}/plugins/plugin_find_blobs.cpp
 HEADERS += $${PREFIX}/plugins/plugin_find_blobs.h
 
+SOURCES += $${PREFIX}/plugins/plugin_detect_balls.cpp
+HEADERS += $${PREFIX}/plugins/plugin_detect_balls.h
+
 SOURCES += $${PREFIX}/plugins/plugin_visualize.cpp
 HEADERS += $${PREFIX}/plugins/plugin_visualize.h
 
