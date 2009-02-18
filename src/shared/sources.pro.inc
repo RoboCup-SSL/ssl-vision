@@ -7,4 +7,4 @@ include( $${SHARED_DIR}/vartypes/sources.pro.inc )
 include( $${SHARED_DIR}/util/sources.pro.inc )
 include( $${SHARED_DIR}/gl/sources.pro.inc )
 include( $${SHARED_DIR}/cmvision/sources.pro.inc )
-
+include( $${SHARED_DIR}/proto/sources.pro.inc )

@@ -23,6 +23,7 @@
 #define CMVISION_REGION_H
 #include "colors.h"
 #include "image.h"
+#include "geometry.h"
 
 #define CMV_DEFAULT_MAX_RUNS 100000
 
@@ -215,5 +216,60 @@ public:
     static void sortRegions(CMVision::ColorRegionList * colors,int max_area);
 
 };
+
+
+
+class RegionFilter{
+protected:
+  const CMVision::Region *reg;
+  int w,h;
+  RangeInt area;
+  RangeInt width;
+  RangeInt height;
+public:
+  RegionFilter() {reg=0; w=0; h=0; area.set(0,1000000); width.set(0,1000); height.set(0,1000); }
+  void setArea(RangeInt & _area) {
+    area=_area;
+  }
+  void setWidth(RangeInt & _width) {
+    width=_width;
+  }
+  void setHeight(RangeInt & _height) {
+    height=_height;
+  }
+  void setArea(int _min, int _max) {
+    area.min=_min;
+    area.max=_max;
+  }
+  void setWidth(int _min, int _max) {
+    width.min=_min;
+    width.max=_max;
+  }
+  void setHeight(int _min, int _max) {
+    height.min=_min;
+    height.max=_max;
+  }
+  RangeInt getArea() {
+    return area;
+  }
+  RangeInt getWidth() {
+    return width;
+  }
+  RangeInt getHeight() {
+    return height;
+  }
+
+  /*void init(const CMVision::Region *reg_list);
+  const CMVision::Region *getNext();
+
+  bool operator()(const CMVision::Region &reg) const;*/
+};
+
+
+
+
+
+
+
 
 #endif

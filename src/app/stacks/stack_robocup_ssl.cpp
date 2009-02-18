@@ -39,6 +39,7 @@ StackRoboCupSSL::StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, strin
     //we don't expect more than 10k blobs per image
     stack.push_back(new PluginFindBlobs(_fb,lut_yuv, 10000));
 
+    stack.push_back(new PluginDetectBalls(_fb,lut_yuv));
 
     PluginVisualize * vis=new PluginVisualize(_fb);
     vis->setThresholdingLUT(lut_yuv);

@@ -21,6 +21,9 @@ LIBS += -ldc1394
 #add jpeg support
 LIBS += -ljpeg
 
+#add google protocol buffers
+LIBS += -lprotobuf
+
 #add opengl support
 LIBS += -lGL -lGLU
 
