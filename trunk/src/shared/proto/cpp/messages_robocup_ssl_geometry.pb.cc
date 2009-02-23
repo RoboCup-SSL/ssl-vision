@@ -12,10 +12,7 @@ namespace {
 }  // namespace
 
 
-void protobuf_BuildDesc_messages_5frobocup_5fssl_5fgeometry_2eproto_AssignGlobalDescriptors(const ::google::protobuf::FileDescriptor* file) {
-}
-
-void protobuf_BuildDesc_messages_5frobocup_5fssl_5fgeometry_2eproto() {
+void proto_BuildDescriptors_messages_5frobocup_5fssl_5fgeometry_2eproto() {
   static bool already_here = false;
   if (already_here) return;
   already_here = true;
@@ -23,15 +20,14 @@ void protobuf_BuildDesc_messages_5frobocup_5fssl_5fgeometry_2eproto() {
   ::google::protobuf::DescriptorPool* pool =
     ::google::protobuf::DescriptorPool::internal_generated_pool();
 
-  pool->InternalBuildGeneratedFile(
-    "\n#messages_robocup_ssl_geometry.proto", 37,
-  &protobuf_BuildDesc_messages_5frobocup_5fssl_5fgeometry_2eproto_AssignGlobalDescriptors);
+  const ::google::protobuf::FileDescriptor* file = pool->InternalBuildGeneratedFile(
+    "\n#messages_robocup_ssl_geometry.proto", 37);
 }
 
 // Force BuildDescriptors() to be called at static initialization time.
 struct StaticDescriptorInitializer_messages_5frobocup_5fssl_5fgeometry_2eproto {
   StaticDescriptorInitializer_messages_5frobocup_5fssl_5fgeometry_2eproto() {
-    protobuf_BuildDesc_messages_5frobocup_5fssl_5fgeometry_2eproto();
+    proto_BuildDescriptors_messages_5frobocup_5fssl_5fgeometry_2eproto();
   }
 } static_descriptor_initializer_messages_5frobocup_5fssl_5fgeometry_2eproto_;
 
