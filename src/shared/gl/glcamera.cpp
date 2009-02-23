@@ -23,7 +23,7 @@
 
 GLCamera::GLCamera()
 {
-  void reset();
+  reset();
   pan_mode=GLCAM_PAN_POSITION_CENTRIC;
 }
 
