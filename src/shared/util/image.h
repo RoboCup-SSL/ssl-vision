@@ -32,6 +32,7 @@
 #include "image_interface.h"
 #include "rawimage.h"
 #include "image_io.h"
+#include "font.h"
 
 /*!
   \class Image
@@ -260,11 +261,78 @@ public:
 
 }
 
+void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
+{
 
+  int x, y, dx, dy, sx, sy, ax, ay, decy, decx;
+  x = x0;
+  y = y0;
+  dx = x1 - x0;
+  dy = y1 - y0;
+  if ( dx > 0 ) {
+    sx = 1;
+  } else {
+    if ( dx < 0 ) {
+      sx = -1;
+      dx = -dx;
+    } else {
+      sx = 0;
+    }
+  }
+  if ( dy > 0 ) {
+    sy = 1;
+  } else {
+    if ( dy < 0 ) {
+      sy = -1;
+      dy = -dy;
+    } else {
+      sy = 0;
+    }
+  }
+  ax = 2 * dx;
+  ay = 2 * dy;
+  if ( dy <= dx ) {
+    for ( decy = ay - ax; ; x = x + sx, decy = decy + ay ) {
+      setPixel(x,y,val);setPixel(x+1,y,val);setPixel(x-1,y,val);
+      setPixel(x,y-1,val);setPixel(x+1,y-1,val);setPixel(x-1,y-1,val);
+      setPixel(x,y+1,val);setPixel(x+1,y+1,val);setPixel(x-1,y+1,val);
+      //TABLE [_curstep] [ x ][ y ] = color;
+      if ( x == x1 ) break;
+      if ( decy >= 0 ) {
+        decy = decy - ax;
+        y = y + sy;
+      }
+    }
+  } else {
+    for ( decx = ax - ay; ; y = y + sy, decx = decx + ax ) {
+      setPixel(x,y,val);setPixel(x+1,y,val);setPixel(x-1,y,val);
+      setPixel(x,y-1,val);setPixel(x+1,y-1,val);setPixel(x-1,y-1,val);
+      setPixel(x,y+1,val);setPixel(x+1,y+1,val);setPixel(x-1,y+1,val);
+      if ( y == y1 ) break;
+      if ( decx >= 0 ) {
+        decx = decx - ay;
+        x = x + sx;
+      }
+    }
+  }
 
+}
 
+  void drawBox(int x, int y, int width, int height, PIXEL val)
+  {
+    drawLine(x, y, x+width, y, val);
+    drawLine(x+width, y, x+width, y+height, val);
+    drawLine(x+width, y+height, x, y+height, val);
+    drawLine(x, y+height, x, y, val);
+  }
 
-
+  void drawFatBox(int x, int y, int width, int height, PIXEL val)
+  {
+    drawFatLine(x, y, x+width, y, val);
+    drawFatLine(x+width, y, x+width, y+height, val);
+    drawFatLine(x+width, y+height, x, y+height, val);
+    drawFatLine(x, y+height, x, y, val);
+  }
 
   bool load(string filename) {
   (void)filename;
@@ -355,6 +423,48 @@ public:
         if (a->b > threshold_b) {a->b = 255; } else {a->b=0; };
         a++;
       }
+  }
+
+  void drawChar(int x, int y, char c, PIXEL val)
+  { 
+    if (x < 0 || y < 0 || x > width || y > height)
+      return;
+    
+    int charWidth(8), charHeight(8), charSize(8);
+    
+    unsigned char* charpos(gfxPrimitivesFontdata + (unsigned char) c * charSize);
+    unsigned char* linepos((unsigned char *) &data[y * width + x]);
+    int pitch(width * 3);
+
+    unsigned char patt(0);
+    for (int iy = 0; iy < charHeight; iy++) {
+      unsigned char mask = 0x00;
+      unsigned char *curpos = linepos;
+      for (int ix = 0; ix < charWidth; ix++) {
+        if (!(mask >>= 1)) {
+          patt = *charpos++;
+          mask = 0x80;
+        }
+        
+        if (patt & mask) {
+          *curpos = val.r;
+          curpos++;
+          *curpos = val.g;
+          curpos++;
+          *curpos = val.b;
+          curpos++;
+        }
+        else
+          curpos += 3;
+      }
+      linepos += pitch;
+    }
+  }
+  
+  void drawString(int x, int y, std::string s, PIXEL val)
+  {
+    for (unsigned int i=0; i < s.length(); i++)
+      drawChar(x+8*i, y, s[i], val);
   }
   
 };
