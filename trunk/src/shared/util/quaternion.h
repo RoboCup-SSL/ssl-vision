@@ -199,17 +199,25 @@ public:
   // Convert from Axis Angle
   void setAxis(const GVector::vector3d<num> &v, num angle)
   {
-    num sinAngle;
-    angle *= 0.5f;
-    GVector::vector3d<num> vn(v);
-    vn.norm();
+    if (angle != .0f) {
+      num sinAngle;
+      angle *= 0.5f;
+      GVector::vector3d<num> vn(v);
+      vn.norm();
 
-    sinAngle = sin(angle);
+      sinAngle = sin(angle);
 
-    x = (vn.x * sinAngle);
-    y = (vn.y * sinAngle);
-    z = (vn.z * sinAngle);
-    w = cos(angle);
+      x = (vn.x * sinAngle);
+      y = (vn.y * sinAngle);
+      z = (vn.z * sinAngle);
+      w = cos(angle);
+    }
+    else {
+      x = .0f;
+      y = .0f;
+      z = .0f;
+      w = 1.f;
+    }    
   }
 
   GVector::vector3d<num> getZvector() {
@@ -218,7 +226,7 @@ public:
     return(rotateVectorByQuaternion(v));
   }
 
-  GVector::vector3d<num> rotateVectorByQuaternion(const GVector::vector3d<num> v) {
+  GVector::vector3d<num> rotateVectorByQuaternion(const GVector::vector3d<num> v) const {
     num x2 = x * x;
     num y2 = y * y;
     num z2 = z * z;

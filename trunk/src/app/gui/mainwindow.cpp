@@ -105,6 +105,15 @@ MainWindow::MainWindow()
 
     splitter2->addWidget(stack_widget);
   }
+  
+  // Set position and size of main window:
+  QSettings window_settings("RoboCup", "ssl-vision");
+  window_settings.beginGroup("MainWindow");
+  QPoint pos = window_settings.value("pos", QPoint(100, 100)).toPoint();
+  QSize size = window_settings.value("size", QSize(800, 600)).toSize();
+  window_settings.endGroup();
+  resize(size);
+  move(pos);
 
   //FINISHED STRUCTURAL TREE
   //NOW LOAD DATA:
@@ -163,6 +172,14 @@ void MainWindow::init() {
 
 void MainWindow::closeEvent(QCloseEvent * event ) {
   (void)event;
+  //Save window configuration before deleting:
+  {
+    QSettings window_settings("RoboCup", "ssl-vision");
+    window_settings.beginGroup("MainWindow");
+    window_settings.setValue("pos", pos());
+    window_settings.setValue("size", size());
+    window_settings.endGroup();
+  }
   delete this;
 }
 
@@ -170,6 +187,7 @@ MainWindow::~MainWindow() {
 	//FIXME: right now we don't clean up anything
   VarXML::write(world,"settings.xml");
 
+  // Stop stack:
   multi_stack->stop();
       exit(0);
   delete opt;
