@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+# Wrapper around make, to pretty print the output
+# Tim Laue, January 2009
+#
+
+make "$@" 2>&1 |  sed 's%.*/\([a-zA-Z0-9_]*.cpp\)%[Compile]\ \1%;s%^g.*bin/\([a-zA-Z0-9_]*\).*%[Linking]\ \1%'
+
