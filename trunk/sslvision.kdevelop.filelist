@@ -9,6 +9,9 @@ src/app/capture_thread.h
 src/app/capturestats.h
 src/app/framedata.cpp
 src/app/framedata.h
+src/app/gui
+src/app/gui/cameracalibwidget.cpp
+src/app/gui/cameracalibwidget.h
 src/app/gui/colorpicker.cpp
 src/app/gui/colorpicker.h
 src/app/gui/glLUTwidget.cpp
@@ -30,6 +33,8 @@ src/app/gui/videowidget.h
 src/app/gui/videowidget.ui
 src/app/main.cpp
 src/app/plugins
+src/app/plugins/plugin_cameracalib.cpp
+src/app/plugins/plugin_cameracalib.h
 src/app/plugins/plugin_colorcalib.cpp
 src/app/plugins/plugin_colorcalib.h
 src/app/plugins/plugin_colorthreshold.cpp
@@ -75,13 +80,18 @@ src/shared/gl/glcamera.h
 src/shared/gl/globject.cpp
 src/shared/gl/globject.h
 src/shared/gl/sources.pro.inc
+src/shared/proto
 src/shared/sources.pro.inc
 src/shared/util
 src/shared/util/bbox.h
 src/shared/util/bitflags.h
+src/shared/util/camera_calibration.cpp
+src/shared/util/camera_calibration.h
 src/shared/util/colors.h
 src/shared/util/conversions.cpp
 src/shared/util/conversions.h
+src/shared/util/field.h
+src/shared/util/font.h
 src/shared/util/framecounter.h
 src/shared/util/geomalgo.h
 src/shared/util/geometry.h
@@ -108,6 +118,7 @@ src/shared/util/rawimage.cpp
 src/shared/util/rawimage.h
 src/shared/util/ringbuffer.cpp
 src/shared/util/ringbuffer.h
+src/shared/util/sobel.h
 src/shared/util/sources.pro.inc
 src/shared/util/texture.cpp
 src/shared/util/texture.h

@@ -159,12 +159,10 @@ void CaptureThread::run() {
           if (stack!=0) {
             stack->process(d);
             stack->postProcess(d);
-            stack_mutex.unlock();
-            rb->nextWrite(true);
-          } else {
-            stack_mutex.unlock();
-            rb->nextWrite(true);
           }
+          stack_mutex.unlock();
+          rb->nextWrite(true);
+
 
           if (changed) {
             if (c_auto_refresh->getBool()==true) capture->readAllParameterValues();
@@ -173,7 +171,9 @@ void CaptureThread::run() {
             stack_mutex.unlock();
           }
           capture_mutex.lock();
-          capture->releaseFrame();
+          if ((capture != 0) && (capture->isCapturing())) {
+            capture->releaseFrame();
+          }
           capture_mutex.unlock();
 
         } else {
