@@ -32,7 +32,11 @@ CaptureThread::CaptureThread(int cam_id)
   control->addChild( (VarData*) (c_reset  = new VarTrigger("reset bus","Reset")));
   control->addChild( (VarData*) (c_auto_refresh= new VarBool("auto refresh params",true)));
   control->addChild( (VarData*) (c_refresh= new VarTrigger("re-read params","Refresh")));
+  control->addChild( (VarData*) (captureModule= new VarStringEnum("Capture Module","DC 1394")));
+  captureModule->addItem("DC 1394");
+  captureModule->addItem("Read from files");
   settings->addChild( (VarData*) (dc1394 = new VarList("DC1394")));
+  settings->addChild( (VarData*) (fromfile = new VarList("Read from files")));
   settings->addRenderFlags( DT_FLAG_AUTO_EXPAND_TREE );
   c_stop->addRenderFlags( DT_FLAG_READONLY );
   c_refresh->addRenderFlags( DT_FLAG_READONLY );
@@ -43,8 +47,9 @@ CaptureThread::CaptureThread(int cam_id)
 
   stack = 0;
   counter=new FrameCounter();
-  capture = new CaptureDC1394v2(dc1394,cam_id);
-
+  capture = 0;
+  captureDC1394 = new CaptureDC1394v2(dc1394,camId);
+  captureFiles = new CaptureFromFile(fromfile);
   _kill =false;
   rb=0;
 }
@@ -61,7 +66,8 @@ VarList * CaptureThread::getSettings() {
 
 CaptureThread::~CaptureThread()
 {
-  delete capture;
+  delete captureDC1394;
+  delete captureFiles;
   delete counter;
 }
 
@@ -86,6 +92,10 @@ void CaptureThread::kill() {
 
 bool CaptureThread::init() {
   capture_mutex.lock();
+  if(captureModule->getString() == "Read from files")
+    capture = captureFiles;
+  else
+    capture = captureDC1394;
   bool res = capture->startCapture();
   if (res==true) {
     c_start->addRenderFlags( DT_FLAG_READONLY );
@@ -136,7 +146,7 @@ void CaptureThread::run() {
           stats=(CaptureStats *)d->map.insert("capture_stats",new CaptureStats());
         }
         capture_mutex.lock();
-        if (capture->isCapturing()) {
+        if ((capture != 0) && (capture->isCapturing())) {
           RawImage pic_raw=capture->getFrame();
           capture->copyAndConvertFrame( pic_raw,d->video);
           capture_mutex.unlock();
@@ -175,10 +185,10 @@ void CaptureThread::run() {
           usleep(100);
         }
         if (_kill) {
-          capture->stopCapture();
+          if(capture != 0)
+            capture->stopCapture();
           return;
         }
       }
     }
-  
 }
