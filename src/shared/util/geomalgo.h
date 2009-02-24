@@ -360,14 +360,15 @@ template <class vector>
 double ray_plane_intersect(vector pOrigin,vector pNormal,
                            vector rOrigin,vector rVector)
 {
-  return((dot(pNormal,pOrigin) - dot(pNormal,rOrigin)) /
-         dot(pNormal,rVector));
+  return(dot(-pNormal,(rOrigin - pOrigin)) / (dot(pNormal,rVector)));
 
-  /*
-  double numer = dot(pNormal,rOrigin) - dot(pNormal,pOrigin);
-  double denom = dot(pNormal,rVector);
-  return(-(numer / denom));
-  */
+//  return((dot(pNormal,pOrigin) - dot(pNormal,rOrigin)) /
+//         dot(pNormal,rVector));
+  
+//  double numer = dot(pNormal,rOrigin) - dot(pNormal,pOrigin);
+//  double denom = dot(pNormal,rVector);
+//  return(-(numer / denom));
+  
 }
 
 template <class vector, class real>

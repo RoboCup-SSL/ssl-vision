@@ -1357,11 +1357,9 @@ bool CaptureDC1394v2::copyAndConvertFrame(const RawImage & src, RawImage & targe
 bool CaptureDC1394v2::convertFrame(const RawImage & src, RawImage & target, ColorFormat output_fmt,
                          bool debayer, dc1394color_filter_t bayer_format,dc1394bayer_method_t bayer_method, int y16bits)
 {
-
   #ifndef VDATA_NO_QT
     mutex.lock();
   #endif
-
   ColorFormat src_fmt=src.getColorFormat();
   if (target.getData()==0) {
     //allocate target, if it does not exist yet
@@ -1372,12 +1370,10 @@ bool CaptureDC1394v2::convertFrame(const RawImage & src, RawImage & target, Colo
     //target.setHeight(src.getHeight());
     //target.setFormat(output_fmt);
   }
-
   target.setTime(src.getTime());
   if (output_fmt==src_fmt) {
     //just do a memcpy
     memcpy(target.getData(),src.getData(),src.getNumBytes());
-
   } else {
     //do some more fancy conversion
     if ((src_fmt==COLOR_MONO8 || src_fmt==COLOR_RAW8) && output_fmt==COLOR_RGB8) {
@@ -1442,11 +1438,9 @@ bool CaptureDC1394v2::convertFrame(const RawImage & src, RawImage & target, Colo
       return false;
     }
   }
-
   #ifndef VDATA_NO_QT
     mutex.unlock();
   #endif
-
   return true;
 }
 

@@ -23,7 +23,10 @@
 
 #include "visionstack.h"
 #include "lut3d.h"
+#include "camera_calibration.h"
+#include "field.h"
 #include "plugin_colorcalib.h"
+#include "plugin_cameracalib.h"
 #include "plugin_visualize.h"
 #include "plugin_colorthreshold.h"
 #include "plugin_runlength_encode.h"
@@ -42,6 +45,9 @@ class StackRoboCupSSL : public VisionStack {
   protected:
   YUVLUT * lut_yuv;
   string _cam_settings_filename;
+  CameraParameters* camera_parameters;
+  Field* field;
+
   public:
   StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, string cam_settings_filename);
   virtual string getSettingsFileName();

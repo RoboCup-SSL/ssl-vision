@@ -30,6 +30,9 @@ HEADERS += $${PREFIX}/rawimage.h
 SOURCES += $${PREFIX}/texture.cpp
 HEADERS += $${PREFIX}/texture.h
 
+SOURCES += $${PREFIX}/camera_calibration.cpp
+HEADERS += $${PREFIX}/camera_calibration.h
+
 HEADERS += $${PREFIX}/framecounter.h
 
 HEADERS += $${PREFIX}/quaternion.h
@@ -55,3 +58,10 @@ HEADERS += $${PREFIX}/pose.h
 HEADERS += $${PREFIX}/zoom.h
 
 HEADERS += $${PREFIX}/bitflags.h
+
+HEADERS += $${PREFIX}/field.h
+
+HEADERS += $${PREFIX}/sobel.h
+
+HEADERS += $${PREFIX}/font.h
+
