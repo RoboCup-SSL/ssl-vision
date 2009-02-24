@@ -10,3 +10,6 @@ HEADERS += $${PREFIX}/capturedc1394v2.h
 SOURCES += $${PREFIX}/captureinterface.cpp
 HEADERS += $${PREFIX}/captureinterface.h
 
+SOURCES += $${PREFIX}/capturefromfile.cpp
+HEADERS += $${PREFIX}/capturefromfile.h
+
