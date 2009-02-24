@@ -19,6 +19,7 @@
 */
 //========================================================================
 #include "plugin_colorcalib.h"
+#include <QStackedWidget>
 
 PluginColorCalibration::PluginColorCalibration(FrameBuffer * _buffer, YUVLUT * _lut, LUTChannelMode _mode) : VisionPlugin(_buffer)
 {
@@ -50,49 +51,55 @@ QWidget * PluginColorCalibration::getControlWidget() {
 }
 
 void PluginColorCalibration::mouseEvent( QMouseEvent * event, pixelloc loc) {
-  if ((event->buttons() & Qt::LeftButton)!=0) {
-    printf("SAMPLE\n");
-    FrameBuffer * rb=getFrameBuffer();
-    if (rb!=0) {
-      rb->lockRead();
-      int idx=rb->curRead();
-      FrameData * frame = rb->getPointer(idx);
-      if (loc.x < frame->video.getWidth() && loc.y < frame->video.getHeight() && loc.x >=0 && loc.y >=0) {
-        if (frame->video.getWidth() > 1 && frame->video.getHeight() > 1) {
+  QTabWidget* tabw = (QTabWidget*) lutw->parentWidget()->parentWidget();  
+  if (tabw->currentWidget() == lutw) {
+    if ((event->buttons() & Qt::LeftButton)!=0) {
+      printf("SAMPLE\n");
+      FrameBuffer * rb=getFrameBuffer();
+      if (rb!=0) {
+        rb->lockRead();
+        int idx=rb->curRead();
+        FrameData * frame = rb->getPointer(idx);
+        if (loc.x < frame->video.getWidth() && loc.y < frame->video.getHeight() && loc.x >=0 && loc.y >=0) {
+          if (frame->video.getWidth() > 1 && frame->video.getHeight() > 1) {
         
-          yuv color;
+            yuv color;
             //if converting entire image then blanking is not needed
-          ColorFormat source_format=frame->video.getColorFormat();
-          if (source_format==COLOR_RGB8) {
-            //plain copy of data
-            rgbImage img(frame->video);
-            color=Conversions::rgb2yuv(img.getPixel(loc.x,loc.y));
-          } else if (source_format==COLOR_YUV444) {
-            yuvImage img(frame->video);
-            color=img.getPixel(loc.x,loc.y);
-          } else if (source_format==COLOR_YUV422_UYVY) {
-            uyvy color2 = *((uyvy*)(frame->video.getData() + (sizeof(uyvy) * (((loc.y * (frame->video.getWidth())) + loc.x) / 2))));
-            color.u=color2.u;
-            color.v=color2.v;
-            if ((loc.x % 2)==0) {
-              color.y=color2.y1;
+            ColorFormat source_format=frame->video.getColorFormat();
+            if (source_format==COLOR_RGB8) {
+              //plain copy of data
+                rgbImage img(frame->video);
+              color=Conversions::rgb2yuv(img.getPixel(loc.x,loc.y));
+            } else if (source_format==COLOR_YUV444) {
+              yuvImage img(frame->video);
+              color=img.getPixel(loc.x,loc.y);
+            } else if (source_format==COLOR_YUV422_UYVY) {
+              uyvy color2 = *((uyvy*)(frame->video.getData() + (sizeof(uyvy) * (((loc.y * (frame->video.getWidth())) + loc.x) / 2))));
+              color.u=color2.u;
+              color.v=color2.v;
+              if ((loc.x % 2)==0) {
+                color.y=color2.y1;
+              } else {
+                color.y=color2.y2;
+              }
             } else {
-              color.y=color2.y2;
+              //blank it:
+              fprintf(stderr,"Unable to pick color from frame of format: %s\n",Colors::colorFormatToString(source_format).c_str());
+              fprintf(stderr,"Currently supported are rgb8, yuv444, and yuv422 (UYVY).\n");
+              fprintf(stderr,"(Feel free to add more conversions to plugin_colorcalib.cpp).\n");
             }
-          } else {
-            //blank it:
-            fprintf(stderr,"Unable to pick color from frame of format: %s\n",Colors::colorFormatToString(source_format).c_str());
-            fprintf(stderr,"Currently supported are rgb8, yuv444, and yuv422 (UYVY).\n");
-            fprintf(stderr,"(Feel free to add more conversions to plugin_colorcalib.cpp).\n");
+            lutw->samplePixel(color);
+            //img.setPixel(loc.x,loc.y,rgb(255,0,0));
           }
-          lutw->samplePixel(color);
-          //img.setPixel(loc.x,loc.y,rgb(255,0,0));
         }
+        rb->unlockRead();
       }
-      rb->unlockRead();
+      event->accept();
     }
-    event->accept();
+  
   }
+  else
+    event->ignore();
 }
 
 void PluginColorCalibration::keyPressEvent ( QKeyEvent * event ) {

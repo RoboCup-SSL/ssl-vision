@@ -26,6 +26,8 @@
 #include "conversions.h"
 #include "lut3d.h"
 #include "cmvision_region.h"
+#include "camera_calibration.h"
+#include "field.h"
 
 /**
 	@author Stefan Zickler
@@ -56,10 +58,22 @@ protected:
   VarBool * _v_greyscale;
   VarBool * _v_thresholded;
   VarBool * _v_blobs;
+  VarBool * _v_camera_calibration;
+  VarBool * _v_calibration_result;
+  VarBool * _v_complete_sobel;
+  VarBool * _v_detected_edges;
 
+  const CameraParameters& camera_parameters;
+  const Field& field;
   LUT3D * _threshold_lut;
+  greyImage* edge_image;
+  greyImage* temp_grey_image;
+  
+  void drawFieldLine(double xStart, double yStart, double xEnd, double yEnd, int steps,
+                     VisualizationFrame * vis_frame);
+  
 public:
-    PluginVisualize(FrameBuffer * _buffer);
+    PluginVisualize(FrameBuffer * _buffer, const CameraParameters& camera_params, const Field& field);
 
     ~PluginVisualize();
 

@@ -265,11 +265,4 @@ public:
   bool operator()(const CMVision::Region &reg) const;*/
 };
 
-
-
-
-
-
-
-
 #endif

@@ -172,7 +172,6 @@ void CaptureThread::run() {
             stack->updateTimingStatistics();
             stack_mutex.unlock();
           }
-
           capture_mutex.lock();
           capture->releaseFrame();
           capture_mutex.unlock();

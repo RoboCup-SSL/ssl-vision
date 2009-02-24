@@ -15,6 +15,9 @@ UI_DIR = ../build/app/ui
 #where to place intermediate resource files
 RCC_DIR = ../build/app/resources
 
+#add libeigen include path
+INCLUDEPATH += /usr/include/eigen2
+
 #add libdc1394
 LIBS += -ldc1394
 

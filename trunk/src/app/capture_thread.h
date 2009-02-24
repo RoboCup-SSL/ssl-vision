@@ -1,4 +1,4 @@
-// //========================================================================
+//========================================================================
 //  This software is free: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License Version 3,
 //  as published by the Free Software Foundation.

@@ -191,6 +191,4 @@ MainWindow::~MainWindow() {
   multi_stack->stop();
       exit(0);
   delete opt;
-
-
 }

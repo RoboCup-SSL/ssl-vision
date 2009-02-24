@@ -25,9 +25,13 @@ StackRoboCupSSL::StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, strin
     _cam_settings_filename=cam_settings_filename;
     lut_yuv = new YUVLUT(4,6,6,cam_settings_filename + "-lut-yuv.xml");
     lut_yuv->loadRoboCupChannels(LUTChannelMode_Numeric);
+    field = new Field();
+    camera_parameters = new CameraParameters(*field);
 
     stack.push_back(new PluginColorCalibration(_fb,lut_yuv, LUTChannelMode_Numeric));
     settings->addChild(lut_yuv->getSettings());
+    
+    stack.push_back(new PluginCameraCalibration(_fb,*camera_parameters,*field));
 
     stack.push_back(new PluginColorThreshold(_fb,lut_yuv));
 
@@ -41,7 +45,7 @@ StackRoboCupSSL::StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, strin
 
     stack.push_back(new PluginDetectBalls(_fb,lut_yuv));
 
-    PluginVisualize * vis=new PluginVisualize(_fb);
+    PluginVisualize * vis=new PluginVisualize(_fb,*camera_parameters,*field);
     vis->setThresholdingLUT(lut_yuv);
     stack.push_back(vis);
 
@@ -52,5 +56,6 @@ string StackRoboCupSSL::getSettingsFileName() {
 }
 StackRoboCupSSL::~StackRoboCupSSL() {
   delete lut_yuv;
+  delete camera_parameters;
 }
 

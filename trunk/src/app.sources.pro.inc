@@ -55,6 +55,9 @@ HEADERS += $${PREFIX}/gui/glLUTwidget.h
 SOURCES += $${PREFIX}/gui/realtimedisplaywidget.cpp
 HEADERS += $${PREFIX}/gui/realtimedisplaywidget.h
 
+SOURCES += $${PREFIX}/gui/cameracalibwidget.cpp
+HEADERS += $${PREFIX}/gui/cameracalibwidget.h
+
 ###############
 ### PLUGINS ###
 
@@ -63,6 +66,9 @@ HEADERS += $${PREFIX}/plugins/visionplugin.h
 
 SOURCES += $${PREFIX}/plugins/plugin_colorcalib.cpp
 HEADERS += $${PREFIX}/plugins/plugin_colorcalib.h
+
+SOURCES += $${PREFIX}/plugins/plugin_cameracalib.cpp
+HEADERS += $${PREFIX}/plugins/plugin_cameracalib.h
 
 SOURCES += $${PREFIX}/plugins/plugin_colorthreshold.cpp
 HEADERS += $${PREFIX}/plugins/plugin_colorthreshold.h
