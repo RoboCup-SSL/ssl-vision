@@ -6,6 +6,13 @@ PREFIX = $${SHARED_DIR}/proto/cpp
 
 INCLUDEPATH += $${PREFIX}
 
-SOURCES += $${PREFIX}/*.pb.cc
-HEADERS += $${PREFIX}/*.pb.h
+LIST = $$system(ls $${PWD}/cpp/*.pb.cc)
+for(item, LIST) {
+  SOURCES += $${item}
+}
+
+LIST = $$system(ls $${PWD}/cpp/*.pb.h)
+for(item, LIST) {
+  HEADERS += $${item}
+}
 
