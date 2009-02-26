@@ -22,7 +22,7 @@
 #include <sobel.h>
 
 
-PluginVisualize::PluginVisualize(FrameBuffer * _buffer, const CameraParameters& camera_params, const Field& field)
+PluginVisualize::PluginVisualize(FrameBuffer * _buffer, const CameraParameters& camera_params, const RoboCupCalibrationHalfField& field)
  : VisionPlugin(_buffer), camera_parameters(camera_params), field(field)
 {
   _settings=new VarList("Visualization");

@@ -40,7 +40,7 @@ protected:
   VarList* field_settings;
   VarList* calibration_settings;
   CameraParameters& camera_parameters;
-  Field& field;
+  RoboCupCalibrationHalfField& field;
   CameraCalibrationWidget * ccw;
   greyImage* grey_image;
   rgbImage* rgb_image;
@@ -61,7 +61,7 @@ protected:
                                int pointsPerLine, bool detectCenter = false);
 
 public:
-  PluginCameraCalibration(FrameBuffer * _buffer, CameraParameters& camera_params, Field& _field);
+  PluginCameraCalibration(FrameBuffer * _buffer, CameraParameters& camera_params, RoboCupCalibrationHalfField& _field);
   ~PluginCameraCalibration();
   virtual ProcessResult process(FrameData * data, RenderOptions * options);
   virtual VarList * getSettings();

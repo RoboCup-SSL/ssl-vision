@@ -22,18 +22,24 @@
 #define CMVISION_HISTOGRAM_H
 #include "image.h"
 
-class CMVisionHistogram{
+namespace CMVision {
+
+class Histogram{
 protected:
     int * channels;
     int max_channels;
 public:
-    CMVisionHistogram(int _max_channels);
-    ~CMVisionHistogram();
+    Histogram(int _max_channels);
+    ~Histogram();
 
     //will sample a rectangular bounding box of a color-labeled image and add it to the histogram
     //the return value is the area of the box.
     int addBox(const Image<raw8> * image, int x1, int y1, int x2, int y2);
+    int getChannel(int channel);
+    void setChannel(int channel, int value);
     void clear();
 };
+
+}
 
 #endif

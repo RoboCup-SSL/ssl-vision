@@ -21,12 +21,15 @@
 #include "multistack_robocup_ssl.h"
 
 MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) : MultiVisionStack("RoboCup SSL Multi-Cam",_opts) {
+  //add global field calibration parameter
+  global_field = new RoboCupField();
+  settings->addChild(global_field->getSettings());
   //add parameter for number of cameras
   createThreads(cameras);
   unsigned int n = threads.size();
   for (unsigned int i = 0; i < n;i++) {
     threads[i]->setFrameBuffer(new FrameBuffer(5));
-    threads[i]->setStack(new StackRoboCupSSL(_opts,threads[i]->getFrameBuffer(),"robocup-ssl-cam-" + QString::number(i).toStdString()));
+    threads[i]->setStack(new StackRoboCupSSL(_opts,threads[i]->getFrameBuffer(),global_field,"robocup-ssl-cam-" + QString::number(i).toStdString()));
     }
     //TODO: make LUT widgets aware of each other for easy data-sharing
 }
@@ -37,5 +40,8 @@ string MultiStackRoboCupSSL::getSettingsFileName() {
 
 MultiStackRoboCupSSL::~MultiStackRoboCupSSL() {
   stop();
+  delete global_field;
 }
+
+
 

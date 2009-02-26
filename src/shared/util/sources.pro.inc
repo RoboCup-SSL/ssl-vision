@@ -61,7 +61,13 @@ HEADERS += $${PREFIX}/bitflags.h
 
 HEADERS += $${PREFIX}/field.h
 
+HEADERS += $${PREFIX}/field_filter.h
+
 HEADERS += $${PREFIX}/sobel.h
 
 HEADERS += $${PREFIX}/font.h
+
+HEADERS += $${PREFIX}/util.h
+
+HEADERS += $${PREFIX}/vis_util.h
 

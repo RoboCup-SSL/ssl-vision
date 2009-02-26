@@ -105,17 +105,17 @@ public:
   void setUsedRegions(int regions) {
     used_regions=regions;
   }
-  int getUsedRegions() {
+  int getUsedRegions() const {
     return used_regions;
   }
   ~RegionList() {
     delete[] regions;
   }
 public:
-  Region * getRegionArrayPointer() {
+  Region * getRegionArrayPointer() const {
     return regions;
   }
-  int getMaxRegions() {
+  int getMaxRegions() const {
     return max_regions;
   }
 };
@@ -129,10 +129,10 @@ public:
   RegionLinkedList() {
     reset();
   }
-  Region * getInitialElement() {
+  Region * getInitialElement() const {
     return _first;
   }
-  int getNumRegions() {
+  int getNumRegions() const {
    return _num;
   };
   void setFront(Region * r) {
@@ -165,15 +165,89 @@ public:
     delete[] color_regions;
   }
 public:
-  RegionLinkedList * getColorRegionArrayPointer() {
+  const RegionLinkedList & getRegionList(int idx) const {
+    return color_regions[idx];
+  }
+  RegionLinkedList * getColorRegionArrayPointer() const {
     return color_regions;
   }
-  int getNumColorRegions() {
+  int getNumColorRegions() const {
     return num_color_regions;
   }
 };
 
+
+class RegionFilter{
+protected:
+  const CMVision::Region *reg;
+  int w,h;
+  RangeInt area;
+  RangeInt width;
+  RangeInt height;
+public:
+  RegionFilter() {reg=0; w=0; h=0; area.set(0,1000000); width.set(0,1000); height.set(0,1000); }
+  void setArea(RangeInt & _area) {
+    area=_area;
+  }
+  void setWidth(RangeInt & _width) {
+    width=_width;
+  }
+  void setHeight(RangeInt & _height) {
+    height=_height;
+  }
+  void setArea(int _min, int _max) {
+    area.min=_min;
+    area.max=_max;
+  }
+  void setWidth(int _min, int _max) {
+    width.min=_min;
+    width.max=_max;
+  }
+  void setHeight(int _min, int _max) {
+    height.min=_min;
+    height.max=_max;
+  }
+  RangeInt getArea() {
+    return area;
+  }
+  RangeInt getWidth() {
+    return width;
+  }
+  RangeInt getHeight() {
+    return height;
+  }
+
+  void init(const CMVision::Region *region_list) {
+    reg = region_list;
+    // skip too-large regions in sorted region list
+    while(reg!=0 && reg->area>area.max) reg = reg->next;
+  }
+
+  const CMVision::Region * getNext()
+  {
+    // terminate when no regions, or no suitably large ones
+    if(reg==0) return(0);
+
+    // find the next region matching our ranges
+    while(reg!=0) {
+      w = reg->width();
+      h = reg->height();
+
+      if(reg->area < area.min) return(0);
+      if(width.inside(w) && height.inside(h)){
+        const CMVision::Region *match = reg;
+        reg = reg->next;
+        return(match);
+      }
+
+      reg = reg->next;
+    }
+    return(0);
+  }
 };
+
+}
+
 
 
 /**
@@ -219,50 +293,7 @@ public:
 
 
 
-class RegionFilter{
-protected:
-  const CMVision::Region *reg;
-  int w,h;
-  RangeInt area;
-  RangeInt width;
-  RangeInt height;
-public:
-  RegionFilter() {reg=0; w=0; h=0; area.set(0,1000000); width.set(0,1000); height.set(0,1000); }
-  void setArea(RangeInt & _area) {
-    area=_area;
-  }
-  void setWidth(RangeInt & _width) {
-    width=_width;
-  }
-  void setHeight(RangeInt & _height) {
-    height=_height;
-  }
-  void setArea(int _min, int _max) {
-    area.min=_min;
-    area.max=_max;
-  }
-  void setWidth(int _min, int _max) {
-    width.min=_min;
-    width.max=_max;
-  }
-  void setHeight(int _min, int _max) {
-    height.min=_min;
-    height.max=_max;
-  }
-  RangeInt getArea() {
-    return area;
-  }
-  RangeInt getWidth() {
-    return width;
-  }
-  RangeInt getHeight() {
-    return height;
-  }
 
-  /*void init(const CMVision::Region *reg_list);
-  const CMVision::Region *getNext();
 
-  bool operator()(const CMVision::Region &reg) const;*/
-};
 
 #endif

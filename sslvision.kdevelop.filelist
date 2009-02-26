@@ -91,6 +91,7 @@ src/shared/util/colors.h
 src/shared/util/conversions.cpp
 src/shared/util/conversions.h
 src/shared/util/field.h
+src/shared/util/field_filter.h
 src/shared/util/font.h
 src/shared/util/framecounter.h
 src/shared/util/geomalgo.h
@@ -124,6 +125,7 @@ src/shared/util/texture.cpp
 src/shared/util/texture.h
 src/shared/util/timer.h
 src/shared/util/util.h
+src/shared/util/vis_util.h
 src/shared/util/zoom.h
 src/shared/vartypes/VarBase64.cpp
 src/shared/vartypes/VarBase64.h

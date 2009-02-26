@@ -27,14 +27,14 @@
 
 PluginCameraCalibration::PluginCameraCalibration(FrameBuffer * _buffer, 
                                                  CameraParameters& camera_params,
-                                                 Field& _field) 
+                                                 RoboCupCalibrationHalfField& _field) 
   : VisionPlugin(_buffer), camera_parameters(camera_params), field(_field), ccw(0),
      grey_image(0), rgb_image(0), doing_drag(false), drag_x(0), drag_y(0)
 {
   settings=new VarList("Camera Calibrator");
   settings->addChild(camera_settings = new VarList("Camera Parameters"));
   camera_params.addSettingsToList(*camera_settings);
-  settings->addChild(field_settings = new VarList("Field Configuration"));
+  settings->addChild(field_settings = new VarList("Field Half Configuration"));
   field.addSettingsToList(*field_settings);
   settings->addChild(calibration_settings = new VarList("Calibration Parameters"));
   camera_parameters.additional_calibration_information->addSettingsToList(*calibration_settings);

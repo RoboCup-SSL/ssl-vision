@@ -45,7 +45,7 @@ public:
   class AdditionalCalibrationInformation;
   class LSCalibrationData;
 
-  CameraParameters(Field &field);
+  CameraParameters(RoboCupCalibrationHalfField &field);
   ~CameraParameters();
   void addSettingsToList(VarList& list);
   
@@ -74,7 +74,7 @@ public:
   AdditionalCalibrationInformation* additional_calibration_information;
   
   void field2image(const GVector::vector3d<double> &p_f, GVector::vector2d<double> &p_i) const;
-  void image2field(GVector::vector3d<double> &p_f, GVector::vector2d<double> &p_i, double z);
+  void image2field(GVector::vector3d<double> &p_f, GVector::vector2d<double> &p_i, double z) const;
   void calibrate(std::vector<GVector::vector3d<double> > &p_f, std::vector<GVector::vector2d<double> > &p_i, int cal_type);
   
   double calc_chisqr(std::vector<GVector::vector3d<double> > &p_f, std::vector<GVector::vector2d<double> > &p_i, Eigen::VectorXd &p, int);
@@ -104,7 +104,7 @@ public:
 
   std::vector<int> p_to_est;
   
-  Field field;
+  const RoboCupCalibrationHalfField & field;
   /*!
   \class AdditionalCalibrationInformation
   \brief Some additional data used for calibration 
