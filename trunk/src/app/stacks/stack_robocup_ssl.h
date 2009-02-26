@@ -46,10 +46,11 @@ class StackRoboCupSSL : public VisionStack {
   YUVLUT * lut_yuv;
   string _cam_settings_filename;
   CameraParameters* camera_parameters;
-  Field* field;
+  RoboCupField * global_field;
+  RoboCupCalibrationHalfField * calib_field;
 
   public:
-  StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, string cam_settings_filename);
+  StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, RoboCupField * _global_field, string cam_settings_filename);
   virtual string getSettingsFileName();
   virtual ~StackRoboCupSSL();
 };

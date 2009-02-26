@@ -13,31 +13,25 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    multistack_robocup_ssl.h
-  \brief   C++ Interface: multistack_robocup_ssl
-  \author  Author Name, 2008
+  \file    vis_util.h
+  \brief   Vision support functions
+  \author  James R. Bruce, (C) 1999-2002
 */
 //========================================================================
-#ifndef MULTISTACK_ROBOCUP_SSL_H
-#define MULTISTACK_ROBOCUP_SSL_H
 
-#include "multivisionstack.h"
-#include "stack_robocup_ssl.h"
-#include "field.h"
-using namespace std;
+#ifndef __VIS_UTIL_H__
+#define __VIS_UTIL_H__
 
-/*!
-  \class   MultiStackRoboCupSSL
-  \brief   The multi-camera vision processing stack used for the RoboCup SSL vision system.
-  \author  Stefan Zickler, (C) 2008
-*/
-class MultiStackRoboCupSSL : public MultiVisionStack {
-  protected:
-  RoboCupField * global_field;
-  public:
-  MultiStackRoboCupSSL(RenderOptions * _opts, int cameras);
-  virtual string getSettingsFileName();
-  virtual ~MultiStackRoboCupSSL();
-};
+#include <math.h>
+
+inline double gaussian(double x)
+{
+  return(exp(-(x*x)/2));
+}
+
+inline double gaussian(double x,double var)
+{
+  return(exp(x*x / (-2*var)));
+}
 
 #endif

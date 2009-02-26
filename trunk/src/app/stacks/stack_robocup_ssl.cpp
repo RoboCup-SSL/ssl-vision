@@ -20,18 +20,18 @@
 //========================================================================
 #include "stack_robocup_ssl.h"
 
-StackRoboCupSSL::StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, string cam_settings_filename) : VisionStack("RoboCup Image Processing",_opts) {
+StackRoboCupSSL::StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, RoboCupField * _global_field, string cam_settings_filename) : VisionStack("RoboCup Image Processing",_opts), global_field(_global_field) {
     (void)_fb;
     _cam_settings_filename=cam_settings_filename;
     lut_yuv = new YUVLUT(4,6,6,cam_settings_filename + "-lut-yuv.xml");
     lut_yuv->loadRoboCupChannels(LUTChannelMode_Numeric);
-    field = new Field();
-    camera_parameters = new CameraParameters(*field);
+    calib_field = new RoboCupCalibrationHalfField(global_field);
+    camera_parameters = new CameraParameters(*calib_field);
 
     stack.push_back(new PluginColorCalibration(_fb,lut_yuv, LUTChannelMode_Numeric));
     settings->addChild(lut_yuv->getSettings());
     
-    stack.push_back(new PluginCameraCalibration(_fb,*camera_parameters,*field));
+    stack.push_back(new PluginCameraCalibration(_fb,*camera_parameters,*calib_field));
 
     stack.push_back(new PluginColorThreshold(_fb,lut_yuv));
 
@@ -43,9 +43,9 @@ StackRoboCupSSL::StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, strin
     //we don't expect more than 10k blobs per image
     stack.push_back(new PluginFindBlobs(_fb,lut_yuv, 10000));
 
-    stack.push_back(new PluginDetectBalls(_fb,lut_yuv));
+    stack.push_back(new PluginDetectBalls(_fb,lut_yuv,*camera_parameters,*global_field));
 
-    PluginVisualize * vis=new PluginVisualize(_fb,*camera_parameters,*field);
+    PluginVisualize * vis=new PluginVisualize(_fb,*camera_parameters,*calib_field);
     vis->setThresholdingLUT(lut_yuv);
     stack.push_back(vis);
 

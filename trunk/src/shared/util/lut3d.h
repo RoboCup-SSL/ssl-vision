@@ -144,6 +144,13 @@ class LUT3D{
 
     }
 
+    int getChannelID(const string & label) const {
+      for (int i = 0; i < getChannelCount(); i++) {
+        if (channels[i].label.compare(label)==0) return i;
+      }
+      return -1;
+    }
+
     void setChannel(unsigned int idx, LUTChannel c) {
       if (idx < channels.size()) {
         channels[idx]=c;

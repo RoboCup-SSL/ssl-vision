@@ -15,53 +15,327 @@
 /*!
   \file    field.h
   \brief   Definition of field dimensions
-  \author  Tim Laue, (C) 2009
+  \author  Stefan Zickler / Tim Laue, (C) 2009
 */
 //========================================================================
 
 #ifndef FIELD_H
 #define FIELD_H
 
-#include <VarInt.h>
+#include "VarTypes.h"
+#include <QObject>
 
+/*!
+  \class RoboCupField
+
+  \brief Definition of all variables for a symmetric, regulation-style RoboCup SSL field
+
+  \author Stefan Zickler , (C) 2009
+**/
+class RoboCupField : public QObject
+{
+Q_OBJECT
+
+protected:
+  vector<VarData *> field_params;
+  vector<VarData *> derived_params;
+  VarList * settings;
+  VarTrigger * restore;
+public:
+  VarList * getSettings() {
+    return settings;
+  }
+  VarInt * line_width;
+  VarInt * field_length;
+  VarInt * field_width;
+  VarInt * boundary_width;
+  VarInt * referee_width;
+  VarInt * goal_width;
+  VarInt * goal_depth;
+  VarInt * goal_wall_width;
+  VarInt * center_circle_radius;
+  VarInt * defense_radius;
+  VarInt * defense_stretch;
+  VarInt * free_kick_from_defense_dist;
+  VarInt * penalty_spot_from_field_line_dist;
+  VarInt * penalty_line_from_spot_dist;
+
+  //derived:
+  VarInt * field_total_playable_length;
+  VarInt * field_total_playable_width;
+  VarInt * field_total_surface_length;
+  VarInt * field_total_surface_width;
+  VarInt * half_field_length;
+  VarInt * half_field_width;
+  VarInt * half_line_width;
+  VarInt * half_goal_width;
+  VarInt * half_defense_stretch;
+  VarInt * half_field_total_playable_length;
+  VarInt * half_field_total_playable_width;
+  VarInt * half_field_total_surface_length;
+  VarInt * half_field_total_surface_width;
+
+
+  void loadDefaultsRoboCup2009() {
+    line_width->setInt(10);
+    field_length->setInt(6050);
+    field_width->setInt(4050);
+    boundary_width->setInt(250);
+    referee_width->setInt(425);
+    goal_width->setInt(700);
+    goal_depth->setInt(180);
+    goal_wall_width->setInt(20);
+    center_circle_radius->setInt(500);
+    defense_radius->setInt(500);
+    defense_stretch->setInt(350);
+    free_kick_from_defense_dist->setInt(200);
+    penalty_spot_from_field_line_dist->setInt(450);
+    penalty_line_from_spot_dist->setInt(400);
+    updateDerivedParameters();
+  }
+  void updateDerivedParameters() {
+    field_total_playable_length->setInt(field_length->getInt() + (2 * boundary_width->getInt()));
+    field_total_playable_width ->setInt(field_width->getInt() + (2 * boundary_width->getInt()));
+    field_total_surface_length->setInt(field_length->getInt() + (2 * (boundary_width->getInt() + referee_width->getInt())));
+    field_total_surface_width->setInt(field_width->getInt() + (2 * (boundary_width->getInt() + referee_width->getInt())));
+    half_field_length->setInt(field_length->getInt() / 2);
+    half_field_width->setInt(field_width->getInt() / 2);
+    half_line_width->setInt(line_width->getInt() / 2);
+    half_goal_width->setInt(goal_width->getInt() / 2);
+    half_defense_stretch->setInt(defense_stretch->getInt() / 2);
+    half_field_total_playable_length->setInt(field_total_playable_length->getInt() / 2);
+    half_field_total_playable_width->setInt(field_total_playable_width->getInt() / 2);
+    half_field_total_surface_length->setInt(field_total_surface_length->getInt() / 2);
+    half_field_total_surface_width->setInt(field_total_surface_width->getInt() / 2);
+  }
+
+  RoboCupField()
+  {
+    settings = new VarList("Field Configuration");
+    settings->addChild(restore = new VarTrigger("Reset SSL 2009","Reset SSL 2009"));
+    
+    connect(restore,SIGNAL(wasEdited(VarData*)),this,SLOT(restoreRoboCup()));
+    //regulation-based symmetric field:
+    field_params.push_back(line_width             = new VarInt("Line Width"));
+   
+    field_params.push_back(field_length           = new VarInt("Field Length")); //including lines (outside to outside)
+    field_params.push_back(field_width            = new VarInt("Field Height")); //including lines (outside to outside)
+    
+    field_params.push_back(boundary_width         = new VarInt("Boundary Width")); //width of the boundary
+    field_params.push_back(referee_width          = new VarInt("Referee Width")); //width of the ref-walking area
+    
+    field_params.push_back(goal_width             = new VarInt("Goal Width")); //inside width of the goal
+    field_params.push_back(goal_depth             = new VarInt("Goal Depth")); //inside depth of the goal
+    field_params.push_back(goal_wall_width        = new VarInt("Goal Wall Width")); //goal wall thickness
+    
+    field_params.push_back(center_circle_radius   = new VarInt("Center Radius")); //radius of defense quarter circles
+    
+    field_params.push_back(defense_radius         = new VarInt("Defense Radius")); //radius of defense quarter circles
+    
+    //total length of the line connecting the two quarter circles of the defense area:
+    field_params.push_back(defense_stretch        = new VarInt("Defense Stretch")); 
+    
+    //distance that freekickers have to be from the defense line:
+    field_params.push_back(free_kick_from_defense_dist = new VarInt("Freekick Defense Dist")); 
+    
+    //distance of the penalty spot's center from the outside of the field line
+    field_params.push_back(penalty_spot_from_field_line_dist = new VarInt("Penalty Spot Dist")); 
+    
+    //distance between the penalty spot and the line where all other robots must be behind during penalty
+    field_params.push_back(penalty_line_from_spot_dist = new VarInt("Penalty Line From Spot Dist")); 
+    
+    //---------------------------------------------------------------
+    //auto-derived variables:
+    //---------------------------------------------------------------
+    
+    //total length of field (including boundary, BUT NOT INCLUDING REFEREE WALKING AREA)
+    derived_params.push_back(field_total_playable_length        = new VarInt("Total Playable Length")); 
+    derived_params.push_back(field_total_playable_width         = new VarInt("Total Playable Width")); 
+    
+    //total length from the outer walls (including playable boundary and referee walking area):
+    derived_params.push_back(field_total_surface_length         = new VarInt("Total Surface Length")); 
+    derived_params.push_back(field_total_surface_width          = new VarInt("Total Surface Width")); 
+    
+    derived_params.push_back(half_field_length                  = new VarInt("Half Field Length"));
+    derived_params.push_back(half_field_width                   = new VarInt("Half Field Width"));
+    derived_params.push_back(half_line_width                    = new VarInt("Half Line Width"));
+    derived_params.push_back(half_goal_width                    = new VarInt("Half Goal Width"));
+    derived_params.push_back(half_defense_stretch               = new VarInt("Half Defense Stretch")); 
+    derived_params.push_back(half_field_total_playable_length   = new VarInt("Half Total Playable Length")); 
+    derived_params.push_back(half_field_total_playable_width    = new VarInt("Half Total Playable Width")); 
+    derived_params.push_back(half_field_total_surface_length    = new VarInt("Half Total Surface Length")); 
+    derived_params.push_back(half_field_total_surface_width     = new VarInt("Half Total Surface Width")); 
+    
+    for (unsigned int i=0;i<field_params.size();i++) {
+      connect(field_params[i],SIGNAL(hasChanged()),this,SLOT(changed()));
+      settings->addChild(field_params[i]);
+    }
+    for (unsigned int i=0;i<derived_params.size();i++) {
+      derived_params[i]->setRenderFlags( DT_FLAG_READONLY );
+      settings->addChild(derived_params[i]);
+    }
+    
+    loadDefaultsRoboCup2009();
+    emit calibrationChanged();
+    //setup the derived parameters to auto-update when the non-derived parameters change.
+    
+    
+  }
+  
+  ~RoboCupField() {
+    field_params.clear();
+    derived_params.clear();
+    delete line_width;
+    delete field_length;
+    delete field_width;
+    delete boundary_width;
+    delete referee_width;
+    delete goal_width;
+    delete goal_depth;
+    delete goal_wall_width;
+    delete center_circle_radius;
+    delete defense_radius;
+    delete free_kick_from_defense_dist;
+    delete penalty_spot_from_field_line_dist;
+    delete penalty_line_from_spot_dist;
+
+    //derived:
+    delete field_total_playable_length;
+    delete field_total_playable_width;
+    delete field_total_surface_length;
+    delete field_total_surface_width;
+    delete half_field_length;
+    delete half_field_width;
+    delete half_line_width;
+    delete half_goal_width;
+    delete half_defense_stretch;
+    delete half_field_total_playable_length;
+    delete half_field_total_playable_width;
+    delete half_field_total_surface_length;
+    delete half_field_total_surface_width;
+    
+    delete restore;
+    delete settings;
+  }
+ public:
+  signals:
+  void calibrationChanged();
+
+protected slots:
+  void changed() {
+    updateDerivedParameters();
+    calibrationChanged();
+  }
+  void restoreRoboCup() {
+    loadDefaultsRoboCup2009();
+  }
+};
+    
 /*!
   \class Field
 
   \brief Definition of point coordinates (in mm) defining one half of the field
 
-  \author Tim Laue, (C) 2009
-**/
-class Field
+  \author Tim Laue , (C) 2009
+**/    
+
+class RoboCupCalibrationHalfField : public QObject
 {
+Q_OBJECT
+protected slots:
+  void globalCalibrationChanged() {
+    update();
+  }
+  void autoUpdateChanged() {
+    if (auto_update->getBool()==true) {
+      //disable all items
+      for (unsigned int i = 0; i < params.size(); i++) {
+        params[i]->setRenderFlags(DT_FLAG_READONLY|DT_FLAG_NOLOAD);
+      }
+      update();
+    } else {
+      //enable all items
+      for (unsigned int i = 0; i < params.size(); i++) {
+        params[i]->removeRenderFlags(DT_FLAG_READONLY|DT_FLAG_NOLOAD);
+      }
+    }
+  }
+protected:
+  RoboCupField * robocup_field;
+  vector<VarData *> params;
+  VarBool * auto_update;
 public:
-  Field()
-  {
-    left_corner_x = new VarInt("left corner x", 3025);
-    left_corner_y = new VarInt("left corner y", 2025);
-    left_goal_area_x = new VarInt("left goal area x", 3025); 
-    left_goal_area_y = new VarInt("left goal area y", 675); 
-    left_goal_post_x = new VarInt("left post area x", 3025); 
-    left_goal_post_y = new VarInt("left post area y", 350); 
-    right_goal_post_x = new VarInt("right post area x", 3025); 
-    right_goal_post_y = new VarInt("right post area y", -350); 
-    right_goal_area_x = new VarInt("right goal area x", 3025); 
-    right_goal_area_y = new VarInt("right goal area y", -675); 
-    right_corner_x = new VarInt("right corner x", 3025);
-    right_corner_y = new VarInt("right corner y", -2025);
-    left_centerline_x = new VarInt("left centerline x", 0);
-    left_centerline_y = new VarInt("left centerline y", 2025);
-    left_centercircle_x = new VarInt("left centercircle x", 0); 
-    left_centercircle_y = new VarInt("left centercircle y", 500); 
-    centerpoint_x = new VarInt("centercircle x", 0); 
-    centerpoint_y = new VarInt("centercircle y", 0); 
-    right_centercircle_x = new VarInt("right centercircle x", 0); 
-    right_centercircle_y = new VarInt("right centercircle y", -500); 
-    right_centerline_x = new VarInt("right centerline x", 0);
-    right_centerline_y = new VarInt("right centerline y", -2025);
+  RoboCupCalibrationHalfField(RoboCupField * _robocup_field = 0) {
+    robocup_field=_robocup_field;
+    if (robocup_field!=0) {
+      connect(robocup_field,SIGNAL(calibrationChanged()),this,SLOT(globalCalibrationChanged()));
+    }
+    auto_update = new VarBool("Auto-Copy from Global Field Config",true);
+    connect(auto_update,SIGNAL(hasChanged()),this,SLOT(autoUpdateChanged()));
+    
+    params.push_back(left_corner_x = new VarInt("left corner x", 3025));
+    params.push_back(left_corner_y = new VarInt("left corner y", 2025));
+    params.push_back(left_goal_area_x = new VarInt("left goal area x", 3025)); 
+    params.push_back(left_goal_area_y = new VarInt("left goal area y", 675)); 
+    params.push_back(left_goal_post_x = new VarInt("left post area x", 3025)); 
+    params.push_back(left_goal_post_y = new VarInt("left post area y", 350)); 
+    params.push_back(right_goal_post_x = new VarInt("right post area x", 3025)); 
+    params.push_back(right_goal_post_y = new VarInt("right post area y", -350)); 
+    params.push_back(right_goal_area_x = new VarInt("right goal area x", 3025)); 
+    params.push_back(right_goal_area_y = new VarInt("right goal area y", -675)); 
+    params.push_back(right_corner_x = new VarInt("right corner x", 3025));
+    params.push_back(right_corner_y = new VarInt("right corner y", -2025));
+    params.push_back(left_centerline_x = new VarInt("left centerline x", 0));
+    params.push_back(left_centerline_y = new VarInt("left centerline y", 2025));
+    params.push_back(left_centercircle_x = new VarInt("left centercircle x", 0)); 
+    params.push_back(left_centercircle_y = new VarInt("left centercircle y", 500)); 
+    params.push_back(centerpoint_x = new VarInt("centercircle x", 0)); 
+    params.push_back(centerpoint_y = new VarInt("centercircle y", 0)); 
+    params.push_back(right_centercircle_x = new VarInt("right centercircle x", 0)); 
+    params.push_back(right_centercircle_y = new VarInt("right centercircle y", -500)); 
+    params.push_back(right_centerline_x = new VarInt("right centerline x", 0));
+    params.push_back(right_centerline_y = new VarInt("right centerline y", -2025));
+    autoUpdateChanged();
+    update();
+  }
+
+  void update() {
+    if (auto_update->getBool() == true && robocup_field!=0) copyFromRoboCupField(robocup_field);
+  }
+
+  void copyFromRoboCupField(RoboCupField * field) {
+    left_corner_x->setInt(field->half_field_length->getInt());
+    left_corner_y->setInt(field->half_field_width->getInt());
+    left_goal_area_x->setInt(field->half_field_length->getInt());
+    left_goal_area_y->setInt(field->defense_radius->getInt()+field->half_defense_stretch->getInt());
+    left_goal_post_x->setInt(field->half_field_length->getInt());
+    left_goal_post_y->setInt(field->half_goal_width->getInt());
+    
+    right_corner_x->setInt(left_corner_x->getInt());
+    right_corner_y->setInt(-left_corner_y->getInt());
+    right_goal_area_x->setInt(left_goal_area_x->getInt());
+    right_goal_area_y->setInt(-left_goal_area_y->getInt());
+    right_goal_post_x->setInt(left_goal_post_x->getInt());
+    right_goal_post_y->setInt(-left_goal_post_y->getInt());
+    
+    left_centerline_x->setInt(0);
+    left_centerline_y->setInt(left_corner_y->getInt());
+    left_centercircle_x->setInt(0);
+    left_centercircle_y->setInt(field->center_circle_radius->getInt());
+    
+    right_centerline_x->setInt(0);
+    right_centerline_y->setInt(-left_centerline_y->getInt());
+    right_centercircle_x->setInt(0);
+    right_centercircle_y->setInt(-left_centercircle_y->getInt());
+    
+    centerpoint_x->setInt(0);
+    centerpoint_y->setInt(0);
   }
   
-  ~Field()
+  ~RoboCupCalibrationHalfField()
   {
+    params.clear();
+    delete auto_update;
     delete left_corner_x;
     delete left_corner_y;
     delete left_goal_area_x; 
@@ -88,6 +362,7 @@ public:
   
   void addSettingsToList(VarList& list) 
   {
+    list.addChild(auto_update);
     list.addChild(left_corner_x);
     list.addChild(left_corner_y);
     list.addChild(left_goal_area_x); 

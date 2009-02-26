@@ -6,7 +6,7 @@
 #include "field.h"
 #include "geomalgo.h"
 
-CameraParameters::CameraParameters(Field & _field) : field(_field)
+CameraParameters::CameraParameters(RoboCupCalibrationHalfField & _field) : field(_field)
 {
   focal_length = new VarDouble("focal length", 700.0);
   principal_point_x = new VarDouble("principal point x", 390.0);
@@ -104,7 +104,7 @@ void CameraParameters::field2image(GVector::vector3d<double> &p_f, GVector::vect
     GVector::vector2d<double>(principal_point_x->getDouble() + p[PP_X], principal_point_y->getDouble() + p[PP_Y]);
 }
 
-void CameraParameters::image2field(GVector::vector3d<double> &p_f, GVector::vector2d<double> &p_i, double z)
+void CameraParameters::image2field(GVector::vector3d<double> &p_f, GVector::vector2d<double> &p_i, double z) const
 {
   // Undo scaling and offset
   GVector::vector2d<double> p_un((p_i.x - principal_point_x->getDouble()) / focal_length->getDouble(),

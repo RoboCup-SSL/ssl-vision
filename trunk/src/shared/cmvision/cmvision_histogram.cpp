@@ -20,20 +20,22 @@
 //========================================================================
 #include "cmvision_histogram.h"
 
-CMVisionHistogram::CMVisionHistogram(int _max_channels)
+namespace CMVision {
+
+Histogram::Histogram(int _max_channels)
 {
   if (_max_channels < 1) _max_channels=1;
   max_channels=_max_channels;
   channels=new int[max_channels];
 }
 
-void CMVisionHistogram::clear() {
+void Histogram::clear() {
   for (int i=0;i<max_channels;i++) {
     channels[i]=0;
   }
 }
 
-int CMVisionHistogram::addBox(const Image<raw8> * image, int x1, int y1, int x2, int y2) {
+int Histogram::addBox(const Image<raw8> * image, int x1, int y1, int x2, int y2) {
   raw8 * data = image->getPixelData();
   int image_width = image->getWidth();
   int image_height = image->getHeight();
@@ -52,10 +54,18 @@ int CMVisionHistogram::addBox(const Image<raw8> * image, int x1, int y1, int x2,
   return((x2 - x1 + 1) * (y2 - y1 + 1));
 }
 
+int Histogram::getChannel(int channel) {
+  return channels[channel];
+}
 
-CMVisionHistogram::~CMVisionHistogram()
+void Histogram::setChannel(int channel, int value) {
+  channels[channel]=value;
+}
+
+Histogram::~Histogram()
 {
   delete[] channels;
 }
 
+};
 
