@@ -219,6 +219,7 @@ public:
 
   void init(const CMVision::Region *region_list) {
     reg = region_list;
+
     // skip too-large regions in sorted region list
     while(reg!=0 && reg->area>area.max) reg = reg->next;
   }

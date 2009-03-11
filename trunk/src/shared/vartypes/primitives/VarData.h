@@ -63,7 +63,8 @@ enum vDataFlags {
   DT_FLAG_NOLOAD = 0x01 << 5, /// don't load this subtree from XML
   DT_FLAG_PERSISTENT = 0x01 << 6, /// make the item editor be persistent (always open, not just when clicked on it)
   DT_FLAG_HIDE_CHILDREN = 0x01 << 7, /// hide the entire subtree (but not node itself)
-  DT_FLAG_ENUM_COUNT = 0x01 << 8,
+  DT_FLAG_NOLOAD_ENUM_CHILDREN = 0x01 << 8, /// don't load this subtree from XML  
+  DT_FLAG_ENUM_COUNT = 0x01 << 9,
   DT_FLAG_NOSTORE = DT_FLAG_NOSAVE | DT_FLAG_NOLOAD
 };
 
@@ -264,6 +265,13 @@ public:
   ///
   /// \see hasValue()
   virtual double getValue() const; //returns the numeric value
+
+  /// Finds a child based on its label
+  /// Returns 0 if not found
+  VarData * findChild(string label) const;
+
+  /// TODO: implement this function. It might be useful for some purposes.
+  /// VarData * merge(VarData * structure, VarData * data);
 
 
 #ifndef VDATA_NO_XML

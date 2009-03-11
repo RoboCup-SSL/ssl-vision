@@ -69,7 +69,10 @@ ProcessResult PluginFindBlobs::process(FrameData * data, RenderOptions * options
   }
 
   //Separate Regions by colors:
-  CMVisionRegion::separateRegions(colorlist, reglist, _v_min_blob_area->getInt());
+  int max_area = CMVisionRegion::separateRegions(colorlist, reglist, _v_min_blob_area->getInt());
+
+  //Sort Regions:
+  CMVisionRegion::sortRegions(colorlist,max_area);
 
   return ProcessingOk;
   

@@ -10,14 +10,13 @@ message SSL_DetectionBall {
 
 message SSL_DetectionRobot {
   required float  confidence  =  1;
-  required uint32 team_color  =  2;
-  required uint32 robot_id    =  3;
-  required float  x           =  4;
-  required float  y           =  5;
-  optional float  orientation =  6;
-  required float  pixel_x     =  7;
-  required float  pixel_y     =  8;
-  optional float  height      =  9;
+  optional uint32 robot_id    =  2;
+  required float  x           =  3;
+  required float  y           =  4;
+  optional float  orientation =  5;
+  required float  pixel_x     =  6;
+  required float  pixel_y     =  7;
+  optional float  height      =  8;
 }
 
 message SSL_DetectionFrame {

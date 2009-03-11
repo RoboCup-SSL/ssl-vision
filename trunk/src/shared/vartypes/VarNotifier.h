@@ -1,0 +1,77 @@
+//========================================================================
+//  This software is free: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License Version 3,
+//  as published by the Free Software Foundation.
+//
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  Version 3 in the file COPYING that came with this distribution.
+//  If not, see <http://www.gnu.org/licenses/>.
+//========================================================================
+/*!
+  \file    varnotifier.h
+  \brief   C++ Interface: varnotifier
+  \author  Stefan Zickler, 2009
+*/
+//========================================================================
+#ifndef VARNOTIFIER_H
+#define VARNOTIFIER_H
+#include "VarData.h"
+#include <QObject>
+#include <QMutex>
+#include <QHash>
+#include <QQueue>
+
+/**
+	@author Stefan Zickler
+  @brief  A helper class which accumulates the occurence of VarData changes
+*/
+class VarNotifier : public QObject {
+Q_OBJECT
+public:
+  enum VarNotificationType {
+    VarNotificationChanged,
+    VarNotificationEdited,
+  };
+protected:
+  void internalNonMutexedAddItem(VarData * item, VarNotificationType notification_type=VarNotificationChanged);
+  void internalNonMutexedRemoveItem(VarData * item);
+public:
+   QHash<VarData *, VarNotificationType> senders;
+   bool changed;
+   QMutex mutex;
+protected slots:
+    void changeSlot(VarData * item);
+signals:
+    void changeOccured(VarData * item);
+public:
+    VarNotifier();
+
+    ~VarNotifier();
+
+    void addItem(VarData * item, VarNotificationType notification_type=VarNotificationChanged);
+
+    void addRecursive(VarData * item, VarNotificationType notification_type=VarNotificationChanged, bool include_root=true); 
+
+    void removeItem(VarData *item);
+
+    void removeRecursive(VarData * item, bool include_root=true);
+
+    /// This will report true if any events have happened, but it will not reset the event counter
+    /// It is encouraged to use hasChanged() instead, if possible.
+    bool hasChangedNoReset();
+
+    /// This will report true if any events have happened and reset the event counter.
+    bool hasChanged();
+
+    void setChanged(bool value);
+
+    void clear();
+
+};
+
+#endif

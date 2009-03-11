@@ -20,10 +20,17 @@
 //========================================================================
 #include "plugin_detect_balls.h"
 
-PluginDetectBalls::PluginDetectBalls(FrameBuffer * _buffer, LUT3D * lut, const CameraParameters& camera_params, const RoboCupField& field)
+PluginDetectBalls::PluginDetectBalls(FrameBuffer * _buffer, LUT3D * lut, const CameraParameters& camera_params, const RoboCupField& field,PluginDetectBallsSettings * settings)
  : VisionPlugin(_buffer), camera_parameters(camera_params), field(field)
 {
   _lut=lut;
+ 
+  _settings=settings;
+  _have_local_settings=false;
+  if (_settings==0) {
+    _settings = new PluginDetectBallsSettings();
+    _have_local_settings=true;
+  }
 
   //read-out important LUT data:
   histogram = new CMVision::Histogram(_lut->getChannelCount());
@@ -37,39 +44,7 @@ PluginDetectBalls::PluginDetectBalls(FrameBuffer * _buffer, LUT3D * lut, const C
   if (color_id_field == -1) printf("WARNING color label 'Field Green' not defined in LUT!!!\n");
 
 
-  _settings=new VarList("Ball Detection");
 
-  _settings->addChild(_max_balls = new VarInt("Max Ball Count",1));
-  _settings->addChild(_color_label = new VarString("Ball Color","Orange"));
-
-  _settings->addChild(_filter_general = new VarList("Ball Properties"));
-    _filter_general->addChild(_ball_z_height = new VarDouble("Ball Z-Height", 30.0));
-    _filter_general->addChild(_ball_max_speed = new VarDouble("Max Speed (mm/s)", 10000.0));
-    _filter_general->addChild(_ball_min_width = new VarInt("Min Width (pixels)", 3));
-    _filter_general->addChild(_ball_max_width = new VarInt("Max Width (pixels)", 30));
-    _filter_general->addChild(_ball_min_height = new VarInt("Min Height (pixels)", 3));
-    _filter_general->addChild(_ball_max_height = new VarInt("Max Height (pixels)", 30));
-    _filter_general->addChild(_ball_min_area = new VarInt("Min Area (sq-pixels)", 9));
-    _filter_general->addChild(_ball_max_area = new VarInt("Max Area (sq-pixels)", 100));    
-
-  _settings->addChild(_filter_gauss = new VarList("Gaussian Size Filter"));
-    _filter_gauss->addChild(_ball_gauss_enabled = new VarBool("Enable Filter",true));
-    _filter_gauss->addChild(_ball_gauss_min = new VarInt("Expected Min Area (sq-pixels)", 30));
-    _filter_gauss->addChild(_ball_gauss_max = new VarInt("Expected Max Area (sq-pixels)", 40));
-    _filter_gauss->addChild(_ball_gauss_var = new VarDouble("Expected Area Variance", 20.0));
-
-  _settings->addChild(_filter_too_near_robot = new VarList("Near Robot Filter"));
-    _filter_too_near_robot->addChild(_ball_too_near_robot_enabled = new VarBool("Enable Filter",true));
-    _filter_too_near_robot->addChild(_ball_too_near_robot_dist = new VarDouble("Distance (mm)",55));
-
-  _settings->addChild(_filter_histogram = new VarList("Histogram Filter"));
-    _filter_histogram->addChild(_ball_histogram_enabled = new VarBool("Enable Filter",true));
-    _filter_histogram->addChild(_ball_histogram_min_greenness = new VarDouble("Min Greenness",0.5));
-    _filter_histogram->addChild(_ball_histogram_max_markeryness = new VarDouble("Max Markeryness",2.0));
-
-  _settings->addChild(_filter_geometry = new VarList("Geometry Filters"));
-    _filter_geometry->addChild(_ball_on_field_filter = new VarBool("Ball-In-Field Filter",true));  
-    _filter_geometry->addChild(_ball_in_goal_filter = new VarBool("Ball-In-Goal Filter",true));
 
 }
 
@@ -81,7 +56,11 @@ PluginDetectBalls::~PluginDetectBalls()
 
 
 VarList * PluginDetectBalls::getSettings() {
-  return _settings;
+  if (_have_local_settings) {
+    return _settings->getSettings();
+  } else {
+    return 0;
+  }
 }
 
 string PluginDetectBalls::getName() {
@@ -102,7 +81,6 @@ bool PluginDetectBalls::checkHistogram(const Image<raw8> * image, const CMVision
   float markeryness = (pf + 1) * (yf + 1) - 1;
   float greenness = (float)(histogram->getChannel(color_id_field)) / (((float)(num - histogram->getChannel(color_id_orange))) + 1E-6);
 
-  printf("markeryness: %f\n",markeryness);
   if(greenness   > min_greenness) return(true);
   if(markeryness > max_markeryness) return(false);
   return(true);
@@ -118,25 +96,27 @@ ProcessResult PluginDetectBalls::process(FrameData * data, RenderOptions * optio
   detection_frame=(SSL_DetectionFrame *)data->map.get("ssl_detection_frame");
   if (detection_frame == 0) detection_frame=new SSL_DetectionFrame();
 
-  int color_id_ball = _lut->getChannelID(_color_label->getString());
+  int color_id_ball = _lut->getChannelID(_settings->_color_label->getString());
   if (color_id_ball == -1) {
-    printf("Unknown Ball Detection Color Label: '%s'\nAborting Plugin!\n",_color_label->getString().c_str());
+    printf("Unknown Ball Detection Color Label: '%s'\nAborting Plugin!\n",_settings->_color_label->getString().c_str());
     return ProcessingFailed;
   }
 
   //delete any previous detection results:
   detection_frame->clear_balls();
 
+  //TODO: add a vartype notifier for better performance.
+
   //initialize filter:
-  filter.setWidth(_ball_min_width->getInt(),_ball_max_width->getInt());
-  filter.setHeight(_ball_min_height->getInt(),_ball_max_height->getInt());
-  filter.setArea(_ball_min_area->getInt(),_ball_max_area->getInt());
+  filter.setWidth(_settings->_ball_min_width->getInt(),_settings->_ball_max_width->getInt());
+  filter.setHeight(_settings->_ball_min_height->getInt(),_settings->_ball_max_height->getInt());
+  filter.setArea(_settings->_ball_min_area->getInt(),_settings->_ball_max_area->getInt());
   field_filter.update(field);
 
   //copy all vartypes to local variables for faster repeated lookup:
-  bool filter_ball_in_field = _ball_on_field_filter->getBool();
-  bool filter_ball_in_goal  = _ball_in_goal_filter->getBool();
-  bool filter_ball_histogram = _ball_histogram_enabled->getBool();
+  bool filter_ball_in_field = _settings->_ball_on_field_filter->getBool();
+  bool filter_ball_in_goal  = _settings->_ball_in_goal_filter->getBool();
+  bool filter_ball_histogram = _settings->_ball_histogram_enabled->getBool();
   if (filter_ball_histogram) {
     if (color_id_ball != color_id_orange) {
       printf("Warning: ball histogram check is only configured for orange balls!\n");
@@ -149,15 +129,15 @@ ProcessResult PluginDetectBalls::process(FrameData * data, RenderOptions * optio
     }
   }
   
-  double min_greenness = _ball_histogram_min_greenness->getDouble();
-  double max_markeryness = _ball_histogram_max_markeryness->getDouble();
+  double min_greenness = _settings->_ball_histogram_min_greenness->getDouble();
+  double max_markeryness = _settings->_ball_histogram_max_markeryness->getDouble();
 
   //setup values used for the gaussian confidence measurement:
-  bool filter_gauss = _ball_gauss_enabled->getBool();
-  int exp_area_min =  _ball_gauss_min->getInt();
-  int exp_area_max = _ball_gauss_max->getInt();
-  double exp_area_var =_ball_gauss_var->getDouble();
-  double z_height=_ball_z_height->getDouble();
+  bool filter_gauss = _settings->_ball_gauss_enabled->getBool();
+  int exp_area_min =  _settings->_ball_gauss_min->getInt();
+  int exp_area_max = _settings->_ball_gauss_max->getInt();
+  double exp_area_var = sq(_settings->_ball_gauss_stddev->getDouble());
+  double z_height= _settings->_ball_z_height->getDouble();
   const CMVision::Region * reg = 0;
 
   //acquire orange region list from data-map:
@@ -179,9 +159,9 @@ ProcessResult PluginDetectBalls::process(FrameData * data, RenderOptions * optio
 
   const CMVision::Region * best_reg = 0;
   float best_conf=0.0;
-  if (_max_balls->getInt() > 0) {
+  if (_settings->_max_balls->getInt() > 0) {
     filter.init(reg);
-    if (_max_balls->getInt() > 1) printf("Multiple ball detection is currently not supported.\n");
+    if (_settings->_max_balls->getInt() > 1) printf("Multiple ball detection is currently not supported.\n");
     SSL_DetectionBall* ball = detection_frame->add_balls();
     ball->set_confidence(0.0);
     while((reg = filter.getNext()) != 0 ) {
@@ -244,7 +224,7 @@ ProcessResult PluginDetectBalls::process(FrameData * data, RenderOptions * optio
       //update result:
       ball->set_confidence(best_conf);
 
-      vector2d pixel_pos(reg->cen_x,reg->cen_y);
+      vector2d pixel_pos(best_reg->cen_x,best_reg->cen_y);
       vector3d field_pos_3d;
       camera_parameters.image2field(field_pos_3d,pixel_pos,z_height);
 

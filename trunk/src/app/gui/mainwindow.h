@@ -39,7 +39,6 @@
 #include "stacks.h"
 #include "qgetopt.h"
 #include "multistacks.h"
-
 /*!
   \class   MainWindow
   \brief   The ssl-vision main window

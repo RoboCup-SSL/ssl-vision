@@ -235,7 +235,6 @@ void GLWidget::initializeGL() {
 void GLWidget::paintEvent ( QPaintEvent * e ) {
   ( void ) e;
   
-  
   if ( actionOn->isChecked() ==false ) return;
   
   

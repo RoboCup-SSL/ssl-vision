@@ -12,6 +12,14 @@ unix {
   DEFINES+=UNIX
   DEFINES+=LINUX
   DEFINES+=_GNU_SOURCE
+
+#profiling:
+  CONFIG -= debug
+  CONFIG += release
+#  QMAKE_CFLAGS+=-pg
+#  QMAKE_CXXFLAGS+=-pg
+#  QMAKE_LFLAGS+=-pg
+
 }
 
 

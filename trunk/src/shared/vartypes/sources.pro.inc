@@ -17,6 +17,9 @@ HEADERS += $${PREFIX}/VarXML.h
 SOURCES += $${PREFIX}/VarBase64.cpp
 HEADERS += $${PREFIX}/VarBase64.h
 
+SOURCES += $${PREFIX}/VarNotifier.cpp
+HEADERS += $${PREFIX}/VarNotifier.h
+
 SOURCES += $${PREFIX}/primitives/VarData.cpp
 HEADERS += $${PREFIX}/primitives/VarData.h
 

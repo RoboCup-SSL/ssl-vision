@@ -43,6 +43,9 @@ class VarList : public VarData
 #endif
 protected:
   vector<VarData *> list;
+signals:
+  void childAdded(VarData * child);
+  void childRemoved(VarData * child);
 public:
   /// Creates an empty VarList
   VarList(string _name="");
@@ -52,14 +55,15 @@ public:
   virtual string getString() const { return ""; }
 
   /// this will clear the list
-  virtual void resetToDefault() { list.clear(); };
+  virtual void resetToDefault() {DT_LOCK; for (unsigned int i=0;i<list.size();i++) { emit(childRemoved(list[i])); } list.clear();  DT_UNLOCK; };
 
   /// prints the label and number of elements
   virtual void printdebug() const { printf("VarList named %s containing %d element(s)\n",getName().c_str(), list.size()); }
 
   /// adds a VarData item to the end of the list.
-  int addChild(VarData * child) { DT_LOCK; list.push_back(child); DT_UNLOCK; CHANGE_MACRO; return (list.size()-1);}
+  int addChild(VarData * child) { DT_LOCK; list.push_back(child); emit(childAdded(child)); DT_UNLOCK; CHANGE_MACRO; return (list.size()-1);}
   bool removeChild(VarData * child) {
+    DT_LOCK;
     vector<VarData *> newlist;
     unsigned int n=list.size();
     bool found=false;
@@ -71,13 +75,25 @@ public:
       }
     }
     if (found) {
+      emit(childRemoved(child));
       list=newlist;
       CHANGE_MACRO;
     }
+    DT_UNLOCK;
     return found;
   };
 
   virtual vDataTypeEnum getType() const { return DT_LIST; } ;
+
+  /// returns the number of children of this list
+  virtual int getChildrenCount() const
+  {
+    int res;
+    DT_LOCK;
+    res = list.size();
+    DT_UNLOCK;
+    return res;
+  }
 
   /// returns a vector of all children in the order that they occur in internally
   virtual vector<VarData *> getChildren() const
@@ -88,11 +104,50 @@ public:
     return l;
   }
 
+  /// Finds a child based on the label of 'other'
+  /// If the child is not found then other is returned
+  /// However, if the child *is* found then other will be *deleted* and the child will be returned!
+  VarData * findChildOrReplace(VarData * other) {
+    VarData * data = findChild(other->getName());
+    if (data!=0) {
+      delete other;
+      return data;
+    } else {
+      addChild(other);
+      return other;
+    }
+  }
+
+  /// Finds a child based on the label of 'other'
+  /// If the child is not found then other is returned
+  /// However, if the child *is* found then other will be *deleted* and the child will be returned!
+  template <class VCLASS> 
+  VCLASS * findChildOrReplace(VCLASS * other) {
+    VCLASS * data = (VCLASS *)findChild(other->getName());
+    if (data!=0) {
+      delete other;
+      return data;
+    } else {
+      addChild(other);
+      return other;
+    }
+  }
+
+
 #ifndef VDATA_NO_XML
 protected:
   virtual void readChildren(XMLNode & us)
   {
+    DT_LOCK;
+    int before=list.size();
     list=readChildrenHelper(us, list, false, false);
+    int after=list.size();
+    if (after > before) {
+      for (int i=before; i < after; i++) {
+         emit(childAdded(list[i]));
+      }
+    }
+    DT_UNLOCK;
     CHANGE_MACRO;
   }
 #endif
