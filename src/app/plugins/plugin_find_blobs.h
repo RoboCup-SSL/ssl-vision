@@ -35,6 +35,7 @@ protected:
 
   VarList * _settings;
   VarInt * _v_min_blob_area;
+
 public:
     PluginFindBlobs(FrameBuffer * _buffer, YUVLUT * _lut, int _max_regions);
 

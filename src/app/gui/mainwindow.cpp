@@ -23,6 +23,7 @@
 
 MainWindow::MainWindow()
 {
+
   opt=new GetOpt();
   settings=0;
   setupUi((QMainWindow *)this);

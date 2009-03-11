@@ -23,6 +23,8 @@
 
 #include "multivisionstack.h"
 #include "stack_robocup_ssl.h"
+#include "plugin_detect_balls.h"
+#include "cmpattern_teamdetector.h"
 #include "field.h"
 using namespace std;
 
@@ -34,6 +36,10 @@ using namespace std;
 class MultiStackRoboCupSSL : public MultiVisionStack {
   protected:
   RoboCupField * global_field;
+  PluginDetectBallsSettings * global_ball_settings;
+  CMPattern::TeamDetectorSettings * global_team_settings;
+  CMPattern::TeamSelector * global_team_selector_blue;
+  CMPattern::TeamSelector * global_team_selector_yellow;
   public:
   MultiStackRoboCupSSL(RenderOptions * _opts, int cameras);
   virtual string getSettingsFileName();

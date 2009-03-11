@@ -181,7 +181,7 @@ void CaptureThread::run() {
           stats->fps_capture=counter->getFPS(changed);
           //we are not capturing...chill this thread out...
           capture_mutex.unlock();
-          usleep(100);
+          usleep(5000);
         }
         if (_kill) {
           if(capture != 0)

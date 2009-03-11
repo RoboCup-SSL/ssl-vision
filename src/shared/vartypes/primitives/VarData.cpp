@@ -432,4 +432,18 @@ vector<VarData *> VarData::readChildrenHelper(XMLNode & parent , vector<VarData 
   }
   return result;
 }
+
+// Finds a child based on its label
+// Returns 0 if not found.
+VarData * VarData::findChild(string label) const {
+  vector<VarData *> children = getChildren();
+  unsigned int s = children.size();
+  for (unsigned int i=0;i<s;i++) {
+    if (children[i]->getName().compare(label)==0) return (children[i]);
+  }
+  return 0;
+}
+
+
+
 #endif

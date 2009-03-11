@@ -82,6 +82,9 @@ HEADERS += $${PREFIX}/plugins/plugin_find_blobs.h
 SOURCES += $${PREFIX}/plugins/plugin_detect_balls.cpp
 HEADERS += $${PREFIX}/plugins/plugin_detect_balls.h
 
+SOURCES += $${PREFIX}/plugins/plugin_detect_robots.cpp
+HEADERS += $${PREFIX}/plugins/plugin_detect_robots.h
+
 SOURCES += $${PREFIX}/plugins/plugin_visualize.cpp
 HEADERS += $${PREFIX}/plugins/plugin_visualize.h
 

@@ -32,10 +32,11 @@
 /**
 	@author Author Name
 */
-class PluginDetectBalls : public VisionPlugin
-{
+class PluginDetectBalls;
+
+class PluginDetectBallsSettings {
+friend class PluginDetectBalls; 
 protected:
-  LUT3D * _lut;
   VarList * _settings;
 
   VarInt    * _max_balls;
@@ -54,7 +55,7 @@ protected:
     VarBool * _ball_gauss_enabled;
     VarInt  * _ball_gauss_min;
     VarInt  * _ball_gauss_max;
-    VarDouble * _ball_gauss_var;
+    VarDouble * _ball_gauss_stddev;
     
   VarList   * _filter_too_near_robot;
     VarBool   * _ball_too_near_robot_enabled;
@@ -67,6 +68,56 @@ protected:
     VarBool   * _ball_on_field_filter;
     VarBool   * _ball_in_goal_filter;
 
+public:
+  PluginDetectBallsSettings() {
+
+  _settings=new VarList("Ball Detection");
+
+  _settings->addChild(_max_balls = new VarInt("Max Ball Count",1));
+  _settings->addChild(_color_label = new VarString("Ball Color","Orange"));
+
+  _settings->addChild(_filter_general = new VarList("Ball Properties"));
+    _filter_general->addChild(_ball_z_height = new VarDouble("Ball Z-Height", 30.0));
+    _filter_general->addChild(_ball_max_speed = new VarDouble("Max Speed (mm/s)", 10000.0));
+    _filter_general->addChild(_ball_min_width = new VarInt("Min Width (pixels)", 3));
+    _filter_general->addChild(_ball_max_width = new VarInt("Max Width (pixels)", 30));
+    _filter_general->addChild(_ball_min_height = new VarInt("Min Height (pixels)", 3));
+    _filter_general->addChild(_ball_max_height = new VarInt("Max Height (pixels)", 30));
+    _filter_general->addChild(_ball_min_area = new VarInt("Min Area (sq-pixels)", 9));
+    _filter_general->addChild(_ball_max_area = new VarInt("Max Area (sq-pixels)", 100));    
+
+  _settings->addChild(_filter_gauss = new VarList("Gaussian Size Filter"));
+    _filter_gauss->addChild(_ball_gauss_enabled = new VarBool("Enable Filter",true));
+    _filter_gauss->addChild(_ball_gauss_min = new VarInt("Expected Min Area (sq-pixels)", 30));
+    _filter_gauss->addChild(_ball_gauss_max = new VarInt("Expected Max Area (sq-pixels)", 40));
+    _filter_gauss->addChild(_ball_gauss_stddev = new VarDouble("Expected Area StdDev (sq-pixels)", 10.0));
+
+  _settings->addChild(_filter_too_near_robot = new VarList("Near Robot Filter"));
+    _filter_too_near_robot->addChild(_ball_too_near_robot_enabled = new VarBool("Enable Filter",true));
+    _filter_too_near_robot->addChild(_ball_too_near_robot_dist = new VarDouble("Distance (mm)",55));
+
+  _settings->addChild(_filter_histogram = new VarList("Histogram Filter"));
+    _filter_histogram->addChild(_ball_histogram_enabled = new VarBool("Enable Filter",true));
+    _filter_histogram->addChild(_ball_histogram_min_greenness = new VarDouble("Min Greenness",0.5));
+    _filter_histogram->addChild(_ball_histogram_max_markeryness = new VarDouble("Max Markeryness",2.0));
+
+  _settings->addChild(_filter_geometry = new VarList("Geometry Filters"));
+    _filter_geometry->addChild(_ball_on_field_filter = new VarBool("Ball-In-Field Filter",true));  
+    _filter_geometry->addChild(_ball_in_goal_filter = new VarBool("Ball-In-Goal Filter",true));
+
+  }
+  VarList * getSettings() {
+    return _settings;
+  }
+
+};
+
+class PluginDetectBalls : public VisionPlugin
+{
+protected:
+  LUT3D * _lut;
+  PluginDetectBallsSettings * _settings; 
+  bool _have_local_settings;
   int color_id_orange;
   int color_id_pink;
   int color_id_yellow;
@@ -84,7 +135,7 @@ protected:
   bool checkHistogram(const Image<raw8> * image, const CMVision::Region * reg, double min_greenness=0.5, double max_markeryness=2.0);
 
 public:
-    PluginDetectBalls(FrameBuffer * _buffer, LUT3D * lut, const CameraParameters& camera_params, const RoboCupField& field);
+    PluginDetectBalls(FrameBuffer * _buffer, LUT3D * lut, const CameraParameters& camera_params, const RoboCupField& field, PluginDetectBallsSettings * _settings=0);
 
     ~PluginDetectBalls();
 

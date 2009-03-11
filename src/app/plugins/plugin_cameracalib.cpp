@@ -305,15 +305,17 @@ void PluginCameraCalibration::mousePressEvent ( QMouseEvent * event, pixelloc lo
       drag_x = camera_parameters.additional_calibration_information->right_centerline_image_x;
       drag_y = camera_parameters.additional_calibration_information->right_centerline_image_y;
     }
+    if (drag_x != 0 && drag_y != 0)
+    {
+      event->accept();
+      doing_drag = true;
+    }
+    else
+      event->ignore();
+  } else {
+    event->ignore();
   }
 
-  if (drag_x != 0 && drag_y != 0)
-  {
-    event->accept();
-    doing_drag = true;
-  }
-  else
-    event->ignore();
 }
 
 void PluginCameraCalibration::mouseReleaseEvent ( QMouseEvent * event, pixelloc loc ) 

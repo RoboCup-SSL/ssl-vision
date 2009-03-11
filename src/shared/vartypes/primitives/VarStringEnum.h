@@ -69,9 +69,9 @@ public:
   int getIndex() const {
     DT_LOCK;
     int res=-1;
-    unsigned int n = list.size() - 1;
+    unsigned int n = list.size();
     for (unsigned int i=0;i<n;i++) {
-      if (((VarString *)(list[i]))->getString()==selected) {
+      if (((VarString *)(list[i]))->getString().compare(selected)==0) {
         res= i;
         break;
       }
@@ -121,6 +121,43 @@ public:
    return result;
   }
 
+  /// trim or extend the list to a certain total number of items
+  void setSize(unsigned int size, const string default_label="") {
+    DT_LOCK;
+    if (list.size() < size) {
+      for (unsigned int i=list.size();i<size;i++) {
+        char tmp[64];
+        sprintf(tmp,"%d",list.size());
+        list.push_back(new VarString(tmp ,default_label));
+        list[list.size()-1]->addRenderFlags(DT_FLAG_HIDDEN);
+      }
+    } else if (list.size() > size) {
+      for (unsigned int i=list.size();i>size;i--) {
+        delete list[i-1];
+        list.pop_back();
+      }
+    }
+    DT_UNLOCK;
+    CHANGE_MACRO;
+  }
+
+  /// set the string of item at a given index
+  void setLabel(unsigned int index, const string & label) {
+   string result="";
+   DT_LOCK;
+   if (index < list.size()) {
+     if (((VarString *)(list[index]))->getString().compare(selected)==0) {
+       selected=label;
+     }
+     ((VarString *)(list[index]))->setString(label);
+     
+   }
+   
+   DT_UNLOCK;
+   CHANGE_MACRO;
+   return;
+  }
+
   /// add an item to the end of the enumeration
   int addItem(const string & label) {
     DT_LOCK;
@@ -147,9 +184,11 @@ public:
 protected:
   virtual void readChildren(XMLNode & us)
   {
-    list=readChildrenHelper(us, list, false, false);
-    for (unsigned int i = 0; i < list.size();i++) {
-      list[i]->addRenderFlags(DT_FLAG_HIDDEN);
+    if (areRenderFlagsSet(DT_FLAG_NOLOAD_ENUM_CHILDREN)==false) {
+      list=readChildrenHelper(us, list, false, false);
+      for (unsigned int i = 0; i < list.size();i++) {
+        list[i]->addRenderFlags(DT_FLAG_HIDDEN);
+      }
     }
     CHANGE_MACRO;
   }

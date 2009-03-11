@@ -43,10 +43,13 @@ class VarTrigger : public VarAbstractQWidget
 protected:
   int _counter;
   string label;
+signals:
+  void signalTriggered();
 protected slots:
   void trigger() {
     DT_LOCK;
     _counter++;
+    emit(signalTriggered());
     DT_UNLOCK;
     CHANGE_MACRO;
     wasEdited((VarData*)this);

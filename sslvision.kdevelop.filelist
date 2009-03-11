@@ -41,6 +41,8 @@ src/app/plugins/plugin_colorthreshold.cpp
 src/app/plugins/plugin_colorthreshold.h
 src/app/plugins/plugin_detect_balls.cpp
 src/app/plugins/plugin_detect_balls.h
+src/app/plugins/plugin_detect_robots.cpp
+src/app/plugins/plugin_detect_robots.h
 src/app/plugins/plugin_find_blobs.cpp
 src/app/plugins/plugin_find_blobs.h
 src/app/plugins/plugin_runlength_encode.cpp
@@ -68,6 +70,11 @@ src/shared/capture/capturedc1394v2.h
 src/shared/capture/captureinterface.cpp
 src/shared/capture/captureinterface.h
 src/shared/capture/sources.pro.inc
+src/shared/cmpattern
+src/shared/cmpattern/cmpattern_team.cpp
+src/shared/cmpattern/cmpattern_team.h
+src/shared/cmpattern/cmpattern_teamdetector.cpp
+src/shared/cmpattern/cmpattern_teamdetector.h
 src/shared/cmvision
 src/shared/cmvision/cmvision_histogram.cpp
 src/shared/cmvision/cmvision_histogram.h
@@ -127,8 +134,11 @@ src/shared/util/timer.h
 src/shared/util/util.h
 src/shared/util/vis_util.h
 src/shared/util/zoom.h
+src/shared/vartypes
 src/shared/vartypes/VarBase64.cpp
 src/shared/vartypes/VarBase64.h
+src/shared/vartypes/VarNotifier.cpp
+src/shared/vartypes/VarNotifier.h
 src/shared/vartypes/VarTypes.cpp
 src/shared/vartypes/VarTypes.h
 src/shared/vartypes/VarXML.cpp
