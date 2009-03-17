@@ -13,9 +13,10 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    teamdetector.cpp
+  \file    cmpattern_teamdetector.cpp
   \brief   C++ Implementation: teamdetector
-  \author  Author Name, 2009
+  \author  Original CMDragons Robot Detection Code (C), James Bruce
+           ssl-vision restructuring and modifications, Stefan Zickler, 2009
 */
 //========================================================================
 #include "cmpattern_teamdetector.h"
@@ -57,6 +58,7 @@ Team * TeamDetectorSettings::getTeam(int idx) const {
 TeamDetector::TeamDetector(LUT3D * lut3d, const CameraParameters& camera_params, const RoboCupField& field) : _camera_params(camera_params), _field(field) {
   _team=0;
   _lut3d=lut3d;
+  loaded=false;
   histogram=0;
 
   color_id_cyan = _lut3d->getChannelID("Cyan");
@@ -98,6 +100,8 @@ void TeamDetector::init(Team * team)
   _have_angle=_team->_have_angle->getBool();
   _load_markers_from_image_file=_team->_load_markers_from_image_file->getBool();
   _marker_image_file=_team->_marker_image_file->getString();
+  _marker_image_rows=_team->_marker_image_rows->getInt();
+  _marker_image_cols=_team->_marker_image_cols->getInt();
   _robot_height=_team->_robot_height->getDouble();
 
   _center_marker_area_mean=_team->_center_marker_area_mean->getDouble();
@@ -120,12 +124,38 @@ void TeamDetector::init(Team * team)
   _histogram_field_greenness.set(_team->_histogram_min_field_greenness->getDouble(),_team->_histogram_max_field_greenness->getDouble());
   _histogram_black_whiteness.set(_team->_histogram_min_black_whiteness->getDouble(),_team->_histogram_max_black_whiteness->getDouble());
 
-  _pattern_fitness_weight_area=_team->_pattern_fitness_weight_area->getDouble();
-  _pattern_fitness_weight_center_distance=_team->_pattern_fitness_weight_center_distance->getDouble();
-  _pattern_fitness_weight_next_distance=_team->_pattern_fitness_weight_next_distance->getDouble();
-  _pattern_fitness_max_error=_team->_pattern_fitness_max_error->getDouble();
-  _pattern_fitness_variance=_team->_pattern_fitness_variance->getDouble();
-  _pattern_fitness_uniform=_team->_pattern_fitness_uniform->getDouble();
+
+  _pattern_max_dist=_team->_pattern_max_dist->getDouble();
+  _pattern_max_dist_margin=_team->_pattern_max_dist_margin->getDouble();
+  _pattern_fit_params.fit_area_weight=_team->_pattern_fitness_weight_area->getDouble();
+  _pattern_fit_params.fit_cen_dist_weight=_team->_pattern_fitness_weight_center_distance->getDouble();
+  _pattern_fit_params.fit_next_dist_weight=_team->_pattern_fitness_weight_next_distance->getDouble();
+  _pattern_fit_params.fit_max_error=_team->_pattern_fitness_max_error->getDouble();
+  _pattern_fit_params.fit_variance=sq(_team->_pattern_fitness_stddev->getDouble());
+  _pattern_fit_params.fit_uniform=_team->_pattern_fitness_uniform->getDouble();
+
+  //load team image:
+
+  if (loaded==false) {
+    if (_load_markers_from_image_file == true && _marker_image_file.length() > 0) {
+      rgbImage rgbi;
+      if (rgbi.load(_marker_image_file)) {
+        //create a YUV lut that's based on color-labels not on custom data:
+        YUVLUT minilut(4,4,4,"");
+        minilut.copyChannels(*_lut3d);
+        //compute a full LUT mapping based on NN-distance to color labels:
+        minilut.computeLUTfromLabels();
+        yuvImage yuvi;
+        yuvi.allocate(rgbi.getWidth(),rgbi.getHeight());
+        Images::convert(rgbi,yuvi);
+        model.loadMultiPatternImage(yuvi,&minilut,_marker_image_rows,_marker_image_cols,_team->_robot_height->getDouble());
+        loaded=true;
+      } else {
+            fprintf(stderr,"Error loading image file: '%s'.\n",_marker_image_file.c_str());
+            fflush(stderr);
+      }
+    }
+  }
 
 }
 
@@ -135,13 +165,16 @@ TeamDetector::~TeamDetector()
   if (histogram !=0) delete histogram;
 }
 
-void TeamDetector::update(::google::protobuf::RepeatedPtrField< ::SSL_DetectionRobot >* robots, int team_color_id, int max_robots, const Image<raw8> * image, CMVision::ColorRegionList * colorlist) {
+void TeamDetector::update(::google::protobuf::RepeatedPtrField< ::SSL_DetectionRobot >* robots, int team_color_id, int max_robots, const Image<raw8> * image, CMVision::ColorRegionList * colorlist, CMVision::RegionTree & reg_tree) {
   color_id_team=team_color_id;
   _max_robots=max_robots;
   robots->Clear();
 
-  findRobotsByTeamMarkerOnly(robots,team_color_id,image,colorlist);
-
+  if (_unique_patterns) {
+    findRobotsByModel(robots,team_color_id,image,colorlist,reg_tree);
+  } else {
+    findRobotsByTeamMarkerOnly(robots,team_color_id,image,colorlist);
+  }
 
 }
 
@@ -357,6 +390,110 @@ void TeamDetector::stripRobots(::google::protobuf::RepeatedPtrField< ::SSL_Detec
     robots->RemoveLast();
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL_DetectionRobot >* robots, int team_color_id, const Image<raw8> * image, CMVision::ColorRegionList * colorlist, CMVision::RegionTree & reg_tree)
+{
+
+  const int MaxMarkers = 16;
+  Marker cen; // center marker
+  Marker markers[MaxMarkers];
+
+  float marker_max_dist =
+    _pattern_max_dist + _pattern_max_dist_margin;
+
+  // partially forget old detections
+  //decaySeen();
+
+  filter_team.init( colorlist->getRegionList(team_color_id).getInitialElement() );
+  const CMVision::Region * reg=0;
+  SSL_DetectionRobot * robot=0;
+
+  MultiPatternModel::PatternDetectionResult res;
+  printf("=========================\n");
+  while((reg = filter_team.getNext()) != 0) {
+    printf("ROBOT\n" );
+    vector2d reg_img_center(reg->cen_x,reg->cen_y);
+    vector3d reg_center3d;
+    _camera_params.image2field(reg_center3d,reg_img_center,_robot_height);
+    vector2d reg_center(reg_center3d.x,reg_center3d.y);
+    //TODO add masking:
+    //if(det.mask.get(reg->cen_x,reg->cen_y) >= 0.5){
+    if (field_filter.isInFieldOrPlayableBoundary(reg_center)) {
+      cen.set(reg,reg_center3d,getRegionArea(reg,_robot_height));
+      int num_markers = 0;
+
+      reg_tree.startQuery(*reg,20.0);
+      double sd;
+      CMVision::Region *mreg;
+      while((mreg=reg_tree.getNextNearest(sd))!=0 && num_markers<MaxMarkers) { 
+        //TODO: implement masking:
+        // filter_other.check(*mreg) && det.mask.get(mreg->cen_x,mreg->cen_y)>=0.5
+
+        if(filter_others.check(*mreg)) {
+          vector2d marker_img_center(mreg->cen_x,mreg->cen_y);
+          vector3d marker_center3d;
+          _camera_params.image2field(marker_center3d,marker_img_center,_robot_height);
+          Marker &m = markers[num_markers];
+          m.set(mreg,marker_center3d,getRegionArea(mreg,_robot_height));
+          vector2f ofs = m.loc - cen.loc;
+          m.dist = ofs.length();
+          m.angle = ofs.angle();
+
+          if(m.dist>0.0 && m.dist<marker_max_dist){
+            num_markers++;
+          }
+        }
+      }
+      reg_tree.endQuery();
+
+      printf("--------\n");
+      if(num_markers >= 2){
+        printf("found %d markers\n", num_markers);
+        CMPattern::PatternProcessing::sortMarkersByAngle(markers,num_markers);
+
+        for(int i=0; i<num_markers; i++){
+          int j = (i + 1) % num_markers;
+          markers[i].next_dist = dist(markers[i].loc,markers[j].loc);
+        }
+        
+        if (model.findPattern(res,markers,num_markers,_pattern_fit_params,_camera_params)) {
+          printf("Found robot! id: %d  angle: %f    conf: %f\n",res.id,res.angle,res.conf);
+        }
+        /*
+        // find out which robot this is
+        int idx = model.findRobot(markers,num_markers,vr);
+
+        // save the results
+        if(idx >= 0){
+          seen[idx] += 2;
+          Net::RawVisionPos &r = robot[idx];
+          if(vr.timestamp > r.timestamp || vr.conf > r.conf){
+            r.timestamp = det.timestamp;
+            r.loc   = vr.loc;
+            r.angle = vr.angle;
+            r.conf  = vr.conf;
+
+            if(debug){
+              printf("    id=%X loc=(%8.1f %8.1f) angle=%6.3f c=%0.3f\n",
+                     idx,V2COMP(r.loc),r.angle,r.conf);
+            }
+          }
+        }*/
+      }
+    }
+  }
+}
+
 
 
 };

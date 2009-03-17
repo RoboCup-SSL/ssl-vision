@@ -11,7 +11,7 @@
 			false
 		</Var>
 		<Var name="Load Image File" type="bool">
-			true
+			false
 		</Var>
 		<Var name="Marker Image File" type="string">
 		</Var>
@@ -41,7 +41,7 @@
 				30
 			</Var>
 			<Var name="Min Area (sq-pixels)" type="int" minval="" maxval="">
-				15
+				5
 			</Var>
 			<Var name="Max Area (sq-pixels)" type="int" minval="" maxval="">
 				400
@@ -115,6 +115,27 @@
 			<Var name="Uniform" type="double" minval="" maxval="">
 				0.000000
 			</Var>
+			<Var name="Max Marker Center Dist" type="double" minval="" maxval="">
+				0.000000
+			</Var>
+			<Var name="Max Marker Margin" type="double" minval="" maxval="">
+				0.000000
+			</Var>
+			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
+				80.000000
+			</Var>
+			<Var name="Max Marker Margin (mm)" type="double" minval="" maxval="">
+				20.000000
+			</Var>
+			<Var name="Expected StdDev" type="double" minval="" maxval="">
+				9.000000
+			</Var>
+		</Var>
+		<Var name="Marker Image Rows" type="int" minval="" maxval="">
+			3
+		</Var>
+		<Var name="Marker Image Cols" type="int" minval="" maxval="">
+			4
 		</Var>
 	</Var>
 	<Var name="CMDragons" type="list">
@@ -131,9 +152,16 @@
 			true
 		</Var>
 		<Var name="Marker Image File" type="string">
+			patterns/teams/CMDragons.png
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
 			140.000000
+		</Var>
+		<Var name="Marker Image Rows" type="int" minval="" maxval="">
+			3
+		</Var>
+		<Var name="Marker Image Cols" type="int" minval="" maxval="">
+			4
 		</Var>
 		<Var name="Center Marker Settings" type="list">
 			<Var name="Expected Area Mean (sq-mm)" type="double" minval="" maxval="">
@@ -169,22 +197,22 @@
 		</Var>
 		<Var name="Other Markers Settings" type="list">
 			<Var name="Min Width (pixels)" type="int" minval="" maxval="">
-				0
+				4
 			</Var>
 			<Var name="Max Width (pixels)" type="int" minval="" maxval="">
-				0
+				40
 			</Var>
 			<Var name="Min Height (pixels)" type="int" minval="" maxval="">
-				0
+				4
 			</Var>
 			<Var name="Max Height (pixels)" type="int" minval="" maxval="">
-				0
+				40
 			</Var>
 			<Var name="Min Area (sq-pixels)" type="int" minval="" maxval="">
-				0
+				15
 			</Var>
 			<Var name="Max Area (sq-pixels)" type="int" minval="" maxval="">
-				0
+				600
 			</Var>
 		</Var>
 		<Var name="Histogram Settings" type="list">
@@ -214,23 +242,29 @@
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
+			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
+				80.000000
+			</Var>
+			<Var name="Max Marker Margin (mm)" type="double" minval="" maxval="">
+				20.000000
+			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
-				0.000000
+				0.001000
 			</Var>
 			<Var name="Weight Center-Dist" type="double" minval="" maxval="">
-				0.000000
+				0.100000
 			</Var>
 			<Var name="Weight Next-Dist" type="double" minval="" maxval="">
-				0.000000
+				1.000000
 			</Var>
 			<Var name="Max Error" type="double" minval="" maxval="">
-				0.000000
+				30.000000
 			</Var>
-			<Var name="Expected Variance" type="double" minval="" maxval="">
-				0.000000
+			<Var name="Expected StdDev" type="double" minval="" maxval="">
+				9.000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.000000
+				0.020000
 			</Var>
 		</Var>
 	</Var>

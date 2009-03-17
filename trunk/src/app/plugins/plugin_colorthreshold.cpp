@@ -46,12 +46,17 @@ ProcessResult PluginColorThreshold::process(FrameData * data, RenderOptions * op
     //make sure image is allocated:
     img_thresholded->allocate(data->video.getWidth(),data->video.getHeight());
     //directly apply YUV lut:
-     CMVisionThreshold::thresholdImageYUV(img_thresholded,&(data->video),lut);
+    CMVisionThreshold::thresholdImageYUV422_UYVY(img_thresholded,&(data->video),lut);
+  } else if (data->video.getColorFormat()==COLOR_YUV444) {
+    //make sure image is allocated:
+    img_thresholded->allocate(data->video.getWidth(),data->video.getHeight());
+    //directly apply YUV lut:
+    CMVisionThreshold::thresholdImageYUV444(img_thresholded,&(data->video),lut);    
   } else if (data->video.getColorFormat()==COLOR_RGB8) {
     //FIXME: check for changes in YUV LUT....if changed...copy things to RGB lut...
-
+    printf("WARNING: Color thresholding of RGB8 is not yet implemented...for now, use YUV422 (UYVY) or YUV444 instead!\n");
   } else {
-    fprintf(stderr,"ColorThresholding needs YUV422 or RGB8 as input image, but found: %s\n",Colors::colorFormatToString(data->video.getColorFormat()).c_str());
+    fprintf(stderr,"ColorThresholding needs YUV422, YUV444, or RGB8 as input image, but found: %s\n",Colors::colorFormatToString(data->video.getColorFormat()).c_str());
     return ProcessingFailed;
   }
   

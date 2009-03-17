@@ -71,6 +71,8 @@ src/shared/capture/captureinterface.cpp
 src/shared/capture/captureinterface.h
 src/shared/capture/sources.pro.inc
 src/shared/cmpattern
+src/shared/cmpattern/cmpattern_pattern.cpp
+src/shared/cmpattern/cmpattern_pattern.h
 src/shared/cmpattern/cmpattern_team.cpp
 src/shared/cmpattern/cmpattern_team.h
 src/shared/cmpattern/cmpattern_teamdetector.cpp
@@ -113,6 +115,7 @@ src/shared/util/image_io.cpp
 src/shared/util/image_io.h
 src/shared/util/lut3d.cpp
 src/shared/util/lut3d.h
+src/shared/util/nkdtree.h
 src/shared/util/nvector.h
 src/shared/util/pixelloc.h
 src/shared/util/pose.h

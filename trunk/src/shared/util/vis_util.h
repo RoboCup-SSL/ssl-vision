@@ -40,6 +40,12 @@ inline double GaussianVsUniform(double x,double var,double u)
   return(g / (g + u));
 }
 
+inline double SSEVsUniform(double x2,double var,double u)
+{
+  double g = exp(x2 / (-2*var));
+  return(g / (g + u));
+}
+
 template <class item>
 void add_bucket(item *bucket,int max,item &it)
 {
@@ -54,5 +60,22 @@ void add_bucket(item *bucket,int max,item &it)
   }
   bucket[i+1] = it;
 }
+
+template <class data>
+void roll(data *arr,data *tmp,int num,int displacement)
+{
+  int i;
+
+  // make sure it's positive
+  displacement = ((displacement % num) + num) % num;
+
+  // check if we have to do anything
+  if(displacement % num == 0) return;
+
+  // rotate using temp storage
+  for(i=0; i<num; i++) tmp[i] = arr[i];
+  for(i=0; i<num; i++) arr[(i + displacement) % num] = tmp[i];
+}
+
 
 #endif

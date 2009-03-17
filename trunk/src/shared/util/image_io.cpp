@@ -54,6 +54,38 @@ void ImageIO::copyBGRtoRGB(rgb * dst,unsigned char * src,unsigned int size) {
   }
 }
 
+void ImageIO::copyBGRtoRGBA(rgba * dst,unsigned char * src,unsigned int size) {
+  unsigned int i;
+  for (i=0;i!=size;i++) {
+    dst->b=(*src);
+    src++;
+    dst->g=(*src);
+    src++;
+    dst->r=(*src);
+    dst->a=0;
+    if (i != (size-1)) {
+      src++;
+      dst++;
+    }
+  }
+}
+
+void ImageIO::copyBGRAtoRGB(rgb * dst,unsigned char * src,unsigned int size) {
+  unsigned int i;
+  for (i=0;i!=size;i++) {
+    dst->b=(*src);
+    src++;
+    dst->g=(*src);
+    src++;
+    dst->r=(*src);
+    src++;
+    if (i != (size-1)) {
+      src++;
+      dst++;
+    }
+  }
+}
+
 unsigned char * ImageIO::readGrayscale(int &width,int &height, const char *filename)
 {
   uchar *imgbuf = NULL;
@@ -113,7 +145,7 @@ rgb * ImageIO::readRGB(int &width,int &height, const char *filename)
 
   // make sure its the right format
   int sz = img->width() * img->height();
-  if((img->bits()==0) || img->depth()!=24 || sz==0) goto end;
+  if((img->bits()==0) || (img->depth()!=24 && img->depth()!=32) || sz==0) goto end;
   // allocate an image buffer
   imgbuf = new rgb[sz];
   if(!imgbuf) goto end;
@@ -122,7 +154,11 @@ rgb * ImageIO::readRGB(int &width,int &height, const char *filename)
   width  = img->width();
   height = img->height();
   //memcpy(imgbuf,img->bits(),width*height*sizeof(rgb));
-  copyBGRtoRGB(imgbuf,img->bits(),width*height);
+  if (img->depth()==24) {
+    copyBGRtoRGB(imgbuf,img->bits(),width*height);
+  } else if (img->depth()==32) {
+    copyBGRAtoRGB(imgbuf,img->bits(),width*height);
+  }
  end:
   delete(img);
   return(imgbuf);
@@ -138,7 +174,7 @@ rgba * ImageIO::readRGBA(int &width,int &height, const char *filename)
   if (img==0) return NULL;
   // make sure its the right format
   int sz = img->width() * img->height();
-  if((img->bits()==0) || img->depth()!=32 || sz==0) goto end;
+  if((img->bits()==0) || (img->depth()!=24 && img->depth()!=32) || sz==0) goto end;
   // allocate an image buffer
   imgbuf = new rgba[sz];
   if(!imgbuf) goto end;
@@ -147,7 +183,11 @@ rgba * ImageIO::readRGBA(int &width,int &height, const char *filename)
   width  = img->width();
   height = img->height();
   //memcpy(imgbuf,img->bits(),width*height*sizeof(rgba));
-  copyBGRAtoRGBA(imgbuf,img->bits(),width*height);
+  if (img->depth()==24) {
+    copyBGRtoRGBA(imgbuf,img->bits(),width*height);
+  } else if (img->depth()==32) {
+    copyBGRAtoRGBA(imgbuf,img->bits(),width*height);
+  }
  end:
   delete(img);
   return(imgbuf);

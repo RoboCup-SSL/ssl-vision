@@ -190,7 +190,7 @@ class LUT3D{
 
     virtual ~LUT3D() {
       channels.clear();
-      delete LUT;
+      delete[] LUT;
       delete v_blob;
       delete v_settings;
     };
@@ -442,6 +442,37 @@ class YUVLUT : public LUT3D {
     }
   }
 
+  /// This will clear the LUT and create a new LUT-dataset modeling a NN-lookup based solely on color labels
+  virtual void computeLUTfromLabels(int max_dist=0) {
+    this->lock();
+    long max_dist_sq=max_dist * max_dist;
+    int cn=channels.size();
+    long best_dist=0;
+    int best_idx=0;
+    yuv l;
+    for (int y=0;y<=getMaxX();y++) {
+      for (int u=0;u<=getMaxY();u++) {
+        for (int v=0;v<=getMaxZ();v++) {
+          best_idx=0;
+          best_dist=0;
+          for (int i = 1; i <cn; i++) {
+              l = Conversions::rgb2yuv(channels[i].draw_color);
+              long dist=(sq( lut2normX(y)-l.y)+sq(lut2normY(u)-l.u)+sq(lut2normZ(v)-l.v));
+              if (i==1 || (dist < best_dist)) {
+                best_dist=dist;
+                best_idx=i;
+              }
+              if (max_dist_sq!=0 && best_dist > max_dist_sq) {
+                best_idx=0;
+              }
+          }
+            //Conversions::yuv2rgb(y,u,v,r,g,b);
+          set_preshrunk((unsigned char)y,(unsigned char)u,(unsigned char)v,best_idx);
+        }
+      }
+    }
+    this->unlock();
+  }
   virtual ColorSpace getColorSpace() const {
     return CSPACE_YUV;
   }

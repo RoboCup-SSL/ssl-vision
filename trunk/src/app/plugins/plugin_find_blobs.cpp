@@ -59,24 +59,22 @@ ProcessResult PluginFindBlobs::process(FrameData * data, RenderOptions * options
   }
 
   //Connect the components of the runlength map:
-  CMVisionRegion::connectComponents(runlist);
+  CMVision::RegionProcessing::connectComponents(runlist);
 
   //Extract Regions from runlength map:
-  CMVisionRegion::extractRegions(reglist, runlist);
+  CMVision::RegionProcessing::extractRegions(reglist, runlist);
 
   if (reglist->getUsedRegions() == reglist->getMaxRegions()) {
     printf("Warning: extract regions exceeded maximum number of %d regions\n",reglist->getMaxRegions());
   }
 
   //Separate Regions by colors:
-  int max_area = CMVisionRegion::separateRegions(colorlist, reglist, _v_min_blob_area->getInt());
+  int max_area = CMVision::RegionProcessing::separateRegions(colorlist, reglist, _v_min_blob_area->getInt());
 
   //Sort Regions:
-  CMVisionRegion::sortRegions(colorlist,max_area);
+  CMVision::RegionProcessing::sortRegions(colorlist,max_area);
 
   return ProcessingOk;
-  
-  
 
 }
 

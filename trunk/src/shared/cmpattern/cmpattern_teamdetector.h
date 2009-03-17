@@ -26,6 +26,7 @@
 #include "image.h"
 #include "lut3d.h"
 #include "cmpattern_team.h"
+#include "cmpattern_pattern.h"
 #include "cmvision_region.h"
 #include "field.h"
 #include "camera_calibration.h"
@@ -35,6 +36,7 @@
 #include <string.h>
 #include <vector>
 #include <QObject>
+
 using namespace std;
 namespace CMPattern {
 
@@ -138,6 +140,7 @@ protected:
   Team * _team;
   LUT3D * _lut3d;
   FieldFilter field_filter;
+  MultiPatternModel model;
 
   //-----TEAM CONFIG---------
   CMVision::RegionFilter filter_team;
@@ -146,6 +149,12 @@ protected:
   bool   _have_angle;
   bool   _load_markers_from_image_file;
   string _marker_image_file;
+  int    _marker_image_rows;
+  int    _marker_image_cols;
+  
+  //FIXME: remove this:
+  bool loaded;
+  
   int    _max_robots;
   double _robot_height;
 
@@ -161,12 +170,16 @@ protected:
   RangeFloat _histogram_field_greenness;
   RangeFloat _histogram_black_whiteness;
 
-  double _pattern_fitness_weight_area;
+  double _pattern_max_dist;
+  double _pattern_max_dist_margin;
+  MultiPatternModel::PatternFitParameters _pattern_fit_params;
+  //_pattern_fit_params includes the former following variables:
+  /*double _pattern_fitness_weight_area;
   double _pattern_fitness_weight_center_distance;
   double _pattern_fitness_weight_next_distance;
   double _pattern_fitness_max_error;
   double _pattern_fitness_variance;
-  double _pattern_fitness_uniform;
+  double _pattern_fitness_uniform;*/
   //----END OF TEAM CONFIG---------
 
   //color ids:
@@ -202,9 +215,11 @@ public:
 
     void init(Team * team);
 
+    void findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL_DetectionRobot >* robots, int team_color_id, const Image<raw8> * image, CMVision::ColorRegionList * colorlist, CMVision::RegionTree & reg_tree);
+
     void findRobotsByTeamMarkerOnly(::google::protobuf::RepeatedPtrField< ::SSL_DetectionRobot >* robots, int team_color_id, const Image<raw8> * image, CMVision::ColorRegionList * colorlist);
 
-    void update(::google::protobuf::RepeatedPtrField< ::SSL_DetectionRobot >* robots, int team_color_id, int max_robots, const Image<raw8> * image, CMVision::ColorRegionList * colorlist);
+    void update(::google::protobuf::RepeatedPtrField< ::SSL_DetectionRobot >* robots, int team_color_id, int max_robots, const Image<raw8> * image, CMVision::ColorRegionList * colorlist, CMVision::RegionTree & reg_tree);
 };
 
 }

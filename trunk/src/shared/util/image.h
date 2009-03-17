@@ -33,6 +33,7 @@
 #include "rawimage.h"
 #include "image_io.h"
 #include "font.h"
+#include "conversions.h"
 
 /*!
   \class Image
@@ -377,6 +378,30 @@ void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
     memcpy(data,source.getData(),source.getNumBytes());
   }
 
+  void copyFromRectArea(const Image &source, int x, int y, int w, int h, bool allow_external=false) {
+    if (x < 0) x=0;
+    if (y < 0) y=0;
+    if (w < 0) w=0;
+    if (h < 0) h=0;
+    if ((x+w) >= source.getWidth()) w = source.getWidth() - x;
+    if ((y+h) >= source.getHeight()) h = source.getHeight() - y;
+    if (w<=0 || h <=0) w=h=0;
+
+    if (!(allow_external && w==getWidth() && h == getHeight())) {
+      allocate(w,h);
+    }
+    if (w==0||h==0) return;
+    //TODO: add rect copy from source:
+    int my=y+h;
+    PIXEL * src_ptr = source.getPixelPointer(x,y);
+    PIXEL * tgt_ptr = getPixelData();
+    for (int i = y ; i < my; i++) {
+      memcpy(tgt_ptr, src_ptr ,sizeof(PIXEL) * w);
+      src_ptr+=source.getWidth();
+      tgt_ptr+=w;
+    }
+  }
+
   void subtract(const Image &source) {
     if (source.getNumPixels()==getNumPixels()) {
       register PIXEL * a=getPixelData();
@@ -511,6 +536,34 @@ typedef Image<raw32> rawImage32;
 class Images
 {
 public:
+  static void convert(const yuvImage & a, rgbImage & b) {
+    if (a.getNumPixels()==b.getNumPixels()) {
+      yuv * p1=a.getPixelData();
+      rgb * p2=b.getPixelData();
+      int n=a.getNumPixels();
+      for (int i=0;i<n;i++) {
+        *p2=Conversions::yuv2rgb(*p1);
+        p1++;
+        p2++;
+      }
+    } else {
+      fprintf(stderr,"Cannot convert image of different sizes\n");
+    }
+  }
+  static void convert(const rgbImage & a, yuvImage & b) {
+    if (a.getNumPixels()==b.getNumPixels()) {
+      rgb * p1=a.getPixelData();
+      yuv * p2=b.getPixelData();
+      int n=a.getNumPixels();
+      for (int i=0;i<n;i++) {
+        *p2=Conversions::rgb2yuv(*p1);
+        p1++;
+        p2++;
+      }
+    } else {
+      fprintf(stderr,"Cannot convert image of different sizes\n");
+    }
+  }  
   static void convert(const rgbImage & a, greyImage & b) {
     if (a.getNumPixels()==b.getNumPixels()) {
       rgb * p1=a.getPixelData();
