@@ -36,6 +36,9 @@ class ImageIO {
 protected:
   static void copyBGRAtoRGBA(rgba * dst,unsigned char * src,unsigned int size);
   static void copyBGRtoRGB(rgb * dst,unsigned char * src,unsigned int size);
+  static void copyBGRtoRGBA(rgba * dst,unsigned char * src,unsigned int size);
+  static void copyBGRAtoRGB(rgb * dst,unsigned char * src,unsigned int size);
+
 public:
   static unsigned char *readGrayscale(int &width,int &height, const char *filename);
   static rgb *readRGB(             int &width,int &height,const char *filename);

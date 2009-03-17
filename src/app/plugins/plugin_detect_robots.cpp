@@ -30,6 +30,19 @@ PluginDetectRobots::PluginDetectRobots(FrameBuffer * _buffer, LUT3D * lut, const
   color_id_blue = _lut->getChannelID("Blue");
   if (color_id_yellow == -1) printf("WARNING color label 'Blue' not defined in LUT!!!\n");  
 
+  color_id_clear = 0;
+
+  color_id_ball = _lut->getChannelID("Orange");
+  if (color_id_ball == -1) printf("WARNING color label 'Orange' not defined in LUT!!!\n");
+
+  color_id_black = _lut->getChannelID("Black");
+  if (color_id_black == -1) printf("WARNING color label 'Black' not defined in LUT!!!\n");  
+
+  color_id_field = _lut->getChannelID("Field Green");
+  if (color_id_field == -1) printf("WARNING color label 'Field Green' not defined in LUT!!!\n");
+
+
+
   global_team_selector_blue=_global_team_selector_blue;
   global_team_selector_yellow=_global_team_selector_yellow;
   
@@ -50,6 +63,22 @@ VarList * PluginDetectRobots::getSettings() {
 
 string PluginDetectRobots::getName() {
   return "DetectRobots";
+}
+
+void PluginDetectRobots::buildRegionTree(CMVision::ColorRegionList * colorlist) {
+  reg_tree.clear();
+  int num_colors=colorlist->getNumColorRegions();
+  for(int c=0;c<num_colors;c++) {
+    //ONLY ADD ROBOT MARKER COLORS:
+    if (c!= color_id_clear && c!=color_id_field && c!= color_id_ball && c!= color_id_black) {
+      CMVision::Region *reg = colorlist->getRegionList(c).getInitialElement();
+      while(reg!=0) {
+        reg_tree.add(reg);
+        reg = reg->next;
+      }
+    }
+  }
+  reg_tree.build();
 }
 
 ProcessResult PluginDetectRobots::process(FrameData * data, RenderOptions * options)
@@ -85,6 +114,8 @@ ProcessResult PluginDetectRobots::process(FrameData * data, RenderOptions * opti
   CMPattern::TeamDetector * detector;
   //TODO: lookup color label from LUT
 
+  buildRegionTree(colorlist);
+
   for (int team_i = 0; team_i < 2; team_i++) {
     //team_i: 0==blue, 1==yellow
     if (team_i==0) {
@@ -104,11 +135,10 @@ ProcessResult PluginDetectRobots::process(FrameData * data, RenderOptions * opti
     }
     detector->init(team);
 
-    detector->update(robotlist, color_id,  num_robots, image, colorlist);
+    detector->update(robotlist, color_id,  num_robots, image, colorlist, reg_tree);
 
-    printf("DETECTED %d robots on team %d\n",robotlist->size(),team_i);
-
-    fflush(stdout);
+//    printf("DETECTED %d robots on team %d\n",robotlist->size(),team_i);
+//    fflush(stdout);
   }
   return ProcessingOk;
 

@@ -1,3 +1,4 @@
+
 //========================================================================
 //  This software is free: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License Version 3,
@@ -16,22 +17,24 @@
   \file    cmvision_region.cpp
   \brief   C++ Implementation: cmvision_region
   \author  James Bruce (Original CMVision implementation and algorithms),
-           Some code restructuring, and data structure changes: Stefan Zickler 2008
+           SSL-Vision code restructuring, and data structure changes: Stefan Zickler 2008
 */
 //========================================================================
 #include "cmvision_region.h"
 
-CMVisionRegion::CMVisionRegion()
+namespace CMVision {
+
+RegionProcessing::RegionProcessing()
 {
 }
 
 
-CMVisionRegion::~CMVisionRegion()
+RegionProcessing::~RegionProcessing()
 {
 }
 
 
-void CMVisionRegion::encodeRuns(Image<raw8> * tmap, CMVision::RunList * runlist)
+void RegionProcessing::encodeRuns(Image<raw8> * tmap, CMVision::RunList * runlist)
 // Changes the flat array version of the thresholded image into a run
 // length encoded version, which speeds up later processing since we
 // only have to look at the points where values change.
@@ -91,7 +94,7 @@ void CMVisionRegion::encodeRuns(Image<raw8> * tmap, CMVision::RunList * runlist)
 
 
 
-void CMVisionRegion::connectComponents(CMVision::RunList * runlist)
+void RegionProcessing::connectComponents(CMVision::RunList * runlist)
 // Connect components using four-connecteness so that the runs each
 // identify the global parent of the connected region they are a part
 // of.  It does this by scanning adjacent rows and merging where
@@ -172,7 +175,7 @@ void CMVisionRegion::connectComponents(CMVision::RunList * runlist)
 
 
 
-void CMVisionRegion::extractRegions(CMVision::RegionList * reglist, CMVision::RunList * runlist)
+void RegionProcessing::extractRegions(CMVision::RegionList * reglist, CMVision::RunList * runlist)
 // Takes the list of runs and formats them into a region table,
 // gathering the various statistics along the way.  num is the number
 // of runs in the rmap array, and the number of unique regions in
@@ -244,7 +247,7 @@ void CMVisionRegion::extractRegions(CMVision::RegionList * reglist, CMVision::Ru
 
 
 
-int CMVisionRegion::separateRegions(CMVision::ColorRegionList * colorlist, CMVision::RegionList * reglist, int min_area)
+int RegionProcessing::separateRegions(CMVision::ColorRegionList * colorlist, CMVision::RegionList * reglist, int min_area)
 // Splits the various regions in the region table a separate list for
 // each color.  The lists are threaded through the table using the
 // region's 'next' field.  Returns the maximal area of the regions,
@@ -295,7 +298,7 @@ int CMVisionRegion::separateRegions(CMVision::ColorRegionList * colorlist, CMVis
 #define CMV_RADIX (1 << CMV_RBITS)
 #define CMV_RMASK (CMV_RADIX-1)
 
-CMVision::Region * CMVisionRegion::sortRegionListByArea(CMVision::Region *list,int passes)
+CMVision::Region * RegionProcessing::sortRegionListByArea(CMVision::Region *list,int passes)
 // Sorts a list of regions by their area field.
 // Uses a linked list based radix sort to process the list.
 {
@@ -338,7 +341,7 @@ CMVision::Region * CMVisionRegion::sortRegionListByArea(CMVision::Region *list,i
   return(list);
 }
 
-void CMVisionRegion::sortRegions(CMVision::ColorRegionList * colors,int max_area)
+void RegionProcessing::sortRegions(CMVision::ColorRegionList * colors,int max_area)
 // Sorts entire region table by area, using the above
 // function to sort each threaded region list.
 {
@@ -384,9 +387,65 @@ int FindStart(rle_t *rmap,int left,int right,int x)
 #endif
 
 
+ImageProcessor::ImageProcessor(YUVLUT * _lut, int _max_regions, int _max_runs) {
+  lut=_lut;
+  max_regions=_max_regions;
+  max_runs=_max_runs;
+  img_thresholded = new Image<raw8>();
+  runlist = new CMVision::RunList(max_runs);
+  reglist = new CMVision::RegionList(max_regions);
+  colorlist = new CMVision::ColorRegionList(lut->getChannelCount());
+}
 
+ImageProcessor::~ImageProcessor() {
+  delete reglist;
+  delete colorlist;
+  delete runlist;
+  delete img_thresholded;
+}
 
+void ImageProcessor::processYUV422_UYVY(const RawImage * image, int min_blob_area) {
+  img_thresholded->allocate(image->getWidth(),image->getHeight());
+  CMVisionThreshold::thresholdImageYUV422_UYVY(img_thresholded,image,lut);
+  processThresholded(img_thresholded,min_blob_area);
+}
 
+void ImageProcessor::processYUV444(const ImageInterface * image, int min_blob_area) {
+  img_thresholded->allocate(image->getWidth(),image->getHeight());
+  CMVisionThreshold::thresholdImageYUV444(img_thresholded,image,lut);
+  /*DEBUG OUTPUT: rgbImage out;
+  CMVisionThreshold::colorizeImageFromThresholding(out, *img_thresholded,  lut);
+  out.save("output.jpg");
+  //exit(0);*/
+  processThresholded(img_thresholded,min_blob_area);
+}
+
+void ImageProcessor::processThresholded(Image<raw8> * _img_thresholded, int min_blob_area) {
+  CMVision::RegionProcessing::encodeRuns(_img_thresholded, runlist);
+  if (runlist->getUsedRuns() == runlist->getMaxRuns()) {
+    printf("Warning: runlength encoder exceeded current max run size of %d\n",runlist->getMaxRuns());
+  }
+  //Connect the components of the runlength map:
+  CMVision::RegionProcessing::connectComponents(runlist);
+
+  //Extract Regions from runlength map:
+  CMVision::RegionProcessing::extractRegions(reglist, runlist);
+
+  if (reglist->getUsedRegions() == reglist->getMaxRegions()) {
+    printf("Warning: extract regions exceeded maximum number of %d regions\n",reglist->getMaxRegions());
+  }
+
+  //Separate Regions by colors:
+  int max_area = CMVision::RegionProcessing::separateRegions(colorlist, reglist, min_blob_area);
+
+  CMVision::RegionProcessing::sortRegions(colorlist,max_area);
+}
+
+ColorRegionList * ImageProcessor::getColorRegionList() {
+  return colorlist;
+}
+
+}
 
 
 

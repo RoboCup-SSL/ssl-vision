@@ -44,7 +44,13 @@ protected:
   //TeamDetector * 
   int color_id_yellow;
   int color_id_blue;
+  int color_id_clear;
+  int color_id_ball;
+  int color_id_black;
+  int color_id_field;
+  
 
+  CMVision::RegionTree reg_tree;
 
   CMPattern::TeamSelector * global_team_selector_blue;
   CMPattern::TeamSelector * global_team_selector_yellow;
@@ -54,6 +60,8 @@ protected:
 
   const CameraParameters& camera_parameters;
   const RoboCupField& field;
+
+  void buildRegionTree(CMVision::ColorRegionList * colorlist);
 
 public:
     PluginDetectRobots(FrameBuffer * _buffer, LUT3D * lut, const CameraParameters& camera_params, const RoboCupField& field, CMPattern::TeamSelector * _global_team_selector_blue, CMPattern::TeamSelector * _global_team_selector_yellow);

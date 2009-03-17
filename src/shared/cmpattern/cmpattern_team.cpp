@@ -13,9 +13,9 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    team.cpp
+  \file    cmpattern_team.cpp
   \brief   C++ Implementation: team
-  \author  Author Name, 2009
+  \author  Stefan Zickler, 2009
 */
 //========================================================================
 #include "cmpattern_team.h"
@@ -39,6 +39,8 @@ Team::Team(VarList * team_root)
     _have_angle = _settings->findChildOrReplace(new VarBool("Have Angles"));
     _load_markers_from_image_file = _settings->findChildOrReplace(new VarBool("Load Image File",true));
     _marker_image_file = _settings->findChildOrReplace(new VarString("Marker Image File"));
+    _marker_image_rows = _settings->findChildOrReplace(new VarInt("Marker Image Rows",3));
+    _marker_image_cols = _settings->findChildOrReplace(new VarInt("Marker Image Cols",4));
     _robot_height = _settings->findChildOrReplace(new VarDouble("Robot Height (mm)", 140.0));
 
     _center_marker_filter = _settings->findChildOrReplace(new VarList("Center Marker Settings"));
@@ -54,12 +56,12 @@ Team::Team(VarList * team_root)
       _center_marker_duplicate_distance = _center_marker_filter->findChildOrReplace(new VarInt("Duplicate Merge Distance (mm)",135));
 
     _other_markers_filter = _settings->findChildOrReplace(new VarList("Other Markers Settings"));
-      _other_markers_min_width = _other_markers_filter->findChildOrReplace(new VarInt("Min Width (pixels)"));
-      _other_markers_max_width = _other_markers_filter->findChildOrReplace(new VarInt("Max Width (pixels)"));
-      _other_markers_min_height = _other_markers_filter->findChildOrReplace(new VarInt("Min Height (pixels)"));
-      _other_markers_max_height = _other_markers_filter->findChildOrReplace(new VarInt("Max Height (pixels)"));
-      _other_markers_min_area = _other_markers_filter->findChildOrReplace(new VarInt("Min Area (sq-pixels)"));
-      _other_markers_max_area = _other_markers_filter->findChildOrReplace(new VarInt("Max Area (sq-pixels)"));
+      _other_markers_min_width = _other_markers_filter->findChildOrReplace(new VarInt("Min Width (pixels)",4));
+      _other_markers_max_width = _other_markers_filter->findChildOrReplace(new VarInt("Max Width (pixels)",40));
+      _other_markers_min_height = _other_markers_filter->findChildOrReplace(new VarInt("Min Height (pixels)",4));
+      _other_markers_max_height = _other_markers_filter->findChildOrReplace(new VarInt("Max Height (pixels)",40));
+      _other_markers_min_area = _other_markers_filter->findChildOrReplace(new VarInt("Min Area (sq-pixels)",15));
+      _other_markers_max_area = _other_markers_filter->findChildOrReplace(new VarInt("Max Area (sq-pixels)",600));
 
     _histogram_settings = _settings->findChildOrReplace(new VarList("Histogram Settings"));
       _histogram_enable = _histogram_settings->findChildOrReplace(new VarBool("Enable",true));
@@ -72,62 +74,15 @@ Team::Team(VarList * team_root)
       _histogram_max_black_whiteness = _histogram_settings->findChildOrReplace(new VarDouble("Max Black/Whiteness",12.0));
 
     _pattern_fitness = _settings->findChildOrReplace(new VarList("Pattern Fitting"));
-      _pattern_fitness_weight_area = _pattern_fitness->findChildOrReplace(new VarDouble("Weight Area"));
-      _pattern_fitness_weight_center_distance = _pattern_fitness->findChildOrReplace(new VarDouble("Weight Center-Dist"));
-      _pattern_fitness_weight_next_distance = _pattern_fitness->findChildOrReplace(new VarDouble("Weight Next-Dist"));
-      _pattern_fitness_max_error = _pattern_fitness->findChildOrReplace(new VarDouble("Max Error"));
-      _pattern_fitness_variance = _pattern_fitness->findChildOrReplace(new VarDouble("Expected Variance"));
-      _pattern_fitness_uniform = _pattern_fitness->findChildOrReplace(new VarDouble("Uniform"));
+      _pattern_max_dist = _pattern_fitness->findChildOrReplace(new VarDouble("Max Marker Center Dist (mm)",80));
+      _pattern_max_dist_margin = _pattern_fitness->findChildOrReplace(new VarDouble("Max Marker Margin (mm)",20));
+      _pattern_fitness_weight_area = _pattern_fitness->findChildOrReplace(new VarDouble("Weight Area",0.001));
+      _pattern_fitness_weight_center_distance = _pattern_fitness->findChildOrReplace(new VarDouble("Weight Center-Dist",0.1));
+      _pattern_fitness_weight_next_distance = _pattern_fitness->findChildOrReplace(new VarDouble("Weight Next-Dist",1.0));
+      _pattern_fitness_max_error = _pattern_fitness->findChildOrReplace(new VarDouble("Max Error",40.0));
+      _pattern_fitness_stddev = _pattern_fitness->findChildOrReplace(new VarDouble("Expected StdDev",9.0));
+      _pattern_fitness_uniform = _pattern_fitness->findChildOrReplace(new VarDouble("Uniform",0.02));
 
-
-///BACKUP OLD:
-/*
-  _settings = new VarList("settings");
-    _team_name = new VarString("Team Name");
-    _unique_patterns = new VarBool("Unique Patterns");
-    _have_angle = new VarBool("Have Angles");
-    _load_markers_from_image_file = new VarBool("Load Image File",true);
-    _marker_image_file = new VarString("Marker Image File");
-    _robot_height = new VarDouble("Robot Height (mm)", 140.0);
-
-    _center_marker_filter = new VarList("Center Marker Settings");
-      _center_marker_filter->addChild(_center_marker_area_mean = new VarDouble("Expected Area Mean"));
-      _center_marker_filter->addChild(_center_marker_area_stddev = new VarDouble("Expected Area Variance"));
-      _center_marker_filter->addChild(_center_marker_uniform = new VarDouble("Uniform"));
-      _center_marker_filter->addChild(_center_marker_min_width = new VarInt("Min Width (pixels)"));
-      _center_marker_filter->addChild(_center_marker_max_width = new VarInt("Max Width (pixels)"));
-      _center_marker_filter->addChild(_center_marker_min_height = new VarInt("Min Height (pixels)"));
-      _center_marker_filter->addChild(_center_marker_max_height = new VarInt("Max Height (pixels)"));
-      _center_marker_filter->addChild(_center_marker_min_area = new VarInt("Min Area (sq-pixels)"));
-      _center_marker_filter->addChild(_center_marker_max_area = new VarInt("Max Area (sq-pixels)"));
-
-    _other_markers_filter = new VarList("Other Markers Settings");
-      _other_markers_filter->addChild(_other_markers_min_width = new VarInt("Min Width (pixels)"));
-      _other_markers_filter->addChild(_other_markers_max_width = new VarInt("Max Width (pixels)"));
-      _other_markers_filter->addChild(_other_markers_min_height = new VarInt("Min Height (pixels)"));
-      _other_markers_filter->addChild(_other_markers_max_height = new VarInt("Max Height (pixels)"));
-      _other_markers_filter->addChild(_other_markers_min_area = new VarInt("Min Area (sq-pixels)"));
-      _other_markers_filter->addChild(_other_markers_max_area = new VarInt("Max Area (sq-pixels)"));
-
-    _histogram_settings = new VarList("Histogram Settings");
-      _histogram_settings->addChild(_histogram_enable = new VarBool("Enable"));
-      _histogram_settings->addChild(_histogram_pixel_scan_radius = new VarInt("Scan Radius (pixels)"));
-      _histogram_settings->addChild(_histogram_min_markeryness = new VarDouble("Min Markeryness"));
-      _histogram_settings->addChild(_histogram_max_markeryness = new VarDouble("Max Markeryness"));
-      _histogram_settings->addChild(_histogram_min_field_greenness = new VarDouble("Min Greenness"));
-      _histogram_settings->addChild(_histogram_max_field_greenness = new VarDouble("Max Greenness"));
-      _histogram_settings->addChild(_histogram_min_black_whiteness = new VarDouble("Min Black/Whiteness"));
-      _histogram_settings->addChild(_histogram_max_black_whiteness = new VarDouble("Max Black/Whiteness"));
-
-    _pattern_fitness = new VarList("Pattern Fitting");
-      _pattern_fitness->addChild(_pattern_fitness_weight_area = new VarDouble("Weight Area"));
-      _pattern_fitness->addChild(_pattern_fitness_weight_center_distance = new VarDouble("Weight Center-Dist"));
-      _pattern_fitness->addChild(_pattern_fitness_weight_next_distance = new VarDouble("Weight Next-Dist"));
-      _pattern_fitness->addChild(_pattern_fitness_max_error = new VarDouble("Max Error"));
-      _pattern_fitness->addChild(_pattern_fitness_variance = new VarDouble("Expected Variance"));
-      _pattern_fitness->addChild(_pattern_fitness_uniform = new VarDouble("Uniform"));
-
-*/
 }
 
 

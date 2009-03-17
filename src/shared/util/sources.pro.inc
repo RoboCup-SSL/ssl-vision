@@ -33,6 +33,8 @@ HEADERS += $${PREFIX}/texture.h
 SOURCES += $${PREFIX}/camera_calibration.cpp
 HEADERS += $${PREFIX}/camera_calibration.h
 
+HEADERS += $${PREFIX}/nkdtree.h
+
 HEADERS += $${PREFIX}/framecounter.h
 
 HEADERS += $${PREFIX}/quaternion.h

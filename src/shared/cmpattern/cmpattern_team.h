@@ -13,9 +13,9 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    team.h
+  \file    cmpattern_team.h
   \brief   C++ Interface: team
-  \author  Author Name, 2009
+  \author  Stefan Zickler, 2009
 */
 //========================================================================
 #ifndef CM_PATTERN_TEAM_H
@@ -48,6 +48,8 @@ protected:
     VarBool * _have_angle;
     VarBool * _load_markers_from_image_file;
     VarString * _marker_image_file;
+    VarInt *    _marker_image_rows;
+    VarInt *    _marker_image_cols;
     VarDouble * _robot_height;
 
     VarList * _center_marker_filter;
@@ -81,15 +83,16 @@ protected:
       VarDouble * _histogram_max_black_whiteness;
 
     VarList * _pattern_fitness;
+      VarDouble * _pattern_max_dist;
+      VarDouble * _pattern_max_dist_margin;
       VarDouble * _pattern_fitness_weight_area;
       VarDouble * _pattern_fitness_weight_center_distance;
       VarDouble * _pattern_fitness_weight_next_distance;
       VarDouble * _pattern_fitness_max_error;
-      VarDouble * _pattern_fitness_variance;
+      VarDouble * _pattern_fitness_stddev;
       VarDouble * _pattern_fitness_uniform;
 
 public:
-    //vector<Pattern *> patterns;
     Team(VarList * team_root);
 
     ~Team();

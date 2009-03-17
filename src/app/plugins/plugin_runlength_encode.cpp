@@ -48,7 +48,7 @@ ProcessResult PluginRunlengthEncode::process(FrameData * data, RenderOptions * o
   }
 
   //Runlength Encode the image:
-  CMVisionRegion::encodeRuns(img_thresholded, runlist);
+  CMVision::RegionProcessing::encodeRuns(img_thresholded, runlist);
   if (runlist->getUsedRuns() == runlist->getMaxRuns()) {
     printf("Warning: runlength encoder exceeded current max run size of %d\n",runlist->getMaxRuns());
   }

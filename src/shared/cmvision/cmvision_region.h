@@ -16,7 +16,7 @@
   \file    cmvision_region.h
   \brief   C++ Interface: cmvision_region
   \author  James Bruce (Original CMVision implementation and algorithms),
-           Some code restructuring, and data structure changes: Stefan Zickler 2008
+           SSL-Vision code restructuring, and data structure changes: Stefan Zickler 2008
 */
 //========================================================================
 #ifndef CMVISION_REGION_H
@@ -24,6 +24,9 @@
 #include "colors.h"
 #include "image.h"
 #include "geometry.h"
+#include "nkdtree.h"
+#include "cmvision_threshold.h"
+#include "lut3d.h"
 
 #define CMV_DEFAULT_MAX_RUNS 100000
 
@@ -216,6 +219,12 @@ public:
   RangeInt getHeight() {
     return height;
   }
+  bool check(const CMVision::Region & reg) {
+    int w = reg.x2 - reg.x1 + 1;
+    int h = reg.y2 - reg.y1 + 1;
+
+    return(area.inside(reg.area) && width.inside(w) && height.inside(h));
+  }
 
   void init(const CMVision::Region *region_list) {
     reg = region_list;
@@ -247,14 +256,18 @@ public:
   }
 };
 
-}
 
+class RegionTreeGetNext{
+public:
+  Region *&operator()(Region *s)
+    {return(s->tree_next);}
+};
 
 
 /**
 	@author Author Name
 */
-class CMVisionRegion{
+class RegionProcessing {
 protected:
   //==== Utility Functions ===========================================//
   // sum of integers over range [x,x+w)
@@ -277,9 +290,9 @@ protected:
 
 
 public:
-    CMVisionRegion();
+    RegionProcessing();
 
-    ~CMVisionRegion();
+    ~RegionProcessing();
 
     static void encodeRuns(Image<raw8> * tmap, CMVision::RunList * runlist);
     static void connectComponents(CMVision::RunList * runlist);
@@ -292,9 +305,27 @@ public:
 
 };
 
+//a region-tree (assuming square-pixels):
+typedef NKDTree<Region,float,2,false,CMVision::RegionTreeGetNext> RegionTree;
 
+class ImageProcessor {
+protected:
+  YUVLUT * lut;
+  int max_regions;
+  int max_runs;
+  CMVision::RegionList * reglist;
+  CMVision::ColorRegionList * colorlist;
+  CMVision::RunList * runlist;
+  Image<raw8> * img_thresholded;
+public:
+  ImageProcessor(YUVLUT * _lut, int _max_regions=10000, int _max_runs=50000);
+  ~ImageProcessor();
+  void processYUV422_UYVY(const RawImage * image, int min_blob_area);
+  void processYUV444(const ImageInterface * image, int min_blob_area);
+  void processThresholded(Image<raw8> * _img_thresholded, int min_blob_area);
+  ColorRegionList * getColorRegionList();
+};
 
-
-
+}
 
 #endif
