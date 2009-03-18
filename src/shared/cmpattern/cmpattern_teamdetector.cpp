@@ -404,6 +404,7 @@ void TeamDetector::stripRobots(::google::protobuf::RepeatedPtrField< ::SSL_Detec
 void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL_DetectionRobot >* robots, int team_color_id, const Image<raw8> * image, CMVision::ColorRegionList * colorlist, CMVision::RegionTree & reg_tree)
 {
 
+  (void)image;
   const int MaxMarkers = 16;
   Marker cen; // center marker
   Marker markers[MaxMarkers];
@@ -467,6 +468,19 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
         }
         
         if (model.findPattern(res,markers,num_markers,_pattern_fit_params,_camera_params)) {
+        
+              robot=addRobot(robots,res.conf,_max_robots*2);
+
+              if (robot!=0) {
+                //setup robot:
+                robot->set_x(cen.loc.x);
+                robot->set_y(cen.loc.y);
+                robot->set_orientation(res.angle);
+                robot->set_robot_id(res.id);
+                robot->set_pixel_x(reg->cen_x);
+                robot->set_pixel_y(reg->cen_y);
+                robot->set_height(cen.height);
+              }
           printf("Found robot! id: %d  angle: %f    conf: %f\n",res.id,res.angle,res.conf);
         }
         /*
@@ -492,6 +506,15 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
       }
     }
   }
+  //remove items with 0-confidence:
+  stripRobots(robots);
+
+  //remove extra items:
+  while(robots->size() > _max_robots) {
+    robots->RemoveLast();
+  }
+
+  
 }
 
 

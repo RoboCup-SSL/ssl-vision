@@ -47,6 +47,8 @@ src/app/plugins/plugin_find_blobs.cpp
 src/app/plugins/plugin_find_blobs.h
 src/app/plugins/plugin_runlength_encode.cpp
 src/app/plugins/plugin_runlength_encode.h
+src/app/plugins/plugin_sslnetworkoutput.cpp
+src/app/plugins/plugin_sslnetworkoutput.h
 src/app/plugins/plugin_visualize.cpp
 src/app/plugins/plugin_visualize.h
 src/app/plugins/visionplugin.cpp
@@ -89,6 +91,13 @@ src/shared/gl/glcamera.h
 src/shared/gl/globject.cpp
 src/shared/gl/globject.h
 src/shared/gl/sources.pro.inc
+src/shared/net
+src/shared/net/netraw.cpp
+src/shared/net/netraw.h
+src/shared/net/robocup_ssl_client.cpp
+src/shared/net/robocup_ssl_client.h
+src/shared/net/robocup_ssl_server.cpp
+src/shared/net/robocup_ssl_server.h
 src/shared/proto
 src/shared/sources.pro.inc
 src/shared/util

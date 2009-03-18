@@ -94,7 +94,7 @@ ProcessResult PluginDetectBalls::process(FrameData * data, RenderOptions * optio
   SSL_DetectionFrame * detection_frame = 0;
 
   detection_frame=(SSL_DetectionFrame *)data->map.get("ssl_detection_frame");
-  if (detection_frame == 0) detection_frame=new SSL_DetectionFrame();
+  if (detection_frame == 0) detection_frame=(SSL_DetectionFrame *)data->map.insert("ssl_detection_frame",new SSL_DetectionFrame());
 
   int color_id_ball = _lut->getChannelID(_settings->_color_label->getString());
   if (color_id_ball == -1) {
@@ -234,6 +234,13 @@ ProcessResult PluginDetectBalls::process(FrameData * data, RenderOptions * optio
       ball->set_pixel_x(best_reg->cen_x);
       ball->set_pixel_y(best_reg->cen_y);
 
+    } else {
+      ball->set_confidence(0.0);
+      ball->set_area(0);
+      ball->set_x(0.0);
+      ball->set_y(0.0);
+      ball->set_pixel_x(0.0);
+      ball->set_pixel_y(0.0);
     }
 
   }

@@ -37,12 +37,18 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
   global_team_selector_yellow = new CMPattern::TeamSelector("Yellow Team", global_team_settings);
   settings->addChild(global_team_selector_yellow->getSettings());
 
+  udp_server = new RoboCupSSLServer();
+  if (udp_server->open()==false) {
+    fprintf(stderr,"ERROR WHEN TRYING TO OPEN UDP NETWORK SERVER!\n");
+    fflush(stderr);
+  }
+
   //add parameter for number of cameras
   createThreads(cameras);
   unsigned int n = threads.size();
   for (unsigned int i = 0; i < n;i++) {
     threads[i]->setFrameBuffer(new FrameBuffer(5));
-    threads[i]->setStack(new StackRoboCupSSL(_opts,threads[i]->getFrameBuffer(),global_field,global_ball_settings,global_team_selector_blue, global_team_selector_yellow,"robocup-ssl-cam-" + QString::number(i).toStdString()));
+    threads[i]->setStack(new StackRoboCupSSL(_opts,threads[i]->getFrameBuffer(),global_field,global_ball_settings,global_team_selector_blue, global_team_selector_yellow,udp_server,"robocup-ssl-cam-" + QString::number(i).toStdString()));
     }
     //TODO: make LUT widgets aware of each other for easy data-sharing
 }
@@ -53,6 +59,7 @@ string MultiStackRoboCupSSL::getSettingsFileName() {
 
 MultiStackRoboCupSSL::~MultiStackRoboCupSSL() {
   stop();
+  delete udp_server;
   delete global_field;
   delete global_ball_settings;
 }

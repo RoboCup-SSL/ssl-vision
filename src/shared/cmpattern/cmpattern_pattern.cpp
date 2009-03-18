@@ -323,6 +323,10 @@ double MultiPatternModel::calcFitError(const Marker *model,
 }
 
 
+const Pattern & MultiPatternModel::getPattern(int idx) {
+  return patterns[idx];
+}
+
 bool MultiPatternModel::findPattern(PatternDetectionResult & result, Marker * markers,int num_markers, const PatternFitParameters & fit_params,const CameraParameters& camera_params) const {
   if(markers==0 || num_markers<0) return(-1);
 
@@ -403,6 +407,7 @@ bool MultiPatternModel::findPattern(PatternDetectionResult & result, Marker * ma
 
     // save results
     result.id = patterns[best_idx].robot_id;
+    result.idx = best_idx;
     result.loc   = cen_avg;
     result.angle = angle;
     result.conf  = SSEVsUniform(best_sse,fit_params.fit_variance,fit_params.fit_uniform);

@@ -1,28 +1,19 @@
 #This is the main project file to build the vision server/gui
 
 #read the global configuration file
-include( config.pro.inc )
+include( ../config.pro.inc )
 
 #where to place built objects
-OBJECTS_DIR = ../build/app/obj
+OBJECTS_DIR = ../../build/client/obj
 
 #where to place temporary moc sources
-MOC_DIR = ../build/app/moc
+MOC_DIR = ../../build/client/moc
 
 #where to place auto-generated UI files
-UI_DIR = ../build/app/ui
+UI_DIR = ../../build/client/ui
 
 #where to place intermediate resource files
-RCC_DIR = ../build/app/resources
-
-#add libeigen include path
-INCLUDEPATH += /usr/include/eigen2
-
-#add libdc1394
-LIBS += -ldc1394
-
-#add jpeg support
-LIBS += -ljpeg
+RCC_DIR = ../../build/client/resources
 
 #add google protocol buffers
 LIBS += -lprotobuf
@@ -35,18 +26,18 @@ QT     += opengl
 #enable networking
 QT     += network
 
-#where to build the vision executive
-TARGET = ../bin/vision
+#where to build the client executive
+TARGET = ../../bin/client
 
 #resources
 RESOURCES += $${SHARED_DIR}/vartypes/gui/icons/icons.qrc
-RESOURCES += app/gui/icons/icons_gui.qrc
+RESOURCES += ../app/gui/icons/icons_gui.qrc
 
 #include shared sources
-include ( $${SHARED_DIR}/sources.pro.inc )
+include( $${SHARED_DIR}/proto/sources.pro.inc )
 
 #include actual list of source files for application
-include ( app.sources.pro.inc )
+include ( client.sources.pro.inc )
 
 DEPENDPATH = INCLUDEPATH
 
