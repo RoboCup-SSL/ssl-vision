@@ -1,5 +1,5 @@
 #directories of sources of the vision app
-PREFIX = app
+PREFIX = .
 
 INCLUDEPATH += $${PREFIX}
 INCLUDEPATH += $${PREFIX}/gui
@@ -87,6 +87,9 @@ HEADERS += $${PREFIX}/plugins/plugin_detect_robots.h
 
 SOURCES += $${PREFIX}/plugins/plugin_visualize.cpp
 HEADERS += $${PREFIX}/plugins/plugin_visualize.h
+
+SOURCES += $${PREFIX}/plugins/plugin_sslnetworkoutput.cpp
+HEADERS += $${PREFIX}/plugins/plugin_sslnetworkoutput.h
 
 ############################
 ### SINGLE-CAMERA STACKS ###

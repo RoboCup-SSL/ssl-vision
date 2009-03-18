@@ -89,7 +89,7 @@ ProcessResult PluginDetectRobots::process(FrameData * data, RenderOptions * opti
   SSL_DetectionFrame * detection_frame = 0;
 
   detection_frame=(SSL_DetectionFrame *)data->map.get("ssl_detection_frame");
-  if (detection_frame == 0) detection_frame=new SSL_DetectionFrame();
+  if (detection_frame == 0) detection_frame=(SSL_DetectionFrame *)data->map.insert("ssl_detection_frame",new SSL_DetectionFrame());
 
   //acquire orange region list from data-map:
   CMVision::ColorRegionList * colorlist;

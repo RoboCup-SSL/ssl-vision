@@ -153,6 +153,7 @@ void CaptureThread::run() {
 
           counter->count();
           stats->total=d->number=counter->getTotal();
+          d->cam_id=camId;
           stats->fps_capture=counter->getFPS(changed);
 
           stack_mutex.lock();

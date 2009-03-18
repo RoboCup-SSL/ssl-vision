@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 CONFIG += ordered
 
-SUBDIRS = src/app.pro
-
+SUBDIRS = src/app/app.pro
+SUBDIRS += src/client/client.pro
 

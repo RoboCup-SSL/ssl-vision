@@ -131,11 +131,13 @@ public:
     float angle;
     float conf;
     int id;
+    int idx;
     void reset() {
       loc.set(0.0,0.0);
       angle=0.0;
       conf=0.0;
       id=0;
+      idx=0;
     }
     PatternDetectionResult() {
       reset();
@@ -146,6 +148,7 @@ protected:
   int       num_patterns;
   Pattern * patterns;
 protected:
+  const Pattern & getPattern(int idx);
   void calcDerived();
   void allocate(int num_patterns);
   double calcFitError(const Marker *model, const Marker *markers, int num_markers, int ofs, const PatternFitParameters & fit_params) const;

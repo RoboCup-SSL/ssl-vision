@@ -13,23 +13,35 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    framedata.cpp
-  \brief   C++ Implementation: FrameData
-  \author  Stefan Zickler, (C) 2008
+  \file    plugin_sslnetworkoutput.h
+  \brief   C++ Interface: plugin_sslnetworkoutput
+  \author  Stefan Zickler, 2009
 */
 //========================================================================
+#ifndef PLUGIN_SSLNETWORKOUTPUT_H
+#define PLUGIN_SSLNETWORKOUTPUT_H
 
-#include "framedata.h"
+#include <visionplugin.h>
+#include "robocup_ssl_server.h"
+#include "camera_calibration.h"
+#include "field.h"
 
-FrameData::FrameData()
+/**
+	@author Stefan Zickler
+*/
+class PluginSSLNetworkOutput : public VisionPlugin
 {
-  time=0;
-  number=0;
-  cam_id=0;
-}
+protected:
+ const CameraParameters& _camera_params;
+ const RoboCupField& _field;
+ RoboCupSSLServer * _udp_server;
+public:
+    PluginSSLNetworkOutput(FrameBuffer * _fb, RoboCupSSLServer * udp_server, const CameraParameters& camera_params, const RoboCupField& field);
 
+    ~PluginSSLNetworkOutput();
 
-FrameData::~FrameData()
-{}
+    virtual ProcessResult process(FrameData * data, RenderOptions * options);
+    virtual string getName();
+};
 
-
+#endif

@@ -4,9 +4,10 @@ CONFIG += release
 CONFIG += qt
 CONFIG += console
 
-SHARED_DIR = shared
+SHARED_DIR = ../shared
 
 INCLUDEPATH += $${SHARED_DIR}
+
 
 unix {
   DEFINES+=UNIX

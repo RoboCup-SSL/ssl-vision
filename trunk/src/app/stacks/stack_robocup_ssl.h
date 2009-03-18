@@ -33,7 +33,9 @@
 #include "plugin_find_blobs.h"
 #include "plugin_detect_balls.h"
 #include "plugin_detect_robots.h"
+#include "plugin_sslnetworkoutput.h"
 #include "cmpattern_teamdetector.h"
+#include "robocup_ssl_server.h"
 
 using namespace std;
 
@@ -53,9 +55,9 @@ class StackRoboCupSSL : public VisionStack {
   CMPattern::TeamSelector * global_team_selector_blue;
   CMPattern::TeamSelector * global_team_selector_yellow;
   RoboCupCalibrationHalfField * calib_field;
-
+  RoboCupSSLServer * _udp_server;
   public:
-  StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, RoboCupField * _global_field, PluginDetectBallsSettings * _global_ball_settings, CMPattern::TeamSelector * _global_team_selector_blue, CMPattern::TeamSelector * _global_team_selector_yellow, string cam_settings_filename);
+  StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, RoboCupField * _global_field, PluginDetectBallsSettings * _global_ball_settings, CMPattern::TeamSelector * _global_team_selector_blue, CMPattern::TeamSelector * _global_team_selector_yellow, RoboCupSSLServer * udp_server, string cam_settings_filename);
   virtual string getSettingsFileName();
   virtual ~StackRoboCupSSL();
 };

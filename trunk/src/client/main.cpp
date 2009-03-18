@@ -13,23 +13,47 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    framedata.cpp
-  \brief   C++ Implementation: FrameData
+  \file    main.cpp
+  \brief   The ssl-vision application entry point.
   \author  Stefan Zickler, (C) 2008
 */
 //========================================================================
 
-#include "framedata.h"
+//#include <QApplication>
+//#include <QCleanlooksStyle>
+//#include <QPlastiqueStyle>
+//#include "mainwindow.h"
 
-FrameData::FrameData()
+#include <stdio.h>
+#include "robocup_ssl_client.h"
+
+#include "messages_robocup_ssl_detection.pb.h"
+#include "messages_robocup_ssl_geometry.pb.h"
+#include "messages_robocup_ssl_wrapper.pb.h"
+
+int main(int argc, char *argv[])
 {
-  time=0;
-  number=0;
-  cam_id=0;
+  /*QApplication app(argc, argv);
+
+  MainWindow mainWin;
+ 
+  //if desired, launch a particular style:
+  // app.setStyle(new QPlastiqueStyle());
+  // app.setStyle(new QCleanlooksStyle());
+  mainWin.show();
+  mainWin.init();
+  int retval = app.exec();*/
+
+
+  RoboCupSSLClient client;
+  client.open();
+  SSL_WrapperPacket packet;
+
+  while(true) {
+    if (client.receive(packet)) {
+      printf("RECEIVED SSL WRAPPER PACKET\n");
+    }
+  }
+
+  return 0;
 }
-
-
-FrameData::~FrameData()
-{}
-
-
