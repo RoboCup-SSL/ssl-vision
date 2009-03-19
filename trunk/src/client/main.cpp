@@ -31,19 +31,27 @@
 #include "messages_robocup_ssl_geometry.pb.h"
 #include "messages_robocup_ssl_wrapper.pb.h"
 
+void printRobotInfo(const SSL_DetectionRobot & robot) {
+  printf("CONF=%4.2f ", robot.confidence());
+  if (robot.has_robot_id()) {
+    printf("ID=%3d ",robot.robot_id());
+  } else {
+    printf("ID=N/A ");
+  }
+  printf(" HEIGHT=%6.2f POS=<%9.2f,%9.2f> ",robot.height(),robot.x(),robot.y());
+  if (robot.has_orientation()) {
+    printf("ANGLE=%6.3f ",robot.orientation());
+  } else {
+    printf("ANGLE=N/A    ");
+  }
+  printf("RAW=<%8.2f,%8.2f>\n",robot.pixel_x(),robot.pixel_y());
+}
+
+
 int main(int argc, char *argv[])
 {
-  /*QApplication app(argc, argv);
-
-  MainWindow mainWin;
- 
-  //if desired, launch a particular style:
-  // app.setStyle(new QPlastiqueStyle());
-  // app.setStyle(new QCleanlooksStyle());
-  mainWin.show();
-  mainWin.init();
-  int retval = app.exec();*/
-
+  (void)argc;
+  (void)argv;
 
   RoboCupSSLClient client;
   client.open();
@@ -66,19 +74,27 @@ int main(int argc, char *argv[])
         //Ball info:
         for (int i = 0; i < balls_n; i++) {
           SSL_DetectionBall ball = detection.balls(i);
-          printf("-Ball (%2d/%2d): CONF=%4.2f POS=<%9.2f,%9.2f> Z=%7.2f RAW=<%8.2f,%8.2f>\n", i+1, balls_n, ball.confidence(),ball.x(),ball.y(),ball.has_z() ? ball.z() : 0.0,ball.pixel_x(),ball.pixel_y());
+          printf("-Ball (%2d/%2d): CONF=%4.2f POS=<%9.2f,%9.2f> ", i+1, balls_n, ball.confidence(),ball.x(),ball.y());
+          if (ball.has_z()) {
+            printf("Z=%7.2f ",ball.z());
+          } else {
+            printf("Z=N/A   ");
+          }
+          printf("RAW=<%8.2f,%8.2f>\n",ball.pixel_x(),ball.pixel_y());
         }
 
         //Blue robot info:
         for (int i = 0; i < robots_blue_n; i++) {
           SSL_DetectionRobot robot = detection.robots_blue(i);
-          printf("-Robot(B) (%2d/%2d): CONF=%4.2f ID=%2d HEIGHT=%6.2f POS=<%9.2f,%9.2f> ANGLE=%6.3f RAW=<%8.2f,%8.2f>\n", i+1, robots_blue_n, robot.confidence(),robot.robot_id(),robot.height(),robot.x(),robot.y(),robot.orientation(),robot.pixel_x(),robot.pixel_y());
+          printf("-Robot(B) (%2d/%2d): ",i+1, robots_blue_n);
+          printRobotInfo(robot);
         }
 
         //Yellow robot info:
         for (int i = 0; i < robots_yellow_n; i++) {
           SSL_DetectionRobot robot = detection.robots_yellow(i);
-          printf("-Robot(Y) (%2d/%2d): CONF=%4.2f ID=%2d HEIGHT=%6.2f POS=<%9.2f,%9.2f> ANGLE=%6.3f RAW=<%8.2f,%8.2f>\n", i+1, robots_yellow_n, robot.confidence(),robot.robot_id(),robot.height(),robot.x(),robot.y(),robot.orientation(),robot.pixel_x(),robot.pixel_y());
+          printf("-Robot(Y) (%2d/%2d): ",i+1, robots_yellow_n);
+          printRobotInfo(robot);
         }
 
       }
