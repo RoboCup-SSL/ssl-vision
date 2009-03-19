@@ -148,6 +148,7 @@ void CaptureThread::run() {
         capture_mutex.lock();
         if ((capture != 0) && (capture->isCapturing())) {
           RawImage pic_raw=capture->getFrame();
+          d->time=pic_raw.getTime();
           capture->copyAndConvertFrame( pic_raw,d->video);
           capture_mutex.unlock();
 

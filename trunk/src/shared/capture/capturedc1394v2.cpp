@@ -1236,21 +1236,20 @@ bool CaptureDC1394v2::startCapture()
   
     uint32_t unit=0;
     uint32_t maxp=0;
-    
+
     dc1394_format7_get_packet_parameters(camera, dcformat, &unit, &maxp);
-  
-  
-    printf("unit size: %d     max size: %d\n",unit,maxp);
+
+    //printf("unit size: %d     max size: %d\n",unit,maxp);
     //maximum frame rate (in fps) = 10^6 / (packets per frame x 125μs)
     //where the 125us is the frame transmission time.
     uint32_t tmpsize=0;
     if (dc1394_format7_get_packet_size(camera, dcformat, &tmpsize) == DC1394_SUCCESS) {
-      printf("current packet size: %d\n",tmpsize);
+      printf("CaptureDC1394v2 Info: Previous Packet Size: %d\n",tmpsize);
     }
   
     uint32_t recommended_size=0;
     if (dc1394_format7_get_recommended_packet_size(camera, dcformat, &recommended_size) == DC1394_SUCCESS) {
-      printf("recommended packet size: %d\n",recommended_size);
+      printf("CaptureDC1394v2 Info: Recommended Packet Size: %d\n",recommended_size);
     }
   
     uint64_t bytes=0;
@@ -1272,7 +1271,7 @@ bool CaptureDC1394v2::startCapture()
   
     tmpsize=0;
     if (dc1394_format7_get_packet_size(camera, dcformat, &tmpsize) == DC1394_SUCCESS) {
-      printf("final packet size: %d\n",tmpsize);
+      printf("CaptureDC1394v2 Info: Final Packet Size: %d\n",tmpsize);
     }
   
   } else {

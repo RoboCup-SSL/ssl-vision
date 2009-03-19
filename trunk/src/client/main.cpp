@@ -51,7 +51,37 @@ int main(int argc, char *argv[])
 
   while(true) {
     if (client.receive(packet)) {
-      printf("RECEIVED SSL WRAPPER PACKET\n");
+      printf("-----Received Wrapper Packet---------------------------------------------\n");
+      //see if the packet contains a robot detection frame:
+      if (packet.has_detection()) {
+        SSL_DetectionFrame detection = packet.detection();
+        //Display the contents of the robot detection results:
+
+        //Frame info:
+        printf("Detection Frame: Camera ID=%d FRAME=%d TIMESTAMP=%.4f\n",detection.camera_id(),detection.frame_number(),detection.timestamp());
+        int balls_n = detection.balls_size();
+        int robots_blue_n =  detection.robots_blue_size();
+        int robots_yellow_n =  detection.robots_yellow_size();
+
+        //Ball info:
+        for (int i = 0; i < balls_n; i++) {
+          SSL_DetectionBall ball = detection.balls(i);
+          printf("-Ball (%2d/%2d): CONF=%4.2f POS=<%9.2f,%9.2f> Z=%7.2f RAW=<%8.2f,%8.2f>\n", i+1, balls_n, ball.confidence(),ball.x(),ball.y(),ball.has_z() ? ball.z() : 0.0,ball.pixel_x(),ball.pixel_y());
+        }
+
+        //Blue robot info:
+        for (int i = 0; i < robots_blue_n; i++) {
+          SSL_DetectionRobot robot = detection.robots_blue(i);
+          printf("-Robot(B) (%2d/%2d): CONF=%4.2f ID=%2d HEIGHT=%6.2f POS=<%9.2f,%9.2f> ANGLE=%6.3f RAW=<%8.2f,%8.2f>\n", i+1, robots_blue_n, robot.confidence(),robot.robot_id(),robot.height(),robot.x(),robot.y(),robot.orientation(),robot.pixel_x(),robot.pixel_y());
+        }
+
+        //Yellow robot info:
+        for (int i = 0; i < robots_yellow_n; i++) {
+          SSL_DetectionRobot robot = detection.robots_yellow(i);
+          printf("-Robot(Y) (%2d/%2d): CONF=%4.2f ID=%2d HEIGHT=%6.2f POS=<%9.2f,%9.2f> ANGLE=%6.3f RAW=<%8.2f,%8.2f>\n", i+1, robots_yellow_n, robot.confidence(),robot.robot_id(),robot.height(),robot.x(),robot.y(),robot.orientation(),robot.pixel_x(),robot.pixel_y());
+        }
+
+      }
     }
   }
 

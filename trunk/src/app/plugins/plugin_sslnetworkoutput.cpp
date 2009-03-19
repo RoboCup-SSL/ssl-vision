@@ -39,8 +39,6 @@ ProcessResult PluginSSLNetworkOutput::process(FrameData * data, RenderOptions * 
 
   SSL_DetectionFrame * detection_frame = 0;
 
-  printf("SENDING\n");
-
   detection_frame=(SSL_DetectionFrame *)data->map.get("ssl_detection_frame");
   if (detection_frame != 0) {
     detection_frame->set_timestamp(data->time);
