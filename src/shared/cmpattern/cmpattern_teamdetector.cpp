@@ -420,9 +420,7 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
   SSL_DetectionRobot * robot=0;
 
   MultiPatternModel::PatternDetectionResult res;
-  printf("=========================\n");
   while((reg = filter_team.getNext()) != 0) {
-    printf("ROBOT\n" );
     vector2d reg_img_center(reg->cen_x,reg->cen_y);
     vector3d reg_center3d;
     _camera_params.image2field(reg_center3d,reg_img_center,_robot_height);
@@ -457,9 +455,7 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
       }
       reg_tree.endQuery();
 
-      printf("--------\n");
       if(num_markers >= 2){
-        printf("found %d markers\n", num_markers);
         CMPattern::PatternProcessing::sortMarkersByAngle(markers,num_markers);
 
         for(int i=0; i<num_markers; i++){
@@ -481,7 +477,6 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
                 robot->set_pixel_y(reg->cen_y);
                 robot->set_height(cen.height);
               }
-          printf("Found robot! id: %d  angle: %f    conf: %f\n",res.id,res.angle,res.conf);
         }
         /*
         // find out which robot this is
@@ -514,7 +509,6 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
     robots->RemoveLast();
   }
 
-  
 }
 
 
