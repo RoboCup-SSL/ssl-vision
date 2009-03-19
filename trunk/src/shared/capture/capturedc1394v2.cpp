@@ -1096,7 +1096,7 @@ bool CaptureDC1394v2::startCapture()
     return false;
   }
 
-  if (cam_id > cam_list->num) {
+  if (cam_id >= cam_list->num) {
     fprintf(stderr,"CaptureDC1394v2 Error: no camera found with index %d. Max index is: %d\n",cam_id,cam_list->num-1);
     #ifndef VDATA_NO_QT
       mutex.unlock();

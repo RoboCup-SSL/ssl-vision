@@ -80,7 +80,7 @@ void Address::print(FILE *out) const
 //  (C) James Bruce
 //====================================================================//
 
-bool UDP::open(int port)
+bool UDP::open(int port, bool share_port_for_multicasting, bool multicast_include_localhost)
 {
   // open the socket
   if(fd >= 0) ::close(fd);
@@ -91,6 +91,29 @@ bool UDP::open(int port)
   if(flags < 0) flags = 0;
   fcntl(fd, F_SETFL, flags|O_NONBLOCK);
 
+  if (share_port_for_multicasting) {
+    int reuse=1;
+    if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse,sizeof(reuse))!=0) {
+      fprintf(stderr,"ERROR WHEN SETTING SO_REUSEADDR ON UDP SOCKET\n");
+      fflush(stderr);
+    }
+    /*if(setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, 1)!=0) {
+      fprintf(stderr,"ERROR WHEN SETTING SO_REUSEPORT ON UDP SOCKET\n");
+      fflush(stderr);
+    }*/
+  }
+
+  if (multicast_include_localhost) {
+    int yes = 1;
+    // allow packets to be received on this host
+    if (setsockopt(fd, IPPROTO_IP, IP_MULTICAST_LOOP, (const char*)&yes, sizeof(yes))!=0) {
+        fprintf(stderr,"ERROR WHEN SETTING IP_MULTICAST_LOOP ON UDP SOCKET\n");
+        fflush(stderr);
+    }
+  }
+
+
+
   // bind socket to port if nonzero
   if(port != 0){
     sockaddr_in sockname;
@@ -99,6 +122,8 @@ bool UDP::open(int port)
     sockname.sin_port = htons(port);
     bind(fd,(struct sockaddr*)(&sockname),sizeof(sockname));
   }
+
+
 
   /*
   // allow port reuse (for when a program is quickly restarted)
