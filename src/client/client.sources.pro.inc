@@ -12,6 +12,8 @@ INCLUDEPATH += $${SHARED_DIR}/util
 
 HEADERS += $${SHARED_DIR}/util/util.h
 
+HEADERS += $${SHARED_DIR}/util/timer.h
+
 INCLUDEPATH += $${SHARED_DIR}/net
 
 SOURCES += $${SHARED_DIR}/net/netraw.cpp

@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include "robocup_ssl_client.h"
+#include "timer.h"
 
 #include "messages_robocup_ssl_detection.pb.h"
 #include "messages_robocup_ssl_geometry.pb.h"
@@ -64,7 +65,9 @@ int main(int argc, char *argv[])
       if (packet.has_detection()) {
         SSL_DetectionFrame detection = packet.detection();
         //Display the contents of the robot detection results:
+        double t_now = GetTimeSec();
 
+        printf("Total Vision Latency (assuming synched system clock) %7.3fms\n",(t_now-detection.timestamp())*1000.0);
         //Frame info:
         printf("Detection Frame: Camera ID=%d FRAME=%d TIMESTAMP=%.4f\n",detection.camera_id(),detection.frame_number(),detection.timestamp());
         int balls_n = detection.balls_size();
