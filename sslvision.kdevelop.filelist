@@ -65,6 +65,8 @@ src/app/stacks/stacks.h
 src/app/stacks/visionstack.cpp
 src/app/stacks/visionstack.h
 src/app/videostats.h
+src/client
+src/client/main.cpp
 src/config.pro.inc
 src/shared
 src/shared/capture/capturedc1394v2.cpp
