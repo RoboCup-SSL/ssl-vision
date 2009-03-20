@@ -2,8 +2,6 @@
 .
 src
 src/app
-src/app.pro
-src/app.sources.pro.inc
 src/app/capture_thread.cpp
 src/app/capture_thread.h
 src/app/capturestats.h
@@ -45,6 +43,8 @@ src/app/plugins/plugin_detect_robots.cpp
 src/app/plugins/plugin_detect_robots.h
 src/app/plugins/plugin_find_blobs.cpp
 src/app/plugins/plugin_find_blobs.h
+src/app/plugins/plugin_publishgeometry.cpp
+src/app/plugins/plugin_publishgeometry.h
 src/app/plugins/plugin_runlength_encode.cpp
 src/app/plugins/plugin_runlength_encode.h
 src/app/plugins/plugin_sslnetworkoutput.cpp

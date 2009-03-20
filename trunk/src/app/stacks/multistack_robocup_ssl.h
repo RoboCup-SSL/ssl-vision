@@ -24,6 +24,7 @@
 #include "multivisionstack.h"
 #include "stack_robocup_ssl.h"
 #include "plugin_detect_balls.h"
+#include "plugin_publishgeometry.h"
 #include "cmpattern_teamdetector.h"
 #include "robocup_ssl_server.h"
 #include "field.h"
@@ -38,6 +39,7 @@ class MultiStackRoboCupSSL : public MultiVisionStack {
   protected:
   RoboCupField * global_field;
   PluginDetectBallsSettings * global_ball_settings;
+  PluginPublishGeometry * global_plugin_publish_geometry;
   CMPattern::TeamDetectorSettings * global_team_settings;
   CMPattern::TeamSelector * global_team_selector_blue;
   CMPattern::TeamSelector * global_team_selector_yellow;

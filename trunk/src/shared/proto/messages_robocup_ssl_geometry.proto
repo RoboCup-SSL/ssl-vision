@@ -1,18 +1,18 @@
 message SSL_GeometryFieldSize {
-  required float line_width = 1;
-  required float field_length = 2;
-  required float field_width = 3;
-  required float boundary_width = 4;
-  required float referee_width = 5;
-  required float goal_width = 6;
-  required float goal_depth = 7;
-  required float goal_wall_width = 8;
-  required float center_circle_radius = 9;
-  required float defense_radius = 10;
-  required float defense_stretch = 11;
-  required float free_kick_from_defense_dist = 12;
-  required float penalty_spot_from_field_line_dist = 13;
-  required float penalty_line_from_spot_dist = 14;
+  required int32 line_width = 1;
+  required int32 field_length = 2;
+  required int32 field_width = 3;
+  required int32 boundary_width = 4;
+  required int32 referee_width = 5;
+  required int32 goal_width = 6;
+  required int32 goal_depth = 7;
+  required int32 goal_wall_width = 8;
+  required int32 center_circle_radius = 9;
+  required int32 defense_radius = 10;
+  required int32 defense_stretch = 11;
+  required int32 free_kick_from_defense_dist = 12;
+  required int32 penalty_spot_from_field_line_dist = 13;
+  required int32 penalty_line_from_spot_dist = 14;
 }
 
 message SSL_GeometryCameraCalibration {

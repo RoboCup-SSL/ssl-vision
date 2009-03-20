@@ -87,6 +87,10 @@ bool RoboCupSSLServer::send(const SSL_DetectionFrame & frame) {
   return send(pkt);
 }
 
-/*bool RoboCupSSLServer::send() {
-  return(mc.send(&m,m.length,_net_address.c_str()));
-}*/
+bool RoboCupSSLServer::send(const SSL_GeometryData & geometry) {
+  SSL_WrapperPacket pkt;
+  SSL_GeometryData * gdata = pkt.mutable_geometry();
+  gdata->CopyFrom(geometry);
+  return send(pkt);
+}
+

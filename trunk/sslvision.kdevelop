@@ -140,7 +140,7 @@
       </environments>
     </make>
     <general>
-      <activedir>src/shared/vartypes</activedir>
+      <activedir>src/app/plugins</activedir>
     </general>
   </kdevcustomproject>
   <kdevdebugger>
@@ -209,10 +209,10 @@
   </kdevdoctreeview>
   <kdevfilecreate>
     <filetypes>
-      <type icon="source_h" ext="h" create="template" name="C/C++ Header" >
+      <type icon="source_h" ext="h" name="C/C++ Header" create="template" >
         <descr>A new empty header file for C or C++.</descr>
       </type>
-      <type icon="source_cpp" ext="cpp" create="template" name="C++ Source" >
+      <type icon="source_cpp" ext="cpp" name="C++ Source" create="template" >
         <descr>A new empty C++ file.</descr>
       </type>
     </filetypes>
@@ -227,8 +227,8 @@
       <includestyle>3</includestyle>
       <root>/usr/lib/qt-3.3</root>
       <designerintegration>EmbeddedKDevDesigner</designerintegration>
-      <qmake>/usr/bin/qmake</qmake>
-      <designer></designer>
+      <qmake>/usr/lib/qt-3.3/bin/qmake</qmake>
+      <designer>/usr/lib/qt-3.3/bin/designer</designer>
       <designerpluginpaths/>
     </qt>
     <references/>

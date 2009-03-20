@@ -43,13 +43,15 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
     fflush(stderr);
   }
 
+  global_plugin_publish_geometry = new PluginPublishGeometry(0,udp_server,*global_field);
+
   //add parameter for number of cameras
   createThreads(cameras);
   unsigned int n = threads.size();
   for (unsigned int i = 0; i < n;i++) {
     threads[i]->setFrameBuffer(new FrameBuffer(5));
-    threads[i]->setStack(new StackRoboCupSSL(_opts,threads[i]->getFrameBuffer(),global_field,global_ball_settings,global_team_selector_blue, global_team_selector_yellow,udp_server,"robocup-ssl-cam-" + QString::number(i).toStdString()));
-    }
+    threads[i]->setStack(new StackRoboCupSSL(_opts,threads[i]->getFrameBuffer(),global_field,global_ball_settings,global_plugin_publish_geometry,global_team_selector_blue, global_team_selector_yellow,udp_server,"robocup-ssl-cam-" + QString::number(i).toStdString()));
+  }
     //TODO: make LUT widgets aware of each other for easy data-sharing
 }
 
@@ -60,6 +62,7 @@ string MultiStackRoboCupSSL::getSettingsFileName() {
 MultiStackRoboCupSSL::~MultiStackRoboCupSSL() {
   stop();
   delete udp_server;
+  delete global_plugin_publish_geometry;
   delete global_field;
   delete global_ball_settings;
 }
