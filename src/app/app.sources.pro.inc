@@ -91,6 +91,9 @@ HEADERS += $${PREFIX}/plugins/plugin_visualize.h
 SOURCES += $${PREFIX}/plugins/plugin_sslnetworkoutput.cpp
 HEADERS += $${PREFIX}/plugins/plugin_sslnetworkoutput.h
 
+SOURCES += $${PREFIX}/plugins/plugin_publishgeometry.cpp
+HEADERS += $${PREFIX}/plugins/plugin_publishgeometry.h
+
 ############################
 ### SINGLE-CAMERA STACKS ###
 

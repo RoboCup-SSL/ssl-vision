@@ -74,6 +74,15 @@ public:
   {
   }
 
+  /// get and reset the internal counter
+  virtual int getAndResetCounter() {
+    DT_LOCK;
+    int v=_counter;
+    _counter=0;
+    DT_UNLOCK;
+    return v;
+  }
+
   /// get the internal counter
   virtual int getCounter() {
     DT_LOCK;

@@ -80,16 +80,18 @@ MainWindow::MainWindow()
     unsigned int n=s->stack.size();
     for (unsigned int j=0;j<n;j++) {
       VisionPlugin * p=s->stack[j];
-      if (p->isSharedAmongStacks() && i==0) {
-        //this is a shared global plugin...
-        //add it to global pane
-        if (p->getSettings()!=0) stackvar->addChild(p->getSettings());
-
-        QWidget * tmp_control = p->getControlWidget();
-        if (tmp_control!=0) right_tab->addTab(tmp_control,QString::fromStdString(p->getName()));
-      
-        QWidget * tmp_vis = p->getVisualizationWidget();
-        if (tmp_vis!=0) splitter2->addWidget(tmp_vis);
+      if (p->isSharedAmongStacks()) {
+        if (i==0) {
+          //this is a shared global plugin...
+          //add it to global pane
+          if (p->getSettings()!=0) stackvar->addChild(p->getSettings());
+  
+          QWidget * tmp_control = p->getControlWidget();
+          if (tmp_control!=0) right_tab->addTab(tmp_control,QString::fromStdString(p->getName()));
+        
+          QWidget * tmp_vis = p->getVisualizationWidget();
+          if (tmp_vis!=0) splitter2->addWidget(tmp_vis);
+        }
       
       } else {
         if (p->getSettings()!=0) threadvar->addChild(p->getSettings());

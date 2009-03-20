@@ -25,6 +25,10 @@
 #include "VarTypes.h"
 #include <QObject>
 
+#ifndef NO_PROTOBUFFERS
+  #include "messages_robocup_ssl_geometry.pb.h"
+#endif
+
 /*!
   \class RoboCupField
 
@@ -75,6 +79,42 @@ public:
   VarInt * half_field_total_surface_length;
   VarInt * half_field_total_surface_width;
 
+  #ifndef NO_PROTOBUFFERS
+  void toProtoBuffer(SSL_GeometryFieldSize & buffer) const {
+    buffer.set_line_width(line_width->getInt());
+    buffer.set_field_length(field_length->getInt());
+    buffer.set_field_width(field_width->getInt());
+    buffer.set_boundary_width(boundary_width->getInt());
+    buffer.set_referee_width(referee_width->getInt());
+    buffer.set_goal_width(goal_width->getInt());
+    buffer.set_goal_depth(goal_depth->getInt());
+    buffer.set_goal_wall_width(goal_wall_width->getInt());
+    buffer.set_center_circle_radius(center_circle_radius->getInt());
+    buffer.set_defense_radius(defense_radius->getInt());
+    buffer.set_defense_stretch(defense_stretch->getInt());
+    buffer.set_free_kick_from_defense_dist(free_kick_from_defense_dist->getInt());
+    buffer.set_penalty_spot_from_field_line_dist(penalty_spot_from_field_line_dist->getInt());
+    buffer.set_penalty_line_from_spot_dist(penalty_line_from_spot_dist->getInt());
+  }
+
+  void fromProtoBuffer(const SSL_GeometryFieldSize & buffer) {
+    line_width->setInt(buffer.line_width());
+    field_length->setInt(buffer.field_length());
+    field_width->setInt(buffer.field_width());
+    boundary_width->setInt(buffer.boundary_width());
+    referee_width->setInt(buffer.referee_width());
+    goal_width->setInt(buffer.goal_width());
+    goal_depth->setInt(buffer.goal_depth());
+    goal_wall_width->setInt(buffer.goal_wall_width());
+    center_circle_radius->setInt(buffer.center_circle_radius());
+    defense_radius->setInt(buffer.defense_radius());
+    defense_stretch->setInt(buffer.defense_stretch());
+    free_kick_from_defense_dist->setInt(buffer.free_kick_from_defense_dist());
+    penalty_spot_from_field_line_dist->setInt(buffer.penalty_spot_from_field_line_dist());
+    penalty_line_from_spot_dist->setInt(buffer.penalty_line_from_spot_dist());
+    updateDerivedParameters();
+  }
+  #endif
 
   void loadDefaultsRoboCup2009() {
     line_width->setInt(10);
