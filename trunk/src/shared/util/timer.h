@@ -124,6 +124,17 @@ typedef uint64_t cycle64_t;
 
 #endif
 
+#ifdef __x86_64__
+
+#define get_cycle(cnt) \
+    __asm__ __volatile__("rdtsc" : "=A" (cnt))
+
+#define get_cycle64(cnt) \
+    __asm__ __volatile__("rdtsc" : "=A" (cnt))
+
+#endif
+
+
 // The following is untested
 #ifdef Apertos
 #define get_cycle(cp0r9) \

@@ -112,7 +112,7 @@ public:
 
   virtual void printdebug() const
   {
-    printf("Data Blob pointer %d , size: %d\n",(int)_dpointer,(int)_dsize);
+    printf("Data Blob pointer %p , size: %d\n",_dpointer,(int)_dsize);
   }
 
   const char * getSerialString() const {
