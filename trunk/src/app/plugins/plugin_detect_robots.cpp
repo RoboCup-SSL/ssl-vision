@@ -133,9 +133,11 @@ ProcessResult PluginDetectRobots::process(FrameData * data, RenderOptions * opti
       robotlist=detection_frame->mutable_robots_yellow();
       detector=team_detector_yellow;
     }
-    detector->init(team);
+    if (team!=0) {
+      detector->init(team);
 
-    detector->update(robotlist, color_id,  num_robots, image, colorlist, reg_tree);
+      detector->update(robotlist, color_id,  num_robots, image, colorlist, reg_tree);
+    }
 
 //    printf("DETECTED %d robots on team %d\n",robotlist->size(),team_i);
 //    fflush(stdout);
