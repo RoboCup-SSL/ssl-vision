@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#A list of planned features and improvements to ssl-vision
 
 = TODO =
 This page is a TODO list of new features and improvements for ssl-vision. If you would like to suggest other wishes/features or are interested in working on an unassigned issue, please let us know by becoming a member of the email-list http://groups.google.com/group/ssl-vision.
