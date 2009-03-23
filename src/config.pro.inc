@@ -15,8 +15,7 @@ unix {
   DEFINES+=_GNU_SOURCE
 
 #profiling:
-  CONFIG -= debug
-  CONFIG += release
+#  CONFIG += debug
 #  QMAKE_CFLAGS+=-pg
 #  QMAKE_CXXFLAGS+=-pg
 #  QMAKE_LFLAGS+=-pg
