@@ -167,7 +167,11 @@ void CaptureThread::run() {
 
 
           if (changed) {
-            if (c_auto_refresh->getBool()==true) capture->readAllParameterValues();
+            if (c_auto_refresh->getBool()==true) {
+              capture_mutex.lock();
+              if ((capture != 0) && (capture->isCapturing())) capture->readAllParameterValues();
+              capture_mutex.unlock();
+            }
             stack_mutex.lock();
             stack->updateTimingStatistics();
             stack_mutex.unlock();

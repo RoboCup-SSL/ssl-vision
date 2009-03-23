@@ -967,110 +967,6 @@ bool CaptureDC1394v2::startCapture()
     #endif
     return false;
   }
-  
-  bool native_unavailable = false;
-  if (mode==CAPTURE_MODE_AUTO || mode==CAPTURE_MODE_NATIVE) {
-    if (width==160 && height==120) {
-      if (capture_format==COLOR_YUV444) {
-        dcformat=DC1394_VIDEO_MODE_160x120_YUV444;
-      } else {
-        native_unavailable = true;
-      }
-    } else if (width==320 && height==240) {
-      if (capture_format==COLOR_YUV422_UYVY) {
-        dcformat=DC1394_VIDEO_MODE_320x240_YUV422;
-      } else {
-        native_unavailable = true;
-      }
-    } else if (width==640 && height==480) {
-      if (capture_format==COLOR_YUV411) {
-        dcformat=DC1394_VIDEO_MODE_640x480_YUV411;
-      } else if (capture_format==COLOR_YUV422_UYVY) {
-        dcformat=DC1394_VIDEO_MODE_640x480_YUV422;
-      } else if (capture_format==COLOR_RGB8) {
-        dcformat=DC1394_VIDEO_MODE_640x480_RGB8;
-      } else if (capture_format==COLOR_MONO8) {
-        dcformat=DC1394_VIDEO_MODE_640x480_MONO8;
-      } else if (capture_format==COLOR_MONO16) {
-        dcformat=DC1394_VIDEO_MODE_640x480_MONO16;
-      } else {
-        native_unavailable = true;
-      }
-    } else if (width==800 && height==600) {
-      if (capture_format==COLOR_YUV422_UYVY) {
-        dcformat=DC1394_VIDEO_MODE_800x600_YUV422;
-      } else if (capture_format==COLOR_RGB8) {
-        dcformat=DC1394_VIDEO_MODE_800x600_RGB8;
-      } else if (capture_format==COLOR_MONO8) {
-        dcformat=DC1394_VIDEO_MODE_800x600_MONO8;
-      } else if (capture_format==COLOR_MONO16) {
-        dcformat=DC1394_VIDEO_MODE_800x600_MONO16;
-      } else {
-        native_unavailable = true;
-      }
-    } else if (width==1024 && height==768) {
-      if (capture_format==COLOR_YUV422_UYVY) {
-        dcformat=DC1394_VIDEO_MODE_1024x768_YUV422;
-      } else if (capture_format==COLOR_RGB8) {
-        dcformat=DC1394_VIDEO_MODE_1024x768_RGB8;
-      } else if (capture_format==COLOR_MONO8) {
-        dcformat=DC1394_VIDEO_MODE_1024x768_MONO8;
-      } else if (capture_format==COLOR_MONO16) {
-        dcformat=DC1394_VIDEO_MODE_1024x768_MONO16;
-      } else {
-        native_unavailable = true;
-      }
-    } else if (width==1280 && height==960) {
-      if (capture_format==COLOR_YUV422_UYVY) {
-        dcformat=DC1394_VIDEO_MODE_1280x960_YUV422;
-      } else if (capture_format==COLOR_RGB8) {
-        dcformat=DC1394_VIDEO_MODE_1280x960_RGB8;
-      } else if (capture_format==COLOR_MONO8) {
-        dcformat=DC1394_VIDEO_MODE_1280x960_MONO8;
-      } else if (capture_format==COLOR_MONO16) {
-        dcformat=DC1394_VIDEO_MODE_1280x960_MONO16;
-      } else {
-        native_unavailable = true;
-      }
-    } else if (width==1600 && height==1200) {
-      if (capture_format==COLOR_YUV422_UYVY) {
-        dcformat=DC1394_VIDEO_MODE_1600x1200_YUV422;
-      } else if (capture_format==COLOR_RGB8) {
-        dcformat=DC1394_VIDEO_MODE_1600x1200_RGB8;
-      } else if (capture_format==COLOR_MONO8) {
-        dcformat=DC1394_VIDEO_MODE_1600x1200_MONO8;
-      } else if (capture_format==COLOR_MONO16) {
-        dcformat=DC1394_VIDEO_MODE_1600x1200_MONO16;
-      } else {
-        native_unavailable = true;
-      }
-    } else {
-      native_unavailable = true;
-    }
-    
-    if (native_unavailable==true) {
-      if (mode==CAPTURE_MODE_AUTO) {
-        printf("CaptureDC1394v2: Selected color format/resolution not natively supported...attempting FORMAT 7 MODE 0.\n");
-        dcformat = DC1394_VIDEO_MODE_FORMAT7_0;
-      } else {
-        fprintf(stderr,"CaptureDC1394v2 Error: Selected color format/resolution not natively supported!");
-        fprintf(stderr,"CaptureDC1394v2 Error: Maybe try switching to auto or a format7 mode.");
-        #ifndef VDATA_NO_QT
-          mutex.unlock();
-        #endif
-        return false;
-      }
-    }
-  } else {
-    if (mode==CAPTURE_MODE_FORMAT_7_MODE_0) dcformat = DC1394_VIDEO_MODE_FORMAT7_0;
-    if (mode==CAPTURE_MODE_FORMAT_7_MODE_1) dcformat = DC1394_VIDEO_MODE_FORMAT7_1;
-    if (mode==CAPTURE_MODE_FORMAT_7_MODE_2) dcformat = DC1394_VIDEO_MODE_FORMAT7_2;
-    if (mode==CAPTURE_MODE_FORMAT_7_MODE_3) dcformat = DC1394_VIDEO_MODE_FORMAT7_3;
-    if (mode==CAPTURE_MODE_FORMAT_7_MODE_4) dcformat = DC1394_VIDEO_MODE_FORMAT7_4;
-    if (mode==CAPTURE_MODE_FORMAT_7_MODE_5) dcformat = DC1394_VIDEO_MODE_FORMAT7_5;
-    if (mode==CAPTURE_MODE_FORMAT_7_MODE_6) dcformat = DC1394_VIDEO_MODE_FORMAT7_6;
-    if (mode==CAPTURE_MODE_FORMAT_7_MODE_7) dcformat = DC1394_VIDEO_MODE_FORMAT7_7;
-  }
 
   if (dc1394_camera_enumerate(dc1394_instance, &cam_list)!=DC1394_SUCCESS) {
     fprintf(stderr,"CaptureDC1394v2 Error: can't find cameras");
@@ -1173,6 +1069,174 @@ bool CaptureDC1394v2::startCapture()
     }
   }
 
+  dc1394video_modes_t supported_modes;
+  bool know_modes=false;
+  if (dc1394_video_get_supported_modes(camera,&supported_modes) == DC1394_SUCCESS) {
+    know_modes=true;
+  } else {
+    fprintf(stderr,"CaptureDC1394v2 Warning: unable to query supported camera modes!\n");
+  }
+
+  bool native_unavailable = false;
+  if (mode==CAPTURE_MODE_AUTO || mode==CAPTURE_MODE_NATIVE) {
+    if (width==160 && height==120) {
+      if (capture_format==COLOR_YUV444) {
+        dcformat=DC1394_VIDEO_MODE_160x120_YUV444;
+      } else {
+        native_unavailable = true;
+      }
+    } else if (width==320 && height==240) {
+      if (capture_format==COLOR_YUV422_UYVY) {
+        dcformat=DC1394_VIDEO_MODE_320x240_YUV422;
+      } else {
+        native_unavailable = true;
+      }
+    } else if (width==640 && height==480) {
+      if (capture_format==COLOR_YUV411) {
+        dcformat=DC1394_VIDEO_MODE_640x480_YUV411;
+      } else if (capture_format==COLOR_YUV422_UYVY) {
+        dcformat=DC1394_VIDEO_MODE_640x480_YUV422;
+      } else if (capture_format==COLOR_RGB8) {
+        dcformat=DC1394_VIDEO_MODE_640x480_RGB8;
+      } else if (capture_format==COLOR_MONO8) {
+        dcformat=DC1394_VIDEO_MODE_640x480_MONO8;
+      } else if (capture_format==COLOR_MONO16) {
+        dcformat=DC1394_VIDEO_MODE_640x480_MONO16;
+      } else {
+        native_unavailable = true;
+      }
+    } else if (width==800 && height==600) {
+      if (capture_format==COLOR_YUV422_UYVY) {
+        dcformat=DC1394_VIDEO_MODE_800x600_YUV422;
+      } else if (capture_format==COLOR_RGB8) {
+        dcformat=DC1394_VIDEO_MODE_800x600_RGB8;
+      } else if (capture_format==COLOR_MONO8) {
+        dcformat=DC1394_VIDEO_MODE_800x600_MONO8;
+      } else if (capture_format==COLOR_MONO16) {
+        dcformat=DC1394_VIDEO_MODE_800x600_MONO16;
+      } else {
+        native_unavailable = true;
+      }
+    } else if (width==1024 && height==768) {
+      if (capture_format==COLOR_YUV422_UYVY) {
+        dcformat=DC1394_VIDEO_MODE_1024x768_YUV422;
+      } else if (capture_format==COLOR_RGB8) {
+        dcformat=DC1394_VIDEO_MODE_1024x768_RGB8;
+      } else if (capture_format==COLOR_MONO8) {
+        dcformat=DC1394_VIDEO_MODE_1024x768_MONO8;
+      } else if (capture_format==COLOR_MONO16) {
+        dcformat=DC1394_VIDEO_MODE_1024x768_MONO16;
+      } else {
+        native_unavailable = true;
+      }
+    } else if (width==1280 && height==960) {
+      if (capture_format==COLOR_YUV422_UYVY) {
+        dcformat=DC1394_VIDEO_MODE_1280x960_YUV422;
+      } else if (capture_format==COLOR_RGB8) {
+        dcformat=DC1394_VIDEO_MODE_1280x960_RGB8;
+      } else if (capture_format==COLOR_MONO8) {
+        dcformat=DC1394_VIDEO_MODE_1280x960_MONO8;
+      } else if (capture_format==COLOR_MONO16) {
+        dcformat=DC1394_VIDEO_MODE_1280x960_MONO16;
+      } else {
+        native_unavailable = true;
+      }
+    } else if (width==1600 && height==1200) {
+      if (capture_format==COLOR_YUV422_UYVY) {
+        dcformat=DC1394_VIDEO_MODE_1600x1200_YUV422;
+      } else if (capture_format==COLOR_RGB8) {
+        dcformat=DC1394_VIDEO_MODE_1600x1200_RGB8;
+      } else if (capture_format==COLOR_MONO8) {
+        dcformat=DC1394_VIDEO_MODE_1600x1200_MONO8;
+      } else if (capture_format==COLOR_MONO16) {
+        dcformat=DC1394_VIDEO_MODE_1600x1200_MONO16;
+      } else {
+        native_unavailable = true;
+      }
+    } else {
+      native_unavailable = true;
+    }
+    if (native_unavailable==false && know_modes) {
+      bool found_mode=false;
+      for (unsigned int i=0;i<supported_modes.num;i++) {
+        if (supported_modes.modes[i]==dcformat) {
+          found_mode=true;
+          break;
+        }
+      }
+      if (found_mode==false) {
+        native_unavailable=true;
+      }
+    }
+
+    if (native_unavailable==true) {
+      if (mode==CAPTURE_MODE_AUTO) {
+        printf("CaptureDC1394v2 Info: Selected format/resolution not supported as FORMAT 0\n");
+        printf("CaptureDC1394v2 Info: Selecting lowest available Format 7 mode\n");
+        if (know_modes) {
+          bool found=false;
+          for (unsigned int i=0;i<supported_modes.num;i++) {
+            if (supported_modes.modes[i] >= DC1394_VIDEO_MODE_FORMAT7_MIN && supported_modes.modes[i]<=DC1394_VIDEO_MODE_FORMAT7_MAX) {
+              if (found==false || supported_modes.modes[i] < dcformat) {
+                found=true;
+                dcformat=supported_modes.modes[i];
+              }
+            }
+          }
+          if (found==false) {
+            fprintf(stderr,"CaptureDC1394v2 Error: No Format 7 modes available!");
+            fprintf(stderr,"CaptureDC1394v2 Error: Maybe try selecting a supported Format 0 resolution/framerate?");
+            #ifndef VDATA_NO_QT
+              mutex.unlock();
+            #endif
+            return false;
+          }
+        } else {
+          dcformat=DC1394_VIDEO_MODE_FORMAT7_0;
+        }
+
+      } else {
+        fprintf(stderr,"CaptureDC1394v2 Error: Selected color format/resolution not natively supported!");
+        fprintf(stderr,"CaptureDC1394v2 Error: Maybe try switching to auto or a format7 mode.");
+        #ifndef VDATA_NO_QT
+          mutex.unlock();
+        #endif
+        return false;
+      }
+    }
+  } else {
+    if (mode==CAPTURE_MODE_FORMAT_7_MODE_0) dcformat = DC1394_VIDEO_MODE_FORMAT7_0;
+    if (mode==CAPTURE_MODE_FORMAT_7_MODE_1) dcformat = DC1394_VIDEO_MODE_FORMAT7_1;
+    if (mode==CAPTURE_MODE_FORMAT_7_MODE_2) dcformat = DC1394_VIDEO_MODE_FORMAT7_2;
+    if (mode==CAPTURE_MODE_FORMAT_7_MODE_3) dcformat = DC1394_VIDEO_MODE_FORMAT7_3;
+    if (mode==CAPTURE_MODE_FORMAT_7_MODE_4) dcformat = DC1394_VIDEO_MODE_FORMAT7_4;
+    if (mode==CAPTURE_MODE_FORMAT_7_MODE_5) dcformat = DC1394_VIDEO_MODE_FORMAT7_5;
+    if (mode==CAPTURE_MODE_FORMAT_7_MODE_6) dcformat = DC1394_VIDEO_MODE_FORMAT7_6;
+    if (mode==CAPTURE_MODE_FORMAT_7_MODE_7) dcformat = DC1394_VIDEO_MODE_FORMAT7_7;
+  }
+
+
+  if (know_modes) {
+    //check whether capture mode is supported:
+    bool found=false;
+    for (unsigned int i=0;i<supported_modes.num;i++) {
+      if (supported_modes.modes[i]==dcformat) {
+        found=true;
+        break;
+      }
+    }
+    if (found==false) {
+      fprintf(stderr,"CaptureDC1394v2 Error: Selected mode (format/resolution/framerate) is not supported by camera!\n");
+      #ifndef VDATA_NO_QT
+        mutex.unlock();
+      #endif
+      cleanup();
+      return false;
+    } else {
+    }
+  }
+
+
   if (dc1394_video_set_mode(camera,dcformat) !=  DC1394_SUCCESS) {
     fprintf(stderr,"CaptureDC1394v2 Error: unable to set capture mode\n");
     #ifndef VDATA_NO_QT
@@ -1180,6 +1244,19 @@ bool CaptureDC1394v2::startCapture()
     #endif
     cleanup();
     return false;
+  }
+
+  //very mode:
+  dc1394video_mode_t check_mode;
+  if (dc1394_video_get_mode(camera,&check_mode) ==  DC1394_SUCCESS) {
+    if (check_mode!=dcformat) {
+      fprintf(stderr,"CaptureDC1394v2 Error: Unable to set selected mode\n");
+      #ifndef VDATA_NO_QT
+        mutex.unlock();
+      #endif
+      cleanup();
+      return false;
+    }
   }
 
   if (dcformat >= DC1394_VIDEO_MODE_FORMAT7_MIN && dcformat <= DC1394_VIDEO_MODE_FORMAT7_MAX) {
@@ -1275,6 +1352,26 @@ bool CaptureDC1394v2::startCapture()
     }
   
   } else {
+  
+    dc1394framerates_t sup_framerates;
+    if (dc1394_video_get_supported_framerates(camera,dcformat,&sup_framerates)== DC1394_SUCCESS) {
+      bool found=false;
+      for (unsigned int i=0;i<sup_framerates.num;i++) {
+        if (sup_framerates.framerates[i]==dcfps) {
+          found=true;
+          break;
+        }
+      }
+      if (found==false) {
+        fprintf(stderr,"CaptureDC1394v2 Error: selected framerate is not supported!\n");
+        #ifndef VDATA_NO_QT
+        mutex.unlock();
+        #endif
+        cleanup();
+        return false;
+      }
+    }
+  
     if (dc1394_video_set_framerate(camera,dcfps) !=  DC1394_SUCCESS) {
       fprintf(stderr,"CaptureDC1394v2 Error: unable to set framerate!\n");
       #ifndef VDATA_NO_QT
@@ -1295,8 +1392,15 @@ dc1394error_t dc1394_format7_get_recommended_packet_size(dc1394camera_t *camera,
 dc1394error_t dc1394_format7_get_packets_per_frame(dc1394camera_t *camera, dc1394video_mode_t video_mode, uint32_t *ppf);
 */
   
-
-  
+  uint32_t bandwidth;
+  if (dc1394_video_get_bandwidth_usage(camera, &bandwidth) == DC1394_SUCCESS) {
+    if (bandwidth > 4915) {
+      fprintf(stderr,"CaptureDC1394v2 Warning: Selected combination of video mode/format/resolution/framerate will likely exceed ");
+      fprintf(stderr,"available bus bandwidth (available=4915, needed=%d). ",bandwidth);
+      fprintf(stderr,"If capture hangs, then this is why!\n");
+      fflush(stderr);
+    }
+  }
 
   if (dc1394_capture_setup(camera, ring_buffer_size, DC1394_CAPTURE_FLAGS_CHANNEL_ALLOC /*DC1394_CAPTURE_FLAGS_DEFAULT */ ) != DC1394_SUCCESS) {
     fprintf(stderr,"CaptureDC1394v2 Error: unable to setup capture. Maybe selected combination of Format/Resolution is not supported?\n");
