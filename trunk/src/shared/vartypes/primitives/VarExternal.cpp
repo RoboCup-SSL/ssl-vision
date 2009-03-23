@@ -38,3 +38,24 @@ VarExternal::VarExternal(string _filename, string _name) : VarList(_name)
 VarExternal::~VarExternal()
 {
 }
+
+void VarExternal::loadExternal() {
+  DT_LOCK;
+  //load file to empty parent
+  int before=list.size();
+  XMLNode parent = XMLNode::openFileHelper(filename.c_str(),"VarXML");
+  list=readChildrenHelper(parent, list, false, false);
+  int after=list.size();
+  if (after > before) {
+    for (int i=before; i < after; i++) {
+        emit(childAdded(list[i]));
+    }
+  }
+  CHANGE_MACRO;
+  DT_UNLOCK;
+}
+
+void VarExternal::readChildren(XMLNode & us) {
+  (void)us;
+  loadExternal();
+}

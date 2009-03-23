@@ -23,6 +23,8 @@
 #include <vector>
 #include <limits.h>
 #include <float.h>
+#include <set>
+#include <queue>
 
 /*!
   \class  VarData
@@ -287,6 +289,8 @@ protected:
   virtual void readAttributes(XMLNode & us);
   virtual void readText(XMLNode & us);
   virtual void readChildren(XMLNode & us);
+
+  virtual void loadExternal();
 
   static XMLNode findOrAppendChild(XMLNode & parent, string key, string val);
 public:

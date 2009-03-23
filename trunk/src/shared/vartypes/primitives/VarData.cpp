@@ -382,17 +382,24 @@ void VarData::readXML(XMLNode & us)
   readChildren(us);
 }
 
+void VarData::loadExternal() {
+
+}
+
 vector<VarData *> VarData::readChildrenHelper(XMLNode & parent , vector<VarData *> existing_children, bool only_update_existing, bool blind_append)
 {
   //this again does non-destructive integration
   //As a result we update any predefined structures and
   //append any types that don't exist yet.
-
   vector<VarData *> result=existing_children;
   int n=parent.nChildNode("Var");
   int i,myIterator=0;
 
   //iterate through them and check if we already exist
+  set<VarData *> unmatched_children;
+  for (unsigned int j=0;j<existing_children.size();j++) {
+    unmatched_children.insert(existing_children[j]);
+  }
   for (i=0; i<n; i++) {
     XMLNode t=parent.getChildNode("Var",&myIterator);
     string sname=fixString(t.getAttribute("name"));
@@ -402,7 +409,7 @@ vector<VarData *> VarData::readChildrenHelper(XMLNode & parent , vector<VarData 
       bool found=false;
       if (sname!="" && blind_append==false) {
         //try to find existing child with this name
-        for (unsigned j=0;j<existing_children.size();j++) {
+        for (unsigned int j=0;j<existing_children.size();j++) {
           if (existing_children[j]->getName()==sname) {
             if (existing_children[j]->getType()==type) {
               existing_children[j]->readXML(t);
@@ -425,11 +432,29 @@ vector<VarData *> VarData::readChildrenHelper(XMLNode & parent , vector<VarData 
           td->readXML(t);
           result.push_back(td);
         }
+
       }
     } else {
       fprintf(stderr,"Found var with no or unknown type in XML... type: %s\n",stype.c_str());
     }
   }
+  //---fix for recursing tree that's not defined in xml yet:
+  queue<VarData *> _queue;
+  for (set<VarData *>::iterator iter = unmatched_children.begin(); iter!=unmatched_children.end(); iter++) {
+    if (*iter!=0) _queue.push(*iter);
+  }
+   //recurse all unmatched children to make sure we load all externals:
+  while(_queue.empty()==false) {
+    VarData * d = _queue.front();
+    _queue.pop();
+    d->loadExternal();
+    vector<VarData *> children = d->getChildren();
+    int s=children.size();    
+    for (int i=0;i<s;i++) {
+      if (children[i]!=0) _queue.push(children[i]);
+    }
+  }
+  //---end of fix
   return result;
 }
 
