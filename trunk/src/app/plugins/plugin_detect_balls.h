@@ -28,6 +28,7 @@
 #include "field_filter.h"
 #include "cmvision_histogram.h"
 #include "vis_util.h"
+#include "VarNotifier.h"
 #include "lut3d.h"
 /**
 	@author Author Name
@@ -94,7 +95,7 @@ public:
 
   _settings->addChild(_filter_too_near_robot = new VarList("Near Robot Filter"));
     _filter_too_near_robot->addChild(_ball_too_near_robot_enabled = new VarBool("Enable Filter",true));
-    _filter_too_near_robot->addChild(_ball_too_near_robot_dist = new VarDouble("Distance (mm)",55));
+    _filter_too_near_robot->addChild(_ball_too_near_robot_dist = new VarDouble("Distance (mm)",70));
 
   _settings->addChild(_filter_histogram = new VarList("Histogram Filter"));
     _filter_histogram->addChild(_ball_histogram_enabled = new VarBool("Enable Filter",true));
@@ -115,6 +116,29 @@ public:
 class PluginDetectBalls : public VisionPlugin
 {
 protected:
+  //-----------------------------
+  //local copies of the vartypes tree for better performance
+  //these are updated automatically if a change is reported by vartypes
+  VarNotifier vnotify;
+  bool filter_ball_in_field;
+  bool filter_ball_in_goal;
+  bool filter_ball_histogram;
+  double min_greenness;
+  double max_markeryness;
+  bool filter_gauss;
+  int exp_area_min;
+  int exp_area_max;
+  double exp_area_var;
+  double z_height;
+  bool near_robot_filter;
+  double near_robot_dist_sq;
+  int max_balls;
+  //-----------------------------
+  
+  
+  
+  
+  
   LUT3D * _lut;
   PluginDetectBallsSettings * _settings; 
   bool _have_local_settings;

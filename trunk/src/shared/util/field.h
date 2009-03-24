@@ -46,7 +46,7 @@ protected:
   VarList * settings;
   VarTrigger * restore;
 public:
-  VarList * getSettings() {
+  VarList * getSettings() const {
     return settings;
   }
   VarInt * line_width;
@@ -207,7 +207,7 @@ public:
     derived_params.push_back(half_field_total_surface_width     = new VarInt("Half Total Surface Width")); 
     
     for (unsigned int i=0;i<field_params.size();i++) {
-      connect(field_params[i],SIGNAL(hasChanged()),this,SLOT(changed()));
+      connect(field_params[i],SIGNAL(hasChanged(VarData *)),this,SLOT(changed()));
       settings->addChild(field_params[i]);
     }
     for (unsigned int i=0;i<derived_params.size();i++) {
@@ -311,7 +311,7 @@ public:
       connect(robocup_field,SIGNAL(calibrationChanged()),this,SLOT(globalCalibrationChanged()));
     }
     auto_update = new VarBool("Auto-Copy from Global Field Config",true);
-    connect(auto_update,SIGNAL(hasChanged()),this,SLOT(autoUpdateChanged()));
+    connect(auto_update,SIGNAL(hasChanged(VarData *)),this,SLOT(autoUpdateChanged()));
     
     params.push_back(left_corner_x = new VarInt("left corner x", 3025));
     params.push_back(left_corner_y = new VarInt("left corner y", 2025));

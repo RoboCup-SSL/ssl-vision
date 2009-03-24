@@ -93,11 +93,11 @@ class TimeLine : public VarData {
 
     void setTimePointer ( TimePointer * tp ) {
       if ( cur != 0 ) {
-        disconnect ( tp, SIGNAL ( hasChanged() ), this, SLOT ( slotPointerChange() ) );
+        disconnect ( tp, SIGNAL ( hasChanged(VarData *) ), this, SLOT ( slotPointerChange() ) );
       }
       qDebug ( "setup pointer\n" );
       cur = tp;
-      connect ( tp, SIGNAL ( hasChanged() ), this, SLOT ( slotPointerChange() ) );
+      connect ( tp, SIGNAL ( hasChanged(VarData *) ), this, SLOT ( slotPointerChange() ) );
       CHANGE_MACRO;
     }
 

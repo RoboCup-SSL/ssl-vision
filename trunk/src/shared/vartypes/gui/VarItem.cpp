@@ -52,9 +52,9 @@ void VarItem::update(VarData * _dt, const VarTreeViewOptions * _opts, VarColumnF
   setEditable(areColFlagsSet( colflags,DT_COL_EDITABLE) && (_dt->getType() != DT_LIST && _dt->getType() != DT_EXTERNAL ));
   if (_dt!=dt && _dt!=0) {
     if (dt != 0) {
-      disconnect(dt,SIGNAL(hasChanged()),this,SLOT(changeUpdate()));
+      disconnect(dt,SIGNAL(hasChanged(VarData *)),this,SLOT(changeUpdate()));
     }
-    connect(_dt,SIGNAL(hasChanged()),this,SLOT(changeUpdate()));
+    connect(_dt,SIGNAL(hasChanged(VarData *)),this,SLOT(changeUpdate()));
     dt=_dt;
   }
   if (dt!=0) {
