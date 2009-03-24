@@ -91,7 +91,14 @@ SoccerView::SoccerView()
     scene->setBackgroundBrush(QBrush(QColor(0,0x91,0x19,255),Qt::SolidPattern));
     scene->setSceneRect(-3700,-2700,7400,5400);
     ConstructField();
-
+    fieldBrush = new QBrush(Qt::NoBrush);
+    fieldLinePen = new QPen();
+    fieldLinePen->setColor(Qt::white);
+    fieldLinePen->setWidth(10);
+    fieldLinePen->setJoinStyle(Qt::MiterJoin);
+    fieldItem = scene->addPath(field,*fieldLinePen,*fieldBrush);
+    this->scale(0.14,0.14);
+    this->setRenderHint(QPainter::Antialiasing, true);
 }
 
 void SoccerView::ConstructField()
