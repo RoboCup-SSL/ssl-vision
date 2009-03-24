@@ -13,23 +13,25 @@ const int teamYellow = 2;
 
 class Robot : public QGraphicsPathItem
 {
-private:
+public:
     double orientation;     //In degrees
     int teamID;             //Team ID. 0 = blue, 1 = yellow
     int id;                 //ID of the robot in its team
     double x,y;
+private:
     QBrush* brush;
     QPen* pen;
     QPainterPath robotOutline, robotID;
     QString robotLabel;
 
 public:
+    int key;
     QRectF boundingRect() const;
     QPainterPath shape() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
     Robot();
-    Robot(double _x, double _y, double _orientation, int _teamID, int _id);
+    Robot(double _x, double _y, double _orientation, int _teamID, int _id, int _key);
     void SetPose(double _x, double _y, double _orientation);
 };
 
@@ -41,6 +43,8 @@ class SoccerView : public QGraphicsView
 
 public:
     SoccerView();
+    void AddRobot(Robot* robot);
+    void UpdateRobot(double x, double y, double orientation, int team, int robotID, int key);
 
 
 protected:
@@ -51,7 +55,7 @@ protected:
 
 private:
     //Robots
-    QVector<Robot> robots;
+    QVector<Robot*> robots;
     //balls
     QVector<QPointF> balls;
     //scene
@@ -65,5 +69,6 @@ private:
     QPen *fieldPen, *fieldLinePen, *ballPen;
 
 };
+
 
 #endif // ROBOTOUTLINE_H

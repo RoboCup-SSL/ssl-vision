@@ -8,10 +8,11 @@
 
 Robot::Robot()
 {
-    Robot(0,0,0,teamUnknown,0);
+    Robot(0,0,0,teamUnknown,0,0);
 }
-Robot::Robot(double _x, double _y, double _orientation, int _teamID, int _id)
+Robot::Robot(double _x, double _y, double _orientation, int _teamID, int _id, int _key)
 {
+    key = _key;
     setVisible(true);
     setZValue(1);
     x = _x;
@@ -20,8 +21,8 @@ Robot::Robot(double _x, double _y, double _orientation, int _teamID, int _id)
     teamID = _teamID;
     id = _id;
 
-    robotOutline.moveTo(75,0);
-    robotOutline.arcTo(-75,-75,150,150,0,270);
+    robotOutline.moveTo(90,0);
+    robotOutline.arcTo(-90,-90,180,180,0,270);
     robotOutline.closeSubpath();
 
     robotLabel = QString(QByteArray((char *) &id, 4).toHex()).mid(1,1).toUpper();
@@ -82,7 +83,6 @@ void Robot::SetPose(double _x, double _y, double _orientation)
     orientation = _orientation;
 }
 
-
 SoccerView::SoccerView()
 {
     scene = new QGraphicsScene(this);
@@ -102,7 +102,7 @@ SoccerView::SoccerView()
     this->setDragMode(QGraphicsView::ScrollHandDrag);
     //QSizePolicy horPolicy(
     //this->setSizePolicy(horPolicy,vertPolicy);
-    this->setGeometry(0,0,7400,5400);
+    this->setGeometry(100,100,1036,756);
 }
 
 void SoccerView::ConstructField()
@@ -160,3 +160,30 @@ void SoccerView::wheelEvent(QWheelEvent *event)
 {
     scaleView(pow((double)2, event->delta() / 540.0));
 }
+
+void SoccerView::AddRobot(Robot *robot)
+{
+    robots.append(robot);
+    scene->addItem(robot);
+}
+
+void SoccerView::UpdateRobot(double x, double y, double orientation, int team, int robotID, int key)
+{
+    bool found = false;
+    Robot *currentRobot;
+    for(int i=0; i<robots.size(); i++)
+    {
+        currentRobot = robots[i];
+        if(currentRobot->id==robotID && currentRobot->teamID==team && currentRobot->key==key)
+        {
+            currentRobot->SetPose(x,y,orientation);
+            found = true;
+        }
+    }
+    if(!found)
+    {
+        AddRobot(new Robot(x,y,orientation,team,robotID,key));
+    }
+    return;
+}
+
