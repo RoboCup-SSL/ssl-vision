@@ -102,7 +102,7 @@ enum vDataTypeEnum {
 
 #ifndef VDATA_NO_QT
   //if using QT, trigger the hasChanged() signal
-  #define CHANGE_MACRO hasChanged();
+  #define CHANGE_MACRO emit(hasChanged(this));
 #else
   //if not using QT, don't do anything
   #define CHANGE_MACRO
@@ -131,7 +131,7 @@ signals:
   /// This signal is triggered when any data or flag of this VarType has changed.
   /// This includes changes that were done programmatically, as well through a GUI.
   /// It also includes changes to render-flags or other meta-data.
-  void hasChanged();
+  void hasChanged(VarData *);
 
   /// This signal is triggered when data of this VarType has been edited by a user through an MVC viewer.
   /// Unlike /c hasChanged(), this signal is not necessarily triggered if this data was internally changed.

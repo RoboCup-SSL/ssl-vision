@@ -78,7 +78,7 @@ void VarNotifier::internalNonMutexedRemoveItem(VarData * item) {
   QHash<VarData *, VarNotificationType>::iterator iter;
   iter = senders.find(item);
   if (iter != senders.constEnd()) {
-    disconnect(item, 0, this, SLOT(changeSlot(item)));
+    disconnect(item, 0, this, SLOT(changeSlot(VarData *)));
     senders.erase(iter);
   }
 }
@@ -94,7 +94,7 @@ void VarNotifier::internalNonMutexedAddItem(VarData * item, VarNotificationType 
     } else {
       //item exists, but with wrong notification type:
       //fix it:
-      disconnect(item, 0, this, SLOT(changeSlot(item)));
+      disconnect(item, 0, this, SLOT(changeSlot(VarData *)));
       iter.value() = notification_type;
     }
   } else {
@@ -102,9 +102,9 @@ void VarNotifier::internalNonMutexedAddItem(VarData * item, VarNotificationType 
   }
   //connect it with correct notification type:
   if (notification_type==VarNotificationChanged) {
-    connect(item, SIGNAL(hasChanged()), this, SLOT(changeSlot(item)));
+    connect(item, SIGNAL(hasChanged(VarData *)), this, SLOT(changeSlot(VarData *)));
   } else {
-    connect(item, SIGNAL(wasEdited(VarData*)), this, SLOT(changeSlot(item)));
+    connect(item, SIGNAL(wasEdited(VarData*)), this, SLOT(changeSlot(VarData *)));
   }
 }
 
@@ -120,9 +120,9 @@ void VarNotifier::addRecursive(VarData * item, VarNotificationType notification_
   if (item!=0) queue.enqueue(item);
   while(queue.isEmpty()==false) {
     VarData * d = queue.dequeue();
-    if ((d!=item) || include_root) internalNonMutexedAddItem(item,notification_type);
+    if ((d!=item) || include_root) internalNonMutexedAddItem(d,notification_type);
     vector<VarData *> children = d->getChildren();
-    int s=children.size();    
+    int s=children.size();
     for (int i=0;i<s;i++) {
       if (children[i]!=0) queue.enqueue(children[i]);
     }

@@ -34,7 +34,7 @@ Team::Team(VarList * team_root)
 {
     _settings=team_root;
     _team_name = _settings->findChildOrReplace(new VarString("Team Name", team_root->getName()));
-    connect(_team_name,SIGNAL(hasChanged()),this,SLOT(slotTeamNameChanged()));
+    connect(_team_name,SIGNAL(hasChanged(VarData *)),this,SLOT(slotTeamNameChanged()));
     _unique_patterns = _settings->findChildOrReplace(new VarBool("Unique Patterns"));
     _have_angle = _settings->findChildOrReplace(new VarBool("Have Angles"));
     _load_markers_from_image_file = _settings->findChildOrReplace(new VarBool("Load Image File",true));
