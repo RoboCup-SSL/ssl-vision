@@ -58,7 +58,7 @@ private:
     QGraphicsScene* scene;
     //field
     QPainterPath field;
-    QGraphicsPathItem fieldItem;
+    QGraphicsPathItem* fieldItem;
     void ConstructField();
     //brushes and pens
     QBrush *fieldBrush, *ballBrush;
