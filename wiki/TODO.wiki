@@ -27,5 +27,5 @@ For bugs and other problems, please use the "Issue" tracker: http://code.google.
 == New Plugins: ==
   * "DVR" plugin, basically allowing to buffer / record to file / read from file / pause / delay / replay / seek video.
   * "competition mode" plugin, which checks and ensures that all settings of the system are set correctly for maximum performance (e.g. visualizations are turned off, DCAM parameter auto-refresh is turned off, video capture and convert to are both set to yuv422, shutter-speed is set to some value below the frame period). This plugin really only needs two push-buttons "Check" and "Auto-Fix" and an informational label.
-  * "goal detection" plugin which automatically saves the captured image to a file and possibly lights up in the GUI if the ball entered a goal. This can help the refs to determine the validity of some of those questionable goals.
+  * "goal detection" plugin which automatically saves the captured image to a file and possibly lights up in the GUI if the ball entered a goal. This can help the refs to determine the validity of some of those questionable goals. (*probably assigned to: Malte, Uni-Bremen*)
   * "confidence masking" plugin which allows to draw a mask layer on top of the video frame to disable processing of certain regions in the image.
