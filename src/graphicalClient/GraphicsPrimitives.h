@@ -4,7 +4,7 @@
 #include <QGraphicsItem>
 #include <QGraphicsPathItem>
 #include <QVector>
-#include <QGraphicsView>\
+#include <QGraphicsView>
 #include <QPainterPath>
 
 const int teamUnknown = 0;
