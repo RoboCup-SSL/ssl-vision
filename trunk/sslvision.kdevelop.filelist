@@ -1,5 +1,8 @@
 # KDevelop Custom Project File List
 .
+qtc-gdbmacros
+qtc-gdbmacros/Makefile
+qtc-gdbmacros/gdbmacros.cpp
 src
 src/app
 src/app/capture_thread.cpp
