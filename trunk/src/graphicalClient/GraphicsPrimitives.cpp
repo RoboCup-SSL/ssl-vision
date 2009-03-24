@@ -99,6 +99,10 @@ SoccerView::SoccerView()
     fieldItem = scene->addPath(field,*fieldLinePen,*fieldBrush);
     this->scale(0.14,0.14);
     this->setRenderHint(QPainter::Antialiasing, true);
+    this->setDragMode(QGraphicsView::ScrollHandDrag);
+    //QSizePolicy horPolicy(
+    //this->setSizePolicy(horPolicy,vertPolicy);
+    this->setGeometry(0,0,7400,5400);
 }
 
 void SoccerView::ConstructField()
@@ -154,5 +158,5 @@ void SoccerView::scaleView(qreal scaleFactor)
 
 void SoccerView::wheelEvent(QWheelEvent *event)
 {
-    scaleView(pow((double)2, -event->delta() / 240.0));
+    scaleView(pow((double)2, event->delta() / 540.0));
 }
