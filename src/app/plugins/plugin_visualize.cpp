@@ -22,8 +22,8 @@
 #include <sobel.h>
 
 
-PluginVisualize::PluginVisualize(FrameBuffer * _buffer, const CameraParameters& camera_params, const RoboCupCalibrationHalfField& field)
- : VisionPlugin(_buffer), camera_parameters(camera_params), field(field)
+PluginVisualize::PluginVisualize(FrameBuffer * _buffer, const CameraParameters& camera_params, const RoboCupField& real_field, const RoboCupCalibrationHalfField& calib_field)
+ : VisionPlugin(_buffer), camera_parameters(camera_params), real_field(real_field), calib_field(calib_field)
 {
   _settings=new VarList("Visualization");
   _settings->addChild(_v_enabled=new VarBool("enable", true));
@@ -221,12 +221,12 @@ ProcessResult PluginVisualize::process(FrameData * data, RenderOptions * options
 
       // Center circle:
       double prev_x = 0;
-      double prev_y = 500;
+      double prev_y = real_field.center_circle_radius->getInt();
       
       for (double i=0.314; i <= 3.14; i += 0.314)
       {
-        double y = cos(i) * 500;
-        double x = sin(i) * 500;
+        double y = cos(i) * real_field.center_circle_radius->getInt();
+        double x = sin(i) * real_field.center_circle_radius->getInt();
 
         drawFieldLine((int) prev_x,
                       (int) prev_y,
@@ -239,38 +239,41 @@ ProcessResult PluginVisualize::process(FrameData * data, RenderOptions * options
       }
       
       // Goal area:
+      int defense_radius=real_field.defense_radius->getInt();
+      int defense_x=real_field.half_field_length->getInt();
+      int defense_stretch_h=real_field.half_defense_stretch->getInt();
       prev_x = 0;
-      prev_y = -500;
+      prev_y = -defense_radius;
       
       for (double i=3.14; i<=3.14+3.14/2; i+= 0.314)
       {
-        double y = cos(i) * 500;
-        double x = sin(i) * 500;
+        double y = cos(i) * defense_radius;
+        double x = sin(i) * defense_radius;
         
-        drawFieldLine((int) prev_x + 3025,
-                      (int) prev_y - 175,
-                      (int) x + 3025,
-                      (int) y - 175, 
+        drawFieldLine((int) prev_x +  defense_x,
+                      (int) prev_y - defense_stretch_h,
+                      (int) x + defense_x,
+                      (int) y - defense_stretch_h, 
                       stepsPerLine, vis_frame);
         
         prev_x = x;
         prev_y = y;
       }
       
-      drawFieldLine(2525, -175, 2525, 175, stepsPerLine, vis_frame);       
+      drawFieldLine(defense_x-defense_radius, -defense_stretch_h, defense_x-defense_radius, defense_stretch_h, stepsPerLine, vis_frame);
       
-      prev_x = -500;
+      prev_x = -defense_radius;
       prev_y = 0;
       
       for (double i=3.14+3.14/2; i<=3.14+3.14; i+= 0.314)
       {
-        double y = cos(i) * 500;
-        double x = sin(i) * 500;
+        double y = cos(i) * defense_radius;
+        double x = sin(i) * defense_radius;
         
-        drawFieldLine((int) prev_x + 3025,
-                      (int) prev_y + 175,
-                      (int) x + 3025,
-                      (int) y + 175, 
+        drawFieldLine((int) prev_x + defense_x,
+                      (int) prev_y + defense_stretch_h,
+                      (int) x + defense_x,
+                      (int) y + defense_stretch_h, 
                       stepsPerLine, vis_frame);
 
         prev_x = x;
@@ -278,27 +281,30 @@ ProcessResult PluginVisualize::process(FrameData * data, RenderOptions * options
       }  
 
       
-      for (int grid_y=0; grid_y < 2025; grid_y += 500)
+      int field_length=real_field.half_field_length->getInt();
+      int field_width=real_field.half_field_width->getInt();
+      
+      for (int grid_y=0; grid_y < field_width; grid_y += 500)
       {
         drawFieldLine((int) 0,
                       (int) -grid_y,
-                      (int) 3025,
+                      (int) field_length,
                       (int) -grid_y, 
                       stepsPerLine, vis_frame);
         
         drawFieldLine((int) 0,
                       (int) grid_y,
-                      (int) 3025,
+                      (int) field_length,
                       (int) grid_y, 
                       stepsPerLine, vis_frame);
         
       }
-      for (int grid_x=0; grid_x < 3025; grid_x += 500)
+      for (int grid_x=0; grid_x < field_length; grid_x += 500)
       {
         drawFieldLine((int) grid_x,
-                      (int) -2025,
+                      (int) -field_width,
                       (int) grid_x,
-                      (int) 2025, 
+                      (int) field_width, 
                       stepsPerLine, vis_frame);
       } 
     }

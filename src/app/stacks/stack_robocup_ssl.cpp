@@ -54,7 +54,7 @@ StackRoboCupSSL::StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, RoboC
 
     stack.push_back(_global_plugin_publish_geometry);
 
-    PluginVisualize * vis=new PluginVisualize(_fb,*camera_parameters,*calib_field);
+    PluginVisualize * vis=new PluginVisualize(_fb,*camera_parameters,*global_field,*calib_field);
     vis->setThresholdingLUT(lut_yuv);
     stack.push_back(vis);
 

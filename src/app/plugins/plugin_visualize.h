@@ -64,7 +64,8 @@ protected:
   VarBool * _v_detected_edges;
 
   const CameraParameters& camera_parameters;
-  const RoboCupCalibrationHalfField& field;
+  const RoboCupCalibrationHalfField& calib_field;
+  const RoboCupField& real_field;
   LUT3D * _threshold_lut;
   greyImage* edge_image;
   greyImage* temp_grey_image;
@@ -74,7 +75,7 @@ protected:
                      unsigned char r=255, unsigned char g=100, unsigned char b=100);
   
 public:
-    PluginVisualize(FrameBuffer * _buffer, const CameraParameters& camera_params, const RoboCupCalibrationHalfField& field);
+    PluginVisualize(FrameBuffer * _buffer, const CameraParameters& camera_params, const RoboCupField& real_field, const RoboCupCalibrationHalfField& calib_field);
 
     ~PluginVisualize();
 

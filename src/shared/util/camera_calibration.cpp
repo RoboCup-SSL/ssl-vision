@@ -284,6 +284,7 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
 
   bool stop_optimization(false);
   int convergence_counter(0);
+  double t_start=GetTimeSec();
   while(!stop_optimization) {
     // Calculate Jacobi-Matrix, alpha and beta
     // Iterate over alle point pairs
@@ -409,7 +410,6 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
         lambda /= 10;
         convergence_counter = 0;
       }
-      
 
       old_chisqr = chisqr;
 #ifndef NDEBUG
@@ -424,6 +424,7 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
         stop_optimization = true;
 
     }
+    if ((GetTimeSec() - t_start) > additional_calibration_information->convergence_timeout->getDouble()) stop_optimization=true;
   }
   
 // Debug output starts here
@@ -507,6 +508,7 @@ CameraParameters::AdditionalCalibrationInformation::AdditionalCalibrationInforma
   initial_distortion = new VarDouble("initial distortion", 1.0);
   camera_height = new VarDouble("camera height", 4000.0);
   line_search_corridor_width = new VarDouble("line search corridor width", 280.0);
+  convergence_timeout = new VarDouble("convergence timeout (s)", 10.0);
 }
 
 CameraParameters::AdditionalCalibrationInformation::~AdditionalCalibrationInformation()
@@ -522,6 +524,7 @@ CameraParameters::AdditionalCalibrationInformation::~AdditionalCalibrationInform
   delete initial_distortion;
   delete camera_height;
   delete line_search_corridor_width;
+  delete convergence_timeout;
 }
 
 void CameraParameters::AdditionalCalibrationInformation::addSettingsToList(VarList& list) 
@@ -537,4 +540,5 @@ void CameraParameters::AdditionalCalibrationInformation::addSettingsToList(VarLi
   list.addChild(initial_distortion);
   list.addChild(camera_height);
   list.addChild(line_search_corridor_width);
+  list.addChild(convergence_timeout);
 }
