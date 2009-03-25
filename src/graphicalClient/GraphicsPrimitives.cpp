@@ -10,6 +10,7 @@ Robot::Robot()
 {
     Robot(0,0,0,teamUnknown,0,0);
 }
+
 Robot::Robot(double _x, double _y, double _orientation, int _teamID, int _id, int _key)
 {
     key = _key;
@@ -49,12 +50,13 @@ Robot::Robot(double _x, double _y, double _orientation, int _teamID, int _id, in
         }
     }
     pen->setWidth(6);
-
+    idPen = new QPen(Qt::black);
+    idPen->setWidth(0);
 }
 
 QRectF Robot::boundingRect() const
 {
-    return QRectF(-80+x,-80-y,160,160);
+    return QRectF(-95+x,-95-y,190,190);
 }
 
 void Robot::paint(QPainter *painter, const QStyleOptionGraphicsItem* , QWidget* )
@@ -65,7 +67,7 @@ void Robot::paint(QPainter *painter, const QStyleOptionGraphicsItem* , QWidget* 
     painter->rotate(-45-orientation);
     painter->drawPath(robotOutline);
     painter->rotate(45+orientation);
-    painter->setPen(QPen(Qt::black));
+    painter->setPen(*idPen);
     painter->drawPath(robotID);
 }
 
