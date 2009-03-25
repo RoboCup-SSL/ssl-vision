@@ -506,7 +506,7 @@ CameraParameters::AdditionalCalibrationInformation::AdditionalCalibrationInforma
   right_centerline_image_y = new VarDouble("right centerline in image y", 200.0);
   initial_distortion = new VarDouble("initial distortion", 1.0);
   camera_height = new VarDouble("camera height", 4000.0);
-  edge_detection_corridor_width = new VarDouble("edge detection width", 100.0);
+  line_search_corridor_width = new VarDouble("line search corridor width", 280.0);
 }
 
 CameraParameters::AdditionalCalibrationInformation::~AdditionalCalibrationInformation()
@@ -521,7 +521,7 @@ CameraParameters::AdditionalCalibrationInformation::~AdditionalCalibrationInform
   delete right_centerline_image_y;
   delete initial_distortion;
   delete camera_height;
-  delete edge_detection_corridor_width;
+  delete line_search_corridor_width;
 }
 
 void CameraParameters::AdditionalCalibrationInformation::addSettingsToList(VarList& list) 
@@ -536,5 +536,5 @@ void CameraParameters::AdditionalCalibrationInformation::addSettingsToList(VarLi
   list.addChild(right_centerline_image_y);
   list.addChild(initial_distortion);
   list.addChild(camera_height);
-  list.addChild(edge_detection_corridor_width);
+  list.addChild(line_search_corridor_width);
 }
