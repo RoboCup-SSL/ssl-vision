@@ -1,5 +1,5 @@
 #include <QtGui>
-
+#include <QApplication>
 #include "GraphicsPrimitives.h"
 
 SoccerView *view;
