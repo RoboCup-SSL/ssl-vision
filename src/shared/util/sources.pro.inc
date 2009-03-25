@@ -61,6 +61,8 @@ HEADERS += $${PREFIX}/zoom.h
 
 HEADERS += $${PREFIX}/bitflags.h
 
+HEADERS += $${PREFIX}/field_default_constants.h
+
 HEADERS += $${PREFIX}/field.h
 
 HEADERS += $${PREFIX}/field_filter.h
