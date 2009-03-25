@@ -178,6 +178,8 @@ void SoccerView::UpdateRobot(double x, double y, double orientation, int team, i
         {
             currentRobot->SetPose(x,y,orientation);
             found = true;
+            this->update();
+            break;
         }
     }
     if(!found)

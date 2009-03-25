@@ -21,3 +21,7 @@ HEADERS += $${SHARED_DIR}/net/netraw.h
 
 SOURCES += $${SHARED_DIR}/net/robocup_ssl_client.cpp
 HEADERS += $${SHARED_DIR}/net/robocup_ssl_client.h
+
+SOURCES += $${PREFIX}/GraphicsPrimitives.cpp
+HEADERS += $${PREFIX}/GraphicsPrimitives.h
+
