@@ -41,14 +41,12 @@ PluginDetectRobots::PluginDetectRobots(FrameBuffer * _buffer, LUT3D * lut, const
   color_id_field = _lut->getChannelID("Field Green");
   if (color_id_field == -1) printf("WARNING color label 'Field Green' not defined in LUT!!!\n");
 
-
-
   global_team_selector_blue=_global_team_selector_blue;
   global_team_selector_yellow=_global_team_selector_yellow;
-  
+
   team_detector_blue=new CMPattern::TeamDetector(_lut,camera_params,field);
   team_detector_yellow=new CMPattern::TeamDetector(_lut,camera_params,field);
-  
+
   _settings=new VarList("Robot Detection");
 }
 

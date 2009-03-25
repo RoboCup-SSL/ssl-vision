@@ -37,6 +37,7 @@ MainWindow::MainWindow()
   root=new VarList("Vision System");
 
   opts=new RenderOptions();
+  right_tab=0;
 
   QString stack_id="";
 
@@ -85,9 +86,15 @@ MainWindow::MainWindow()
           //this is a shared global plugin...
           //add it to global pane
           if (p->getSettings()!=0) stackvar->addChild(p->getSettings());
-  
+
           QWidget * tmp_control = p->getControlWidget();
-          if (tmp_control!=0) right_tab->addTab(tmp_control,QString::fromStdString(p->getName()));
+          if (tmp_control!=0) {
+            if (right_tab==0) {
+              right_tab=new QTabWidget();
+              right_tab->setTabPosition(QTabWidget::East);
+            }
+            right_tab->addTab(tmp_control,QString::fromStdString(p->getName()));
+          }
         
           QWidget * tmp_vis = p->getVisualizationWidget();
           if (tmp_vis!=0) splitter2->addWidget(tmp_vis);
@@ -133,12 +140,10 @@ MainWindow::MainWindow()
 
   left_tab=new QTabWidget();
   left_tab->setTabPosition(QTabWidget::West);
-  right_tab=new QTabWidget();
-  right_tab->setTabPosition(QTabWidget::East);
 
   splitter->addWidget(left_tab);
   splitter->addWidget(splitter2);
-  splitter->addWidget(right_tab);
+  if (right_tab!=0) splitter->addWidget(right_tab);
 
   left_tab->addTab(tree_view,"Data-Tree");
 
