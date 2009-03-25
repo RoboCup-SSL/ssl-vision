@@ -61,6 +61,7 @@ ProcessResult PluginCameraCalibration::process(FrameData * data, RenderOptions *
       detectEdges(data);
       ccw->resetDetectEdges();
     }
+    ccw->set_slider_from_vars();
   }
   return ProcessingOk;
 }
@@ -173,8 +174,8 @@ void PluginCameraCalibration::detectEdgesOnSingleLine(
     const GVector::vector3d<double>& end,
     int pointsPerLine, bool detectCenter)
 {
-  int pixelOffset(15);
   int threshold(20);
+  double distToLine = camera_parameters.additional_calibration_information->line_search_corridor_width->getDouble() / 2.0;
   ImageSide imageSide = getImageSide(start,end);
   GVector::vector3d<double> offset = (end - start) / (pointsPerLine+1);
   CameraParameters::LSCalibrationData lsCalData;
@@ -183,50 +184,85 @@ void PluginCameraCalibration::detectEdgesOnSingleLine(
   for(int i=1; i<=pointsPerLine; ++i)
   {
     GVector::vector3d<double> posInWorld = start + (offset*i);
-    GVector::vector2d<double> posInImage;
-    camera_parameters.field2image(posInWorld,posInImage);  
+    GVector::vector3d<double> worldStart(posInWorld), worldEnd(posInWorld);
+    GVector::vector2d<double> imgStart, imgEnd;
     int x,y;
+    double dummy;
     switch(imageSide)
     {
       case IMG_LEFT:
-        lsCalData.horizontal = true;
-        y = posInImage.y;
-        x = posInImage.x;
-        x = Sobel::maximumHorizontalEdge(*grey_image, y, x-pixelOffset, x+pixelOffset,
+        worldStart.y -= distToLine;
+        worldEnd.y += distToLine;
+        camera_parameters.field2image(worldStart,imgStart);  
+        camera_parameters.field2image(worldEnd,imgEnd);  
+        y = (imgStart.y + imgEnd.y) / 2;
+        if(imgStart.x > imgEnd.x)
+        {
+          dummy = imgEnd.x;
+          imgEnd.x = imgStart.x;
+          imgStart.x = dummy;
+        }
+        x = Sobel::maximumHorizontalEdge(*grey_image, y, imgStart.x, imgEnd.x,
                                           threshold, Sobel::horizontalBrighter);
         lsCalData.pts_on_line.push_back(GVector::vector2d<double>(x,y));
+        lsCalData.horizontal = true;
         break;
       case IMG_RIGHT:
-        lsCalData.horizontal = true;
-        y = posInImage.y;
-        x = posInImage.x;
-        x = Sobel::maximumHorizontalEdge(*grey_image, y, x-pixelOffset, x+pixelOffset,
+        worldStart.y -= distToLine;
+        worldEnd.y += distToLine;
+        camera_parameters.field2image(worldStart,imgStart);  
+        camera_parameters.field2image(worldEnd,imgEnd);  
+        y = (imgStart.y + imgEnd.y) / 2;
+        if(imgStart.x > imgEnd.x)
+        {
+          dummy = imgEnd.x;
+          imgEnd.x = imgStart.x;
+          imgStart.x = dummy;
+        }
+        x = Sobel::maximumHorizontalEdge(*grey_image, y, imgStart.x, imgEnd.x,
                                           threshold, Sobel::horizontalDarker);
         lsCalData.pts_on_line.push_back(GVector::vector2d<double>(x,y));
+        lsCalData.horizontal = true;
         break;
       case IMG_TOP:
-        lsCalData.horizontal = false;
-        y = posInImage.y;
-        x = posInImage.x;
+        worldStart.x -= distToLine;
+        worldEnd.x += distToLine;
+        camera_parameters.field2image(worldStart,imgStart);  
+        camera_parameters.field2image(worldEnd,imgEnd);  
+        x = (imgStart.x + imgEnd.x) / 2;
+        if(imgStart.y > imgEnd.y)
+        {
+          dummy = imgEnd.y;
+          imgEnd.y = imgStart.y;
+          imgStart.y = dummy;
+        }
         if(detectCenter)
-          y = Sobel::centerOfHorizontalLine(*grey_image, x, y-pixelOffset, y+pixelOffset,
-                                             threshold);
+          y = Sobel::centerOfHorizontalLine(*grey_image, x, imgStart.y, imgEnd.y, threshold);
         else
-          y = Sobel::maximumVerticalEdge(*grey_image, x, y-pixelOffset, y+pixelOffset,
+          y = Sobel::maximumVerticalEdge(*grey_image, x, imgStart.y, imgEnd.y,
                                           threshold, Sobel::verticalBrighter);
         lsCalData.pts_on_line.push_back(GVector::vector2d<double>(x,y));
+        lsCalData.horizontal = false;
         break;
       case IMG_BOTTOM:
-        lsCalData.horizontal = false;
-        y = posInImage.y;
-        x = posInImage.x;
+        worldStart.x -= distToLine;
+        worldEnd.x += distToLine;
+        camera_parameters.field2image(worldStart,imgStart);  
+        camera_parameters.field2image(worldEnd,imgEnd);  
+        x = (imgStart.x + imgEnd.x) / 2;
+        if(imgStart.y > imgEnd.y)
+        {
+          dummy = imgEnd.y;
+          imgEnd.y = imgStart.y;
+          imgStart.y = dummy;
+        }
         if(detectCenter)
-          y = Sobel::centerOfHorizontalLine(*grey_image, x, y-pixelOffset, y+pixelOffset,
-                                             threshold);
+          y = Sobel::centerOfHorizontalLine(*grey_image, x, imgStart.y, imgEnd.y, threshold);
         else
-          y = Sobel::maximumVerticalEdge(*grey_image, x, y-pixelOffset, y+pixelOffset,
+          y = Sobel::maximumVerticalEdge(*grey_image, x, imgStart.y, imgEnd.y,
                                           threshold, Sobel::verticalDarker);
         lsCalData.pts_on_line.push_back(GVector::vector2d<double>(x,y));
+        lsCalData.horizontal = false;
         break;
     };
   }

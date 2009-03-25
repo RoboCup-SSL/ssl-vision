@@ -44,15 +44,16 @@ public:
     
     void resetDetectEdges() {detectEdges = false;}
     
+    void set_slider_from_vars();    
+    
   protected:
+    QSlider* lineSearchCorridorWidthSlider;
+    QLabel* lineSearchCorridorWidthLabelRight;
     QSlider* cameraHeightSlider;
     QLabel* cameraHeightLabelRight;
     QSlider* distortionSlider;
     QLabel* distortionLabelRight;
-
     bool detectEdges;
-    
-    void set_slider_from_vars();    
 
     public slots:
     void is_clicked_initial();
@@ -61,6 +62,7 @@ public:
     void edges_is_clicked();
     void cameraheight_slider_changed(int val);
     void distortion_slider_changed(int val);
+    void line_search_slider_changed(int val);
 };
 
 #endif

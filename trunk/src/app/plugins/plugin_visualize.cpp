@@ -360,34 +360,7 @@ ProcessResult PluginVisualize::process(FrameData * data, RenderOptions * options
     // Result of edge detection for second calibration step
     if (_v_detected_edges->getBool()==true) 
     {
-//       if(edge_image == 0)
-//       {
-//         edge_image = new greyImage(data->video.getWidth(),data->video.getHeight());
-//         temp_grey_image = new greyImage(data->video.getWidth(),data->video.getHeight());
-//       }
-//       Images::convert(vis_frame->data, *temp_grey_image);
-//       for(int i=0; i<300; i+= 50)
-//       {
-//         int maxEdgeX = Sobel::maximumHorizontalEdge(*temp_grey_image, 100+i, 5, 200,30, Sobel::horizontalBrighter);
-//         if(maxEdgeX > -1)
-//         {
-//           rgb edge_draw_color;
-//           edge_draw_color.set(255,0,0);
-//           vis_frame->data.drawBox(maxEdgeX-5,100+i-5,11,11,edge_draw_color);
-//           vis_frame->data.drawLine(maxEdgeX,100+i-2,maxEdgeX,100+i+2,edge_draw_color);
-//         }
-//       }
-//       for(int i=0; i<300; i+= 50)
-//       {
-//         int maxEdgeY = Sobel::maximumVerticalEdge(*temp_grey_image, 100+i, 30, 100,30, Sobel::verticalBrighter);
-//         if(maxEdgeY > -1)
-//         {
-//           rgb edge_draw_color;
-//           edge_draw_color.set(255,0,0);
-//           vis_frame->data.drawBox(100+i-5,maxEdgeY-5,11,11,edge_draw_color);
-//           vis_frame->data.drawLine(100+i-2,maxEdgeY,100+i+2,maxEdgeY,edge_draw_color);
-//         }
-//       }
+      // The edges:
       rgb edge_draw_color;
       edge_draw_color.set(255,0,0);
       for(unsigned int ls=0; ls<camera_parameters.line_segment_data.size(); ++ls)
@@ -404,15 +377,66 @@ ProcessResult PluginVisualize::process(FrameData * data, RenderOptions * options
             vis_frame->data.drawLine(pt.x-2,pt.y,pt.x+2,pt.y,edge_draw_color);
         }
       }
-    }
-
-/*    rgb edge_draw_color;
-    edge_draw_color.set(255,0,0);
-    vis_frame->data.drawChar(100,100,'C', edge_draw_color);
-    vis_frame->data.drawString(200,200,"Supertoller String!", edge_draw_color);*/
-    
+      // The search corridor:
+      double corridorWidth = camera_parameters.additional_calibration_information->line_search_corridor_width->getDouble();
+      double offset = corridorWidth/2;
+      int stepsPerLine(20);
+      
+      double xLeftCorner(camera_parameters.field.left_corner_x->getInt());
+      double yLeftCorner(camera_parameters.field.left_corner_y->getInt());
+      double xRightCorner(camera_parameters.field.right_corner_x->getInt());
+      double yRightCorner(camera_parameters.field.right_corner_y->getInt());
+      double xLeftCenter(camera_parameters.field.left_centerline_x->getInt());
+      double yLeftCenter(camera_parameters.field.left_centerline_y->getInt());
+      double xRightCenter(camera_parameters.field.right_centerline_x->getInt());
+      double yRightCenter(camera_parameters.field.right_centerline_y->getInt());
+      
+      double xLeftCornerOuter = xLeftCorner > 0 ? xLeftCorner + offset : xLeftCorner - offset;
+      double yLeftCornerOuter = yLeftCorner > 0 ? yLeftCorner + offset : yLeftCorner - offset;
+      double xRightCornerOuter = xRightCorner > 0 ? xRightCorner + offset : xRightCorner - offset;
+      double yRightCornerOuter = yRightCorner > 0 ? yRightCorner + offset : yRightCorner - offset;
+      double xLeftCenterOuter = xLeftCorner > 0 ? xLeftCenter - offset : xLeftCenter + offset;
+      double yLeftCenterOuter = yLeftCenter > 0 ? yLeftCenter + offset : yLeftCenter - offset;
+      double xRightCenterOuter = xRightCorner > 0 ? xRightCenter - offset : xRightCenter + offset;
+      double yRightCenterOuter = yRightCenter > 0 ? yRightCenter + offset : yRightCenter - offset;
+      double xLeftCornerInner = xLeftCorner > 0 ? xLeftCorner - offset : xLeftCorner + offset;
+      double yLeftCornerInner = yLeftCorner > 0 ? yLeftCorner - offset : yLeftCorner + offset;
+      double xRightCornerInner = xRightCorner > 0 ? xRightCorner - offset : xRightCorner + offset;
+      double yRightCornerInner = yRightCorner > 0 ? yRightCorner - offset : yRightCorner + offset;
+      double xLeftCenterInner = xLeftCorner > 0 ? xLeftCenter + offset : xLeftCenter - offset;
+      double yLeftCenterInner = yLeftCenter > 0 ? yLeftCenter - offset : yLeftCenter + offset;
+      double xRightCenterInner = xRightCorner > 0 ? xRightCenter + offset : xRightCenter - offset;
+      double yRightCenterInner = yRightCenter > 0 ? yRightCenter - offset : yRightCenter + offset;
+      
+      // Outer left side line:
+      drawFieldLine(xLeftCornerOuter, yLeftCornerOuter, xLeftCenterOuter, yLeftCenterOuter,
+                   stepsPerLine, vis_frame, 180, 180, 255);
+      // Outer right side line:
+      drawFieldLine(xRightCornerOuter, yRightCornerOuter, xRightCenterOuter, yRightCenterOuter,
+                    stepsPerLine, vis_frame, 180, 180, 255);
+      // Outer goal line:
+      drawFieldLine(xRightCornerOuter, yRightCornerOuter, xLeftCornerOuter, yLeftCornerOuter,
+                    stepsPerLine, vis_frame, 180, 180, 255);
+      // Outer center line:
+      drawFieldLine(xRightCenterOuter, yRightCenterOuter, xLeftCenterOuter, yLeftCenterOuter,
+                    stepsPerLine, vis_frame, 180, 180, 255);
+      // Inner left side line:
+      drawFieldLine(xLeftCornerInner, yLeftCornerInner, xLeftCenterInner, yLeftCenterInner,
+                    stepsPerLine, vis_frame, 180, 180, 255);
+      // Inner right side line:
+      drawFieldLine(xRightCornerInner, yRightCornerInner, xRightCenterInner, yRightCenterInner,
+                    stepsPerLine, vis_frame, 180, 180, 255);
+      // Inner goal line:
+      drawFieldLine(xRightCornerInner, yRightCornerInner, xLeftCornerInner, yLeftCornerInner,
+                    stepsPerLine, vis_frame, 180, 180, 255);
+      // Inner center line:
+      drawFieldLine(xRightCenterInner, yRightCenterInner, xLeftCenterInner, yLeftCenterInner,
+                    stepsPerLine, vis_frame, 180, 180, 255);
+    }  
     vis_frame->valid=true;
-  } else {
+  } 
+  else 
+  {
     vis_frame->valid=false;
   }
   return ProcessingOk;
@@ -424,7 +448,8 @@ void PluginVisualize::setThresholdingLUT(LUT3D * threshold_lut) {
 
 void PluginVisualize::drawFieldLine(double xStart, double yStart, 
                                     double xEnd, double yEnd, 
-                                    int steps, VisualizationFrame * vis_frame)
+                                    int steps, VisualizationFrame * vis_frame,
+                                    unsigned char r, unsigned char g, unsigned char b)
 {
   GVector::vector3d<double> start(xStart, yStart,0);
   GVector::vector3d<double> end(xEnd, yEnd,0);
@@ -441,7 +466,7 @@ void PluginVisualize::drawFieldLine(double xStart, double yStart,
     camera_parameters.field2image(nextInWorld, nextInImage);
     //    std::cout<<"Point in image: "<<posInImage.x<<","<<posInImage.y<<std::endl;
     rgb draw_color;
-    draw_color.set(255,100,100);
+    draw_color.set(r,g,b);
     vis_frame->data.drawFatLine(lastInImage.x,lastInImage.y,
                                 nextInImage.x,nextInImage.y,draw_color);
     lastInWorld = nextInWorld;

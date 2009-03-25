@@ -172,7 +172,7 @@ public:
       VarDouble* right_centerline_image_y;
       VarDouble* initial_distortion;
       VarDouble* camera_height;
-      VarDouble* edge_detection_corridor_width;
+      VarDouble* line_search_corridor_width;
   };
   
   /*!

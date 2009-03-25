@@ -32,7 +32,7 @@
 CameraCalibrationWidget::CameraCalibrationWidget(CameraParameters &_cp) : camera_parameters(_cp), detectEdges(false)
 {
   // The calibration points and the fit button:
-  QGroupBox* groupBox = new QGroupBox(tr("Move Calibration Point"));
+  QGroupBox* calibrationStepsBox = new QGroupBox(tr("Calibration Steps"));
   QPushButton* initialCalibrationButton = new QPushButton(tr("Do initial calibration"));
   connect(initialCalibrationButton, SIGNAL(clicked()), SLOT(is_clicked_initial()));
   QPushButton* fullCalibrationButton = new QPushButton(tr("Do full calibration"));
@@ -42,8 +42,18 @@ CameraCalibrationWidget::CameraCalibrationWidget(CameraParameters &_cp) : camera
   QPushButton* resetButton = new QPushButton(tr("Reset"));
   connect(resetButton, SIGNAL(clicked()), SLOT(is_clicked_reset()));
   
-  QGroupBox* cameraGroupBox = new QGroupBox(tr("Initial Camera Parameters"));
+  QGroupBox* calibrationParametersBox = new QGroupBox(tr("Calibration Parameters"));
+  // The slider for the width of the line search corridor:
+  QLabel* widthLabel = new QLabel("Line Search Corridor Width (in mm) ");
+  lineSearchCorridorWidthSlider = new QSlider(Qt::Horizontal);
+  lineSearchCorridorWidthSlider->setMinimum(50);
+  lineSearchCorridorWidthSlider->setMaximum(800);
+  lineSearchCorridorWidthSlider->setValue((int)(camera_parameters.additional_calibration_information->line_search_corridor_width->getDouble()));
+  lineSearchCorridorWidthLabelRight = new QLabel();
+  lineSearchCorridorWidthLabelRight->setNum(200);
+  connect(lineSearchCorridorWidthSlider, SIGNAL(valueChanged(int)), this, SLOT(line_search_slider_changed(int)));
   
+  QGroupBox* cameraParametersBox = new QGroupBox(tr("Initial Camera Parameters"));
   // The slider for height control:
   QLabel* heightLabel = new QLabel("Camera Height (in mm) ");
   cameraHeightSlider = new QSlider(Qt::Horizontal);
@@ -53,7 +63,6 @@ CameraCalibrationWidget::CameraCalibrationWidget(CameraParameters &_cp) : camera
   cameraHeightLabelRight = new QLabel();
   cameraHeightLabelRight->setNum((int)camera_parameters.tz->getDouble());
   connect(cameraHeightSlider, SIGNAL(valueChanged(int)), this, SLOT(cameraheight_slider_changed(int)));
-
   // Distortion slider
   QLabel* distortionLabel = new QLabel("Distortion ");
   distortionSlider = new QSlider(Qt::Horizontal);
@@ -64,15 +73,21 @@ CameraCalibrationWidget::CameraCalibrationWidget(CameraParameters &_cp) : camera
   distortionLabelRight->setNum(1./100. * (double)(distortionSlider->value()));
   connect(distortionSlider, SIGNAL(valueChanged(int)), this, SLOT(distortion_slider_changed(int)));
   
-  // Layout for points:
+  // Layout for calibration control:
   QVBoxLayout *vbox = new QVBoxLayout;
   vbox->addWidget(initialCalibrationButton);
   vbox->addWidget(additionalPointsButton);
   vbox->addWidget(fullCalibrationButton);
   vbox->addWidget(resetButton);
   vbox->addStretch(1);
-  groupBox->setLayout(vbox);
-  // Layout for camera height
+  calibrationStepsBox->setLayout(vbox);
+  // Layout for calibration parameters
+  QGridLayout* gridCalibration = new QGridLayout;
+  gridCalibration->addWidget(widthLabel,0,0);
+  gridCalibration->addWidget(lineSearchCorridorWidthSlider,0,1);
+  gridCalibration->addWidget(lineSearchCorridorWidthLabelRight,0,2);
+  calibrationParametersBox->setLayout(gridCalibration);
+  // Layout for camera parameters
   QGridLayout* gridCamera = new QGridLayout;
   gridCamera->addWidget(heightLabel,0,0);
   gridCamera->addWidget(cameraHeightSlider,0,1);
@@ -80,12 +95,13 @@ CameraCalibrationWidget::CameraCalibrationWidget(CameraParameters &_cp) : camera
   gridCamera->addWidget(distortionLabel,1,0);
   gridCamera->addWidget(distortionSlider,1,1);
   gridCamera->addWidget(distortionLabelRight,1,2);
-  cameraGroupBox->setLayout(gridCamera);
+  cameraParametersBox->setLayout(gridCamera);
   
   // Overall layout:
   QVBoxLayout *vbox2 = new QVBoxLayout;
-  vbox2->addWidget(groupBox);
-  vbox2->addWidget(cameraGroupBox);
+  vbox2->addWidget(calibrationStepsBox);
+  vbox2->addWidget(calibrationParametersBox);
+  vbox2->addWidget(cameraParametersBox);
   this->setLayout(vbox2);
 }
 
@@ -127,6 +143,7 @@ void CameraCalibrationWidget::set_slider_from_vars()
 {
   cameraHeightSlider->setValue((int)camera_parameters.tz->getDouble());
   distortionSlider->setValue((int)(camera_parameters.distortion->getDouble()*100));
+  lineSearchCorridorWidthSlider->setValue((int)(camera_parameters.additional_calibration_information->line_search_corridor_width->getDouble()));
 }
 
 void CameraCalibrationWidget::cameraheight_slider_changed(int val)
@@ -140,4 +157,10 @@ void CameraCalibrationWidget::distortion_slider_changed(int val)
   double doubleVal = 1/100. * (double) val;
   distortionLabelRight->setNum(doubleVal);
   camera_parameters.distortion->setDouble(doubleVal);
+}
+
+void CameraCalibrationWidget::line_search_slider_changed(int val)
+{
+  camera_parameters.additional_calibration_information->line_search_corridor_width->setDouble(val);
+  lineSearchCorridorWidthLabelRight->setNum(val);
 }

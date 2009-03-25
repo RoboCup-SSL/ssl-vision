@@ -70,7 +70,8 @@ protected:
   greyImage* temp_grey_image;
   
   void drawFieldLine(double xStart, double yStart, double xEnd, double yEnd, int steps,
-                     VisualizationFrame * vis_frame);
+                     VisualizationFrame * vis_frame, 
+                     unsigned char r=255, unsigned char g=100, unsigned char b=100);
   
 public:
     PluginVisualize(FrameBuffer * _buffer, const CameraParameters& camera_params, const RoboCupCalibrationHalfField& field);
