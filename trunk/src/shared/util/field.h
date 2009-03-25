@@ -21,6 +21,7 @@
 
 #ifndef FIELD_H
 #define FIELD_H
+#include "field_default_constants.h"
 
 #include "VarTypes.h"
 #include <QObject>
@@ -117,20 +118,20 @@ public:
   #endif
 
   void loadDefaultsRoboCup2009() {
-    line_width->setInt(10);
-    field_length->setInt(6050);
-    field_width->setInt(4050);
-    boundary_width->setInt(250);
-    referee_width->setInt(425);
-    goal_width->setInt(700);
-    goal_depth->setInt(180);
-    goal_wall_width->setInt(20);
-    center_circle_radius->setInt(500);
-    defense_radius->setInt(500);
-    defense_stretch->setInt(350);
-    free_kick_from_defense_dist->setInt(200);
-    penalty_spot_from_field_line_dist->setInt(450);
-    penalty_line_from_spot_dist->setInt(400);
+    line_width->setInt(FieldConstantsRoboCup2009::line_width);
+    field_length->setInt(FieldConstantsRoboCup2009::field_length);
+    field_width->setInt(FieldConstantsRoboCup2009::field_width);
+    boundary_width->setInt(FieldConstantsRoboCup2009::boundary_width);
+    referee_width->setInt(FieldConstantsRoboCup2009::referee_width);
+    goal_width->setInt(FieldConstantsRoboCup2009::goal_width);
+    goal_depth->setInt(FieldConstantsRoboCup2009::goal_depth);
+    goal_wall_width->setInt(FieldConstantsRoboCup2009::goal_wall_width);
+    center_circle_radius->setInt(FieldConstantsRoboCup2009::center_circle_radius);
+    defense_radius->setInt(FieldConstantsRoboCup2009::defense_radius);
+    defense_stretch->setInt(FieldConstantsRoboCup2009::defense_stretch);
+    free_kick_from_defense_dist->setInt(FieldConstantsRoboCup2009::free_kick_from_defense_dist);
+    penalty_spot_from_field_line_dist->setInt(FieldConstantsRoboCup2009::penalty_spot_from_field_line_dist);
+    penalty_line_from_spot_dist->setInt(FieldConstantsRoboCup2009::penalty_line_from_spot_dist);
     updateDerivedParameters();
   }
   void updateDerivedParameters() {
