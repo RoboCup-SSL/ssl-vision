@@ -25,6 +25,7 @@
 //#include "mainwindow.h"
 
 #include <stdio.h>
+#include <QThread>
 #include "robocup_ssl_client.h"
 #include "timer.h"
 #include <QtGui>
@@ -35,6 +36,17 @@
 #include "messages_robocup_ssl_wrapper.pb.h"
 
 SoccerView *view;
+QApplication *app;
+
+class viewerThread : public QThread
+{
+    Q_OBJECT
+    protected:
+    void run()
+    {
+        app->exec();
+    }
+};
 
 void printRobotInfo(const SSL_DetectionRobot & robot) {
     double x,y,orientation;
@@ -69,10 +81,13 @@ int main(int argc, char *argv[])
     client.open();
     SSL_WrapperPacket packet;
 
-    QApplication app(argc, argv);
+    app = new QApplication(argc, argv);
     qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
     view = new SoccerView();
     view->show();
+
+    viewerThread thread;
+    thread.start(QThread::NormalPriority);
 
 app.exec();
     while(true) {

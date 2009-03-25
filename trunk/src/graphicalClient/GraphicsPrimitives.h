@@ -19,10 +19,11 @@ public:
     int id;                 //ID of the robot in its team
     double x,y;
 private:
-    QBrush* brush;
-    QPen* pen;
+    QBrush *brush;
+    QPen *pen, *idPen;
     QPainterPath robotOutline, robotID;
     QString robotLabel;
+
 
 public:
     int key;
