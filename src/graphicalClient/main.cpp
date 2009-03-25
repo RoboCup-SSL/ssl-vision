@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include "robocup_ssl_client.h"
 #include "timer.h"
+#include <QtGui>
 #include "GraphicsPrimitives.h"
 
 #include "messages_robocup_ssl_detection.pb.h"
@@ -68,9 +69,12 @@ int main(int argc, char *argv[])
     client.open();
     SSL_WrapperPacket packet;
 
+    QApplication app(argc, argv);
+    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
     view = new SoccerView();
     view->show();
 
+app.exec();
     while(true) {
         if (client.receive(packet)) {
             printf("-----Received Wrapper Packet---------------------------------------------\n");
