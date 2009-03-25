@@ -29,6 +29,10 @@ void Team::slotTeamNameChanged() {
   emit(signalTeamNameChanged());
 }
 
+void Team::slotChangeOccured(VarData * item) {
+  emit(signalChangeOccured(item));
+}
+
 
 Team::Team(VarList * team_root)
 {
@@ -83,6 +87,8 @@ Team::Team(VarList * team_root)
       _pattern_fitness_stddev = _pattern_fitness->findChildOrReplace(new VarDouble("Expected StdDev",9.0));
       _pattern_fitness_uniform = _pattern_fitness->findChildOrReplace(new VarDouble("Uniform",0.02));
 
+  _notifier.addRecursive(_settings);
+  connect(&_notifier,SIGNAL(changeOccured(VarData*)),this,SLOT(slotChangeOccured(VarData *)));
 }
 
 

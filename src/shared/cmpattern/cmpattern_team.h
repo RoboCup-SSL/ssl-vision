@@ -23,6 +23,7 @@
 #include <QObject>
 #include "VarTypes.h"
 #include "geometry.h"
+#include "VarNotifier.h"
 namespace CMPattern {
 
 /**
@@ -38,10 +39,13 @@ friend class TeamSelector;
 friend class TeamDetector;
 signals:
    void signalTeamNameChanged();
+signals:
+   void signalChangeOccured(VarData * item);
 protected slots:
    void slotTeamNameChanged();
-
+   void slotChangeOccured(VarData * item);
 protected:
+  VarNotifier _notifier;
   VarList * _settings;
     VarString * _team_name;
     VarBool * _unique_patterns;

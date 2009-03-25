@@ -79,11 +79,14 @@ signals:
 
 class TeamSelector : public QObject {
 Q_OBJECT
+signals:
+  void signalTeamDataChanged();
 protected:
   TeamDetectorSettings * _detector_settings;
   VarList * _settings;
   VarStringEnum * _selector;
   VarInt * _num_robots;
+  Team * current_team;
   void update() {
     vector<Team *> teams = _detector_settings->getTeams();
     _selector->setSize(teams.size(), "");
@@ -91,22 +94,40 @@ protected:
     for (unsigned int i=0;i<teams.size();i++) {
       _selector->setLabel(i,teams[i]-> _team_name->getString());
     }
+    Team * new_team=0;
     if (teams.size() > 0) {
       if (old_select_index >= 0 && old_select_index < (int)teams.size()) {
          _selector->selectIndex(old_select_index);
       } else {
          _selector->selectIndex(0);
       }
+      new_team=_detector_settings->getTeam(_selector->getIndex());
+    } else {
+      new_team=0;
     }
+    if (new_team!=current_team) {
+      if (current_team!=0) {
+        disconnect(current_team,SIGNAL(signalChangeOccured(VarData*)),this,SLOT(slotTeamDataChanged()));
+      }
+      if (new_team!=0) {
+        connect(new_team,SIGNAL(signalChangeOccured(VarData*)),this,SLOT(slotTeamDataChanged()));
+      }
+      current_team=new_team;
+    }
+    emit(signalTeamDataChanged());
   }
 protected slots:
   void slotTeamInfoChanged() {
     update();
   }
+  void slotTeamDataChanged() {
+    emit(signalTeamDataChanged());
+  }
 public:
   TeamSelector(string label, TeamDetectorSettings * detector_settings) {
     _detector_settings=detector_settings;
     connect(_detector_settings,SIGNAL(teamInfoChanged()),this,SLOT(slotTeamInfoChanged()));
+    current_team=0;
     _settings= new VarList(label);
     _settings->addChild(_selector = new VarStringEnum("Team",""));
     _selector->addRenderFlags(DT_FLAG_NOLOAD_ENUM_CHILDREN);
@@ -118,7 +139,7 @@ public:
   }
   Team * getSelectedTeam() {
     if (_selector->getIndex() == -1) update();
-    return _detector_settings->getTeam(_selector->getIndex());
+    return current_team;
   }
   int getNumberRobots() {
     return _num_robots->getInt();
