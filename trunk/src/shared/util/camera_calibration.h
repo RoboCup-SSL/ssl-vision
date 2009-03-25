@@ -24,6 +24,7 @@
 #include <quaternion.h>
 #include <Eigen/Core>
 #include "field.h"
+#include "timer.h"
 
 #ifndef CAMERA_CALIBRATION_H
 #define CAMERA_CALIBRATION_H
@@ -173,6 +174,7 @@ public:
       VarDouble* initial_distortion;
       VarDouble* camera_height;
       VarDouble* line_search_corridor_width;
+      VarDouble* convergence_timeout;
   };
   
   /*!
