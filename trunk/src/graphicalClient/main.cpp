@@ -89,7 +89,6 @@ int main(int argc, char *argv[])
     viewerThread thread;
     thread.start(QThread::NormalPriority);
 
-app.exec();
     while(true) {
         if (client.receive(packet)) {
             printf("-----Received Wrapper Packet---------------------------------------------\n");
