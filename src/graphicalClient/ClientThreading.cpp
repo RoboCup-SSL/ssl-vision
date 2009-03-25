@@ -128,7 +128,8 @@ void ViewUpdateThread::run()
                 }
             }
             //soccer->invalidateScene(QRectF(-3700,-2700,7400,5400));
-            soccer->update();
+            soccer->viewport()->update();
+            //soccer->update();
         }
 
     }
