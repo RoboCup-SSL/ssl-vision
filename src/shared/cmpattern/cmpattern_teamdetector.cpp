@@ -58,7 +58,7 @@ Team * TeamDetectorSettings::getTeam(int idx) const {
 TeamDetector::TeamDetector(LUT3D * lut3d, const CameraParameters& camera_params, const RoboCupField& field) : _camera_params(camera_params), _field(field) {
   _team=0;
   _lut3d=lut3d;
-  loaded=false;
+
   histogram=0;
 
   color_id_cyan = _lut3d->getChannelID("Cyan");
@@ -136,26 +136,25 @@ void TeamDetector::init(Team * team)
 
   //load team image:
 
-  if (loaded==false) {
-    if (_load_markers_from_image_file == true && _marker_image_file.length() > 0) {
-      rgbImage rgbi;
-      if (rgbi.load(_marker_image_file)) {
-        //create a YUV lut that's based on color-labels not on custom data:
-        YUVLUT minilut(4,4,4,"");
-        minilut.copyChannels(*_lut3d);
-        //compute a full LUT mapping based on NN-distance to color labels:
-        minilut.computeLUTfromLabels();
-        yuvImage yuvi;
-        yuvi.allocate(rgbi.getWidth(),rgbi.getHeight());
-        Images::convert(rgbi,yuvi);
-        model.loadMultiPatternImage(yuvi,&minilut,_marker_image_rows,_marker_image_cols,_team->_robot_height->getDouble());
-        loaded=true;
-      } else {
-            fprintf(stderr,"Error loading image file: '%s'.\n",_marker_image_file.c_str());
-            fflush(stderr);
-      }
+
+  if (_load_markers_from_image_file == true && _marker_image_file.length() > 0) {
+    rgbImage rgbi;
+    if (rgbi.load(_marker_image_file)) {
+      //create a YUV lut that's based on color-labels not on custom data:
+      YUVLUT minilut(4,4,4,"");
+      minilut.copyChannels(*_lut3d);
+      //compute a full LUT mapping based on NN-distance to color labels:
+      minilut.computeLUTfromLabels();
+      yuvImage yuvi;
+      yuvi.allocate(rgbi.getWidth(),rgbi.getHeight());
+      Images::convert(rgbi,yuvi);
+      model.loadMultiPatternImage(yuvi,&minilut,_marker_image_rows,_marker_image_cols,_team->_robot_height->getDouble());
+    } else {
+          fprintf(stderr,"Error loading image file: '%s'.\n",_marker_image_file.c_str());
+          fflush(stderr);
     }
   }
+
 
 }
 
@@ -471,7 +470,7 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
                 //setup robot:
                 robot->set_x(cen.loc.x);
                 robot->set_y(cen.loc.y);
-                robot->set_orientation(res.angle);
+                if (_have_angle) robot->set_orientation(res.angle);
                 robot->set_robot_id(res.id);
                 robot->set_pixel_x(reg->cen_x);
                 robot->set_pixel_y(reg->cen_y);

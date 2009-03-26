@@ -46,7 +46,7 @@ public:
                      string net_ref_interface="");
 
     ~RoboCupSSLClient();
-    bool open();
+    bool open(bool blocking=false);
     void close();
     bool receive(SSL_WrapperPacket & packet);
 

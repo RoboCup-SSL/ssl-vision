@@ -59,6 +59,13 @@ bool VarNotifier::hasChangedNoReset() {
   return result;
 }
 
+void VarNotifier::changeSlotOtherChange() {
+  mutex.lock();
+  changed=true;
+  mutex.unlock();
+  emit changeOccured(0);
+}
+
 void VarNotifier::changeSlot(VarData * item) {
   mutex.lock();
   changed=true;
