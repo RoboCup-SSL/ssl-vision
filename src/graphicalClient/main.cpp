@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
 
     app = new QApplication(argc,argv);
     view = new SoccerView();
+    printf("strobe\n");
     view->show();
 
     ViewUpdateThread thread(view);
