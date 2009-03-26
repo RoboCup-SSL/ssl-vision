@@ -50,6 +50,8 @@ protected:
   bool doing_drag;
   VarDouble* drag_x;
   VarDouble* drag_y;
+
+  void sanitizeSobel(greyImage * img, GVector::vector2d<double> & val,int sobel_border=1);
     
   ImageSide getImageSide(const GVector::vector3d<double>& start,
                          const GVector::vector3d<double>& end);

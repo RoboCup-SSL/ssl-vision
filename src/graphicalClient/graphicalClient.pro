@@ -3,16 +3,16 @@
 include( ../config.pro.inc )
 
 # where to place built objects
-OBJECTS_DIR = ../../build/client/obj
+OBJECTS_DIR = ../../build/graphicalClient/obj
 
 # where to place temporary moc sources
-MOC_DIR = ../../build/client/moc
+MOC_DIR = ../../build/graphicalClient/moc
 
 # where to place auto-generated UI files
-UI_DIR = ../../build/client/ui
+UI_DIR = ../../build/graphicalClient/ui
 
 # where to place intermediate resource files
-RCC_DIR = ../../build/client/resources
+RCC_DIR = ../../build/graphicalClient/resources
 
 # add google protocol buffers
 LIBS += -lprotobuf
@@ -38,8 +38,6 @@ RESOURCES += ../app/gui/icons/icons_gui.qrc
 include( $${SHARED_DIR}/proto/sources.pro.inc )
 
 # include actual list of source files for application
-include ( client.sources.pro.inc )
+include ( graphicalClient.sources.pro.inc )
 DEPENDPATH = INCLUDEPATH
-HEADERS += ClientThreading.h \
-    ../shared/util/field_default_constants.h
-SOURCES += ClientThreading.cpp
+

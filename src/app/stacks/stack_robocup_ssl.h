@@ -48,6 +48,7 @@ using namespace std;
 */
 class StackRoboCupSSL : public VisionStack {
   protected:
+  int _camera_id;
   YUVLUT * lut_yuv;
   string _cam_settings_filename;
   CameraParameters* camera_parameters;
@@ -58,7 +59,7 @@ class StackRoboCupSSL : public VisionStack {
   RoboCupCalibrationHalfField * calib_field;
   RoboCupSSLServer * _udp_server;
   public:
-  StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, RoboCupField * _global_field, PluginDetectBallsSettings * _global_ball_settings, PluginPublishGeometry * _global_plugin_publish_geometry, CMPattern::TeamSelector * _global_team_selector_blue, CMPattern::TeamSelector * _global_team_selector_yellow, RoboCupSSLServer * udp_server, string cam_settings_filename);
+  StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, int camera_id, RoboCupField * _global_field, PluginDetectBallsSettings * _global_ball_settings, PluginPublishGeometry * _global_plugin_publish_geometry, CMPattern::TeamSelector * _global_team_selector_blue, CMPattern::TeamSelector * _global_team_selector_yellow, RoboCupSSLServer * udp_server, string cam_settings_filename);
   virtual string getSettingsFileName();
   virtual ~StackRoboCupSSL();
 };

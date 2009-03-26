@@ -101,7 +101,7 @@ void Robot::paint(QPainter *painter, const QStyleOptionGraphicsItem* , QWidget* 
     painter->translate(x,-y);
     painter->setPen(*pen);
     painter->setBrush(*brush);
-    if(abs(orientation)<360)
+    if(fabs(orientation)<360)
     {
         painter->rotate(-45-orientation);
         painter->drawPath(robotOutline);
@@ -112,7 +112,7 @@ void Robot::paint(QPainter *painter, const QStyleOptionGraphicsItem* , QWidget* 
     painter->setPen(*idPen);
     painter->drawPath(robotID);
     painter->setPen(Qt::NoPen);
-    painter->drawRect(-90,-130,((double)180)*conf,30);
+    painter->drawRect(-90,-130,(int)(((double)180)*conf),30);
     painter->setPen(*pen);
     painter->setBrush(QBrush(Qt::white, Qt::NoBrush));
     painter->drawRect(-90,-130,180,30);
