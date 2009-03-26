@@ -188,7 +188,7 @@ public:
     public:
     GVector::vector3d<double> p1;
     GVector::vector3d<double> p2;
-    std::vector<GVector::vector2d<double> > pts_on_line;
+    std::vector< std::pair<GVector::vector2d<double>,bool> > pts_on_line;
     bool horizontal;
   };
   
