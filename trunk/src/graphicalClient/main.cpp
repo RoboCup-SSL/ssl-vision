@@ -14,15 +14,11 @@
 //========================================================================
 /*!
   \file    main.cpp
-  \brief   The ssl-vision application entry point.
-  \author  Stefan Zickler, (C) 2008
+  \brief   The ssl-vision graphicalClient application entry point.
+  \author  Joydeep Biswas, Stefan Zickler, (C) 2008
 */
 //========================================================================
 
-//#include <QApplication>
-//#include <QCleanlooksStyle>
-//#include <QPlastiqueStyle>
-//#include "mainwindow.h"
 
 #include <stdio.h>
 #include <QThread>
@@ -34,7 +30,7 @@
 #include "messages_robocup_ssl_geometry.pb.h"
 #include "messages_robocup_ssl_wrapper.pb.h"
 
-SoccerView *view;
+SoccerView *soccerView;
 QApplication *app;
 
 
@@ -48,15 +44,14 @@ int main(int argc, char *argv[])
     
 
     app = new QApplication(argc,argv);
-    view = new SoccerView();
-    printf("strobe\n");
-    view->show();
+    soccerView = new SoccerView();
+    soccerView->show();
 
-    ViewUpdateThread thread(view);
+    ViewUpdateThread thread(soccerView);
     thread.start(QThread::NormalPriority);
     app->exec();
     thread.Terminate();
-
-
+    while(thread.isRunning())
+        ;
     return 0;
 }

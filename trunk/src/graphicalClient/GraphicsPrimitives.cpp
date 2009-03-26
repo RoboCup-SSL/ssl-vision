@@ -1,3 +1,24 @@
+//========================================================================
+//  This software is free: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License Version 3,
+//  as published by the Free Software Foundation.
+//
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  Version 3 in the file COPYING that came with this distribution.
+//  If not, see <http://www.gnu.org/licenses/>.
+//========================================================================
+/*!
+  \file    GraphicsPrimitives.cpp
+  \brief   C++ Implementation: Robot, SoccerView
+  \author  Joydeep Biswas (C) 2009
+*/
+//========================================================================
+
 #include "GraphicsPrimitives.h"
 #include <QGraphicsItem>
 #include <QPainter>
@@ -26,27 +47,29 @@ Robot::Robot(double _x, double _y, double _orientation, int _teamID, int _id, in
     robotOutline.moveTo(90,0);
     robotOutline.arcTo(-90,-90,180,180,0,270);
     robotOutline.closeSubpath();
+    robotOutlineCircle.addEllipse(-90,-90,180,180);
 
-    if(id!=idNA)
+    if(id!=NA)
         robotLabel = QString(QByteArray((char *) &id, 4).toHex()).mid(1,1).toUpper();
     else
         robotLabel = "?";
+
     robotID.addText(-25,25,QFont("Courier",80,2,false),robotLabel);
     switch(teamID)
     {
-        case teamBlue:
+    case teamBlue:
         {
             brush = new QBrush(QColor(0x41,0x7e,0xff,255),Qt::SolidPattern);
             pen = new QPen(QColor(0x12,0x3b,0xa0,255));
             break;
         }
-        case teamYellow:
+    case teamYellow:
         {
             brush = new QBrush(QColor(0xff,0xf3,0x3e,255),Qt::SolidPattern);
             pen = new QPen(QColor(0xcc,0x9d,0x00,255));
             break;
         }
-        default:
+    default:
         {
             brush = new QBrush(QColor(150,150,150,255),Qt::SolidPattern);
             pen = new QPen(QColor(70,70,70,255));
@@ -78,14 +101,19 @@ void Robot::paint(QPainter *painter, const QStyleOptionGraphicsItem* , QWidget* 
     painter->translate(x,-y);
     painter->setPen(*pen);
     painter->setBrush(*brush);
-    painter->rotate(-45-orientation);
-    painter->drawPath(robotOutline);
-    painter->rotate(45+orientation);
+    if(abs(orientation)<360)
+    {
+        painter->rotate(-45-orientation);
+        painter->drawPath(robotOutline);
+        painter->rotate(45+orientation);
+    }
+    else
+        painter->drawPath(robotOutlineCircle);
     painter->setPen(*idPen);
     painter->drawPath(robotID);
     painter->setPen(Qt::NoPen);
     painter->drawRect(-90,-130,((double)180)*conf,30);
-    painter->setPen(*confPen);
+    painter->setPen(*pen);
     painter->setBrush(QBrush(Qt::white, Qt::NoBrush));
     painter->drawRect(-90,-130,180,30);
 }
@@ -108,7 +136,8 @@ void Robot::SetPose(double _x, double _y, double _orientation, double _conf)
 
 SoccerView::SoccerView()
 {
-    glWidget = new QGLWidget();
+    shutdownSoccerView = false;
+    glWidget = new QGLWidget(QGLFormat(QGL::SampleBuffers));
     setViewport(glWidget);
     LoadFieldGeometry();
     scene = new QGraphicsScene(this);
@@ -124,9 +153,29 @@ SoccerView::SoccerView()
     fieldLinePen->setJoinStyle(Qt::MiterJoin);
     fieldItem = scene->addPath(*field,*fieldLinePen,*fieldBrush);
     this->scale(0.14,0.14);
-    this->setRenderHint(QPainter::Antialiasing, true);
+    this->setRenderHint(QPainter::HighQualityAntialiasing, true);
     this->setDragMode(QGraphicsView::ScrollHandDrag);
     this->setGeometry(100,100,1036,756);
+    startTimer(30);
+}
+
+SoccerView::~SoccerView()
+{
+    shutdownSoccerView = true;
+}
+
+void SoccerView::timerEvent(QTimerEvent *event)
+{
+    if(shutdownSoccerView)
+    {
+        killTimer(event->timerId());
+        return;
+    }
+    PruneRobots();
+    if(!drawMutex.tryLock())
+        return;
+    this->viewport()->update();
+    drawMutex.unlock();
 }
 
 void SoccerView::ConstructField()
@@ -138,7 +187,7 @@ void SoccerView::ConstructField()
     field->lineTo(0,field_width/2);
 
     field->addEllipse(-center_circle_radius,-center_circle_radius,
-                     2*center_circle_radius,2*center_circle_radius);
+                      2*center_circle_radius,2*center_circle_radius);
 
     field->moveTo(field_length/2,-field_width/2);
     field->lineTo(field_length/2,field_width/2);
@@ -197,18 +246,17 @@ void SoccerView::AddRobot(Robot *robot)
 
 int SoccerView::UpdateRobot(double x, double y, double orientation, int team, int robotID, int key, double conf)
 {
+    drawMutex.lock();
     orientation *= 180.0/M_PI;
     bool found = false;
     Robot *currentRobot;
-    for(int i=0; i<robots.size() && robotID!=idNA ; i++)
+    for(int i=0; i<robots.size() && robotID!=NA ; i++)
     {
         currentRobot = robots[i];
         if(currentRobot->id==robotID && currentRobot->teamID==team && currentRobot->key==key)
         {
             currentRobot->SetPose(x,y,orientation,conf);
-            currentRobot->update(currentRobot->boundingRect());
             found = true;
-            //this->update();
             break;
         }
     }
@@ -216,7 +264,42 @@ int SoccerView::UpdateRobot(double x, double y, double orientation, int team, in
     {
         AddRobot(new Robot(x,y,orientation,team,robotID,key,conf));
     }
+    drawMutex.unlock();
     return robots.size();
+}
+
+int SoccerView::UpdateBalls(QVector<QPointF> &_balls)
+{
+    drawMutex.lock();
+    if(balls.size()<_balls.size())
+    {
+        //need to allocate some space for the new balls
+        QPen pen(QColor(0xcd,0x59,0x00,0xff));
+        pen.setWidth(4);
+        QBrush brush(QColor(0xff,0x81,0x00,0xff),Qt::SolidPattern);
+        for(int i=0;i<_balls.size()-balls.size();i++)
+        {
+            ballItems.append(scene->addEllipse(0,0,42,42,pen,brush));
+            //scene->addItem(ballItems[i]);
+        }
+    }
+    else if(balls.size()>_balls.size())
+    {
+        //need to delete some balls
+        for(int i=balls.size()-1;i>=_balls.size();i--)
+        {
+            scene->removeItem(ballItems[i]);
+            ballItems.remove(i);
+        }
+    }
+    //balls.resize(_balls.size());
+    balls = _balls;
+    for(int i=0;i<_balls.size();i++)
+    {
+        ballItems[i]->setPos(balls[i].x()-21,-balls[i].y()-21);
+    }
+    drawMutex.unlock();
+    return balls.size();
 }
 
 void SoccerView::LoadFieldGeometry()
@@ -253,19 +336,26 @@ void SoccerView::LoadFieldGeometry(SSL_GeometryFieldSize &fieldSize)
     this->free_kick_from_defense_dist = fieldSize.free_kick_from_defense_dist();
     this->penalty_spot_from_field_line_dist = fieldSize.penalty_spot_from_field_line_dist();
     this->penalty_line_from_spot_dist = fieldSize.penalty_line_from_spot_dist();
+
+    drawMutex.lock();
+    scene->removeItem(fieldItem);
+    ConstructField();
+    fieldItem = scene->addPath(*field,*fieldLinePen,*fieldBrush);
+    drawMutex.unlock();
 }
 
 void SoccerView::PruneRobots()
 {
+    drawMutex.lock();
     unsigned long int tnow = GetTimeUSec();
     for(int i=0;i<robots.size();i++)
     {
         Robot* robot = robots[i];
-        if(tnow-robot->tStamp>1e6 || (tnow-robot->tStamp>1e5 && robot->id==idNA) )
+        if(tnow-robot->tStamp>1e6 || ((tnow-robot->tStamp)>2e4 && robot->id==NA) )
         {
             robots.remove(i);
             scene->removeItem(robot);
-            //delete robot;
         }
     }
+    drawMutex.unlock();
 }

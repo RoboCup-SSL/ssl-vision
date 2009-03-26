@@ -1,21 +1,41 @@
+//========================================================================
+//  This software is free: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License Version 3,
+//  as published by the Free Software Foundation.
+//
+//  This software is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  Version 3 in the file COPYING that came with this distribution.
+//  If not, see <http://www.gnu.org/licenses/>.
+//========================================================================
+/*!
+  \file    ClientThreading.cpp
+  \brief   C++ Implementation: ViewUpdateThread
+  \author  Joydeep Biswas, Stefan Zickler (C) 2009
+*/
+//========================================================================
 #include "ClientThreading.h"
 
-ViewUpdateThread::ViewUpdateThread(SoccerView *_soccer)
+ViewUpdateThread::ViewUpdateThread(SoccerView *_soccerView)
 {
-    soccer = _soccer;
-    shutdown = false;
+    soccerView = _soccerView;
+    shutdownView = false;
 }
 
-int ViewUpdateThread::printRobotInfo(const SSL_DetectionRobot & robot, int teamID) {
+int ViewUpdateThread::printRobotInfo(const SSL_DetectionRobot & robot, int teamID, int cameraID) {
     double x,y,orientation,conf =robot.confidence();
-    int id, n;
+    int id, n=0;
     printf("CONF=%4.2f ", conf);
     if (robot.has_robot_id()) {
         id = robot.robot_id();
         printf("ID=%3d ",id);
     } else {
         printf("ID=N/A ");
-        id = idNA;
+        id = NA;
     }
     x = robot.x();
     y = robot.y();
@@ -24,22 +44,21 @@ int ViewUpdateThread::printRobotInfo(const SSL_DetectionRobot & robot, int teamI
         orientation = robot.orientation();
         printf("ANGLE=%6.3f ",orientation);
     } else {
-        orientation = 0;
+        orientation = NAOrientation;
         printf("ANGLE=N/A    ");
     }
     printf("RAW=<%8.2f,%8.2f>\n",robot.pixel_x(),robot.pixel_y());
-    n = soccer->UpdateRobot(x,y,orientation,teamID,id,0,conf);
+    n = soccerView->UpdateRobot(x,y,orientation,teamID,id,cameraID,conf);
     return n;
 }
 
 void ViewUpdateThread::run()
 {
     int n=0;
-    client.open();
-    while(!shutdown){
-
+    client.open(false);
+    while(!shutdownView){
+        usleep(9000);
         if (client.receive(packet)) {
-
             printf("-----Received Wrapper Packet---------------------------------------------\n");
             //see if the packet contains a robot detection frame:
             if (packet.has_detection()) {
@@ -57,8 +76,11 @@ void ViewUpdateThread::run()
                 int robots_yellow_n =  detection.robots_yellow_size();
 
                 //Ball info:
+                QVector<QPointF> balls(balls_n);
                 for (int i = 0; i < balls_n; i++) {
                     SSL_DetectionBall ball = detection.balls(i);
+                    balls[i].setX(ball.x());
+                    balls[i].setY(ball.y());
                     printf("-Ball (%2d/%2d): CONF=%4.2f POS=<%9.2f,%9.2f> ", i+1, balls_n, ball.confidence(),ball.x(),ball.y());
                     if (ball.has_z()) {
                         printf("Z=%7.2f ",ball.z());
@@ -67,20 +89,19 @@ void ViewUpdateThread::run()
                     }
                     printf("RAW=<%8.2f,%8.2f>\n",ball.pixel_x(),ball.pixel_y());
                 }
-
-                soccer->PruneRobots();
+                soccerView->UpdateBalls(balls);
                 //Blue robot info:
                 for (int i = 0; i < robots_blue_n; i++) {
                     SSL_DetectionRobot robot = detection.robots_blue(i);
                     printf("-Robot(B) (%2d/%2d): ",i+1, robots_blue_n);
-                    n=printRobotInfo(robot, teamBlue);
+                    n=printRobotInfo(robot, teamBlue, detection.camera_id());
                 }
 
                 //Yellow robot info:
                 for (int i = 0; i < robots_yellow_n; i++) {
                     SSL_DetectionRobot robot = detection.robots_yellow(i);
                     printf("-Robot(Y) (%2d/%2d): ",i+1, robots_yellow_n);
-                    n=printRobotInfo(robot, teamYellow);
+                    n=printRobotInfo(robot, teamYellow, detection.camera_id());
                 }
                 printf("%d robots on the field\n",n);
 
@@ -93,7 +114,7 @@ void ViewUpdateThread::run()
                 printf("-[Geometry Data]-------\n");
 
                 const SSL_GeometryFieldSize & field = geom.field();
-                soccer->LoadFieldGeometry((SSL_GeometryFieldSize&)field);
+                soccerView->LoadFieldGeometry((SSL_GeometryFieldSize&)field);
                 printf("Field Dimensions:\n");
                 printf("  -line_width=%d (mm)\n",field.line_width());
                 printf("  -field_length=%d (mm)\n",field.field_length());
@@ -126,10 +147,7 @@ void ViewUpdateThread::run()
                     printf("  -ty=%.2f\n",calib.ty());
                     printf("  -tz=%.2f\n",calib.tz());
                 }
-            }
-            //soccer->invalidateScene(QRectF(-3700,-2700,7400,5400));
-            soccer->viewport()->update();
-            //soccer->update();
+            }            
         }
 
     }
@@ -137,5 +155,5 @@ void ViewUpdateThread::run()
 
 void ViewUpdateThread::Terminate()
 {
-    shutdown = true;
+    shutdownView = true;
 }
