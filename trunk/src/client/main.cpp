@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
   (void)argv;
 
   RoboCupSSLClient client;
-  client.open();
+  client.open(true);
   SSL_WrapperPacket packet;
 
   while(true) {

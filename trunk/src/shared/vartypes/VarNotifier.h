@@ -44,6 +44,8 @@ public:
    QHash<VarData *, VarNotificationType> senders;
    bool changed;
    QMutex mutex;
+public slots:
+    void changeSlotOtherChange();
 protected slots:
     void changeSlot(VarData * item);
 signals:

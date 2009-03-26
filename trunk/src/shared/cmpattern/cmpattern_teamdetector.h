@@ -138,7 +138,11 @@ public:
     return _settings;
   }
   Team * getSelectedTeam() {
-    if (_selector->getIndex() == -1) update();
+    if (_selector->getIndex() == -1) {
+      update();
+    } else if (current_team!=_detector_settings->getTeam(_selector->getIndex())) {
+      update();
+    }
     return current_team;
   }
   int getNumberRobots() {
@@ -172,10 +176,7 @@ protected:
   string _marker_image_file;
   int    _marker_image_rows;
   int    _marker_image_cols;
-  
-  //FIXME: remove this:
-  bool loaded;
-  
+
   int    _max_robots;
   double _robot_height;
 

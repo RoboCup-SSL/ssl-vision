@@ -40,9 +40,9 @@ void RoboCupSSLClient::close() {
   mc.close();
 }
 
-bool RoboCupSSLClient::open() {
+bool RoboCupSSLClient::open(bool blocking) {
   close();
-  if(!mc.open(_port,true,true)) {
+  if(!mc.open(_port,true,true,blocking)) {
     fprintf(stderr,"Unable to open UDP network port: %d\n",_port);
     fflush(stderr);
     return(false);
@@ -70,7 +70,6 @@ bool RoboCupSSLClient::receive(SSL_WrapperPacket & packet) {
   int r=0;
   r = mc.recv(in_buffer,MaxDataGramSize,src);
   if (r>0) {
-    printf("RECEIVE\n");
     fflush(stdout);
     //decode packet:
     return packet.ParseFromArray(in_buffer,r);

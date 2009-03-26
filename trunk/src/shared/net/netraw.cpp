@@ -80,7 +80,7 @@ void Address::print(FILE *out) const
 //  (C) James Bruce
 //====================================================================//
 
-bool UDP::open(int port, bool share_port_for_multicasting, bool multicast_include_localhost)
+bool UDP::open(int port, bool share_port_for_multicasting, bool multicast_include_localhost, bool blocking)
 {
   // open the socket
   if(fd >= 0) ::close(fd);
@@ -89,7 +89,7 @@ bool UDP::open(int port, bool share_port_for_multicasting, bool multicast_includ
   // set socket as non-blocking
   int flags = fcntl(fd, F_GETFL, 0);
   if(flags < 0) flags = 0;
-  fcntl(fd, F_SETFL, flags|O_NONBLOCK);
+  fcntl(fd, F_SETFL, flags | (blocking ? 0 : O_NONBLOCK));
 
   if (share_port_for_multicasting) {
     int reuse=1;

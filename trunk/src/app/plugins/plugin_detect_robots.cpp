@@ -48,6 +48,9 @@ PluginDetectRobots::PluginDetectRobots(FrameBuffer * _buffer, LUT3D * lut, const
   team_detector_yellow=new CMPattern::TeamDetector(_lut,camera_params,field);
 
   _settings=new VarList("Robot Detection");
+  _notifier.addRecursive(_settings);
+  connect(_global_team_selector_blue,SIGNAL(signalTeamDataChanged()),&_notifier,SLOT(changeSlotOtherChange()));
+  connect(_global_team_selector_yellow,SIGNAL(signalTeamDataChanged()),&_notifier,SLOT(changeSlotOtherChange()));
 }
 
 PluginDetectRobots::~PluginDetectRobots()
@@ -113,6 +116,7 @@ ProcessResult PluginDetectRobots::process(FrameData * data, RenderOptions * opti
   //TODO: lookup color label from LUT
 
   buildRegionTree(colorlist);
+  bool need_reinit=_notifier.hasChanged();
 
   for (int team_i = 0; team_i < 2; team_i++) {
     //team_i: 0==blue, 1==yellow
@@ -132,9 +136,13 @@ ProcessResult PluginDetectRobots::process(FrameData * data, RenderOptions * opti
       detector=team_detector_yellow;
     }
     if (team!=0) {
-      detector->init(team);
+      if (need_reinit) {
+        detector->init(team);
+      }
 
       detector->update(robotlist, color_id,  num_robots, image, colorlist, reg_tree);
+    } else {
+      _notifier.changeSlotOtherChange();
     }
 
 //    printf("DETECTED %d robots on team %d\n",robotlist->size(),team_i);

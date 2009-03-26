@@ -31,12 +31,14 @@
 #include "cmpattern_team.h"
 #include "vis_util.h"
 #include "lut3d.h"
+#include "VarNotifier.h"
 /**
 	@author Author Name
 */
 class PluginDetectRobots : public VisionPlugin
 {
 protected:
+  VarNotifier _notifier;
   LUT3D * _lut;
   VarList * _settings;
 
