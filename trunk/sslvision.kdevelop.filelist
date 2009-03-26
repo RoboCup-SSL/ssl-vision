@@ -1,8 +1,5 @@
 # KDevelop Custom Project File List
 .
-qtc-gdbmacros
-qtc-gdbmacros/Makefile
-qtc-gdbmacros/gdbmacros.cpp
 src
 src/app
 src/app/capture_thread.cpp
@@ -71,12 +68,6 @@ src/app/videostats.h
 src/client
 src/client/main.cpp
 src/config.pro.inc
-src/graphicalClient
-src/graphicalClient/ClientThreading.cpp
-src/graphicalClient/ClientThreading.h
-src/graphicalClient/GraphicsPrimitives.cpp
-src/graphicalClient/GraphicsPrimitives.h
-src/graphicalClient/main.cpp
 src/shared
 src/shared/capture/capturedc1394v2.cpp
 src/shared/capture/capturedc1394v2.h
@@ -182,6 +173,7 @@ src/shared/vartypes/gui/VarTreeViewOptions.cpp
 src/shared/vartypes/gui/VarTreeViewOptions.h
 src/shared/vartypes/gui/experimental/timewidget.ui
 src/shared/vartypes/gui/icons/icons.qrc
+src/shared/vartypes/primitives
 src/shared/vartypes/primitives/VarBlob.cpp
 src/shared/vartypes/primitives/VarBlob.h
 src/shared/vartypes/primitives/VarBool.cpp
@@ -198,6 +190,8 @@ src/shared/vartypes/primitives/VarList.cpp
 src/shared/vartypes/primitives/VarList.h
 src/shared/vartypes/primitives/VarQWidget.cpp
 src/shared/vartypes/primitives/VarQWidget.h
+src/shared/vartypes/primitives/VarSelection.cpp
+src/shared/vartypes/primitives/VarSelection.h
 src/shared/vartypes/primitives/VarString.cpp
 src/shared/vartypes/primitives/VarString.h
 src/shared/vartypes/primitives/VarStringEnum.cpp

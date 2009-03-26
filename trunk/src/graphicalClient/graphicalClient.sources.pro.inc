@@ -25,3 +25,8 @@ HEADERS += $${SHARED_DIR}/net/robocup_ssl_client.h
 SOURCES += $${PREFIX}/GraphicsPrimitives.cpp
 HEADERS += $${PREFIX}/GraphicsPrimitives.h
 
+SOURCES += ClientThreading.cpp
+HEADERS += ClientThreading.h
+
+HEADERS += $${SHARED_DIR}/util/field_default_constants.h
+

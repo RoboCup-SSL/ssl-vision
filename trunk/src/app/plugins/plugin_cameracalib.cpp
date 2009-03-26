@@ -169,6 +169,14 @@ void PluginCameraCalibration::detectEdges(FrameData * data)
   detectEdgesOnSingleLine(start,end,pointsInsideCenterCircle, true);
 }
 
+
+void PluginCameraCalibration::sanitizeSobel(greyImage * img, GVector::vector2d<double> & val,int sobel_border) {
+  if (val.x < (sobel_border)) val.x=sobel_border;
+  if (val.x > (img->getWidth()-sobel_border)) val.x=(img->getWidth()-sobel_border);
+  if (val.y < (sobel_border)) val.y=sobel_border;
+  if (val.y > (img->getHeight()-sobel_border)) val.y=(img->getHeight()-sobel_border);
+}
+
 void PluginCameraCalibration::detectEdgesOnSingleLine(
     const GVector::vector3d<double>& start,
     const GVector::vector3d<double>& end,
@@ -194,7 +202,9 @@ void PluginCameraCalibration::detectEdgesOnSingleLine(
         worldStart.y -= distToLine;
         worldEnd.y += distToLine;
         camera_parameters.field2image(worldStart,imgStart);  
-        camera_parameters.field2image(worldEnd,imgEnd);  
+        camera_parameters.field2image(worldEnd,imgEnd);
+        sanitizeSobel(grey_image,imgStart);
+        sanitizeSobel(grey_image,imgEnd);
         y = (imgStart.y + imgEnd.y) / 2;
         if(imgStart.x > imgEnd.x)
         {
@@ -220,6 +230,8 @@ void PluginCameraCalibration::detectEdgesOnSingleLine(
         worldEnd.y += distToLine;
         camera_parameters.field2image(worldStart,imgStart);  
         camera_parameters.field2image(worldEnd,imgEnd);  
+        sanitizeSobel(grey_image,imgStart);
+        sanitizeSobel(grey_image,imgEnd);
         y = (imgStart.y + imgEnd.y) / 2;
         if(imgStart.x > imgEnd.x)
         {
@@ -244,7 +256,9 @@ void PluginCameraCalibration::detectEdgesOnSingleLine(
         worldStart.x -= distToLine;
         worldEnd.x += distToLine;
         camera_parameters.field2image(worldStart,imgStart);  
-        camera_parameters.field2image(worldEnd,imgEnd);  
+        camera_parameters.field2image(worldEnd,imgEnd);
+        sanitizeSobel(grey_image,imgStart);
+        sanitizeSobel(grey_image,imgEnd);
         x = (imgStart.x + imgEnd.x) / 2;
         if(imgStart.y > imgEnd.y)
         {
@@ -272,7 +286,9 @@ void PluginCameraCalibration::detectEdgesOnSingleLine(
         worldStart.x -= distToLine;
         worldEnd.x += distToLine;
         camera_parameters.field2image(worldStart,imgStart);  
-        camera_parameters.field2image(worldEnd,imgEnd);  
+        camera_parameters.field2image(worldEnd,imgEnd);
+        sanitizeSobel(grey_image,imgStart);
+        sanitizeSobel(grey_image,imgEnd);
         x = (imgStart.x + imgEnd.x) / 2;
         if(imgStart.y > imgEnd.y)
         {

@@ -139,40 +139,40 @@
 		</Var>
 		<Var name="Valid Patterns" type="selection">
 			<Var name="0" type="bool">
-				true
+				false
 			</Var>
 			<Var name="1" type="bool">
-				true
+				false
 			</Var>
 			<Var name="2" type="bool">
-				true
+				false
 			</Var>
 			<Var name="3" type="bool">
-				true
+				false
 			</Var>
 			<Var name="4" type="bool">
-				true
+				false
 			</Var>
 			<Var name="5" type="bool">
-				true
+				false
 			</Var>
 			<Var name="6" type="bool">
-				true
+				false
 			</Var>
 			<Var name="7" type="bool">
-				true
+				false
 			</Var>
 			<Var name="8" type="bool">
-				true
+				false
 			</Var>
 			<Var name="9" type="bool">
-				true
+				false
 			</Var>
 			<Var name="10" type="bool">
-				true
+				false
 			</Var>
 			<Var name="11" type="bool">
-				true
+				false
 			</Var>
 		</Var>
 	</Var>

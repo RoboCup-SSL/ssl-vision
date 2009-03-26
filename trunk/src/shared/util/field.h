@@ -283,6 +283,30 @@ protected slots:
 class RoboCupCalibrationHalfField : public QObject
 {
 Q_OBJECT
+public:
+  enum CameraPositionEnum {
+    CAM_POS_HALF_NEG_X,
+    CAM_POS_HALF_POS_X,
+    CAM_POS_ENUM_COUNT
+  };
+  static CameraPositionEnum stringToCameraPositionEnum(const string & input) {
+     if (input.compare("Half (Negative X)")==0) {
+       return CAM_POS_HALF_NEG_X;
+     } else if (input.compare("Half (Positive X)")==0) {
+       return CAM_POS_HALF_POS_X;
+     } else {
+       return CAM_POS_HALF_NEG_X;
+     }
+  }
+  static string cameraPositionEnumToString(const CameraPositionEnum & input) {
+     if (input==CAM_POS_HALF_NEG_X) {
+       return ("Half (Negative X)");
+     } else if (input==CAM_POS_HALF_POS_X) {
+       return ("Half (Positive X)");
+     } else {
+       return ("");
+     }
+  }
 protected slots:
   void globalCalibrationChanged() {
     update();
@@ -293,27 +317,34 @@ protected slots:
       for (unsigned int i = 0; i < params.size(); i++) {
         params[i]->setRenderFlags(DT_FLAG_READONLY|DT_FLAG_NOLOAD);
       }
+      camera_pos->removeRenderFlags(DT_FLAG_READONLY);
       update();
     } else {
       //enable all items
       for (unsigned int i = 0; i < params.size(); i++) {
         params[i]->removeRenderFlags(DT_FLAG_READONLY|DT_FLAG_NOLOAD);
       }
+      camera_pos->addRenderFlags(DT_FLAG_READONLY);
     }
   }
 protected:
   RoboCupField * robocup_field;
   vector<VarData *> params;
   VarBool * auto_update;
+  VarStringEnum * camera_pos;
 public:
-  RoboCupCalibrationHalfField(RoboCupField * _robocup_field = 0) {
+  RoboCupCalibrationHalfField(RoboCupField * _robocup_field = 0, int cam_id=0) {
     robocup_field=_robocup_field;
     if (robocup_field!=0) {
       connect(robocup_field,SIGNAL(calibrationChanged()),this,SLOT(globalCalibrationChanged()));
     }
     auto_update = new VarBool("Auto-Copy from Global Field Config",true);
-    connect(auto_update,SIGNAL(hasChanged(VarData *)),this,SLOT(autoUpdateChanged()));
-    
+    camera_pos = new VarStringEnum("Camera Position",(cam_id==0) ? cameraPositionEnumToString(CAM_POS_HALF_NEG_X) : cameraPositionEnumToString(CAM_POS_HALF_POS_X));
+    camera_pos->addRenderFlags(DT_FLAG_NOLOAD_ENUM_CHILDREN);
+    for (int i=0;i<CAM_POS_ENUM_COUNT;i++) {
+      camera_pos->addItem(cameraPositionEnumToString((CameraPositionEnum)i));
+    }
+
     params.push_back(left_corner_x = new VarInt("left corner x", 3025));
     params.push_back(left_corner_y = new VarInt("left corner y", 2025));
     params.push_back(left_goal_area_x = new VarInt("left goal area x", 3025)); 
@@ -336,47 +367,61 @@ public:
     params.push_back(right_centercircle_y = new VarInt("right centercircle y", -500)); 
     params.push_back(right_centerline_x = new VarInt("right centerline x", 0));
     params.push_back(right_centerline_y = new VarInt("right centerline y", -2025));
+    
+    connect(auto_update,SIGNAL(hasChanged(VarData *)),this,SLOT(autoUpdateChanged()));
+    connect(camera_pos,SIGNAL(hasChanged(VarData *)),this,SLOT(globalCalibrationChanged()));
+
     autoUpdateChanged();
     update();
   }
 
   void update() {
-    if (auto_update->getBool() == true && robocup_field!=0) copyFromRoboCupField(robocup_field);
+    if (auto_update->getBool() == true && robocup_field!=0) copyFromRoboCupField(robocup_field,stringToCameraPositionEnum(camera_pos->getSelection()));
   }
 
-  void copyFromRoboCupField(RoboCupField * field) {
-    left_corner_x->setInt(field->half_field_length->getInt());
-    left_corner_y->setInt(field->half_field_width->getInt());
-    left_goal_area_x->setInt(field->half_field_length->getInt());
-    left_goal_area_y->setInt(field->defense_radius->getInt()+field->half_defense_stretch->getInt());
-    left_goal_post_x->setInt(field->half_field_length->getInt());
-    left_goal_post_y->setInt(field->half_goal_width->getInt());
-    
+  void copyFromRoboCupField(RoboCupField * field, CameraPositionEnum pos) {
+    int mult_x=1;
+    int mult_y=1;
+    if (pos==CAM_POS_HALF_NEG_X) {
+      mult_x=-1;
+      mult_y=-1;
+    } else if (pos==CAM_POS_HALF_POS_X) {
+      mult_y=-1;
+    }
+
+    left_corner_x->setInt(mult_x*(field->half_field_length->getInt()));
+    left_corner_y->setInt(mult_y*(field->half_field_width->getInt()));
+    left_goal_area_x->setInt(mult_x*(field->half_field_length->getInt()));
+    left_goal_area_y->setInt(mult_y*(field->defense_radius->getInt()+field->half_defense_stretch->getInt()));
+    left_goal_post_x->setInt(mult_x*(field->half_field_length->getInt()));
+    left_goal_post_y->setInt(mult_y*(field->half_goal_width->getInt()));
+
     right_corner_x->setInt(left_corner_x->getInt());
     right_corner_y->setInt(-left_corner_y->getInt());
     right_goal_area_x->setInt(left_goal_area_x->getInt());
     right_goal_area_y->setInt(-left_goal_area_y->getInt());
     right_goal_post_x->setInt(left_goal_post_x->getInt());
     right_goal_post_y->setInt(-left_goal_post_y->getInt());
-    
+
     left_centerline_x->setInt(0);
     left_centerline_y->setInt(left_corner_y->getInt());
     left_centercircle_x->setInt(0);
-    left_centercircle_y->setInt(field->center_circle_radius->getInt());
-    
+    left_centercircle_y->setInt(mult_y*(field->center_circle_radius->getInt()));
+
     right_centerline_x->setInt(0);
     right_centerline_y->setInt(-left_centerline_y->getInt());
     right_centercircle_x->setInt(0);
     right_centercircle_y->setInt(-left_centercircle_y->getInt());
-    
+
     centerpoint_x->setInt(0);
     centerpoint_y->setInt(0);
   }
-  
+
   ~RoboCupCalibrationHalfField()
   {
     params.clear();
     delete auto_update;
+    delete camera_pos;
     delete left_corner_x;
     delete left_corner_y;
     delete left_goal_area_x; 
@@ -404,6 +449,7 @@ public:
   void addSettingsToList(VarList& list) 
   {
     list.addChild(auto_update);
+    list.addChild(camera_pos);
     list.addChild(left_corner_x);
     list.addChild(left_corner_y);
     list.addChild(left_goal_area_x); 
