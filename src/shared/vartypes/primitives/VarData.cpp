@@ -46,6 +46,8 @@ vDataTypeEnum VarData::stringToType(string stype)
     return DT_LIST;
   } else if (stype=="stringenum") {
     return DT_STRINGENUM;
+  } else if (stype=="selection") {
+    return DT_SELECTION;
   } else if (stype=="trigger") {
     return DT_TRIGGER;
   } else if (stype=="qwidget") {
@@ -82,6 +84,8 @@ string VarData::typeToString(vDataTypeEnum vt)
     return "list";
   } else if (vt==DT_STRINGENUM) {
     return "stringenum";
+  } else if (vt==DT_SELECTION) {
+    return "selection";
   } else if (vt==DT_TRIGGER) {
     return "trigger";
   } else if (vt==DT_QWIDGET) {

@@ -124,6 +124,10 @@ QWidget * VarItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
           return qw;
         } else if (dt->getType()==DT_STRINGENUM) {
           return new QComboBox(parent);
+        } else if (dt->getType()==DT_SELECTION) {
+          QListWidget * w=new QListWidget(parent);
+          w->setSelectionMode(QAbstractItemView::MultiSelection);
+          return w;
         } else if (dt->getType()==DT_LIST ||
                    dt->getType()==DT_BLOB ||
                    dt->getType()==DT_UNDEFINED ||
@@ -180,6 +184,17 @@ void VarItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) c
               combo->setCurrentIndex(i);
             }
           }
+        } else if (dt->getType()==DT_SELECTION) {
+          QListWidget * list=(QListWidget*)editor;
+          int n = ((VarSelection *)dt)->getCount();
+          QString tmp;
+          list->clear();
+          for (int i=0;i<n;i++) {
+            tmp=QString::fromStdString(((VarSelection *)dt)->getLabel(i));
+            QListWidgetItem * item = new QListWidgetItem(tmp);
+            item->setSelected(((VarSelection *)dt)->isSelected(i));
+            list->addItem(item);
+          }
         } else if ((dt->getType()==DT_QWIDGET) || (dt->getType()==DT_TRIGGER)) {
           ((VarQWidget*)dt)->setEditorData(editor,index);
         } else {
@@ -190,6 +205,28 @@ void VarItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) c
     } 
   }
   QItemDelegate::setEditorData(editor,index);
+}
+
+QSize VarItemDelegate::sizeHint ( const QStyleOptionViewItem & option, const QModelIndex & index ) const {
+
+  if (index.isValid() && index.model()!=0) {
+    if ((index.row() >= 0) && (index.column() >= 0)) {
+      QStandardItem *parent = static_cast<QStandardItem*>(index.internalPointer());
+      if (parent != 0) {
+        QStandardItem *item = parent->child(index.row(), index.column());
+        if (item!=0) {
+          VarData * dt=((VarItem*)item)->getVarData();
+          if (dt!=0) {
+            if (dt->getType()==DT_SELECTION) {
+              QSize s(20,100);
+              return s;
+            }
+          }
+        }
+      }
+    }
+  }
+  return QItemDelegate::sizeHint(option,index);
 }
 
 void VarItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
@@ -214,6 +251,16 @@ void VarItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
           if (((VarStringEnum *)dt)->select(combo->currentText().toStdString())) dt->mvcEditCompleted();
         } else if ((dt->getType()==DT_QWIDGET) || (dt->getType()==DT_TRIGGER)) {
           ((VarQWidget*)dt)->getEditorData(editor,index);
+        } else if (dt->getType()==DT_SELECTION) {
+          QListWidget * list=(QListWidget *)editor;
+          bool changed=false;
+          for (int i=0;i<list->count();i++) {
+            QListWidgetItem * item = list->item(i);
+            if (item!=0) {
+              changed = changed | (((VarSelection *)dt)->setSelected(i,item->isSelected()));
+            }
+          }
+          if (changed) dt->mvcEditCompleted();
         } else {
           QLineEdit * ledit=(QLineEdit *) editor;
           if (dt->setString(ledit->text().toStdString())) dt->mvcEditCompleted();

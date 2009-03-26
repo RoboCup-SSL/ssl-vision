@@ -50,6 +50,7 @@
 #include "primitives/VarBlob.h"
 #include "primitives/VarList.h"
 #include "primitives/VarStringEnum.h"
+#include "primitives/VarSelection.h"
 #include "primitives/VarExternal.h"
 #include "primitives/VarQWidget.h"
 #include "primitives/VarTrigger.h"

@@ -148,9 +148,13 @@ void TeamDetector::init(Team * team)
       yuvImage yuvi;
       yuvi.allocate(rgbi.getWidth(),rgbi.getHeight());
       Images::convert(rgbi,yuvi);
-      model.loadMultiPatternImage(yuvi,&minilut,_marker_image_rows,_marker_image_cols,_team->_robot_height->getDouble());
+      
+      if (model.loadMultiPatternImage(yuvi,&minilut,_marker_image_rows,_marker_image_cols,_team->_robot_height->getDouble())==false) {
+          fprintf(stderr,"Errors while processing team image file: '%s'.\n",_marker_image_file.c_str());
+          fflush(stderr);
+      }
     } else {
-          fprintf(stderr,"Error loading image file: '%s'.\n",_marker_image_file.c_str());
+          fprintf(stderr,"Error loading team image file: '%s'.\n",_marker_image_file.c_str());
           fflush(stderr);
     }
   }

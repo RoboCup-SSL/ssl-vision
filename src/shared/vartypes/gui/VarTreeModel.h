@@ -50,6 +50,7 @@ public:
   void updateHeader();
   void setRootItems(vector<VarData *> items);
   void setRootItem(VarData * item);
+  virtual const QStandardItem * itemPrototype () const;
   QList<VarItem *> findItems( const QString & text, bool case_sensitive=false ) const;
   QList<VarItem *> findItems( const VarData * item) const;
 

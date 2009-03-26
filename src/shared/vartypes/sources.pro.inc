@@ -44,6 +44,9 @@ HEADERS += $${PREFIX}/primitives/VarString.h
 SOURCES += $${PREFIX}/primitives/VarStringEnum.cpp
 HEADERS += $${PREFIX}/primitives/VarStringEnum.h
 
+SOURCES += $${PREFIX}/primitives/VarSelection.cpp
+HEADERS += $${PREFIX}/primitives/VarSelection.h
+
 SOURCES += $${PREFIX}/primitives/VarBlob.cpp
 HEADERS += $${PREFIX}/primitives/VarBlob.h
 

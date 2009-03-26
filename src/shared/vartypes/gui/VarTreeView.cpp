@@ -25,6 +25,9 @@ VarTreeView::VarTreeView(VarTreeModel * tmodel) {
   delegate = new VarItemDelegate();
   tw->setItemDelegate(delegate);
   tw->setAlternatingRowColors(true);
+  tw->setUniformRowHeights ( false );
+  tw->setAnimated(false);
+  tw->setWordWrap(true);
   tw->setEditTriggers(tw->editTriggers() | QAbstractItemView::CurrentChanged);
   if (tmodel!=0) setModel(tmodel);
   search_edit = new QLineEdit(this);
