@@ -368,14 +368,17 @@ ProcessResult PluginVisualize::process(FrameData * data, RenderOptions * options
     {
       // The edges:
       rgb edge_draw_color;
-      edge_draw_color.set(255,0,0);
       for(unsigned int ls=0; ls<camera_parameters.line_segment_data.size(); ++ls)
       {
         const CameraParameters::LSCalibrationData& segment =
             camera_parameters.line_segment_data[ls];
         for(unsigned int edge=0; edge<segment.pts_on_line.size(); ++edge)
         {
-          const GVector::vector2d<double>& pt = segment.pts_on_line[edge];
+          const GVector::vector2d<double>& pt = segment.pts_on_line[edge].first;
+          if(segment.pts_on_line[edge].second)
+            edge_draw_color.set(255,0,0);
+          else
+            edge_draw_color.set(255,0,255);
           vis_frame->data.drawBox(pt.x-5,pt.y-5,11,11,edge_draw_color);
           if(segment.horizontal)
             vis_frame->data.drawLine(pt.x,pt.y-2,pt.x,pt.y+2,edge_draw_color);

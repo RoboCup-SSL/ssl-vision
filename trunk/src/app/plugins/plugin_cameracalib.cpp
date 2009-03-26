@@ -204,7 +204,15 @@ void PluginCameraCalibration::detectEdgesOnSingleLine(
         }
         x = Sobel::maximumHorizontalEdge(*grey_image, y, imgStart.x, imgEnd.x,
                                           threshold, Sobel::horizontalBrighter);
-        lsCalData.pts_on_line.push_back(GVector::vector2d<double>(x,y));
+        if(x!=-1)
+        {
+          lsCalData.pts_on_line.push_back(std::make_pair(GVector::vector2d<double>(x,y),true));
+        }
+        else
+        {
+          x = (imgStart.x + imgEnd.x) / 2;
+          lsCalData.pts_on_line.push_back(std::make_pair(GVector::vector2d<double>(x,y),false));
+        }
         lsCalData.horizontal = true;
         break;
       case IMG_RIGHT:
@@ -221,7 +229,15 @@ void PluginCameraCalibration::detectEdgesOnSingleLine(
         }
         x = Sobel::maximumHorizontalEdge(*grey_image, y, imgStart.x, imgEnd.x,
                                           threshold, Sobel::horizontalDarker);
-        lsCalData.pts_on_line.push_back(GVector::vector2d<double>(x,y));
+        if(x!=-1)
+        {
+          lsCalData.pts_on_line.push_back(std::make_pair(GVector::vector2d<double>(x,y),true));
+        }
+        else
+        {
+          x = (imgStart.x + imgEnd.x) / 2;
+          lsCalData.pts_on_line.push_back(std::make_pair(GVector::vector2d<double>(x,y),false));
+        }
         lsCalData.horizontal = true;
         break;
       case IMG_TOP:
@@ -241,7 +257,15 @@ void PluginCameraCalibration::detectEdgesOnSingleLine(
         else
           y = Sobel::maximumVerticalEdge(*grey_image, x, imgStart.y, imgEnd.y,
                                           threshold, Sobel::verticalBrighter);
-        lsCalData.pts_on_line.push_back(GVector::vector2d<double>(x,y));
+        if(y > 0)
+        {
+          lsCalData.pts_on_line.push_back(std::make_pair(GVector::vector2d<double>(x,y),true));
+        }
+        else
+        {
+          y = (imgStart.y + imgEnd.y) / 2;
+          lsCalData.pts_on_line.push_back(std::make_pair(GVector::vector2d<double>(x,y),false));
+        }
         lsCalData.horizontal = false;
         break;
       case IMG_BOTTOM:
@@ -261,7 +285,15 @@ void PluginCameraCalibration::detectEdgesOnSingleLine(
         else
           y = Sobel::maximumVerticalEdge(*grey_image, x, imgStart.y, imgEnd.y,
                                           threshold, Sobel::verticalDarker);
-        lsCalData.pts_on_line.push_back(GVector::vector2d<double>(x,y));
+        if(y > 0)
+        {
+          lsCalData.pts_on_line.push_back(std::make_pair(GVector::vector2d<double>(x,y),true));
+        }
+        else
+        {
+          y = (imgStart.y + imgEnd.y) / 2;
+          lsCalData.pts_on_line.push_back(std::make_pair(GVector::vector2d<double>(x,y),false));
+        }
         lsCalData.horizontal = false;
         break;
     };
