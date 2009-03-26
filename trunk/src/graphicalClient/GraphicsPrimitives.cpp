@@ -108,6 +108,8 @@ void Robot::SetPose(double _x, double _y, double _orientation, double _conf)
 
 SoccerView::SoccerView()
 {
+    glWidget = new QGLWidget();
+    setViewport(glWidget);
     LoadFieldGeometry();
     scene = new QGraphicsScene(this);
     setScene(scene);
@@ -120,56 +122,57 @@ SoccerView::SoccerView()
     fieldLinePen->setColor(Qt::white);
     fieldLinePen->setWidth(10);
     fieldLinePen->setJoinStyle(Qt::MiterJoin);
-    fieldItem = scene->addPath(field,*fieldLinePen,*fieldBrush);
+    fieldItem = scene->addPath(*field,*fieldLinePen,*fieldBrush);
     this->scale(0.14,0.14);
     this->setRenderHint(QPainter::Antialiasing, true);
     this->setDragMode(QGraphicsView::ScrollHandDrag);
-    //QSizePolicy horPolicy(
-    //this->setSizePolicy(horPolicy,vertPolicy);
     this->setGeometry(100,100,1036,756);
 }
 
 void SoccerView::ConstructField()
 {
-    field.moveTo(0,-field_width/2);
-    field.lineTo(0,field_width/2);
+    //scene->removeItem(fieldItem);
+    field = new QPainterPath();
 
-    field.addEllipse(-center_circle_radius,-center_circle_radius,
+    field->moveTo(0,-field_width/2);
+    field->lineTo(0,field_width/2);
+
+    field->addEllipse(-center_circle_radius,-center_circle_radius,
                      2*center_circle_radius,2*center_circle_radius);
 
-    field.moveTo(field_length/2,-field_width/2);
-    field.lineTo(field_length/2,field_width/2);
+    field->moveTo(field_length/2,-field_width/2);
+    field->lineTo(field_length/2,field_width/2);
 
-    field.moveTo(-field_length/2,-field_width/2);
-    field.lineTo(-field_length/2,field_width/2);
+    field->moveTo(-field_length/2,-field_width/2);
+    field->lineTo(-field_length/2,field_width/2);
 
-    field.moveTo(-field_length/2,-field_width/2);
-    field.lineTo(field_length/2,-field_width/2);
+    field->moveTo(-field_length/2,-field_width/2);
+    field->lineTo(field_length/2,-field_width/2);
 
-    field.moveTo(-field_length/2,field_width/2);
-    field.lineTo(field_length/2,field_width/2);
+    field->moveTo(-field_length/2,field_width/2);
+    field->lineTo(field_length/2,field_width/2);
 
-    field.moveTo(field_length/2,goal_width/2);
-    field.lineTo((field_length/2+goal_depth),goal_width/2);
-    field.lineTo((field_length/2+goal_depth),-goal_width/2);
-    field.lineTo(field_length/2,-goal_width/2);
-    field.moveTo((field_length/2-defense_radius),defense_stretch/2);
-    field.lineTo((field_length/2-defense_radius),-defense_stretch/2);
-    field.moveTo((field_length/2-defense_radius),defense_stretch/2);
-    field.arcTo((field_length/2-defense_radius),-(defense_radius-defense_stretch/2),defense_radius*2,defense_radius*2,180,90);
-    field.moveTo((field_length/2-defense_radius),-defense_stretch/2);
-    field.arcTo((field_length/2-defense_radius),-(defense_radius+defense_stretch/2),defense_radius*2,defense_radius*2,180,-90);
+    field->moveTo(field_length/2,goal_width/2);
+    field->lineTo((field_length/2+goal_depth),goal_width/2);
+    field->lineTo((field_length/2+goal_depth),-goal_width/2);
+    field->lineTo(field_length/2,-goal_width/2);
+    field->moveTo((field_length/2-defense_radius),defense_stretch/2);
+    field->lineTo((field_length/2-defense_radius),-defense_stretch/2);
+    field->moveTo((field_length/2-defense_radius),defense_stretch/2);
+    field->arcTo((field_length/2-defense_radius),-(defense_radius-defense_stretch/2),defense_radius*2,defense_radius*2,180,90);
+    field->moveTo((field_length/2-defense_radius),-defense_stretch/2);
+    field->arcTo((field_length/2-defense_radius),-(defense_radius+defense_stretch/2),defense_radius*2,defense_radius*2,180,-90);
 
-    field.moveTo(-field_length/2,goal_width/2);
-    field.lineTo(-(field_length/2+goal_depth),goal_width/2);
-    field.lineTo(-(field_length/2+goal_depth),-goal_width/2);
-    field.lineTo(-field_length/2,-goal_width/2);
-    field.moveTo(-(field_length/2-defense_radius),defense_stretch/2);
-    field.lineTo(-(field_length/2-defense_radius),-defense_stretch/2);
-    field.moveTo(-(field_length/2-defense_radius),defense_stretch/2);
-    field.arcTo(-(field_length/2+defense_radius),-(defense_radius-defense_stretch/2),defense_radius*2,defense_radius*2,0,-90);
-    field.moveTo(-(field_length/2-defense_radius),-defense_stretch/2);
-    field.arcTo(-(field_length/2+defense_radius),-(defense_radius+defense_stretch/2),defense_radius*2,defense_radius*2,0,90);
+    field->moveTo(-field_length/2,goal_width/2);
+    field->lineTo(-(field_length/2+goal_depth),goal_width/2);
+    field->lineTo(-(field_length/2+goal_depth),-goal_width/2);
+    field->lineTo(-field_length/2,-goal_width/2);
+    field->moveTo(-(field_length/2-defense_radius),defense_stretch/2);
+    field->lineTo(-(field_length/2-defense_radius),-defense_stretch/2);
+    field->moveTo(-(field_length/2-defense_radius),defense_stretch/2);
+    field->arcTo(-(field_length/2+defense_radius),-(defense_radius-defense_stretch/2),defense_radius*2,defense_radius*2,0,-90);
+    field->moveTo(-(field_length/2-defense_radius),-defense_stretch/2);
+    field->arcTo(-(field_length/2+defense_radius),-(defense_radius+defense_stretch/2),defense_radius*2,defense_radius*2,0,90);
 }
 
 void SoccerView::scaleView(qreal scaleFactor)

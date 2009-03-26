@@ -8,6 +8,7 @@
 #include <QPainterPath>
 #include <QApplication>
 #include <QThread>
+#include <QGLWidget>
 #include "field_default_constants.h"
 #include "robocup_ssl_client.h"
 #include "timer.h"
@@ -73,12 +74,13 @@ private:
     //scene
     QGraphicsScene* scene;
     //field
-    QPainterPath field;
-    QGraphicsPathItem* fieldItem;
+    QPainterPath *field;
+    QGraphicsPathItem *fieldItem;
     void ConstructField();
     //brushes and pens
     QBrush *fieldBrush, *ballBrush;
     QPen *fieldPen, *fieldLinePen, *ballPen;
+    QGLWidget* glWidget;
 
     //Field dimensions and geometry
     double line_width;
