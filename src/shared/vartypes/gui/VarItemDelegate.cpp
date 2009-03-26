@@ -126,7 +126,7 @@ QWidget * VarItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
           return new QComboBox(parent);
         } else if (dt->getType()==DT_SELECTION) {
           QListWidget * w=new QListWidget(parent);
-          w->setSelectionMode(QAbstractItemView::MultiSelection);
+          w->setSelectionMode(QAbstractItemView::SingleSelection);
           return w;
         } else if (dt->getType()==DT_LIST ||
                    dt->getType()==DT_BLOB ||
@@ -192,6 +192,8 @@ void VarItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) c
           for (int i=0;i<n;i++) {
             tmp=QString::fromStdString(((VarSelection *)dt)->getLabel(i));
             QListWidgetItem * item = new QListWidgetItem(tmp);
+            item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsUserCheckable);
+            item->setCheckState(Qt::Unchecked);
             item->setSelected(((VarSelection *)dt)->isSelected(i));
             list->addItem(item);
           }
