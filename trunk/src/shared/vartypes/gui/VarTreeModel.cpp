@@ -39,6 +39,10 @@ const VarTreeViewOptions * VarTreeModel::getViewOptions() const {
   return &opts;
 }
 
+const QStandardItem * VarTreeModel::itemPrototype () const {
+  return 0;
+}
+
 void VarTreeModel::updateHeader() {
   vector<VarColumnFlag> v=opts.getColumns();
   for (unsigned int i = 0;i<v.size();i++) {

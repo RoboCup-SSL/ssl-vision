@@ -30,6 +30,7 @@
 #include "VarTreeModel.h"
 #include <QSpinBox>
 #include <QLineEdit>
+#include <QListWidget>
 #include <QDoubleSpinBox>
 
 /*!
@@ -54,6 +55,8 @@ protected:
   virtual void drawBar ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
   QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                          const QModelIndex &index) const;
+
+  virtual QSize sizeHint ( const QStyleOptionViewItem & option, const QModelIndex & index ) const;
 
   void setEditorData(QWidget *editor, const QModelIndex &index) const;
 

@@ -41,6 +41,8 @@
 class VarItem : public QObject, public QStandardItem
 {
  Q_OBJECT
+public:
+  static int const VarItemTypeNumber = (QStandardItem::UserType + 1);
 protected:
   static bool areColFlagsSet(VarColumnFlag _flags, VarColumnFlag f) {
     return ((_flags & f) == f);
@@ -58,12 +60,13 @@ public:
   VarItem(VarData * _dt, const VarTreeViewOptions * _opts, VarColumnFlag myflags);
   virtual ~VarItem();
   void update(VarData * _dt, const VarTreeViewOptions * _opts, VarColumnFlag myflags);
-
+  virtual int type() const;
 friend class VarTreeModel;
 
 public slots:
   void changeUpdate();
 };
 
+Q_DECLARE_METATYPE(VarItem *);
 
 #endif /*VDATATYPETREEWIDGETITEM_H_*/

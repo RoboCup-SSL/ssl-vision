@@ -47,6 +47,8 @@ VarData * VarData::newVarType(vDataTypeEnum t)
     return new VarList();
   } else if (t==DT_STRINGENUM) {
     return new VarStringEnum();
+  } else if (t==DT_SELECTION) {
+    return new VarSelection();
   #ifndef VDATA_NO_QT
   } else if (t==DT_QWIDGET) {
     return new VarQWidget();

@@ -46,6 +46,9 @@ void VarItem::changeUpdate() {
   }
 }
 
+int VarItem::type() const {
+  return QStandardItem::UserType + 1;
+}
 void VarItem::update(VarData * _dt, const VarTreeViewOptions * _opts, VarColumnFlag myflags) {
   opts=_opts;
   colflags=myflags;

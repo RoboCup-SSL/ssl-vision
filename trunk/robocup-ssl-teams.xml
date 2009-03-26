@@ -137,6 +137,44 @@
 		<Var name="Marker Image Cols" type="int" minval="" maxval="">
 			4
 		</Var>
+		<Var name="Valid Patterns" type="selection">
+			<Var name="0" type="bool">
+				true
+			</Var>
+			<Var name="1" type="bool">
+				true
+			</Var>
+			<Var name="2" type="bool">
+				true
+			</Var>
+			<Var name="3" type="bool">
+				true
+			</Var>
+			<Var name="4" type="bool">
+				true
+			</Var>
+			<Var name="5" type="bool">
+				true
+			</Var>
+			<Var name="6" type="bool">
+				true
+			</Var>
+			<Var name="7" type="bool">
+				true
+			</Var>
+			<Var name="8" type="bool">
+				true
+			</Var>
+			<Var name="9" type="bool">
+				true
+			</Var>
+			<Var name="10" type="bool">
+				true
+			</Var>
+			<Var name="11" type="bool">
+				true
+			</Var>
+		</Var>
 	</Var>
 	<Var name="CMDragons" type="list">
 		<Var name="Team Name" type="string">
@@ -267,6 +305,44 @@
 				0.020000
 			</Var>
 		</Var>
+		<Var name="Valid Patterns" type="selection">
+			<Var name="0" type="bool">
+				false
+			</Var>
+			<Var name="1" type="bool">
+				false
+			</Var>
+			<Var name="2" type="bool">
+				false
+			</Var>
+			<Var name="3" type="bool">
+				false
+			</Var>
+			<Var name="4" type="bool">
+				false
+			</Var>
+			<Var name="5" type="bool">
+				false
+			</Var>
+			<Var name="6" type="bool">
+				false
+			</Var>
+			<Var name="7" type="bool">
+				false
+			</Var>
+			<Var name="8" type="bool">
+				false
+			</Var>
+			<Var name="9" type="bool">
+				false
+			</Var>
+			<Var name="10" type="bool">
+				false
+			</Var>
+			<Var name="11" type="bool">
+				false
+			</Var>
+		</Var>
 	</Var>
 	<Var name="new team" type="list">
 		<Var name="Team Name" type="string">
@@ -394,6 +470,44 @@
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
 				0.020000
+			</Var>
+		</Var>
+		<Var name="Valid Patterns" type="selection">
+			<Var name="0" type="bool">
+				true
+			</Var>
+			<Var name="1" type="bool">
+				true
+			</Var>
+			<Var name="2" type="bool">
+				true
+			</Var>
+			<Var name="3" type="bool">
+				true
+			</Var>
+			<Var name="4" type="bool">
+				true
+			</Var>
+			<Var name="5" type="bool">
+				true
+			</Var>
+			<Var name="6" type="bool">
+				true
+			</Var>
+			<Var name="7" type="bool">
+				true
+			</Var>
+			<Var name="8" type="bool">
+				true
+			</Var>
+			<Var name="9" type="bool">
+				true
+			</Var>
+			<Var name="10" type="bool">
+				true
+			</Var>
+			<Var name="11" type="bool">
+				true
 			</Var>
 		</Var>
 	</Var>

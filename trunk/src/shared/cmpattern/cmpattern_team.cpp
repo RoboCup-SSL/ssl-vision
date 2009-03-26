@@ -45,7 +45,9 @@ Team::Team(VarList * team_root)
     _marker_image_file = _settings->findChildOrReplace(new VarString("Marker Image File"));
     _marker_image_rows = _settings->findChildOrReplace(new VarInt("Marker Image Rows",3));
     _marker_image_cols = _settings->findChildOrReplace(new VarInt("Marker Image Cols",4));
+    _valid_patterns = _settings->findChildOrReplace(new VarSelection("Valid Patterns",12,true));
     _robot_height = _settings->findChildOrReplace(new VarDouble("Robot Height (mm)", 140.0));
+    
 
     _center_marker_filter = _settings->findChildOrReplace(new VarList("Center Marker Settings"));
       _center_marker_area_mean = _center_marker_filter->findChildOrReplace(new VarDouble("Expected Area Mean (sq-mm)",sq(50.0)));

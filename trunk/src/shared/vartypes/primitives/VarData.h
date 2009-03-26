@@ -86,6 +86,7 @@ enum vDataTypeEnum {
   DT_TIMELINE,
   DT_LIST,
   DT_STRINGENUM,
+  DT_SELECTION,
   DT_TRIGGER,
   DT_QWIDGET,
   //---IMPORTANT-----------
