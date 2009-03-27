@@ -28,48 +28,27 @@
 #include <QPushButton>
 
 /*!
-  \class  VarAbstractQWidget
-  \brief  An abstract Vartype for embedding QWidgets into the Var-tree
+  \class  VarQWidget
+  \brief  An Vartype for embedding QWidgets into the Var-tree
   \author Stefan Zickler, (C) 2008
   \see    VarQWidget
   \see    VarTypes.h
 
-  Note, that in order to obtain a persistent editable item,
-  you should rather use \c VarQWidget which extends this class.
+  Note, that this class breaks the model/view paradigm as it
+  will construct a single qwidget which will be shared between viewers
+  and not separate instances for each viewer. This is fine if you
+  only have a single viewer, but will likely create problems if you have
+  multiple ones.
 
-  This VarAbstractQWidget is really only useful if you need
-  to develop your own special non-persistent VarType.
+  To avoid these issues, it is better to simply inherit VarData and
+  create a qwidget factory by reimplementing VarData's
+  createEditor(...);
 
   If you don't know what VarTypes are, please see \c VarTypes.h 
 */
 
-class VarAbstractQWidget : public VarData
-{
-#ifndef VDATA_NO_QT
-  Q_OBJECT
-#endif
-public:
-  VarAbstractQWidget(string _name="") : VarData(_name)
-  {
 
-  };
-
-  virtual void getEditorData(QWidget * editor, const QModelIndex &index) {
-    (void)editor;
-    (void)index;
-  }
-
-  virtual void setEditorData(QWidget * editor, const QModelIndex &index) {
-    (void)editor;
-    (void)index;
-  }
-
-  virtual QWidget * createQWidget() const  {
-    return 0;
-  }
-};
-
-class VarQWidget : public VarAbstractQWidget
+class VarQWidget : public VarData
 {
 #ifndef VDATA_NO_QT
   Q_OBJECT
@@ -79,7 +58,7 @@ protected:
   QWidget * _val;
 public:
 
-  VarQWidget(string _name="", QWidget * default_val=0) : VarAbstractQWidget (_name)
+  VarQWidget(string _name="", QWidget * default_val=0) : VarData (_name)
   {
     _val=default_val;
     addRenderFlags(DT_FLAG_PERSISTENT);
@@ -99,24 +78,6 @@ public:
     printf("QWidget pointer: %p\n",_val);
   }
 
-  virtual void getEditorData(QWidget * editor, const QModelIndex &index) {
-    (void)editor;
-    (void)index;
-
-  }
-
-  virtual void setEditorData(QWidget * editor, const QModelIndex &index) {
-    (void)editor;
-    (void)index;
-    //nothing...
-    /*QVBoxLayout *layout = new QVBoxLayout();
-    layout->setMargin(0);
-    layout->setSpacing(0);
-    layout->addWidget(_val);
-    editor->setLayout(layout);*/
-
-  }
-
   virtual vDataTypeEnum getType() const { return DT_QWIDGET; };
 
   virtual QWidget * getQWidget() const  { 
@@ -124,6 +85,26 @@ public:
   };
 
   virtual bool setQWidget(QWidget * val)     { if (val!=_val) { _val=val; CHANGE_MACRO; return true;} else { return false; }; };
+
+
+//Qt model/view gui stuff:
+public:
+  virtual QWidget * createEditor(const VarItemDelegate * delegate, QWidget *parent, const QStyleOptionViewItem &option) {
+    (void)delegate;
+    (void)parent;
+    (void)option;
+    QWidget * w=getQWidget();
+    if (w!=0) w->setParent(parent);
+    return w;
+  };
+  virtual void setEditorData(const VarItemDelegate * delegate, QWidget *editor) const {
+    (void)delegate;
+    (void)editor;
+  };
+  virtual void setModelData(const VarItemDelegate * delegate, QWidget *editor) {
+    (void)delegate;
+    (void)editor;
+  }
 
 };
 #endif /*VBOOL_H_*/

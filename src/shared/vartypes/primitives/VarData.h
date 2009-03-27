@@ -25,6 +25,13 @@
 #include <float.h>
 #include <set>
 #include <queue>
+#include <QPainter>
+#include <QStyleOptionViewItem>
+#include <QModelIndex>
+#include <QLineEdit>
+
+
+class VarItemDelegate;
 
 /*!
   \class  VarData
@@ -307,6 +314,19 @@ public:
   /// Let this VarData node load the contents of an XMLNode.
   void readXML(XMLNode & us);
 #endif
+
+//-------------MODEL VIEW STUFF BELOW-------------------
+
+
+virtual QWidget * createEditor(const VarItemDelegate * delegate, QWidget *parent, const QStyleOptionViewItem &option);
+virtual void setEditorData(const VarItemDelegate * delegate, QWidget *editor) const;
+virtual void setModelData(const VarItemDelegate * delegate, QWidget *editor);
+virtual QSize sizeHint(const VarItemDelegate * delegate, const QStyleOptionViewItem & option, const QModelIndex & index) const;
+virtual void paint (const VarItemDelegate * delegate, QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
+
+
+
+
 };
 
 

@@ -21,7 +21,7 @@
 #ifndef VDOUBLE_H_
 #define VDOUBLE_H_
 #include "primitives/VarData.h"
-
+#include <QDoubleSpinBox>
 /*!
   \class  VarDouble
   \brief  A Vartype for storing double precision floating points
@@ -219,6 +219,28 @@ protected:
 
 #endif
 
+
+//Qt model/view gui stuff:
+public:
+virtual QWidget * createEditor(const VarItemDelegate * delegate, QWidget *parent, const QStyleOptionViewItem &option) {
+  //TODO: hookup editor changes on press-enter and on spin:
+  (void)delegate;
+  (void)parent;
+  (void)option;
+  return new QDoubleSpinBox(parent);
+}
+virtual void setEditorData(const VarItemDelegate * delegate, QWidget *editor) const {
+  (void)delegate;
+  QDoubleSpinBox * spin=(QDoubleSpinBox *) editor;
+  spin->setDecimals(10);
+  spin->setRange(getMin(),getMax() );
+  spin->setValue(getDouble());
+}
+virtual void setModelData(const VarItemDelegate * delegate, QWidget *editor) {
+  (void)delegate;
+  QDoubleSpinBox * spin=(QDoubleSpinBox *) editor;
+  if (setDouble(spin->value())) mvcEditCompleted();
+}
 
 };
 

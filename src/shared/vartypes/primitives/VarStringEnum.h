@@ -23,6 +23,7 @@
 #include "primitives/VarData.h"
 #include "primitives/VarString.h"
 #include <vector>
+#include <QComboBox>
 using namespace std;
 
 /*!
@@ -193,6 +194,38 @@ protected:
     CHANGE_MACRO;
   }
 #endif
+
+//Qt model/view gui stuff:
+public:
+  virtual QWidget * createEditor(const VarItemDelegate * delegate, QWidget *parent, const QStyleOptionViewItem &option) {
+    //TODO add connect...
+    (void)delegate;
+    (void)parent;
+    (void)option;
+    return new QComboBox(parent);
+  }
+  
+  virtual void setEditorData(const VarItemDelegate * delegate, QWidget *editor) const {
+    (void)delegate;
+    QComboBox * combo =(QComboBox *)editor;
+    int n = getCount();
+    QString tmp;
+    combo->clear();
+    for (int i=0;i<n;i++) {
+      tmp=QString::fromStdString(getLabel(i));
+      combo->insertItem(combo->count(), tmp);
+      if (tmp==QString::fromStdString(getString())) {
+        combo->setCurrentIndex(i);
+      }
+    }
+  }
+
+  virtual void setModelData(const VarItemDelegate * delegate, QWidget *editor) {
+    (void)delegate;
+    QComboBox * combo=(QComboBox *) editor;
+    if (select(combo->currentText().toStdString())) mvcEditCompleted();
+  };
+
 };
 
 #endif /*DATAGROUP_H_*/

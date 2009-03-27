@@ -78,6 +78,7 @@ public:
   virtual bool   hasValue()  const { return false; };
   virtual bool setString(const string & val) { DT_LOCK; if (_val!=val) {_val=val; DT_UNLOCK; CHANGE_MACRO; return true;} else { DT_UNLOCK; return false;} };
 
+
 };
 
 #endif /*VSTRING_H_*/

@@ -32,7 +32,6 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QDoubleSpinBox>
-
 /*!
   \class  VarItemDelegate
   \brief  The 'item-delegate' inheriting QItemDelegate for displaying VarTypes in the QT4 Item-Model
@@ -47,12 +46,15 @@
 */
 class VarItemDelegate : public QItemDelegate
 {
+Q_OBJECT
 public:
   VarItemDelegate(QObject *parent = 0);
   virtual ~VarItemDelegate();
+public slots:
+  void editorChangeEvent();
 protected:
   virtual void paint ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
-  virtual void drawBar ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
+  virtual void drawBar ( VarData * dt, QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
   QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                          const QModelIndex &index) const;
 
@@ -66,8 +68,7 @@ protected:
   void updateEditorGeometry(QWidget *editor,
        const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
-  //	virtual void paint( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const; 
-	
+
 };
 
 #endif /*GRAPHITEMDELEGATE_H_*/
