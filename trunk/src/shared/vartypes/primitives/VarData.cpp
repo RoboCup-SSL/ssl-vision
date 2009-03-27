@@ -19,6 +19,7 @@
 */
 
 #include "VarData.h"
+#include "VarItemDelegate.h"
 
 vDataTypeEnum VarData::stringToType(string stype)
 {
@@ -453,7 +454,7 @@ vector<VarData *> VarData::readChildrenHelper(XMLNode & parent , vector<VarData 
     _queue.pop();
     d->loadExternal();
     vector<VarData *> children = d->getChildren();
-    int s=children.size();    
+    int s=children.size();
     for (int i=0;i<s;i++) {
       if (children[i]!=0) _queue.push(children[i]);
     }
@@ -474,5 +475,32 @@ VarData * VarData::findChild(string label) const {
 }
 
 
+//------------MODEL VIEW GUI STUFF:
+void VarData::paint (const VarItemDelegate * delegate, QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const {
+  //let the QT default delegate do the painting:
+  delegate->QItemDelegate::paint(painter,option,index);
+}
+
+QWidget * VarData::createEditor(const VarItemDelegate * delegate, QWidget *parent, const QStyleOptionViewItem &option) {
+  (void)delegate;
+  (void)option;
+  return new QLineEdit(parent);
+}
+
+void VarData::setEditorData(const VarItemDelegate * delegate, QWidget *editor) const {
+  (void)delegate;
+  QLineEdit * ledit=(QLineEdit *) editor;
+  ledit->setText(QString::fromStdString(getString()));
+}
+
+void VarData::setModelData(const VarItemDelegate * delegate, QWidget *editor) {
+  (void)delegate;
+  QLineEdit * ledit=(QLineEdit *) editor;
+  if (setString(ledit->text().toStdString())) mvcEditCompleted();
+}
+
+QSize VarData::sizeHint(const VarItemDelegate * delegate, const QStyleOptionViewItem & option, const QModelIndex & index) const {
+  return (delegate->QItemDelegate::sizeHint(option, index));
+}
 
 #endif

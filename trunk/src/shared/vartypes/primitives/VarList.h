@@ -151,6 +151,18 @@ protected:
     CHANGE_MACRO;
   }
 #endif
+
+//Qt model/view gui stuff:
+public:
+virtual QWidget * createEditor(const VarItemDelegate * delegate, QWidget *parent, const QStyleOptionViewItem &option) {
+  (void)delegate;
+  (void)option;
+  (void)parent;
+  return 0;
+}
+
+
 };
+
 
 #endif /*DATAGROUP_H_*/

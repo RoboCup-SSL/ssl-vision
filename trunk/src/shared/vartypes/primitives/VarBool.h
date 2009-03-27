@@ -21,7 +21,7 @@
 #ifndef VARBOOL_H_
 #define VARBOOL_H_
 #include "primitives/VarData.h"
-
+#include <QComboBox>
 /*!
   \class  VarBool
   \brief  A Vartype for storing booleans
@@ -46,6 +46,7 @@ public:
   {
     DT_LOCK;
     _val=_def=default_val;
+    _flags |= DT_FLAG_PERSISTENT;
     DT_UNLOCK;
     CHANGE_MACRO;
   }
@@ -103,6 +104,30 @@ public:
   virtual double getMaxValue() const  { return 1.0; }
   virtual double getValue() const { return getDouble(); }
 
+  //Qt model/view gui stuff:
+  virtual QWidget * createEditor(const VarItemDelegate * delegate, QWidget *parent, const QStyleOptionViewItem &option) {
+    (void)option;
+    QComboBox * combo=new QComboBox(parent);
+    connect((const QObject *)combo,SIGNAL(currentIndexChanged(int)),(const QObject *)delegate,SLOT(editorChangeEvent()));
+    combo->addItem("true");
+    combo->addItem("false");
+    return combo;
+  }
+  virtual void setEditorData(const VarItemDelegate * delegate, QWidget *editor) const {
+    (void)delegate;
+    QComboBox * combo=(QComboBox *) editor;
+    if (getBool()==true) {
+      combo->setCurrentIndex(0);
+    } else {
+      combo->setCurrentIndex(1);
+    }
+    return;
+  }
+  virtual void setModelData(const VarItemDelegate * delegate, QWidget *editor) {
+    (void)delegate;
+    QComboBox * combo=(QComboBox *) editor;
+    if (setBool(combo->currentIndex()==0)) mvcEditCompleted();
+  }
 
 };
 #endif /*VBOOL_H_*/

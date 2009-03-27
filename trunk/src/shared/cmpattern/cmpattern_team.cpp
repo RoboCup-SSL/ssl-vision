@@ -42,6 +42,7 @@ Team::Team(VarList * team_root)
     _unique_patterns = _settings->findChildOrReplace(new VarBool("Unique Patterns"));
     _have_angle = _settings->findChildOrReplace(new VarBool("Have Angles"));
     _load_markers_from_image_file = _settings->findChildOrReplace(new VarBool("Load Image File",true));
+    _load_markers_from_image_file ->addRenderFlags(DT_FLAG_PERSISTENT);
     _marker_image_file = _settings->findChildOrReplace(new VarString("Marker Image File"));
     _marker_image_rows = _settings->findChildOrReplace(new VarInt("Marker Image Rows",3));
     _marker_image_cols = _settings->findChildOrReplace(new VarInt("Marker Image Cols",4));

@@ -142,7 +142,7 @@
 				false
 			</Var>
 			<Var name="1" type="bool">
-				false
+				true
 			</Var>
 			<Var name="2" type="bool">
 				false
@@ -313,10 +313,10 @@
 				false
 			</Var>
 			<Var name="2" type="bool">
-				false
+				true
 			</Var>
 			<Var name="3" type="bool">
-				true
+				false
 			</Var>
 			<Var name="4" type="bool">
 				false

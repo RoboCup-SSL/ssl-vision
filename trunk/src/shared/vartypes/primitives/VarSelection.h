@@ -23,6 +23,7 @@
 #include "primitives/VarData.h"
 #include "primitives/VarBool.h"
 #include <vector>
+#include <QListWidget>
 using namespace std;
 
 /*!
@@ -181,6 +182,53 @@ protected:
     CHANGE_MACRO;
   }
 #endif
+
+//Qt model/view gui stuff:
+public:
+  virtual QWidget * createEditor(const VarItemDelegate * delegate, QWidget *parent, const QStyleOptionViewItem &option) {
+    (void)option;
+    QListWidget * w=new QListWidget(parent);
+    connect((const QObject *)w,SIGNAL(itemChanged( QListWidgetItem * )),(const QObject *)delegate,SLOT(editorChangeEvent()));
+    w->setSelectionMode(QAbstractItemView::SingleSelection);
+    return w;
+  }
+  virtual void setEditorData(const VarItemDelegate * delegate, QWidget *editor) const {
+    (void)delegate;
+    QListWidget * list=(QListWidget*)editor;
+    int n = getCount();
+    QString tmp;
+    list->clear();
+    for (int i=0;i<n;i++) {
+      tmp=QString::fromStdString(getLabel(i));
+      QListWidgetItem * item = new QListWidgetItem(tmp);
+      item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsUserCheckable);
+      item->setCheckState(Qt::Unchecked);
+      item->setSelected(isSelected(i));
+      list->addItem(item);
+    }
+
+  }
+  virtual void setModelData(const VarItemDelegate * delegate, QWidget *editor) {
+    (void)delegate;
+    QListWidget * list=(QListWidget *)editor;
+    bool changed=false;
+    for (int i=0;i<list->count();i++) {
+      QListWidgetItem * item = list->item(i);
+      if (item!=0) {
+        changed = changed | (setSelected(i,item->isSelected()));
+      }
+    }
+    if (changed) mvcEditCompleted();
+  }
+
+  virtual QSize sizeHint(const VarItemDelegate * delegate, const QStyleOptionViewItem & option, const QModelIndex & index) const {
+    (void)delegate;
+    (void)option;
+    (void)index;
+    QSize s(20,100);
+    return s;
+  }
+
 };
 
 #endif
