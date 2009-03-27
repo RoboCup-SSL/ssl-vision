@@ -76,7 +76,11 @@ void VarItem::update(VarData * _dt, const VarTreeViewOptions * _opts, VarColumnF
         setIcon(QIcon(":/icons/vartypes/node.png"));
       }
     } else if (areColFlagsSet(colflags,DT_COL_TEXT_VALUE)) {
-      setText(QString::fromStdString(dt->getString()));
+      if ((dt->getRenderFlags() & DT_FLAG_PERSISTENT) != 0x00) {
+        setText("");
+      } else {
+        setText(QString::fromStdString(dt->getString()));
+      }
     }
   }
 }

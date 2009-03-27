@@ -202,7 +202,9 @@ public:
     (void)delegate;
     (void)parent;
     (void)option;
-    return new QComboBox(parent);
+    QComboBox * w = new QComboBox(parent);
+    connect((const QObject *)w,SIGNAL(currentIndexChanged( int )),(const QObject *)delegate,SLOT(editorChangeEvent()));
+    return w;
   }
   
   virtual void setEditorData(const VarItemDelegate * delegate, QWidget *editor) const {

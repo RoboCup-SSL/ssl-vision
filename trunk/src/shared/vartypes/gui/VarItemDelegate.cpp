@@ -40,6 +40,11 @@ void VarItemDelegate::paint ( QPainter * painter, const QStyleOptionViewItem & o
     if (item!=0) {
       VarData * dt=item->getVarData();
       if (dt!=0) {
+        /*if ((dt->getRenderFlags() & DT_FLAG_PERSISTENT) != 0x00) {
+          //there's a persistent editor on top!
+          //don't draw anything!
+          return;
+        }*/
         dt->paint(this,painter,option,index);
         if ((item->getColFlags() & (DT_COL_RANGEBARS)) != 0) {
           drawBar(dt,painter,option,index);
@@ -138,8 +143,7 @@ void VarItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) c
           editor->setEnabled(true);
         }
         dt->setEditorData(this,editor);
-
-        //FIXME:
+        //added on 3/27/09....return if we are done.
         return;
       }
     } 

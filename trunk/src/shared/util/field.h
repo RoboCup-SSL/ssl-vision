@@ -212,7 +212,7 @@ public:
       settings->addChild(field_params[i]);
     }
     for (unsigned int i=0;i<derived_params.size();i++) {
-      derived_params[i]->setRenderFlags( DT_FLAG_READONLY );
+      derived_params[i]->addRenderFlags( DT_FLAG_READONLY );
       settings->addChild(derived_params[i]);
     }
     
@@ -315,7 +315,7 @@ protected slots:
     if (auto_update->getBool()==true) {
       //disable all items
       for (unsigned int i = 0; i < params.size(); i++) {
-        params[i]->setRenderFlags(DT_FLAG_READONLY|DT_FLAG_NOLOAD);
+        params[i]->addRenderFlags(DT_FLAG_READONLY|DT_FLAG_NOLOAD);
       }
       camera_pos->removeRenderFlags(DT_FLAG_READONLY);
       update();
