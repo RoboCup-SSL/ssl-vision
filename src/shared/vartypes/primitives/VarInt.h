@@ -221,7 +221,9 @@ virtual QWidget * createEditor(const VarItemDelegate * delegate, QWidget *parent
   (void)delegate;
   (void)parent;
   (void)option;
-  return new QSpinBox(parent);
+  QSpinBox * w = new QSpinBox(parent);
+  connect((const QObject *)w,SIGNAL(valueChanged ( int )),(const QObject *)delegate,SLOT(editorChangeEvent()));
+  return w;
 }
 
 virtual void setEditorData(const VarItemDelegate * delegate, QWidget *editor) const {

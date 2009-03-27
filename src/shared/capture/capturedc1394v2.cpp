@@ -683,10 +683,10 @@ void CaptureDC1394v2::readParameterProperty(VarList * item) {
           if (vint3!=0) vint3->removeRenderFlags( DT_FLAG_READONLY );
           vauto->removeRenderFlags( DT_FLAG_HIDDEN );
         } else {
-          vint->setRenderFlags( DT_FLAG_READONLY );
-          if (vint2!=0) vint2->setRenderFlags( DT_FLAG_READONLY );
-          if (vint3!=0) vint3->setRenderFlags( DT_FLAG_READONLY );
-          vauto->setRenderFlags( DT_FLAG_HIDDEN );
+          vint->addRenderFlags( DT_FLAG_READONLY );
+          if (vint2!=0) vint2->addRenderFlags( DT_FLAG_READONLY );
+          if (vint3!=0) vint3->addRenderFlags( DT_FLAG_READONLY );
+          vauto->addRenderFlags( DT_FLAG_HIDDEN );
         }
 
         //------------ABSOLUTE CONTROL READOUT:
@@ -699,8 +699,8 @@ void CaptureDC1394v2::readParameterProperty(VarList * item) {
             vabs->setMax((double)maxv);
           }
         } else {
-          vabs->setRenderFlags( DT_FLAG_HIDDEN );
-          vuseabs->setRenderFlags( DT_FLAG_HIDDEN );
+          vabs->addRenderFlags( DT_FLAG_HIDDEN );
+          vuseabs->addRenderFlags( DT_FLAG_HIDDEN );
         }
 
 

@@ -21,7 +21,7 @@
 #ifndef VARBOOL_H_
 #define VARBOOL_H_
 #include "primitives/VarData.h"
-#include <QComboBox>
+#include <QCheckBox>
 /*!
   \class  VarBool
   \brief  A Vartype for storing booleans
@@ -107,26 +107,32 @@ public:
   //Qt model/view gui stuff:
   virtual QWidget * createEditor(const VarItemDelegate * delegate, QWidget *parent, const QStyleOptionViewItem &option) {
     (void)option;
-    QComboBox * combo=new QComboBox(parent);
-    connect((const QObject *)combo,SIGNAL(currentIndexChanged(int)),(const QObject *)delegate,SLOT(editorChangeEvent()));
-    combo->addItem("true");
-    combo->addItem("false");
-    return combo;
+    QCheckBox * checker=new QCheckBox(parent);
+    connect((const QObject *)checker,SIGNAL(stateChanged(int)),(const QObject *)delegate,SLOT(editorChangeEvent()));
+    if (getBool()) {
+      checker->setText("True"); 
+    } else {
+      checker->setText("False");
+    }
+    return checker;
+
   }
   virtual void setEditorData(const VarItemDelegate * delegate, QWidget *editor) const {
     (void)delegate;
-    QComboBox * combo=(QComboBox *) editor;
-    if (getBool()==true) {
-      combo->setCurrentIndex(0);
-    } else {
-      combo->setCurrentIndex(1);
-    }
-    return;
+    QCheckBox * checker=(QCheckBox *) editor;
+    checker->setChecked(getBool());
+
   }
   virtual void setModelData(const VarItemDelegate * delegate, QWidget *editor) {
     (void)delegate;
-    QComboBox * combo=(QComboBox *) editor;
-    if (setBool(combo->currentIndex()==0)) mvcEditCompleted();
+    QCheckBox * checker=(QCheckBox *) editor;
+    if (checker->isChecked()) {
+      checker->setText("True"); 
+    } else {
+      checker->setText("False");
+    }
+    if (setBool(checker->isChecked())) mvcEditCompleted();
+
   }
 
 };

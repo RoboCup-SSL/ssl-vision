@@ -61,7 +61,7 @@ public:
   VarQWidget(string _name="", QWidget * default_val=0) : VarData (_name)
   {
     _val=default_val;
-    addRenderFlags(DT_FLAG_PERSISTENT);
+    _flags |= DT_FLAG_PERSISTENT;
     CHANGE_MACRO;
   }
 

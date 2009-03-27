@@ -63,7 +63,7 @@ public:
   {
     label=_label;
     _counter=0;
-    addRenderFlags( DT_FLAG_PERSISTENT );
+    _flags |= DT_FLAG_PERSISTENT;
     CHANGE_MACRO;
   }
 
