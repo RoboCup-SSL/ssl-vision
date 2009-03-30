@@ -253,7 +253,7 @@ public slots:
   void callZoomFit();
   void callHelp();
   void switchMode();
-  void saveImage();
+  //void saveImage();
   void rebuildAndRedraw() {
     for (unsigned int i=0;i<slices.size();i++) {
       drawSlice(slices[i],_lut,i,false,true,false);

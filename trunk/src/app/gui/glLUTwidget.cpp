@@ -1069,7 +1069,7 @@ void GLLUTWidget::paintEvent(QPaintEvent * e)
   redraw();
 }
 
-void GLLUTWidget::saveImage()
+/*void GLLUTWidget::saveImage()
 {
   rgbImage temp;
   if (rb!=0) {
@@ -1096,7 +1096,7 @@ void GLLUTWidget::saveImage()
       }
     }
   }
-}
+}*/
 
 void GLLUTWidget::clearSampler() {
   for (int i=0;i<(int)slices.size();i++) {
