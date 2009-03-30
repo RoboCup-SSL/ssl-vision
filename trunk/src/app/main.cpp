@@ -22,20 +22,30 @@
 #include <QApplication>
 #include <QCleanlooksStyle>
 #include <QPlastiqueStyle>
+#include <QString>
 #include "mainwindow.h"
 #include <stdio.h>
+#include "qgetopt.h"
 
 int main(int argc, char *argv[])
 {
   QApplication app(argc, argv);
 
-  MainWindow mainWin;
+  GetOpt opts(argc, argv);
+  bool start=false;
+  opts.addShortOptSwitch( 's',QString("Start Capturing Immediately"),&start, false);
+  if (!opts.parse()) {
+    fprintf(stderr,"Invalid command line parameters!\n");
+    exit(1);
+  } 
 
+  MainWindow mainWin(start);
   //if desired, launch a particular style:
   // app.setStyle(new QPlastiqueStyle());
   // app.setStyle(new QCleanlooksStyle());
   mainWin.show();
   mainWin.init();
+
   int retval = app.exec();
 
   return retval;

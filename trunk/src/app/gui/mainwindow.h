@@ -49,7 +49,7 @@ class MainWindow : public QMainWindow, public Ui_MainWindow
     Q_OBJECT
 
 public:
-  GetOpt * opt;
+  //GetOpt * opt;
   VarList * root;
   VarTreeView * tree_view;
   QTabWidget * left_tab;
@@ -65,7 +65,7 @@ public:
 
   MultiVisionStack * multi_stack;
 
-  MainWindow();
+  MainWindow(bool start_capture);
   virtual ~MainWindow();
   void init();
 
