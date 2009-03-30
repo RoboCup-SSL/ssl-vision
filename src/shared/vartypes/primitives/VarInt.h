@@ -222,7 +222,9 @@ virtual QWidget * createEditor(const VarItemDelegate * delegate, QWidget *parent
   (void)parent;
   (void)option;
   QSpinBox * w = new QSpinBox(parent);
-  connect((const QObject *)w,SIGNAL(valueChanged ( int )),(const QObject *)delegate,SLOT(editorChangeEvent()));
+  //connect((const QObject *)w,SIGNAL(editingFinished ( int )),(const QObject *)delegate,SLOT(editorChangeEvent()));
+  //uncomment the following line for instantaneous updates:
+  //connect((const QObject *)w,SIGNAL(valueChanged ( int )),(const QObject *)delegate,SLOT(editorChangeEvent()));
   return w;
 }
 
@@ -238,6 +240,8 @@ virtual void setModelData(const VarItemDelegate * delegate, QWidget *editor) {
   QSpinBox * spin=(QSpinBox *) editor;
   if (setInt(spin->value()) ) mvcEditCompleted();
 }
+
+
 
 
 };

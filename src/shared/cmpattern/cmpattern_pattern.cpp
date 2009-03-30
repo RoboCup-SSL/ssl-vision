@@ -131,6 +131,10 @@ void MultiPatternModel::allocate(int num) {
   }
 }
 
+int MultiPatternModel::getNumPatterns() {
+  return num_patterns;
+}
+
 bool MultiPatternModel::loadMultiPatternImage(const yuvImage & multi_image, YUVLUT * _lut, int rows, int cols, float default_object_height)
 {
   yuvImage single_image;
@@ -323,7 +327,7 @@ double MultiPatternModel::calcFitError(const Marker *model,
 }
 
 
-const Pattern & MultiPatternModel::getPattern(int idx) {
+Pattern & MultiPatternModel::getPattern(int idx) {
   return patterns[idx];
 }
 

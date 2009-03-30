@@ -194,28 +194,30 @@ public:
   }
   virtual void setEditorData(const VarItemDelegate * delegate, QWidget *editor) const {
     (void)delegate;
-    QListWidget * list=(QListWidget*)editor;
+    QListWidget * listwidget=(QListWidget*)editor;
     int n = getCount();
     QString tmp;
-    list->clear();
+    listwidget->clear();
     for (int i=0;i<n;i++) {
       tmp=QString::fromStdString(getLabel(i));
       QListWidgetItem * item = new QListWidgetItem(tmp);
       item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsUserCheckable);
-      item->setCheckState(Qt::Unchecked);
-      item->setSelected(isSelected(i));
-      list->addItem(item);
+      item->setCheckState(isSelected(i) ? Qt::Checked : Qt::Unchecked);
+      //item->setSelected();
+      listwidget->addItem(item);
     }
 
   }
+
   virtual void setModelData(const VarItemDelegate * delegate, QWidget *editor) {
     (void)delegate;
-    QListWidget * list=(QListWidget *)editor;
+    QListWidget * listwidget=(QListWidget *)editor;
     bool changed=false;
-    for (int i=0;i<list->count();i++) {
-      QListWidgetItem * item = list->item(i);
+    int in=listwidget->count();
+    for (int i=0;i<in;i++) {
+      QListWidgetItem * item = listwidget->item(i);
       if (item!=0) {
-        changed = changed | (setSelected(i,item->isSelected()));
+        changed = changed | (setSelected(i,item->checkState()==Qt::Checked));
       }
     }
     if (changed) mvcEditCompleted();

@@ -108,8 +108,6 @@ void VarItemDelegate::drawBar (VarData * dt, QPainter * painter, const QStyleOpt
       painter->restore();
     }
   }
-
-  
 }
 
 
@@ -119,12 +117,15 @@ QWidget * VarItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
   (void)option;
   if (index.isValid() && index.model()!=0) {
     VarItem * item=(VarItem*)(((VarTreeModel*)index.model())->itemFromIndex (index));
-    if (item!=0) {
+        if (item!=0) {
       VarData * dt=item->getVarData();
       if (dt!=0) {
-        return dt->createEditor(this,parent,option);
+        QWidget * w;
+        w=dt->createEditor(this,parent,option);
+        //if ((dt->getRenderFlags() & DT_FLAG_PERSISTENT) != 0x00) w->setFocusPolicy(Qt::NoFocus);
+        return w;
       }
-    } 
+    }
   }
   return 0;
 }
@@ -179,7 +180,6 @@ void VarItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
     if (item!=0) {
       VarData * dt=item->getVarData();
       if (dt!=0) {
-        printf("Setting Data for: %s\n",dt->getName().c_str());
         dt->setModelData(this,editor);
         return;
       }

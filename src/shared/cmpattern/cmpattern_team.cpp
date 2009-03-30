@@ -41,13 +41,15 @@ Team::Team(VarList * team_root)
     connect(_team_name,SIGNAL(hasChanged(VarData *)),this,SLOT(slotTeamNameChanged()));
     _unique_patterns = _settings->findChildOrReplace(new VarBool("Unique Patterns"));
     _have_angle = _settings->findChildOrReplace(new VarBool("Have Angles"));
-    _load_markers_from_image_file = _settings->findChildOrReplace(new VarBool("Load Image File",true));
-    _marker_image_file = _settings->findChildOrReplace(new VarString("Marker Image File"));
-    _marker_image_rows = _settings->findChildOrReplace(new VarInt("Marker Image Rows",3));
-    _marker_image_cols = _settings->findChildOrReplace(new VarInt("Marker Image Cols",4));
-    _valid_patterns = _settings->findChildOrReplace(new VarSelection("Valid Patterns",12,true));
-    _valid_patterns->addRenderFlags(DT_FLAG_PERSISTENT);
     _robot_height = _settings->findChildOrReplace(new VarDouble("Robot Height (mm)", 140.0));
+
+    _marker_image = _settings->findChildOrReplace(new VarList("Marker Image"));
+      _load_markers_from_image_file = _marker_image->findChildOrReplace(new VarBool("Load Image File",true));
+      _marker_image_file = _marker_image->findChildOrReplace(new VarString("Marker Image File"));
+      _marker_image_rows = _marker_image->findChildOrReplace(new VarInt("Marker Image Rows",3));
+      _marker_image_cols = _marker_image->findChildOrReplace(new VarInt("Marker Image Cols",4));
+      _valid_patterns = _marker_image->findChildOrReplace(new VarSelection("Valid Patterns",12,true));
+      _valid_patterns->addRenderFlags(DT_FLAG_PERSISTENT);
 
     _center_marker_filter = _settings->findChildOrReplace(new VarList("Center Marker Settings"));
       _center_marker_area_mean = _center_marker_filter->findChildOrReplace(new VarDouble("Expected Area Mean (sq-mm)",sq(50.0)));
