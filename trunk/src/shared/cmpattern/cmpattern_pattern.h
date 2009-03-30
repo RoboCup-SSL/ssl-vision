@@ -148,13 +148,14 @@ protected:
   int       num_patterns;
   Pattern * patterns;
 protected:
-  const Pattern & getPattern(int idx);
   void calcDerived();
   void allocate(int num_patterns);
   double calcFitError(const Marker *model, const Marker *markers, int num_markers, int ofs, const PatternFitParameters & fit_params) const;
 public:
   MultiPatternModel();
   ~MultiPatternModel();
+  Pattern & getPattern(int idx);
+  int getNumPatterns();
   void clearPatternModels();
   bool loadSinglePatternImage(const yuvImage & image, YUVLUT * _lut,int idx, float default_object_height=0.0);
   bool loadMultiPatternImage(const yuvImage & image, YUVLUT * _lut, int rows=4, int cols=4, float default_object_height=0.0);

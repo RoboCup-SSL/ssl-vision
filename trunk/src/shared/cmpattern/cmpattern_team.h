@@ -57,6 +57,8 @@ protected:
     VarSelection * _valid_patterns;
     VarDouble * _robot_height;
 
+    VarList * _marker_image;
+
     VarList * _center_marker_filter;
       VarDouble * _center_marker_area_mean;
       VarDouble * _center_marker_area_stddev;

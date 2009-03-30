@@ -157,6 +157,9 @@ void TeamDetector::init(Team * team)
           fprintf(stderr,"Error loading team image file: '%s'.\n",_marker_image_file.c_str());
           fflush(stderr);
     }
+    for (int i=0;i<model.getNumPatterns();i++) {
+      model.getPattern(i).setEnabled(_team->_valid_patterns->isSelected(i));
+    }
   }
 
 
