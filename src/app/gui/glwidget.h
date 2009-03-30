@@ -131,8 +131,7 @@ public:
       rb->lockRead();
       int cur=rb->curRead();
       last_frame=rb->getPointer(cur)->number;
-      
-      
+
       FrameData * frame = rb->getPointer(cur);
       CaptureStats * cstats = (CaptureStats *)frame->map.get("capture_stats");
       if (cstats != 0) {

@@ -1568,6 +1568,7 @@ RawImage CaptureDC1394v2::getFrame()
     gettimeofday(&tv,NULL);
     result.setTime((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
     result.setData(frame->image);
+    /*printf("B: %d w: %d h: %d bytes: %d pad: %d pos: %d %d depth: %d bpp %d coding: %d  behind %d id %d\n",frame->data_in_padding ? 1 : 0, frame->size[0],frame->size[1],frame->image_bytes,frame->padding_bytes, frame->position[0],frame->position[1],frame->data_depth,frame->packets_per_frame,frame->color_coding,frame->frames_behind,frame->id);*/
   }
   #ifndef VDATA_NO_QT
     mutex.unlock();

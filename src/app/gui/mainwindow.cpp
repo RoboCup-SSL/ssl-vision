@@ -21,10 +21,10 @@
 
 #include "mainwindow.h"
 
-MainWindow::MainWindow()
+MainWindow::MainWindow(bool start_capture)
 {
 
-  opt=new GetOpt();
+  //opt=new GetOpt();
   settings=0;
   setupUi((QMainWindow *)this);
 
@@ -42,7 +42,7 @@ MainWindow::MainWindow()
   QString stack_id="";
 
   //opt->addArgument("stack",&stack_id);
-  opt->parse();
+  //opt->parse();
 
   //load RoboCup SSL stack by default:
   multi_stack=new MultiStackRoboCupSSL(opts, 2);
@@ -133,6 +133,13 @@ MainWindow::MainWindow()
 
   multi_stack->start();
 
+  if (start_capture==true) {
+    for (unsigned int i = 0; i < multi_stack->threads.size(); i++) {
+      CaptureThread * ct = multi_stack->threads[i];
+      ct->init();
+    }
+  }
+
   tree_view->setModel(tmodel);
   tmodel->setRootItems(world);
   tree_view->expandAndFocus(stackvar);
@@ -198,5 +205,4 @@ MainWindow::~MainWindow() {
   // Stop stack:
   multi_stack->stop();
       exit(0);
-  delete opt;
 }
