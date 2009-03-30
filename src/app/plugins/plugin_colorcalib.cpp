@@ -54,7 +54,6 @@ void PluginColorCalibration::mouseEvent( QMouseEvent * event, pixelloc loc) {
   QTabWidget* tabw = (QTabWidget*) lutw->parentWidget()->parentWidget();  
   if (tabw->currentWidget() == lutw) {
     if ((event->buttons() & Qt::LeftButton)!=0) {
-      printf("SAMPLE\n");
       FrameBuffer * rb=getFrameBuffer();
       if (rb!=0) {
         rb->lockRead();
@@ -62,7 +61,6 @@ void PluginColorCalibration::mouseEvent( QMouseEvent * event, pixelloc loc) {
         FrameData * frame = rb->getPointer(idx);
         if (loc.x < frame->video.getWidth() && loc.y < frame->video.getHeight() && loc.x >=0 && loc.y >=0) {
           if (frame->video.getWidth() > 1 && frame->video.getHeight() > 1) {
-        
             yuv color;
             //if converting entire image then blanking is not needed
             ColorFormat source_format=frame->video.getColorFormat();
