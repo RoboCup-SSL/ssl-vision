@@ -1402,7 +1402,8 @@ dc1394error_t dc1394_format7_get_packets_per_frame(dc1394camera_t *camera, dc139
     }
   }
 
-  if (dc1394_capture_setup(camera, ring_buffer_size, DC1394_CAPTURE_FLAGS_CHANNEL_ALLOC /*DC1394_CAPTURE_FLAGS_DEFAULT */ ) != DC1394_SUCCESS) {
+  //DC1394_CAPTURE_FLAGS_CHANNEL_ALLOC /*
+  if (dc1394_capture_setup(camera, ring_buffer_size, DC1394_CAPTURE_FLAGS_DEFAULT ) != DC1394_SUCCESS) {
     fprintf(stderr,"CaptureDC1394v2 Error: unable to setup capture. Maybe selected combination of Format/Resolution is not supported?\n");
     #ifndef VDATA_NO_QT
       mutex.unlock();
@@ -1565,9 +1566,22 @@ RawImage CaptureDC1394v2::getFrame()
     is_capturing=false;
     result.setData(0);
   } else {
+    /*
+    //
+    // Returns DC1394_TRUE if the given frame (previously dequeued) has been
+    // detected to be corrupt (missing data, corrupted data, overrun buffer, etc.).
+    // Note that certain types of corruption may go undetected in which case
+    // DC1394_FALSE will be returned.  The ability to detect corruption also
+    // varies between platforms.  Note that corrupt frames still need to be
+    // enqueued with dc1394_capture_enqueue() when no longer needed by the user.
+    //
+    if (dc1394_capture_is_frame_corrupt (camera, frame) == DC1394_TRUE) {
+      printf("============================CORRUPT!\n"); fflush(stdout); exit(1);
+    }*/
     gettimeofday(&tv,NULL);
     result.setTime((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
     result.setData(frame->image);
+
     /*printf("B: %d w: %d h: %d bytes: %d pad: %d pos: %d %d depth: %d bpp %d coding: %d  behind %d id %d\n",frame->data_in_padding ? 1 : 0, frame->size[0],frame->size[1],frame->image_bytes,frame->padding_bytes, frame->position[0],frame->position[1],frame->data_depth,frame->packets_per_frame,frame->color_coding,frame->frames_behind,frame->id);*/
   }
   #ifndef VDATA_NO_QT

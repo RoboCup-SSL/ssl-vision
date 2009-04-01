@@ -386,7 +386,7 @@ public:
       mult_x=-1;
       mult_y=-1;
     } else if (pos==CAM_POS_HALF_POS_X) {
-      mult_y=-1;
+      //mult_y=-1;
     }
 
     left_corner_x->setInt(mult_x*(field->half_field_length->getInt()));
