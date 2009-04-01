@@ -105,7 +105,7 @@ void RawImage::setTime(double t)
 
 void RawImage::setData(unsigned char * d)
 {
-  if (data!=0) delete data;
+  if (data!=0) delete[] data;
   data=d;
 }
 
@@ -113,7 +113,7 @@ void  RawImage::allocate (ColorFormat fmt, int w, int h)
 {
   if(w >= 0 && h >= 0) {
     if (data!=0) {
-      delete data;
+      delete[] data;
     }
     if (w==0 && h==0) {
       data=0;

@@ -20,6 +20,8 @@
 //========================================================================
 #ifndef GLWIDGET_H_
 #define GLWIDGET_H_
+
+
 #include <QtOpenGL/QGLWidget>
 #include <QTime>
 #include <QMutex>
@@ -50,6 +52,7 @@ class GLWidget : public QGLWidget, public RealTimeDisplayWidget
   Q_OBJECT
 
 protected:
+  bool ALLOW_QPAINTER;
   int vpW;
   int vpH;
   long long last_frame;
@@ -95,7 +98,7 @@ public:
   {
     QGLWidget::setObjectName(s);
   }
-  GLWidget(QWidget *parent = 0);
+  GLWidget(QWidget *parent = 0, bool allow_qpainter_overlay=true);
   virtual ~GLWidget();
 
   virtual void focusInEvent ( QFocusEvent * event )

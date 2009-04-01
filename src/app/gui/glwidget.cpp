@@ -80,11 +80,12 @@ void GLWidget::mouseMoveEvent ( QMouseEvent * event ) {
 }
 
 
-GLWidget::GLWidget ( QWidget *parent ) : QGLWidget ( QGLFormat(QGL::SampleBuffers), parent ) {
+GLWidget::GLWidget ( QWidget *parent , bool allow_qpainter_overlay) : QGLWidget ( allow_qpainter_overlay ? QGLFormat(QGL::SampleBuffers) : QGLFormat(), parent ) {
+  ALLOW_QPAINTER=allow_qpainter_overlay;
   rb_bb=0;
   rb=0;
   stack=0;
- setAutoFillBackground(false);
+  setAutoFillBackground(false);
   //not needed because we are remote triggering this:
   //startTimer(1);
 
@@ -318,11 +319,6 @@ void GLWidget::paintEvent ( QPaintEvent * e ) {
   painter.begin((QGLWidget*)this);
   painter.setRenderHint(QPainter::Antialiasing);
 
-  //painter.save();
-  //painter.setTransform(trans);
-  //painter.fillRect(QRect(0, 0, 60, 60),
-  //                     QColor(255, 192, 64,200));
-  //painter.restore();
 
   painter.end();
 
