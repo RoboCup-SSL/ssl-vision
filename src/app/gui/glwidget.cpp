@@ -80,6 +80,11 @@ void GLWidget::mouseMoveEvent ( QMouseEvent * event ) {
 }
 
 
+
+void GLWidget::paintGL() {
+  mainDraw();
+}
+
 GLWidget::GLWidget ( QWidget *parent , bool allow_qpainter_overlay) : QGLWidget ( allow_qpainter_overlay ? QGLFormat(QGL::SampleBuffers) : QGLFormat(), parent ) {
   ALLOW_QPAINTER=allow_qpainter_overlay;
   rb_bb=0;
@@ -171,104 +176,63 @@ GLWidget::~GLWidget() {
 
 
 void GLWidget::initializeGL() {
-  /*qglClearColor ( QColor ( 64,64,128 ) );
-  //DISABLE EVERYTHING
-  //trying to make video-rendering as fast as possible
-  glShadeModel ( GL_FLAT );
-  glEnable ( GL_ALPHA_TEST );
-  glEnable ( GL_BLEND );
-  glEnable ( GL_STENCIL_TEST );
-  glBlendFunc ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-  glEnable ( GL_TEXTURE_2D );
-  
-  
-  
-  
-  
-  
-  //qpainter stuff:
-  
-       glEnable(GL_DEPTH_TEST);
-     glEnable(GL_CULL_FACE);
-     glEnable(GL_LIGHTING);
-     glEnable(GL_LIGHT0);
-     glEnable(GL_MULTISAMPLE);
-  
-  */
-  
-  
-  
-  //end of qpainter stuff
-  
-  
-  
-  
-  
-  
-  
-  
-  /*    glDisable(GL_DEPTH_TEST);
-      glDisable(GL_FOG);
-      glDisable(GL_LIGHTING);
-      glDisable(GL_LOGIC_OP);
-      glDisable(GL_STENCIL_TEST);
-      glDisable(GL_TEXTURE_1D);
-      glDisable(GL_TEXTURE_2D);*/
-
-  //dithering is a bit special
-  //leave it on for now:
-  //glDisable(GL_DITHER);
-
-  //set Transfer mode to be as fast and direct as possible
-  /* glPixelTransferi(GL_MAP_COLOR, GL_FALSE);
-   glPixelTransferi(GL_RED_SCALE, 1);
-   glPixelTransferi(GL_RED_BIAS, 0);
-   glPixelTransferi(GL_GREEN_SCALE, 1);
-   glPixelTransferi(GL_GREEN_BIAS, 0);
-   glPixelTransferi(GL_BLUE_SCALE, 1);
-   glPixelTransferi(GL_BLUE_BIAS, 0);
-   glPixelTransferi(GL_ALPHA_SCALE, 1);
-   glPixelTransferi(GL_ALPHA_BIAS, 0);*/
-
+  myGLinit();
 }
 
-void GLWidget::paintEvent ( QPaintEvent * e ) {
-  ( void ) e;
-  
-  if ( actionOn->isChecked() ==false ) return;
-  
-  
-   makeCurrent();
-   glMatrixMode(GL_MODELVIEW);
-   glPushMatrix();
-    qglClearColor ( QColor ( 64,64,128 ) );
-  //DISABLE EVERYTHING
-  //trying to make video-rendering as fast as possible
-  //glShadeModel ( GL_FLAT );
+void GLWidget::myGLinit() {
+
+  qglClearColor ( QColor ( 64,64,128 ) );
+
   glEnable ( GL_ALPHA_TEST );
   glEnable ( GL_BLEND );
   glEnable ( GL_STENCIL_TEST );
   glBlendFunc ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
   glEnable ( GL_TEXTURE_2D );
-  
-  
+
   //qpainter stuff:
   glEnable(GL_CULL_FACE);
   glEnable(GL_MULTISAMPLE);
  
-  setupViewPort(width(), height());
+}
+
+void GLWidget::paintEvent ( QPaintEvent * e ) {
+  ( void ) e;
+
+  mainDraw();
+
+}
+
+void GLWidget::mainDraw() {
+   if ( actionOn->isChecked() ==false ) return;
+   if (ALLOW_QPAINTER) {
+    makeCurrent();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    myGLinit();
+    setupViewPort(width(), height());
+   }
+
+   myGLdraw();
+
+   if (ALLOW_QPAINTER) {
+    /// new qpainter overlay stuff
+    QTransform trans=zoom.getQTransform(false);
+    QPainter painter;
+    painter.begin((QGLWidget*)this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    myQPainterOverlay(painter,trans);
   
-  //end of qpainter stuff
+    painter.end();
   
-  
-  
-  
-  
-  
-  
-  
+    glMatrixMode ( GL_MODELVIEW );
+    glPopMatrix();
+  }
+   c_draw.count();
+}
+
+
+void GLWidget::myGLdraw() {
   glPushAttrib ( GL_ALL_ATTRIB_BITS );
   glMatrixMode ( GL_PROJECTION );
   glLoadIdentity();
@@ -313,30 +277,7 @@ void GLWidget::paintEvent ( QPaintEvent * e ) {
   glPopMatrix();
   glPopAttrib();
 
-  /// new qpainter overlay stuff
-  QTransform trans=zoom.getQTransform(false);
-  QPainter painter;
-  painter.begin((QGLWidget*)this);
-  painter.setRenderHint(QPainter::Antialiasing);
-
-
-  painter.end();
-
-  /// end of qpainter overlay stuff
-
-
-  glMatrixMode ( GL_MODELVIEW );
-  glPopMatrix();
-
-
-
-
-
-  c_draw.count();
-  //updateVideoStats(stats);
 }
-
-
 void GLWidget::setupViewPort ( int width, int height ) {
   glViewport ( 0, 0, width, height );
   glOrtho ( 0, width, 0, height, -1, 1 );
@@ -423,6 +364,11 @@ void GLWidget::flipImage() {
   this->zoom.setFlipX ( actionFlipH->isChecked() );
   this->zoom.setFlipY ( actionFlipV->isChecked() );
   this->redraw(); //upgl
+}
+
+void GLWidget::myQPainterOverlay(QPainter & painter, QTransform & trans) {
+  (void)painter;
+  (void)trans;
 }
 
 void GLWidget::saveImage() {

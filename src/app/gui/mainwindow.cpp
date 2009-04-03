@@ -54,7 +54,7 @@ MainWindow::MainWindow(bool start_capture)
   for (unsigned int i=0;i<multi_stack->threads.size();i++) {
     VisionStack * s = multi_stack->threads[i]->getStack();
 
-    GLWidget * gl=new GLWidget();
+    GLWidget * gl=new GLWidget(0,false);
     gl->setRingBuffer(multi_stack->threads[i]->getFrameBuffer());
     gl->setVisionStack(s);
     QString label = "Camera " + QString::number(i);
