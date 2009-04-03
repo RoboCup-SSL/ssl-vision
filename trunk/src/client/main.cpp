@@ -70,9 +70,11 @@ int main(int argc, char *argv[])
 
                 printf("-[Detection Data]-------\n");
                 //Frame info:
-                printf("Camera ID=%d FRAME=%d TIMESTAMP=%.4f\n",detection.camera_id(),detection.frame_number(),detection.timestamp());
+                printf("Camera ID=%d FRAME=%d T_CAPTURE=%.4f\n",detection.camera_id(),detection.frame_number(),detection.t_capture());
 
-                printf("Total Vision Latency (assuming synched system clock) %7.3fms\n",(t_now-detection.timestamp())*1000.0);
+                printf("SSL-Vision Processing Latency                   %7.3fms\n",(detection.t_sent()-detection.t_capture())*1000.0);
+                printf("Network Latency (assuming synched system clock) %7.3fms\n",(t_now-detection.t_sent())*1000.0);
+                printf("Total Latency   (assuming synched system clock) %7.3fms\n",(t_now-detection.t_capture())*1000.0);
                 int balls_n = detection.balls_size();
                 int robots_blue_n =  detection.robots_blue_size();
                 int robots_yellow_n =  detection.robots_yellow_size();
