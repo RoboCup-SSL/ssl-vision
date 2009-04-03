@@ -68,6 +68,12 @@ src/app/videostats.h
 src/client
 src/client/main.cpp
 src/config.pro.inc
+src/graphicalClient
+src/graphicalClient/ClientThreading.cpp
+src/graphicalClient/ClientThreading.h
+src/graphicalClient/GraphicsPrimitives.cpp
+src/graphicalClient/GraphicsPrimitives.h
+src/graphicalClient/main.cpp
 src/shared
 src/shared/capture/capturedc1394v2.cpp
 src/shared/capture/capturedc1394v2.h
