@@ -67,7 +67,7 @@ protected:
   QWidgetAction * actionColorPicker;
   //ColorPicker * colorPicker;
   virtual void initializeGL();
-  //virtual void paintGL();
+  virtual void paintGL();
   virtual void resizeGL(int width, int height);
   void wheelEvent ( QWheelEvent * event );
   void keyPressEvent ( QKeyEvent * event );
@@ -121,7 +121,12 @@ public:
     }
   }
 
+  void mainDraw();
+  virtual void myQPainterOverlay(QPainter & painter, QTransform & trans);
+  virtual void myGLinit();
+  virtual void myGLdraw();
   void setupViewPort ( int width, int height );
+
 
   virtual void displayLoopEvent(bool frame_changed, RenderOptions * opts)
   {
@@ -153,8 +158,11 @@ public:
 
   virtual void redraw()
   {
-    repaint();
-    //updateGL();
+    if (ALLOW_QPAINTER) {
+      repaint();
+    } else {
+      updateGL();
+    }
   }
 
 public slots:
