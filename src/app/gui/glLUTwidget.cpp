@@ -560,7 +560,7 @@ void GLLUTWidget::paintGL()
       s->selection_update_pending=false;
     }
     if (s->sampler_update_pending) {
-      if (s->sampler->update(GL_CLAMP,GL_CLAMP,GL_NEAREST,GL_NEAREST)==false) printf("draw-slice texture update failed\n");
+      if (s->sampler->update(GL_CLAMP,GL_CLAMP,GL_LINEAR,GL_NEAREST)==false) printf("draw-slice texture update failed\n");
       s->sampler_update_pending=false;
     }
   }
@@ -752,6 +752,9 @@ void GLLUTWidget::glDrawSlice(Slice * s) {
         glVertex3f(1.0 ,0.0  ,z+z_offset);
       glEnd();
     }
+    glEnable(GL_COLOR_LOGIC_OP);
+    //glLogicOp(GL_COPY_INVERTED);
+    glLogicOp(GL_XOR);
     if (s->sampler->bind()) {
       glBegin(GL_QUADS);
         glTexCoord2f(0.0,0.0);
@@ -767,7 +770,7 @@ void GLLUTWidget::glDrawSlice(Slice * s) {
         glVertex3f(1.0 ,0.0  ,z+z_offset*2);
       glEnd();
     }
-    
+    glDisable(GL_COLOR_LOGIC_OP);
 
   }
   glPopMatrix();
@@ -883,7 +886,7 @@ void GLLUTWidget::init() {
       tmp->resize(x,y);
       tmp->bg->load();
       tmp->selection->load(GL_CLAMP,GL_CLAMP,GL_NEAREST,GL_NEAREST);
-      tmp->sampler->load();
+      tmp->sampler->load(GL_CLAMP,GL_CLAMP, GL_LINEAR, GL_LINEAR);
       drawSlice(tmp,_lut,i);
       slices.push_back(tmp);
     }
@@ -989,11 +992,29 @@ void GLLUTWidget::samplePixel(const yuv & color) {
   //compute slice it sits on:
   int i=_lut->norm2lutX(color.y);
   if (i >= 0 && i < (int)slices.size()) {
-    slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
+    //old:
+    //slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
+    //new: draw an X
+    drawSample(i,_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v));
     slices[i]->sampler_update_pending=true;
     redraw();
   }
   
+}
+
+void GLLUTWidget::drawSample(int i, int x, int y) {
+    int scale=slices[i]->sampler_scale;
+    x*=scale;
+    y*=scale;
+
+    for (int p = 0; p < scale; p++) {
+      /*(slices[i]->sampler->surface.setPixel(x+p,y,rgba(0,0,0,255));
+      slices[i]->sampler->surface.setPixel(x+p,y+scale,rgba(0,0,0,255));
+      slices[i]->sampler->surface.setPixel(x,y+p,rgba(0,0,0,255));
+      slices[i]->sampler->surface.setPixel(x+scale,y+p,rgba(0,0,0,255));*/
+      slices[i]->sampler->surface.setPixel(x+p,y+p,rgba(255,255,255,255));
+      slices[i]->sampler->surface.setPixel(x+(scale-(p+1)),y+p,rgba(255,255,255,255));
+    }
 }
 
 void GLLUTWidget::sampleImage(const RawImage & img) {
@@ -1013,7 +1034,8 @@ void GLLUTWidget::sampleImage(const RawImage & img) {
         color=Conversions::rgb2yuv(*color_rgb);
         i=_lut->norm2lutX(color.y);
         if (i >= 0 && i < (int)slices.size()) {
-          slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
+          drawSample(i,_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v));
+          //slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
           slices[i]->sampler_update_pending=true;
         }
         color_rgb++;
@@ -1025,7 +1047,8 @@ void GLLUTWidget::sampleImage(const RawImage & img) {
         color=(*color_yuv);
         i=_lut->norm2lutX(color.y);
         if (i >= 0 && i < (int)slices.size()) {
-          slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
+          //slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
+          drawSample(i,_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v));
           slices[i]->sampler_update_pending=true;
         }
         color_yuv++;
@@ -1041,14 +1064,16 @@ void GLLUTWidget::sampleImage(const RawImage & img) {
           color.y=color_uyvy_tmp.y1;
           i=_lut->norm2lutX(color.y);
           if (i >= 0 && i < (int)slices.size()) {
-            slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
+            //slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
+            drawSample(i,_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v));
             slices[i]->sampler_update_pending=true;
           }
   
           color.y=color_uyvy_tmp.y2;
           i=_lut->norm2lutX(color.y);
           if (i >= 0 && i < (int)slices.size()) {
-            slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
+            //slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
+            drawSample(i,_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v));
             slices[i]->sampler_update_pending=true;
           }
           color_uyvy++;
