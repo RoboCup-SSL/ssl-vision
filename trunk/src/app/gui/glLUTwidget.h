@@ -115,11 +115,13 @@ class GLLUTWidget : public QGLWidget, public RealTimeDisplayWidget
     rgbaTexture * bg;
     rgbaTexture * selection;
     rgbaTexture * sampler;
+    int sampler_scale;
     bool sampler_update_pending;
     bool bg_update_pending;
     bool selection_update_pending;
     Slice()
     {
+      sampler_scale=5;
       bg=new rgbaTexture("",true,false);
       selection=new rgbaTexture("",true,false);
       sampler=new rgbaTexture("",true,false);
@@ -139,7 +141,7 @@ class GLLUTWidget : public QGLWidget, public RealTimeDisplayWidget
       bg->surface.fillBlack();
       selection->surface.allocate(w,h);
       selection->surface.fillBlack();
-      sampler->surface.allocate(w,h);
+      sampler->surface.allocate(w*sampler_scale,h*sampler_scale);
       sampler->surface.fillBlack();
     }
   };
@@ -172,6 +174,7 @@ protected:
   void setupProjection();
   bool glPixel2OrthoCoordinates(QMouseEvent * event, float & x, float & y);
   bool glPixel2LUTCoordinates(QMouseEvent * event,int & x, int &y);
+  void drawSample(int i, int x, int y);
   inline rgba maskToRGBA(LUT3D * lut, const lut_mask_t & m);
   void drawEvent ( QMouseEvent * event );
   public:
