@@ -25,6 +25,7 @@
 #include "robocup_ssl_server.h"
 #include "camera_calibration.h"
 #include "field.h"
+#include "timer.h"
 
 /**
 	@author Stefan Zickler

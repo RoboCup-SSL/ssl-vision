@@ -21,9 +21,10 @@ message SSL_DetectionRobot {
 
 message SSL_DetectionFrame {
   required uint32             frame_number  = 1;
-  required double             timestamp     = 2;
-  required uint32             camera_id     = 3;
-  repeated SSL_DetectionBall  balls         = 4;
-  repeated SSL_DetectionRobot robots_yellow = 5;
-  repeated SSL_DetectionRobot robots_blue   = 6;
+  required double             t_capture     = 2;
+  required double             t_sent        = 3;
+  required uint32             camera_id     = 4;
+  repeated SSL_DetectionBall  balls         = 5;
+  repeated SSL_DetectionRobot robots_yellow = 6;
+  repeated SSL_DetectionRobot robots_blue   = 7;
 }
