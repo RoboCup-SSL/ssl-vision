@@ -1,0 +1,5 @@
+#summary Configuring image input sources
+
+= Capturing Images =
+
+Add your content here.
