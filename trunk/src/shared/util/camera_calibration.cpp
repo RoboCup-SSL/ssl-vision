@@ -24,6 +24,8 @@ CameraParameters::CameraParameters(RoboCupCalibrationHalfField & _field) : field
   additional_calibration_information = new AdditionalCalibrationInformation();
 
   p_alpha = Eigen::VectorXd(1);
+
+  q_rotate180 = Quaternion<double>(0, 0, 1.0,0);
 }
 
 CameraParameters::~CameraParameters()
@@ -90,7 +92,7 @@ void CameraParameters::field2image(GVector::vector3d<double> &p_f, GVector::vect
   q_diff.setAxis(aa_diff.norm(), aa_diff.length());
 
   // First transform the point from the field into the coordinate system of the camera
-  GVector::vector3d<double> p_c = (q_field2cam * q_diff).rotateVectorByQuaternion(p_f) + translation + t_diff;
+  GVector::vector3d<double> p_c = (q_diff * q_field2cam ).rotateVectorByQuaternion(p_f) + translation + t_diff;
   GVector::vector2d<double> p_un = GVector::vector2d<double>(p_c.x/p_c.z, p_c.y/p_c.z);
 
   // Apply distortion
@@ -411,7 +413,7 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
       q_diff.setAxis(aa_diff.norm(), aa_diff.length());
       Quaternion<double> q_field2cam = Quaternion<double>(q0->getDouble(),q1->getDouble(),q2->getDouble(),q3->getDouble());
       q_field2cam.norm();
-      q_field2cam = q_field2cam * q_diff;
+      q_field2cam = q_diff * q_field2cam ;
       q0->setDouble(q_field2cam.x);
       q1->setDouble(q_field2cam.y);
       q2->setDouble(q_field2cam.z);
@@ -420,6 +422,18 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
       for (int i=0; i < num_alpha; i++)
         p_alpha[i] += new_p[STATE_SPACE_DIMENSION + i];
 
+      // Normalize focal length an orientation when the optimization tends to go into the wrong
+      // of both possible projections
+      if (focal_length->getDouble() < 0)
+      {
+        focal_length->setDouble(-focal_length->getDouble());
+        q_field2cam = q_rotate180 * q_field2cam;
+        q0->setDouble(q_field2cam.x);
+        q1->setDouble(q_field2cam.y);
+        q2->setDouble(q_field2cam.z);
+        q3->setDouble(q_field2cam.w);
+      }
+      
       if (old_chisqr - chisqr < 0.001)
         stop_optimization = true;
       else
