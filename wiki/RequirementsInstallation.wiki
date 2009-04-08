@@ -2,21 +2,43 @@
 
 = Requirements and Installation =
 
+== Operating System ==
+SSL-Vision is a Linux application. We do not plan to support any other operating system in the future. The current reference distribution is Ubuntu / Kubuntu 8.10 (Intrepid Ibex). The application will probably run on any other up to date Linux distribution without problems. For the reference distribution, we made sure that all software dependencies are part of the distribution and have a compatible version, thus no downloads from additional sources will be needed.
+
 == Software Requirements ==
 
-Add your content here.
+   * QT >= 4.3 with opengl and networking support
+   * qmake (should come with QT)
+   * Eigen2
+   * Google protocol buffers (protoc)
+   * OpenGL
+   * GLU
+   * libdc1394 Version >= 2.0
+   * libjpeg
 
 
 == Hardware Requirements ==
 
-Add your content here.
+The system supports 1394B / Firewire 800, but it's also backward compatible
+ with 1394A.
 
 
 == Getting and Compiling SSL-Vision ==
+1) generate the makefile by running:
 
-Add your content here.
+    qmake-qt4 sslvision.pro
+
+2) build the code by running:
+
+    make
+
+The project *should* build without errors or warnings.
 
 
 == Starting the Applications ==
 
-Add your content here.
+1) depending on your OS, you might need to ensure that you have full access to the firewire devices /dev/fw*. This *might* require logging in as root.
+
+2) run the software using the following command:
+
+    ./bin/vision
