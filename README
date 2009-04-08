@@ -20,6 +20,7 @@
 ========================
  Software Requirements:
 ========================
+ - g++
  - QT >= 4.3 with opengl and networking support
  - qmake (should come with QT)
  - Eigen2
@@ -28,6 +29,10 @@
  - GLU
  - libdc1394 Version >= 2.0
  - libjpeg
+
+To get all of these packages in (k)ubuntu, run:
+sudo apt-get install g++ libqt4-dev libeigen2-dev protobuf-compiler libprotobuf-dev libdc1394-22 libdc1394-22-dev
+
 
 ========================
  Hardware Requirements:
