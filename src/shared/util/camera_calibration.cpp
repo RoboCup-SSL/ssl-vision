@@ -8,21 +8,19 @@
 
 CameraParameters::CameraParameters(RoboCupCalibrationHalfField & _field) : field(_field)
 {
-  focal_length = new VarDouble("focal length", 700.0);
+  focal_length = new VarDouble("focal length", 500.0);
   principal_point_x = new VarDouble("principal point x", 390.0);
   principal_point_y = new VarDouble("principal point y", 290.0);
   distortion = new VarDouble("distortion", 0.0, -0.5, 0.5);
   
-  // Do not forgot to normalize this quaternion before first usage
   q0 = new VarDouble("q0", 0.7);
   q1 = new VarDouble("q1", -0.7);
   q2 = new VarDouble("q2", .0);
   q3 = new VarDouble("q3", .0);
-
+  
   tx = new VarDouble("tx", 0);
-  ty = new VarDouble("ty", 1250);
+  ty = new VarDouble("ty", 1250);   
   tz = new VarDouble("tz", 3500, 0, 5000);
-
   additional_calibration_information = new AdditionalCalibrationInformation();
 
   p_alpha = Eigen::VectorXd(1);
@@ -161,7 +159,6 @@ double CameraParameters::calc_chisqr(std::vector<GVector::vector3d<double> > &p_
   // Iterate of line edge points, but only when performing a full estimation
   if (cal_type & FULL_ESTIMATION)
   {
-    // First, calculate how many alpha we need to estimate
     std::vector<LSCalibrationData>::iterator ls_it = line_segment_data.begin();
     
     int i = 0;
@@ -170,17 +167,21 @@ double CameraParameters::calc_chisqr(std::vector<GVector::vector3d<double> > &p_
       std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it = (*ls_it).pts_on_line.begin();
       for(; pts_it != (*ls_it).pts_on_line.end(); pts_it++)
       {
-        GVector::vector2d<double> proj_p; 
-        double alpha = p_alpha(i) + p(STATE_SPACE_DIMENSION + i);
-        
-        // Calculate point on line
-        GVector::vector3d<double >alpha_point = alpha * (*ls_it).p1 + (1 - alpha) * (*ls_it).p2;
-        
-        // Project into image plane
-        field2image(alpha_point, proj_p, p);
-
-        chisqr += pow(proj_p.x - pts_it->first.x,2) + pow(proj_p.y - pts_it->first.y,2);
-        i++;
+        // Integrate only if a valid point on line
+        if (pts_it->second)
+        { 
+          GVector::vector2d<double> proj_p; 
+          double alpha = p_alpha(i) + p(STATE_SPACE_DIMENSION + i);
+          
+          // Calculate point on line
+          GVector::vector3d<double >alpha_point = alpha * (*ls_it).p1 + (1 - alpha) * (*ls_it).p2;
+          
+          // Project into image plane
+          field2image(alpha_point, proj_p, p);
+          
+          chisqr += pow(proj_p.x - pts_it->first.x,2) + pow(proj_p.y - pts_it->first.y,2);
+          i++;
+        }
       }
     }
   }
@@ -243,7 +244,15 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
     int count_alpha(0);
     std::vector<LSCalibrationData>::iterator ls_it = line_segment_data.begin();
     for (; ls_it != line_segment_data.end(); ls_it++)
-      count_alpha += (*ls_it).pts_on_line.size();
+    {
+      std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it = (*ls_it).pts_on_line.begin();
+      for(; pts_it != (*ls_it).pts_on_line.end(); pts_it++)
+      {
+        if (pts_it->second)
+          count_alpha ++;
+      }
+    }
+    
     
     if (count_alpha > 0)
     {
@@ -255,7 +264,12 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
       {
         std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it = (*ls_it).pts_on_line.begin();
         for(int lambda = (*ls_it).pts_on_line.size(); pts_it != (*ls_it).pts_on_line.end(); pts_it++, lambda--)
-          p_alpha(count_alpha++) = (double) lambda / (double) (*ls_it).pts_on_line.size() + 1;
+        {
+          if (pts_it->second)
+          {
+            p_alpha(count_alpha++) = (double) lambda / (double) (*ls_it).pts_on_line.size() + 1;
+          }
+        }
       }
     }
 
@@ -333,38 +347,41 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
       std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it = (*ls_it).pts_on_line.begin();
       for(; pts_it != (*ls_it).pts_on_line.end(); pts_it++)
       {
-        GVector::vector2d<double> proj_p;
-        GVector::vector3d<double >alpha_point = p_alpha(i) * (*ls_it).p1 + (1 - p_alpha(i)) * (*ls_it).p2;
-        field2image(alpha_point, proj_p, p);
-        proj_p = proj_p - (*pts_it).first;
-
-        J.setZero();
-
-        std::vector<int>::iterator it = p_to_est.begin();
-        for(; it != p_to_est.end(); it++)
-        {
-          int j = *it;
+        if(pts_it->second)
+        { 
+          GVector::vector2d<double> proj_p;
+          GVector::vector3d<double >alpha_point = p_alpha(i) * (*ls_it).p1 + (1 - p_alpha(i)) * (*ls_it).p2;
+          field2image(alpha_point, proj_p, p);
+          proj_p = proj_p - (*pts_it).first;
           
-          Eigen::VectorXd p_diff = p;
-          p_diff(j) = p_diff(j) + epsilon;
+          J.setZero();
+          
+          std::vector<int>::iterator it = p_to_est.begin();
+          for(; it != p_to_est.end(); it++)
+          {
+            int j = *it;
+            
+            Eigen::VectorXd p_diff = p;
+            p_diff(j) = p_diff(j) + epsilon;
+            
+            GVector::vector2d<double> proj_p_diff;
+            field2image(alpha_point, proj_p_diff, p_diff);
+            J(0,j) = ((proj_p_diff.x - (*pts_it).first.x) - proj_p.x) / epsilon;
+            J(1,j) = ((proj_p_diff.y - (*pts_it).first.y) - proj_p.y) / epsilon;
+          }
+          
+          double my_alpha = p_alpha(i) + epsilon;
+          alpha_point = my_alpha * (*ls_it).p1 + (1 - my_alpha) * (*ls_it).p2;
           
           GVector::vector2d<double> proj_p_diff;
-          field2image(alpha_point, proj_p_diff, p_diff);
-          J(0,j) = ((proj_p_diff.x - (*pts_it).first.x) - proj_p.x) / epsilon;
-          J(1,j) = ((proj_p_diff.y - (*pts_it).first.y) - proj_p.y) / epsilon;
+          field2image(alpha_point, proj_p_diff);
+          J(0,STATE_SPACE_DIMENSION + i) = ((proj_p_diff.x - (*pts_it).first.x) - proj_p.x) / epsilon;
+          J(1,STATE_SPACE_DIMENSION + i) = ((proj_p_diff.y - (*pts_it).first.y) - proj_p.y) / epsilon;
+          
+          alpha += J.transpose() * J;
+          beta += J.transpose() * Eigen::Vector2d(proj_p.x, proj_p.y);
+          i++;
         }
-
-        double my_alpha = p_alpha(i) + epsilon;
-        alpha_point = my_alpha * (*ls_it).p1 + (1 - my_alpha) * (*ls_it).p2;
-
-        GVector::vector2d<double> proj_p_diff;
-        field2image(alpha_point, proj_p_diff);
-        J(0,STATE_SPACE_DIMENSION + i) = ((proj_p_diff.x - (*pts_it).first.x) - proj_p.x) / epsilon;
-        J(1,STATE_SPACE_DIMENSION + i) = ((proj_p_diff.y - (*pts_it).first.y) - proj_p.y) / epsilon;
-
-        alpha += J.transpose() * J;
-        beta += J.transpose() * Eigen::Vector2d(proj_p.x, proj_p.y);
-        i++;
       }
     }    
     }
@@ -474,19 +491,22 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
     std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it = (*ls_it).pts_on_line.begin();
     for(; pts_it != (*ls_it).pts_on_line.end(); pts_it++)
     {
-      GVector::vector2d<double> proj_p; 
-      double alpha = p_alpha(i);
-      GVector::vector3d<double >alpha_point = alpha * (*ls_it).p1 + (1 - alpha) * (*ls_it).p2;
-
-      field2image(alpha_point, proj_p, p);
-      
-      line_x += pow(proj_p.x - pts_it->first.x,2);
-      line_y += pow(proj_p.y - pts_it->first.y,2);
-
-      i++;
+      if(pts_it->second)
+      { 
+        GVector::vector2d<double> proj_p; 
+        double alpha = p_alpha(i);
+        GVector::vector3d<double >alpha_point = alpha * (*ls_it).p1 + (1 - alpha) * (*ls_it).p2;
+        
+        field2image(alpha_point, proj_p, p);
+        
+        line_x += pow(proj_p.x - pts_it->first.x,2);
+        line_y += pow(proj_p.y - pts_it->first.y,2);
+        
+        i++;
+      }
     }
   }
-
+  
   if (i != 0)
     std::cerr << "RESIDUAL LINE POINTS: " << sqrt(line_x/(double)i) << " " << sqrt(line_y/(double)i) << std::endl;
  }
