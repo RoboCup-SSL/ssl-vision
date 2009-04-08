@@ -1,0 +1,5 @@
+#summary Configuring color thresholding and blob detection
+
+= Color Segmentation Configuration =
+
+Add your content here.
