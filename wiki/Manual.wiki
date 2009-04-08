@@ -2,4 +2,14 @@
 
 = Introduction =
 
-This will become the introduction. This is currently a test, I need to learn the details of this particular wiki first ;-)
+This will become a short introduction. 
+
+The current topics are:
+ * [RequirementsInstallation Requirements and Installation]
+ * [ApplicationOverview Application Overview]
+ * [CapturingImages Capturing Images]
+ * [CameraCalibration Field Configuration and Camera Calibration]
+ * [ColorSegmentationConfiguration Color Segmentation Configuration]
+ * [TeamConfiguration Team Configuration]
+ * [Communication Communication and Sample Client]
+ * [TODO Open Issues]
