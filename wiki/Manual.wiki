@@ -4,8 +4,7 @@
 
 The current !RoboCup Small Size League rules allow every
 team to set up their own global vision system as a primary sensor. This
-option, which is used by all participating teams, bears several organiza-
-tional limitations and thus impairs the league's progress. Additionally,
+option, which is used by all participating teams, bears several organizational limitations and thus impairs the league's progress. Additionally,
 most teams have converged on very similar solutions, and have produced
 only few signicant research results to this global vision problem over
 the last years. Hence the responsible committees decided to migrate to a
