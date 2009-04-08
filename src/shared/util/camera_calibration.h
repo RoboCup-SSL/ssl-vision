@@ -72,6 +72,7 @@ public:
   std::vector<LSCalibrationData> line_segment_data;
 
   Eigen::VectorXd p_alpha;
+  Quaternion<double> q_rotate180;
 
   //Quaternion<double> q_field2cam;
   //GVector::vector3d<double> translation;  
