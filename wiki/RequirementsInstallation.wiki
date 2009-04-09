@@ -57,10 +57,26 @@ If you prefer a less verbose output during the compilation, you can call
 }}}
 instead. The project *should* build without errors or warnings.
 
+== Optimizing the Application's Performance ==
+By default, qmake will use the architecture specifications of your Linux distribution, most likely as defined in the file
+{{{/usr/share/qt4/mkspecs/linux-g++/qmake.conf}}}
+
+To optimize the compiled binary for your particular system architecture, you might want to add an appropriate -march flag to the {{{QMAKE_CFLAGS}}} and {{{QMAKE_LFLAGS}}} in this file. For example, if you have an Intel Core 2 compatible processor, you might want to add the following lines to {{{/usr/share/qt4/mkspecs/linux-g++/qmake.conf}}}:
+
+{{{
+QMAKE_CFLAGS            += -march=core2
+QMAKE_LFLAGS            += -march=core2
+}}}
+
+If you have a different system architecture, replace {{{core2}}} with your particular architecture type. To see a full list of available architectures supported by your compiler, run {{{man g++}}}.
+
+Once you have edited these files, run a {{{make clean; make}}} in your ssl-vision directory, to build the new, optimized binary.
 
 == Starting the Applications ==
 
 Depending on the configuration of your OS, you might need to ensure that you have full access to the !FireWire devices {{{/dev/fw*}}}. This _might_ require logging in as root.
+
+To run the application as non-root user in Ubuntu-based distributions, you should add your non-root user to the "disk" and "video" groups, and then logout/login to reflect these changes.
 
 After a successful compilation process, the {{{./bin}}} directory will contain three binaries:
 
