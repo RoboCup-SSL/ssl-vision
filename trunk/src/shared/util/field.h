@@ -375,6 +375,8 @@ public:
     update();
   }
 
+  bool isCamPosHalfNegX() const { return (stringToCameraPositionEnum(camera_pos->getSelection()) == CAM_POS_HALF_NEG_X); }
+
   void update() {
     if (auto_update->getBool() == true && robocup_field!=0) copyFromRoboCupField(robocup_field,stringToCameraPositionEnum(camera_pos->getSelection()));
   }
@@ -388,7 +390,6 @@ public:
     } else if (pos==CAM_POS_HALF_POS_X) {
       //mult_y=-1;
     }
-
     left_corner_x->setInt(mult_x*(field->half_field_length->getInt()));
     left_corner_y->setInt(mult_y*(field->half_field_width->getInt()));
     left_goal_area_x->setInt(mult_x*(field->half_field_length->getInt()));

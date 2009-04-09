@@ -202,31 +202,32 @@ ProcessResult PluginVisualize::process(FrameData * data, RenderOptions * options
       // Right side line:
       drawFieldLine(camera_parameters.field.right_corner_x->getInt(),
                     camera_parameters.field.right_corner_y->getInt(),
-                        camera_parameters.field.right_centerline_x->getInt(),
-                            camera_parameters.field.right_centerline_y->getInt(), 
-                                stepsPerLine, vis_frame);
+                    camera_parameters.field.right_centerline_x->getInt(),
+                    camera_parameters.field.right_centerline_y->getInt(), 
+                    stepsPerLine, vis_frame);
       // Goal line:
       drawFieldLine(camera_parameters.field.right_corner_x->getInt(),
                     camera_parameters.field.right_corner_y->getInt(),
-                        camera_parameters.field.left_corner_x->getInt(),
-                            camera_parameters.field.left_corner_y->getInt(),
-                                stepsPerLine, vis_frame);
+                    camera_parameters.field.left_corner_x->getInt(),
+                    camera_parameters.field.left_corner_y->getInt(),
+                    stepsPerLine, vis_frame);
       // Center line:
       drawFieldLine(camera_parameters.field.left_centerline_x->getInt(),
                     camera_parameters.field.left_centerline_y->getInt(),
-                        camera_parameters.field.right_centerline_x->getInt(),
-                            camera_parameters.field.right_centerline_y->getInt(), 
-                                stepsPerLine, vis_frame);
+                    camera_parameters.field.right_centerline_x->getInt(),
+                    camera_parameters.field.right_centerline_y->getInt(), 
+                    stepsPerLine, vis_frame);
 
+      const int mult = calib_field.isCamPosHalfNegX() ? -1 : 1;
 
       // Center circle:
       double prev_x = 0;
       double prev_y = real_field.center_circle_radius->getInt();
       
-      for (double i=0.314; i <= 3.14; i += 0.314)
+      for (int i=1; i <= 10; i ++)
       {
-        double y = cos(i) * real_field.center_circle_radius->getInt();
-        double x = sin(i) * real_field.center_circle_radius->getInt();
+        double y = cos(i * 0.314) * real_field.center_circle_radius->getInt();
+        double x = sin(mult * i * 0.314) * real_field.center_circle_radius->getInt();
 
         drawFieldLine((int) prev_x,
                       (int) prev_y,
@@ -240,7 +241,7 @@ ProcessResult PluginVisualize::process(FrameData * data, RenderOptions * options
       
       // Goal area:
       int defense_radius=real_field.defense_radius->getInt();
-      int defense_x=real_field.half_field_length->getInt();
+      int defense_x=mult * real_field.half_field_length->getInt();
       int defense_stretch_h=real_field.half_defense_stretch->getInt();
       prev_x = 0;
       prev_y = -defense_radius;
@@ -248,7 +249,7 @@ ProcessResult PluginVisualize::process(FrameData * data, RenderOptions * options
       for (double i=3.14; i<=3.14+3.14/2; i+= 0.314)
       {
         double y = cos(i) * defense_radius;
-        double x = sin(i) * defense_radius;
+        double x = sin(mult * i) * defense_radius;
         
         drawFieldLine((int) prev_x +  defense_x,
                       (int) prev_y - defense_stretch_h,
@@ -260,15 +261,15 @@ ProcessResult PluginVisualize::process(FrameData * data, RenderOptions * options
         prev_y = y;
       }
       
-      drawFieldLine(defense_x-defense_radius, -defense_stretch_h, defense_x-defense_radius, defense_stretch_h, stepsPerLine, vis_frame);
+      drawFieldLine(defense_x - mult * defense_radius, -defense_stretch_h, defense_x - mult * defense_radius, defense_stretch_h, stepsPerLine, vis_frame);
       
-      prev_x = -defense_radius;
+      prev_x = mult * -defense_radius;
       prev_y = 0;
       
       for (double i=3.14+3.14/2; i<=3.14+3.14; i+= 0.314)
       {
         double y = cos(i) * defense_radius;
-        double x = sin(i) * defense_radius;
+        double x = sin(mult * i) * defense_radius;
         
         drawFieldLine((int) prev_x + defense_x,
                       (int) prev_y + defense_stretch_h,
@@ -281,32 +282,32 @@ ProcessResult PluginVisualize::process(FrameData * data, RenderOptions * options
       }  
 
       
-      int field_length=real_field.half_field_length->getInt();
-      int field_width=real_field.half_field_width->getInt();
-      
-      for (int grid_y=0; grid_y < field_width; grid_y += 500)
-      {
-        drawFieldLine((int) 0,
-                      (int) -grid_y,
-                      (int) field_length,
-                      (int) -grid_y, 
-                      stepsPerLine, vis_frame);
+       int field_length = real_field.half_field_length->getInt();
+       int field_width = real_field.half_field_width->getInt();
+
+       for (int grid_y=0; grid_y < field_width; grid_y += 500)
+       {
+         drawFieldLine((int) 0,
+                       (int) -grid_y,
+                       (int) mult * field_length,
+                       (int) -grid_y, 
+                       stepsPerLine, vis_frame);
         
-        drawFieldLine((int) 0,
-                      (int) grid_y,
-                      (int) field_length,
-                      (int) grid_y, 
-                      stepsPerLine, vis_frame);
+         drawFieldLine((int) 0,
+                       (int) grid_y,
+                       (int) mult * field_length,
+                       (int) grid_y, 
+                       stepsPerLine, vis_frame);
         
-      }
-      for (int grid_x=0; grid_x < field_length; grid_x += 500)
-      {
-        drawFieldLine((int) grid_x,
-                      (int) -field_width,
-                      (int) grid_x,
-                      (int) field_width, 
-                      stepsPerLine, vis_frame);
-      } 
+       }
+       for (int grid_x=0; grid_x < field_length; grid_x += 500)
+       {
+         drawFieldLine((int) mult * grid_x,
+                       (int) -field_width,
+                       (int) mult * grid_x,
+                       (int) field_width, 
+                       stepsPerLine, vis_frame);
+       } 
     }
     
     // Test edge detection for calibration
