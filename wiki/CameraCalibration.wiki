@@ -2,4 +2,41 @@
 
 = Field Configuration and Camera Calibration =
 
-Add your content here.
+== Coordinate System ==
+
+To be written...
+
+== Calibration Procedure ==
+
+In order to obtain information about the action on the field from
+the camera images, a camera calibration routine has to be performed. 
+This routine is performed as follows:
+
+Activate the Camera Calibration Tab on the right. Adjust the camera 
+height according to your setup. Drag the four points constraining 
+the half-field to their location in the image plane. Press "Do 
+initial calibration". After that, you should see a field and a grid 
+drawn from red lines in the image, which only matches the real field 
+very roughly.
+
+The initial setup using the four points does not take distortion 
+into account. Therefore, manually adjust the distortion (values between 
+-0.1 and -0.2 worked for us) and, again, press "Do initial calibration".
+After that, the red field lines and the grid should reflect the 
+distortion. From this parameters, additional feature points of the field 
+can be computed. For this, click "Detect additional calibration points" 
+and small red boxes should appear along the lines indicating the 
+additional feature points. To perform the optimization using these 
+additional points, press "Do full calibration" and the camera geometry 
+should be calibrated. 
+
+[http://ssl-vision.googlecode.com/svn/wiki/calibration-result.png]
+
+By pressing "Reset", default values will be assigned to the camera 
+geometry parameters.
+
+The calibration routine can be tested using the sample image from the 
+"test-data" directory. Unfortunately, this image shows a 2008 SSL-field, 
+therefore, the projected red lines will not exactly match the actual 
+field lines, but it should be sufficient to get the idea how the routine 
+is performed.
