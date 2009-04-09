@@ -56,8 +56,12 @@ instead. The project *should* build without errors or warnings.
 
 == Starting the Applications ==
 
-1) depending on your OS, you might need to ensure that you have full access to the firewire devices /dev/fw*. This *might* require logging in as root.
+Depending on the configuration of your OS, you might need to ensure that you have full access to the !FireWire devices {{{/dev/fw*}}}. This _might_ require logging in as root.
 
-2) run the software using the following command:
+After a successful compilation process, the {{{./bin}}} directory will contain three binaries:
 
-    ./bin/vision
+   * *vision* - The SSL-Vision application
+   * *client* - A simple sample client
+   * *graphicalClient* - A graphical sample client
+
+You can start these applications without any further preparations. The usage of these applications is described in further sections: [ApplicationOverview Usage of  SSL-Vision]; [Communication Usage of clients].
