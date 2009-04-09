@@ -1,12 +1,16 @@
 #summary Software and hardware requirements for using SSL-Vision. Installation guide.
 
+
 = Requirements and Installation =
+
 
 == Operating System ==
 SSL-Vision is a Linux application. We do not plan to support any other operating system in the future. The current reference distribution is Ubuntu / Kubuntu 8.10 (Intrepid Ibex). The application will probably run on any other up to date Linux distribution without problems. For the reference distribution, we made sure that all software dependencies are part of the distribution and have a compatible version, thus no downloads from additional sources will be needed.
 
-== Software Requirements ==
 
+== Software Requirements ==
+The following tools and libraries are required to compile SSL-Vision:
+   * g++
    * QT >= 4.3 with opengl and networking support
    * qmake (should come with QT)
    * Eigen2
@@ -15,12 +19,21 @@ SSL-Vision is a Linux application. We do not plan to support any other operating
    * GLU
    * libdc1394 Version >= 2.0
    * libjpeg
+To get all these packages in (Ku,U)buntu, run:
+{{{
+sudo apt-get install g++ libqt4-dev libeigen2-dev protobuf-compiler libprotobuf-dev libdc1394-22 libdc1394-22-dev
+}}}
 
 
 == Hardware Requirements ==
+SSL-Vision has been developed and tested on x86-compatible computers. Any more or less up to date machine should run the application smoothly. Since the application is multi-threaded, having multiple CPU cores is an advantage.
 
-The system supports 1394B / Firewire 800, but it's also backward compatible
- with 1394A.
+The system currently supports 1394B / !FireWire 800 as well as 1394A / !FireWire 400. The support of !Video4Linux and Gigabit Ethernet cameras is intended for the future (see [TODO list of open issues]).
+
+In theory, all !FireWire cameras should work with SSL-Vision. Here is a list of all cameras we actually use for testing and thus _know_ how they perform:
+|| *Camera* || *Resolution* || *Frame rate* || *Image encoding* ||
+|| _AVT Stingray_ || 780x580 || 60Hz || YUV422 ||
+
 
 
 == Getting and Compiling SSL-Vision ==
