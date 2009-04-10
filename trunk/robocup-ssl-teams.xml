@@ -129,25 +129,22 @@
 			<Var name="Max Markeryness" type="double" minval="" maxval="">
 				12.000000
 			</Var>
-			<Var name="Min Field-Greenness" type="double" minval="" maxval="">
+			<Var name="Min Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
 				0.000000
 			</Var>
-			<Var name="Max Field-Greenness" type="double" minval="" maxval="">
-				2.000000
+			<Var name="Max Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
+				1.000000
 			</Var>
-			<Var name="Min Black/Whiteness" type="double" minval="" maxval="">
+			<Var name="Min Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
 				0.000000
 			</Var>
-			<Var name="Max Black/Whiteness" type="double" minval="" maxval="">
-				12.000000
+			<Var name="Max Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
+				1.000000
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				80.000000
-			</Var>
-			<Var name="Max Marker Margin (mm)" type="double" minval="" maxval="">
-				20.000000
+				90.000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
 				0.001000
@@ -288,7 +285,7 @@
 		</Var>
 		<Var name="Histogram Settings" type="list">
 			<Var name="Enable" type="bool">
-				true
+				false
 			</Var>
 			<Var name="Scan Radius (pixels)" type="int" minval="" maxval="">
 				16
@@ -299,25 +296,22 @@
 			<Var name="Max Markeryness" type="double" minval="" maxval="">
 				12.000000
 			</Var>
-			<Var name="Min Field-Greenness" type="double" minval="" maxval="">
+			<Var name="Min Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
 				0.000000
 			</Var>
-			<Var name="Max Field-Greenness" type="double" minval="" maxval="">
-				2.000000
+			<Var name="Max Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
+				1.000000
 			</Var>
-			<Var name="Min Black/Whiteness" type="double" minval="" maxval="">
+			<Var name="Min Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
 				0.000000
 			</Var>
-			<Var name="Max Black/Whiteness" type="double" minval="" maxval="">
-				12.000000
+			<Var name="Max Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
+				1.000000
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				80.000000
-			</Var>
-			<Var name="Max Marker Margin (mm)" type="double" minval="" maxval="">
-				20.000000
+				90.000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
 				0.001000

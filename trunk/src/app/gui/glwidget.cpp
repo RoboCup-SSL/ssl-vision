@@ -198,7 +198,7 @@ void GLWidget::myGLinit() {
 
 void GLWidget::paintEvent ( QPaintEvent * e ) {
   ( void ) e;
-
+  //QGLWidget::paintEvent(e);
   mainDraw();
 
 }

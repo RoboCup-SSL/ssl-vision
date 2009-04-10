@@ -91,7 +91,6 @@ protected:
 
     VarList * _pattern_fitness;
       VarDouble * _pattern_max_dist;
-      VarDouble * _pattern_max_dist_margin;
       VarDouble * _pattern_fitness_weight_area;
       VarDouble * _pattern_fitness_weight_center_distance;
       VarDouble * _pattern_fitness_weight_next_distance;

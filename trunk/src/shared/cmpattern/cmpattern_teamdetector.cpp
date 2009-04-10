@@ -126,7 +126,6 @@ void TeamDetector::init(Team * team)
 
 
   _pattern_max_dist=_team->_pattern_max_dist->getDouble();
-  _pattern_max_dist_margin=_team->_pattern_max_dist_margin->getDouble();
   _pattern_fit_params.fit_area_weight=_team->_pattern_fitness_weight_area->getDouble();
   _pattern_fit_params.fit_cen_dist_weight=_team->_pattern_fitness_weight_center_distance->getDouble();
   _pattern_fit_params.fit_next_dist_weight=_team->_pattern_fitness_weight_next_distance->getDouble();
@@ -296,11 +295,10 @@ bool TeamDetector::checkHistogram(const CMVision::Region * reg, const Image<raw8
             histogram->getChannel(color_id_green) +
             histogram->getChannel(color_id_cyan)) / histogram->getChannel(color_id_team);
 
-  float f_greenness = histogram->getChannel(color_id_field_green) * inv_num;
+  float f_greenness = (float)histogram->getChannel(color_id_field_green) * inv_num;
 
   float f_black_white =
-    (2 * (histogram->getChannel(color_id_black) + histogram->getChannel(color_id_clear)) * inv_num) *
-    (2 * histogram->getChannel(color_id_white) * inv_num);
+    (float)(histogram->getChannel(color_id_white) + histogram->getChannel(color_id_black) + histogram->getChannel(color_id_clear)) * inv_num;
 
   /*
   if(unlikely(verbose > 0)){
@@ -415,8 +413,7 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
   Marker cen; // center marker
   Marker markers[MaxMarkers];
 
-  float marker_max_dist =
-    _pattern_max_dist + _pattern_max_dist_margin;
+  float marker_max_dist = _pattern_max_dist;
 
   // partially forget old detections
   //decaySeen();

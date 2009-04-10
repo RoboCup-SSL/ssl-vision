@@ -67,6 +67,10 @@ typedef Range::Range<float ,false,true> RangeFloat;
 typedef Range::Range<double,false,true> RangeDouble;
 typedef Range::Range<int   ,false,true> RangeInt;
 
+typedef Range::Range<float ,false,false> ClosedRangeFloat;
+typedef Range::Range<double,false,false> ClosedRangeDouble;
+typedef Range::Range<int   ,false,false> ClosedRangeInt;
+
 //==== Angle and matrix types ====//
 
 #if USE_QUATERIONS

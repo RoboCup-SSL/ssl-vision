@@ -138,6 +138,21 @@ void CaptureThread::run() {
     CaptureStats * stats;
     bool changed;
 
+    /* experimental affinity stuff:
+    //get tid
+    //int tid=gettid();
+    //  printf("tid: %d\n",tid);
+    unsigned int tid=(long int)syscall(__NR_gettid);
+    printf("The ID of this of this thread is: %d\n", tid);
+    cpu_set_t cpu_set;
+    printf("aff returned: %d\n",sched_getaffinity(tid, sizeof(cpu_set), &cpu_set));
+    for (int i=0;i<4;i++) {
+      printf("CPU %d is %s\n",i,CPU_ISSET(i,&cpu_set) ? "set": "Not set");
+    }
+    //void CPU_CLR(int cpu, cpu_set_t *set);
+    //int CPU_ISSET(int cpu, cpu_set_t *set);
+    */
+
     while(true) {
       if (rb!=0) {
         int idx=rb->curWrite();

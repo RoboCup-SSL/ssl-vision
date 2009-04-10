@@ -188,12 +188,11 @@ protected:
   bool  _histogram_enable;
   int    _histogram_pixel_scan_radius;
 
-  RangeFloat _histogram_markeryness;
-  RangeFloat _histogram_field_greenness;
-  RangeFloat _histogram_black_whiteness;
+  ClosedRangeFloat _histogram_markeryness;
+  ClosedRangeFloat _histogram_field_greenness;
+  ClosedRangeFloat _histogram_black_whiteness;
 
   double _pattern_max_dist;
-  double _pattern_max_dist_margin;
   MultiPatternModel::PatternFitParameters _pattern_fit_params;
   //_pattern_fit_params includes the former following variables:
   /*double _pattern_fitness_weight_area;

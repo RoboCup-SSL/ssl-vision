@@ -129,7 +129,7 @@ class RingBuffer {
       mutex.lock();
       previous_write=current_write;
       current_write=next ( current_write,current_read, allow_lapping );
-      int res;
+      int res=current_write;
       mutex.unlock();
       return res;
     }
