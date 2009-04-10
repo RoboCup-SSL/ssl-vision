@@ -2,4 +2,13 @@
 
 = Team Configuration =
 
-Add your content here.
+==Defining the Team's Pattern Image==
+SSL-Vision's supplied pattern detector should be able to support any arbitrary color-based multi-segment pattern as typically used in the Small Size League. A team's patterns are defined through a .png file in the directory {{{ssl-vision/patterns}}}. As an example, the system comes with the CMDragons team pattern which is defined in {{{ssl-vision/patterns/CMDragons.png}}}. This team image contains a grid of individual robot covers, and it is parsed in row-major order, with increasing robot IDs, starting at 0. For the image to be parsable, each robot should contain a blue center marker. Furthermore, as shown in the example image, each cover image should be accompanied by a single pixel width yellow vertical bar which indicates the height of the robot with its height in pixels corresponding to the robot's height in mm.
+
+==Creating the Team in the Data-tree==
+Once this pattern image has been defined, it is possible to create a new team-definition through the GUI. To do so, open the branch {{{Global/Team Config/}}} in the Data-Tree. Next, click on {{{Add Team...}}}. This should create a new entry in the {{{Global/Team Config/Teams}}} branch labeled {{{New Team n}}}. After opening this team's branch, you can rename the team as desired.
+
+==Using the Pattern Image==
+To make use of the png file, make sure to check "Unique Patterns" and "Have Angles" in the team's config branch. Then open the branch "Marker Image" and enter the path to the png file as seen from the ssl-vision main directory. For example: {{{patterns/teams/CMDragons.png}}}. Next, make sure that the number of robot rows and columns are correct. Finally, uncheck any of the robot IDs which are not being used in your robot definition file, in the "Valid Patterns" field.
+
+==Configuring the Pattern Matcher Parameters==
