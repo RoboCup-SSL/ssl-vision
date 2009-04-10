@@ -76,14 +76,13 @@ Team::Team(VarList * team_root)
       _histogram_pixel_scan_radius = _histogram_settings->findChildOrReplace(new VarInt("Scan Radius (pixels)",16));
       _histogram_min_markeryness = _histogram_settings->findChildOrReplace(new VarDouble("Min Markeryness",0.3));
       _histogram_max_markeryness = _histogram_settings->findChildOrReplace(new VarDouble("Max Markeryness",12.0));
-      _histogram_min_field_greenness = _histogram_settings->findChildOrReplace(new VarDouble("Min Field-Greenness",0.0));
-      _histogram_max_field_greenness = _histogram_settings->findChildOrReplace(new VarDouble("Max Field-Greenness",2.0));
-      _histogram_min_black_whiteness = _histogram_settings->findChildOrReplace(new VarDouble("Min Black/Whiteness",0.0));
-      _histogram_max_black_whiteness = _histogram_settings->findChildOrReplace(new VarDouble("Max Black/Whiteness",12.0));
+      _histogram_min_field_greenness = _histogram_settings->findChildOrReplace(new VarDouble("Min Field-Greenness",0.0,0.0,1.0));
+      _histogram_max_field_greenness = _histogram_settings->findChildOrReplace(new VarDouble("Max Field-Greenness",1.0,0.0,1.0));
+      _histogram_min_black_whiteness = _histogram_settings->findChildOrReplace(new VarDouble("Min Black/Whiteness",0.0,0.0,1.0));
+      _histogram_max_black_whiteness = _histogram_settings->findChildOrReplace(new VarDouble("Max Black/Whiteness",1.0,0.0,1.0));
 
     _pattern_fitness = _settings->findChildOrReplace(new VarList("Pattern Fitting"));
-      _pattern_max_dist = _pattern_fitness->findChildOrReplace(new VarDouble("Max Marker Center Dist (mm)",80));
-      _pattern_max_dist_margin = _pattern_fitness->findChildOrReplace(new VarDouble("Max Marker Margin (mm)",20));
+      _pattern_max_dist = _pattern_fitness->findChildOrReplace(new VarDouble("Max Marker Center Dist (mm)",100));
       _pattern_fitness_weight_area = _pattern_fitness->findChildOrReplace(new VarDouble("Weight Area",0.001));
       _pattern_fitness_weight_center_distance = _pattern_fitness->findChildOrReplace(new VarDouble("Weight Center-Dist",0.1));
       _pattern_fitness_weight_next_distance = _pattern_fitness->findChildOrReplace(new VarDouble("Weight Next-Dist",1.0));

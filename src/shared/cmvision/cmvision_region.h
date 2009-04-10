@@ -184,18 +184,18 @@ class RegionFilter{
 protected:
   const CMVision::Region *reg;
   int w,h;
-  RangeInt area;
-  RangeInt width;
-  RangeInt height;
+  ClosedRangeInt area;
+  ClosedRangeInt width;
+  ClosedRangeInt height;
 public:
   RegionFilter() {reg=0; w=0; h=0; area.set(0,1000000); width.set(0,1000); height.set(0,1000); }
-  void setArea(RangeInt & _area) {
+  void setArea(ClosedRangeInt & _area) {
     area=_area;
   }
-  void setWidth(RangeInt & _width) {
+  void setWidth(ClosedRangeInt & _width) {
     width=_width;
   }
-  void setHeight(RangeInt & _height) {
+  void setHeight(ClosedRangeInt & _height) {
     height=_height;
   }
   void setArea(int _min, int _max) {
@@ -210,13 +210,13 @@ public:
     height.min=_min;
     height.max=_max;
   }
-  RangeInt getArea() {
+  ClosedRangeInt getArea() {
     return area;
   }
-  RangeInt getWidth() {
+  ClosedRangeInt getWidth() {
     return width;
   }
-  RangeInt getHeight() {
+  ClosedRangeInt getHeight() {
     return height;
   }
   bool check(const CMVision::Region & reg) {
@@ -265,7 +265,7 @@ public:
 
 
 /**
-	@author Author Name
+  @author Author Name
 */
 class RegionProcessing {
 protected:
