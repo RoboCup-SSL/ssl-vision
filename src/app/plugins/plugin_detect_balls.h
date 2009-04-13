@@ -44,7 +44,6 @@ protected:
   VarString * _color_label;
   VarList   * _filter_general;
     VarDouble * _ball_z_height;
-    VarDouble * _ball_max_speed;
     VarInt    * _ball_min_width;
     VarInt    * _ball_max_width;
     VarInt    * _ball_min_height;
@@ -79,7 +78,6 @@ public:
 
   _settings->addChild(_filter_general = new VarList("Ball Properties"));
     _filter_general->addChild(_ball_z_height = new VarDouble("Ball Z-Height", 30.0));
-    _filter_general->addChild(_ball_max_speed = new VarDouble("Max Speed (mm/s)", 10000.0));
     _filter_general->addChild(_ball_min_width = new VarInt("Min Width (pixels)", 3));
     _filter_general->addChild(_ball_max_width = new VarInt("Max Width (pixels)", 30));
     _filter_general->addChild(_ball_min_height = new VarInt("Min Height (pixels)", 3));
