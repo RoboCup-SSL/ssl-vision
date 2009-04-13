@@ -38,7 +38,7 @@ void AffinityManager::demandCore(int core) {
 
   DT_LOCK;
   unsigned int tid=(long int)syscall(__NR_gettid);
-  printf("The ID of this of this thread is: %d\n", tid);
+  printf("The ID of this thread is: %d\n", tid);
   cpu_set_t cpu_set;
   //int n = max_cpu_id+1;
   sched_getaffinity(tid, sizeof(cpu_set), &cpu_set);
