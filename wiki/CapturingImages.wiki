@@ -2,4 +2,27 @@
 
 = Capturing Images =
 
-Add your content here.
+== Capture Control ==
+Capturing is controlled by the "Start Capture" and "Stop Capture" buttons in the {{{Camera i/Image Capture/Capture Control}}} branch. "Capture Module" selects which capture method to use. "Reset Bus" is depending on the capture method. For DC1394-based cameras it will trigger a full bus reset, which is only recommended if the bus was frozen accidentally. "Auto refresh params" and "Re-Read Params" are explained further below in the "Camera Parameters" section
+
+*To start immediate capture with ssl-vision, without clicking the "Start Capture" buttons for each camera, simply run the program with the {{{-s}}} flag, e.g. {{{./bin/vision -s}}}.
+
+== Using DC1394 Capture (Firewire / DCAM) ==
+
+=== Capture Settings ===
+Capture parameters are located in the branch {{{Image Capture/DC1394/Capture Settings}}}. Here, you can select the desired framerate, resolution, and capture mode. Note that internally, SSL-Vision operates in YUV-space. As such, *we strongly recommend setting "capture mode" to "yuv422_uyvy"*.
+
+Capturing supports both DCAM native modes and Format7 modes which can be selected in the "capture format" field. Leaving it on "auto" will attempt native mode first, then format7_0. By default, ISO800 support is disabled. To enable it, mark the field "use ISO800" as true.
+
+===Conversion Settings===
+These settings configure the conversions from the camera's delivered images to SSL-Vision's internal format, used for further processing. *Currently, "convert to mode" should always be set to "yuv422_uyvy".*
+
+If you desire, you can do de-bayering in software, but this will take extra CPU cycles. To do so, you would set the DC1394 capture mode to e.g. "raw8" and the convert mode to "yuv422_uyvy". Finally, you will need to set "de-bayer" to true, and select the correct
+de-bayer pattern and desired method.
+
+===Camera Parameters===
+Once you start capturing, you should be able to expand the "Camera Parameters" item by double-clicking on it, and it should show all of the camera's available DCAM parameters.
+
+You can adjust all of these parameters in real-time.
+
+Note that the read-out of these parameters from the camera only happens automatically if "auto refresh params" in the Capture Control is set to true. Otherwise, you can use the "re-read params" "Refresh" button to refresh them manually. For performance reasons, it might make sense to set auto refresh to false, so the bus is not being flooded with too much control data and has full bandwidth available for the video streaming.
