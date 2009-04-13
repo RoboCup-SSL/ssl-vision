@@ -24,6 +24,7 @@
 MainWindow::MainWindow(bool start_capture)
 {
 
+  //AffinityManager aman;
   //opt=new GetOpt();
   settings=0;
   setupUi((QMainWindow *)this);

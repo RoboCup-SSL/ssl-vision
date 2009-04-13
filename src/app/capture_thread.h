@@ -24,8 +24,6 @@
 #include "capturedc1394v2.h"
 #include "capturefromfile.h"
 #include <QThread>
-/* #include <asm/unistd.h>
-#include <sched.h> */
 #include "ringbuffer.h"
 #include "framedata.h"
 #include "framecounter.h"
