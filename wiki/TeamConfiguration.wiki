@@ -1,6 +1,6 @@
-#summary Configuring robot patterns
+#summary Configuring and Detecting robot patterns
 
-= Team Configuration =
+= Team Configuration and Detection =
 
 ==Defining the Team's Pattern Image==
 SSL-Vision's supplied pattern detector should be able to support any arbitrary color-based multi-segment pattern as typically used in the Small Size League. A team's patterns are defined through a .png file in the directory {{{ssl-vision/patterns}}}. As an example, the system comes with the CMDragons team pattern which is defined in {{{ssl-vision/patterns/CMDragons.png}}}. This team image contains a grid of individual robot covers, and it is parsed in row-major order, with increasing robot IDs, starting at 0. This image will then be automatically parsed, and the pattern detector will use the areas and relative angles of all markers defined in this image for pattern detection. For the image to be parseable, each robot should contain a blue center marker. Furthermore, as shown in the example image, each cover image should be accompanied by a single pixel width yellow vertical bar which indicates the height of the robot with its height in pixels corresponding to the robot's height in mm.
