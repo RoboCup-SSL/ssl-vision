@@ -70,13 +70,18 @@ void ViewUpdateThread::run()
                 int robots_yellow_n =  detection.robots_yellow_size();
 
                 //Ball info:
-                QVector<QPointF> balls(balls_n);
+                QVector<QPointF> balls;
+
                 for (int i = 0; i < balls_n; i++) {
+                    QPointF p;
                     SSL_DetectionBall ball = detection.balls(i);
-                    balls[i].setX(ball.x());
-                    balls[i].setY(ball.y());
+                    if (ball.confidence() > 0.0) {
+                      p.setX(ball.x());
+                      p.setY(ball.y());
+                      balls.push_back(p);
+                    }
                 }
-                soccerView->UpdateBalls(balls);
+                if (balls.size() > 0) soccerView->UpdateBalls(balls);
                 //Blue robot info:
                 for (int i = 0; i < robots_blue_n; i++) {
                     SSL_DetectionRobot robot = detection.robots_blue(i);
