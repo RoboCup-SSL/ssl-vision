@@ -50,6 +50,7 @@ class MainWindow : public QMainWindow, public Ui_MainWindow
     Q_OBJECT
 
 public:
+  AffinityManager * affinity;
   //GetOpt * opt;
   VarList * root;
   VarTreeView * tree_view;
@@ -66,7 +67,7 @@ public:
 
   MultiVisionStack * multi_stack;
 
-  MainWindow(bool start_capture);
+  MainWindow(bool start_capture, bool enforce_affinity);
   virtual ~MainWindow();
   void init();
 

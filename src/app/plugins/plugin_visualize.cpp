@@ -69,6 +69,7 @@ ProcessResult PluginVisualize::process(FrameData * data, RenderOptions * options
   }
 
   if (_v_enabled->getBool()==true) {
+
     //check video data...
     if (data->video.getWidth() == 0 || data->video.getHeight()==0) {
       //there is no valid video data

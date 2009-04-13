@@ -24,7 +24,7 @@ AffinityManager::AffinityManager()
 {
   _mutex=new pthread_mutex_t;
   pthread_mutex_init((pthread_mutex_t*)_mutex, NULL);
-
+  max_cpu_id=0;
   parseCpuInfo();
 }
 
@@ -37,20 +37,41 @@ AffinityManager::~AffinityManager()
 void AffinityManager::demandCore(int core) {
 
   DT_LOCK;
-  /*unsigned int tid=(long int)syscall(__NR_gettid);
+  unsigned int tid=(long int)syscall(__NR_gettid);
   printf("The ID of this of this thread is: %d\n", tid);
   cpu_set_t cpu_set;
+  //int n = max_cpu_id+1;
   sched_getaffinity(tid, sizeof(cpu_set), &cpu_set);
-  
+  for (int i=0;i<CPU_SETSIZE;i++) {
+    CPU_CLR(i, &cpu_set);
+  }
+  int max_cores=cores.size();
+ 
 
-  for (int i=0;i<4;i++) {
-  CPU_CLR(i, &cpu_set);
-    printf("CPU %d is %s\n",i,CPU_ISSET(i,&cpu_set) ? "set": "Not set");
-  }*/
+  if (core < 0) core=0;
+  int modded_core=core % max_cores;
+
+  /* This commented code could be used to set affinity for hyperthreading
+     For now, we leave this up to the system scheduler...
+    int wraps=core/max_cores;
+    if (wraps > 0) {
+      int ht_channel=wraps % cores[modded_core].processor_ids.size();
+    }
+  */
+
+  for (unsigned int i=0; i < cores[modded_core].processor_ids.size(); i++) {
+    CPU_SET(cores[modded_core].processor_ids[i],&cpu_set);
+  }
+  if (sched_setaffinity(tid, sizeof(cpu_set), &cpu_set) == 0) {
+    printf("Affinity set successfully\n");
+    for (int i=0;i<CPU_SETSIZE;i++) {
+      if (CPU_ISSET(i,&cpu_set)) printf("Set CPU: %d\n",i);
+    }
+  } else {
+    printf("Error while setting affinity\n");
+  }	
+
   DT_UNLOCK;
-  //void CPU_CLR(int cpu, cpu_set_t *set);
-  //int CPU_ISSET(int cpu, cpu_set_t *set);
-
 }
 
 int AffinityManager::parseFileUpTo(FILE * f, char * output, int len, char end) {
@@ -86,6 +107,7 @@ void AffinityManager::parseCpuInfo() {
   char value[256];
   int phys_id=0;
   int proc_id=0;
+  int max_cpu_id=0;
   f=fopen("/proc/cpuinfo","r");
 
   PhysicalCore core;
@@ -102,7 +124,7 @@ void AffinityManager::parseCpuInfo() {
       } else {
         if (strcmp(item,"processor")==0) {
           sscanf(value,"%d",&proc_id);
-
+          if (proc_id > max_cpu_id) max_cpu_id=proc_id;
         } else if (strcmp(item,"core id")==0) {
           if (sscanf(value,"%d",&phys_id) ==1) {
             if (phys_id >= (int)cores.size()) {
