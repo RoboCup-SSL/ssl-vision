@@ -24,6 +24,9 @@ HEADERS += $${PREFIX}/qgetopt.h
 SOURCES += $${PREFIX}/random.cpp
 HEADERS += $${PREFIX}/random.h
 
+SOURCES += $${PREFIX}/affinity_manager.cpp
+HEADERS += $${PREFIX}/affinity_manager.h
+
 SOURCES += $${PREFIX}/rawimage.cpp
 HEADERS += $${PREFIX}/rawimage.h
 

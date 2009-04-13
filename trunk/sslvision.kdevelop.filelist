@@ -109,6 +109,8 @@ src/shared/net/robocup_ssl_server.h
 src/shared/proto
 src/shared/sources.pro.inc
 src/shared/util
+src/shared/util/affinity_manager.cpp
+src/shared/util/affinity_manager.h
 src/shared/util/bbox.h
 src/shared/util/bitflags.h
 src/shared/util/camera_calibration.cpp

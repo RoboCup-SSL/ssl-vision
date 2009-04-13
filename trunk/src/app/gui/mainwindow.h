@@ -22,6 +22,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "affinity_manager.h"
 #include <QtGui>
 #include <qmainwindow.h>
 #include "ui_mainwindow.h"
