@@ -21,10 +21,11 @@
 
 #include "mainwindow.h"
 
-MainWindow::MainWindow(bool start_capture)
+MainWindow::MainWindow(bool start_capture, bool enforce_affinity)
 {
 
-  //AffinityManager aman;
+  affinity=0;
+  if (enforce_affinity) affinity=new AffinityManager();
   //opt=new GetOpt();
   settings=0;
   setupUi((QMainWindow *)this);
@@ -54,6 +55,7 @@ MainWindow::MainWindow(bool start_capture)
   //create tabs, GL visualizations and tool-panes for each capture thread in the multi-stack:
   for (unsigned int i=0;i<multi_stack->threads.size();i++) {
     VisionStack * s = multi_stack->threads[i]->getStack();
+    if (affinity!=0) multi_stack->threads[i]->setAffinityManager(affinity);
 
     GLWidget * gl=new GLWidget(0,false);
     gl->setRingBuffer(multi_stack->threads[i]->getFrameBuffer());
@@ -117,6 +119,8 @@ MainWindow::MainWindow(bool start_capture)
     splitter2->addWidget(stack_widget);
   }
   
+  if (affinity!=0) affinity->demandCore(multi_stack->threads.size());
+
   // Set position and size of main window:
   QSettings window_settings("RoboCup", "ssl-vision");
   window_settings.beginGroup("MainWindow");
@@ -200,6 +204,7 @@ void MainWindow::closeEvent(QCloseEvent * event ) {
 }
 
 MainWindow::~MainWindow() {
+  if (affinity!=0) delete affinity;
 	//FIXME: right now we don't clean up anything
   VarXML::write(world,"settings.xml");
 

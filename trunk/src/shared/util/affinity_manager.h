@@ -51,6 +51,7 @@ public:
 protected:
     pthread_mutex_t * _mutex;
     vector<PhysicalCore> cores;
+    int max_cpu_id;
     int parseFileUpTo(FILE * f, char * output, int len, char end);
     void parseCpuInfo();
 public:

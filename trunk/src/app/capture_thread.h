@@ -29,6 +29,7 @@
 #include "framecounter.h"
 #include "visionstack.h"
 #include "capturestats.h"
+#include "affinity_manager.h"
 
 /*!
   \class   CaptureThread
@@ -46,6 +47,7 @@ protected:
   CaptureInterface * capture;
   CaptureInterface * captureDC1394;
   CaptureInterface * captureFiles;
+  AffinityManager * affinity;
   FrameBuffer * rb;
   bool _kill;
   int camId;
@@ -74,6 +76,7 @@ public:
   VisionStack * getStack() const;
   void kill();
   VarList * getSettings();
+  void setAffinityManager(AffinityManager * _affinity);
   CaptureThread(int cam_id);
   ~CaptureThread();
 

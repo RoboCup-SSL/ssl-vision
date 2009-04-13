@@ -32,14 +32,28 @@ int main(int argc, char *argv[])
   QApplication app(argc, argv);
 
   GetOpt opts(argc, argv);
+  bool help=false;
   bool start=false;
+  bool enforce_affinity=false;
+  int ecode=0;
+  opts.addSwitch("help",&help);
+  opts.addShortOptSwitch( 'a',QString("Enforce Processor Affinity"),&enforce_affinity, false);
   opts.addShortOptSwitch( 's',QString("Start Capturing Immediately"),&start, false);
   if (!opts.parse()) {
     fprintf(stderr,"Invalid command line parameters!\n");
-    exit(1);
-  } 
+    help=true;
+    ecode=1;
+  }
 
-  MainWindow mainWin(start);
+  if (help) {
+    printf("SSL-Vision command line options:\n");
+    printf(" -s        Start capture immediately\n");
+    printf(" -a        Set Processor Affinity\n");
+    printf(" --help    Show this help\n");
+    exit(ecode);
+  }
+
+  MainWindow mainWin(start, enforce_affinity);
   //if desired, launch a particular style:
   // app.setStyle(new QPlastiqueStyle());
   // app.setStyle(new QCleanlooksStyle());
