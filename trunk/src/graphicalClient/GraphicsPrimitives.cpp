@@ -110,8 +110,10 @@ void Robot::paint(QPainter *painter, const QStyleOptionGraphicsItem* , QWidget* 
     else
         painter->drawPath(robotOutlineCircle);
     painter->setPen(*idPen);
+    painter->setBrush(Qt::black);
     painter->drawPath(robotID);
     painter->setPen(Qt::NoPen);
+    painter->setBrush(*brush);
     painter->drawRect(-90,-130,(int)(((double)180)*conf),30);
     painter->setPen(*pen);
     painter->setBrush(QBrush(Qt::white, Qt::NoBrush));
@@ -153,7 +155,7 @@ SoccerView::SoccerView()
     fieldLinePen->setJoinStyle(Qt::MiterJoin);
     fieldItem = scene->addPath(*field,*fieldLinePen,*fieldBrush);
     this->scale(0.14,0.14);
-    this->setRenderHint(QPainter::HighQualityAntialiasing, true);
+    this->setRenderHint(QPainter::Antialiasing, true);
     this->setDragMode(QGraphicsView::ScrollHandDrag);
     this->setGeometry(100,100,1036,756);
     startTimer(30);
@@ -299,6 +301,8 @@ int SoccerView::UpdateBalls(QVector<QPointF> &_balls)
         ballItems[i]->setPos(balls[i].x()-21,-balls[i].y()-21);
     }
     drawMutex.unlock();
+    if(false)
+        printf("number of balls = %d\n",ballItems.size());
     return balls.size();
 }
 
@@ -355,6 +359,7 @@ void SoccerView::PruneRobots()
         {
             robots.remove(i);
             scene->removeItem(robot);
+            delete robot;
         }
     }
     drawMutex.unlock();
