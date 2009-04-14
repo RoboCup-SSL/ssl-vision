@@ -8,15 +8,8 @@ For bugs and other problems, please use the "Issue" tracker: http://code.google.
 
 == Usability Features: ==
   * buttons to sync the multiple segmentation LUTs (*assigned to: Stefan*)
-  * a selection field to manually disable/enable certain robots of a team
-  * visualization of the field and detection results, such as robot positions / angles / certainties (*assigned to: Joydeep*)
   * visualization of the stack, showing the order and names of plugins, allowing check-boxes to enable/disable each plugin. This could become another tab on the left, where the data-tree is currently the only tab. This should also include optional visualization of the measured processing time values of each plugin.
-  * command line options to run in console-only (maybe -c) mode and to immediately start capturing on startup (maybe -s)
-
-== Processing Improvements: ==
-  * finish the "near-robot" filter in the ball detection plugin (*assigned to: Stefan*)
-  * fix switching between different team definitions during runtime (*assigned to: Stefan*)
-  * cached readout of vartype values (*assigned to: Stefan*)
+  * command line options to run in console-only (maybe -c) mode
   * Allow network clients to request calibration data. Currently the camera calibration data and field dimensions are sent over the network only if the "publish" button is hit in the GUI. We might want to let clients request this data, and also auto re-publish this data if it is changed in the GUI.
 
 == Capturing: ==
