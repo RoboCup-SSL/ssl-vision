@@ -392,8 +392,16 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
     alpha += Eigen::MatrixXd::Identity(STATE_SPACE_DIMENSION + num_alpha, STATE_SPACE_DIMENSION + num_alpha) * lambda;
 
     // Solve for x
+    Eigen::VectorXd new_p;
+    
+    // Due to an API change we need to check for
+    // the right call at compile time
+#ifdef EIGEN_WORLD_VERSION
+    alpha.llt().solve(-beta, $new_p);
+#else
     Eigen::Cholesky<Eigen::MatrixXd> c(alpha);
-    Eigen::VectorXd new_p(c.solve(-beta));
+    new_p = c.solve(-beta);
+#endif
 
     // Calculate chisqr again
     double chisqr = calc_chisqr(p_f, p_i, new_p, cal_type);
