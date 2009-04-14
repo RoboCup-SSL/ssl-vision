@@ -63,9 +63,8 @@ int ViewUpdateThread::printRobotInfo(const SSL_DetectionRobot & robot, int teamI
 void ViewUpdateThread::run()
 {
     int n=0;
-    client.open(false);
+    client.open(true);
     while(!shutdownView){
-        //usleep(9000);
         if (client.receive(packet)) {
             //see if the packet contains a robot detection frame:
             if (packet.has_detection()) {
