@@ -412,7 +412,7 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
     // Due to an API change we need to check for
     // the right call at compile time
 #ifdef EIGEN_WORLD_VERSION
-    alpha.llt().solve(-beta, $new_p);
+    alpha.llt().solve(-beta, &new_p);
 #else
     Eigen::Cholesky<Eigen::MatrixXd> c(alpha);
     new_p = c.solve(-beta);
