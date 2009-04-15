@@ -176,6 +176,11 @@ public:
       VarDouble* camera_height;
       VarDouble* line_search_corridor_width;
       VarDouble* convergence_timeout;
+      VarDouble* cov_corner_x;
+      VarDouble* cov_corner_y;
+      
+      VarDouble* cov_ls_x;
+      VarDouble* cov_ls_y;
   };
   
   /*!

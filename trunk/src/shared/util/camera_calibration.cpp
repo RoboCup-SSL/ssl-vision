@@ -145,6 +145,12 @@ double CameraParameters::calc_chisqr(std::vector<GVector::vector3d<double> > &p_
 {
   assert(p_f.size() == p_i.size());
   
+  double cov_cx_inv = 1 / additional_calibration_information->cov_corner_x->getDouble();
+  double cov_cy_inv = 1 / additional_calibration_information->cov_corner_y->getDouble();
+
+  double cov_lsx_inv = 1 / additional_calibration_information->cov_ls_x->getDouble();
+  double cov_lsy_inv = 1 / additional_calibration_information->cov_ls_y->getDouble();
+
   double chisqr(0);
 
   // Iterate over manual points
@@ -155,7 +161,7 @@ double CameraParameters::calc_chisqr(std::vector<GVector::vector3d<double> > &p_
   {
     GVector::vector2d<double> proj_p;
     field2image(*it_p_f, proj_p, p);
-    chisqr += pow(proj_p.x - it_p_i->x,2) + pow(proj_p.y - it_p_i->y,2);
+    chisqr += pow(proj_p.x - it_p_i->x,2) * cov_cx_inv + pow(proj_p.y - it_p_i->y,2) * cov_cy_inv;
   }
 
   // Iterate of line edge points, but only when performing a full estimation
@@ -181,7 +187,7 @@ double CameraParameters::calc_chisqr(std::vector<GVector::vector3d<double> > &p_
           // Project into image plane
           field2image(alpha_point, proj_p, p);
           
-          chisqr += pow(proj_p.x - pts_it->first.x,2) + pow(proj_p.y - pts_it->first.y,2);
+          chisqr += pow(proj_p.x - pts_it->first.x,2) * cov_lsx_inv + pow(proj_p.y - pts_it->first.y,2) * cov_lsy_inv;
           i++;
         }
       }
@@ -294,6 +300,15 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
   std::cerr << "Chi-square: "<< old_chisqr << std::endl;
 #endif
 
+  // Create and fill corner measurement covariance matrix
+  Eigen::Matrix2d cov_corner_inv;
+  cov_corner_inv << 1 / additional_calibration_information->cov_corner_x->getDouble(), 0 , 0 , 1 / additional_calibration_information->cov_corner_y->getDouble();
+
+  // Create and fill line segment measurement covariance matrix
+  Eigen::Matrix2d cov_ls_inv;
+  cov_ls_inv << 1 / additional_calibration_information->cov_ls_x->getDouble(), 0 , 0 , 1 / additional_calibration_information->cov_ls_y->getDouble();
+
+  // Matrices for A, b and the Jacobian J
   Eigen::MatrixXd alpha(STATE_SPACE_DIMENSION + num_alpha, STATE_SPACE_DIMENSION + num_alpha);
   Eigen::VectorXd beta(STATE_SPACE_DIMENSION + num_alpha, 1);
   Eigen::MatrixXd J(2, STATE_SPACE_DIMENSION + num_alpha);
@@ -334,8 +349,8 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
         J(1,i) = ((proj_p_diff.y - (*it_p_i).y) - proj_p.y) / epsilon;
       }
       
-      alpha += J.transpose() * J;
-      beta += J.transpose() * Eigen::Vector2d(proj_p.x, proj_p.y);
+      alpha += J.transpose() * cov_corner_inv * J;
+      beta += J.transpose() * cov_corner_inv * Eigen::Vector2d(proj_p.x, proj_p.y);
     }
     
     if (cal_type & FULL_ESTIMATION)
@@ -380,8 +395,8 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
           J(0,STATE_SPACE_DIMENSION + i) = ((proj_p_diff.x - (*pts_it).first.x) - proj_p.x) / epsilon;
           J(1,STATE_SPACE_DIMENSION + i) = ((proj_p_diff.y - (*pts_it).first.y) - proj_p.y) / epsilon;
           
-          alpha += J.transpose() * J;
-          beta += J.transpose() * Eigen::Vector2d(proj_p.x, proj_p.y);
+          alpha += J.transpose() * cov_ls_inv * J;
+          beta += J.transpose() * cov_ls_inv * Eigen::Vector2d(proj_p.x, proj_p.y);
           i++;
         }
       }
@@ -551,6 +566,10 @@ CameraParameters::AdditionalCalibrationInformation::AdditionalCalibrationInforma
   camera_height = new VarDouble("camera height", 4000.0);
   line_search_corridor_width = new VarDouble("line search corridor width", 280.0);
   convergence_timeout = new VarDouble("convergence timeout (s)", 10.0);
+  cov_corner_x = new VarDouble("Cov corner measurement x", 1.0);
+  cov_corner_y = new VarDouble("Cov corner measurement y", 1.0);
+  cov_ls_x = new VarDouble("Cov line segment measurement x", 1.0);
+  cov_ls_y = new VarDouble("Cov line segment measurement y", 1.0);
 }
 
 CameraParameters::AdditionalCalibrationInformation::~AdditionalCalibrationInformation()
@@ -567,6 +586,10 @@ CameraParameters::AdditionalCalibrationInformation::~AdditionalCalibrationInform
   delete camera_height;
   delete line_search_corridor_width;
   delete convergence_timeout;
+  delete cov_corner_x;
+  delete cov_corner_y;
+  delete cov_ls_x;
+  delete cov_ls_y;
 }
 
 void CameraParameters::AdditionalCalibrationInformation::addSettingsToList(VarList& list) 
@@ -583,4 +606,8 @@ void CameraParameters::AdditionalCalibrationInformation::addSettingsToList(VarLi
   list.addChild(camera_height);
   list.addChild(line_search_corridor_width);
   list.addChild(convergence_timeout);
+  list.addChild(cov_corner_x);
+  list.addChild(cov_corner_y);
+  list.addChild(cov_ls_x);
+  list.addChild(cov_ls_y);
 }
