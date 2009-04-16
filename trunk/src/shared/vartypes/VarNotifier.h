@@ -20,7 +20,7 @@
 //========================================================================
 #ifndef VARNOTIFIER_H
 #define VARNOTIFIER_H
-#include "VarData.h"
+#include "primitives/VarData.h"
 #include <QObject>
 #include <QMutex>
 #include <QHash>

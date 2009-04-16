@@ -19,7 +19,7 @@
 */
 
 #include "VarData.h"
-#include "VarItemDelegate.h"
+#include "../gui/VarItemDelegate.h"
 
 vDataTypeEnum VarData::stringToType(string stype)
 {
