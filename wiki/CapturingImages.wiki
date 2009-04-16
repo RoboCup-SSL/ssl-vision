@@ -26,3 +26,10 @@ Once you start capturing, you should be able to expand the "Camera Parameters" i
 You can adjust all of these parameters in real-time.
 
 Note that the read-out of these parameters from the camera only happens automatically if "auto refresh params" in the Capture Control is set to true. Otherwise, you can use the "re-read params" "Refresh" button to refresh them manually. For performance reasons, it might make sense to set auto refresh to false, so the bus is not being flooded with too much control data and has full bandwidth available for the video streaming.
+
+== Reading Images from Files ==
+If you want to test the application on a computer which does not have any camera connected, you can select the capture mode "Read from files" in the "Capture Control" menu.
+
+Before starting to capture, a directory containing the images needs to be configured. This is done by setting the "directory" parameter in the "Read from files" submenu. The directory needs to be specified relative to the directory from which the application is executed.
+
+All images (being in BMP, JPG, or PNG format) in that directory are read into memory and will be looped. The current repository version already includes one test image (of a half of a 2008 SSL field) in the {{{test-data}}} directory.
