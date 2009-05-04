@@ -407,7 +407,7 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
     alpha += Eigen::MatrixXd::Identity(STATE_SPACE_DIMENSION + num_alpha, STATE_SPACE_DIMENSION + num_alpha) * lambda;
 
     // Solve for x
-    Eigen::VectorXd new_p;
+    Eigen::VectorXd new_p(STATE_SPACE_DIMENSION + num_alpha);
     
     // Due to an API change we need to check for
     // the right call at compile time
