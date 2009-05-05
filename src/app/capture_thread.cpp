@@ -199,8 +199,13 @@ void CaptureThread::run() {
           usleep(5000);
         }
         if (_kill) {
-          if(capture != 0)
+          capture_mutex.lock();
+          if(capture != 0) {
             capture->stopCapture();
+            //make sure to read latest params from camera to be saved to file...
+            if (capture->isCapturing()) capture->readAllParameterValues();
+          }
+          capture_mutex.unlock();
           return;
         }
       }
