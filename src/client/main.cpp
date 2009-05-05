@@ -144,6 +144,13 @@ int main(int argc, char *argv[])
                     printf("  -tx=%.2f\n",calib.tx());
                     printf("  -ty=%.2f\n",calib.ty());
                     printf("  -tz=%.2f\n",calib.tz());
+
+                    if (calib.has_derived_camera_world_tx() && calib.has_derived_camera_world_ty() && calib.has_derived_camera_world_tz()) {
+                      printf("  -derived_camera_world_tx=%.f\n",calib.derived_camera_world_tx());
+                      printf("  -derived_camera_world_ty=%.f\n",calib.derived_camera_world_ty());
+                      printf("  -derived_camera_world_tz=%.f\n",calib.derived_camera_world_tz());
+                    }
+
                 }
             }
         }
