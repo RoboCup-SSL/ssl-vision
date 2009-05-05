@@ -183,15 +183,15 @@ void GLWidget::myGLinit() {
 
   qglClearColor ( QColor ( 64,64,128 ) );
 
-  glEnable ( GL_ALPHA_TEST );
-  glEnable ( GL_BLEND );
-  glEnable ( GL_STENCIL_TEST );
-  glBlendFunc ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-  glEnable ( GL_TEXTURE_2D );
-
   //qpainter stuff:
-  glEnable(GL_CULL_FACE);
+  if (ALLOW_QPAINTER) {
+    glEnable ( GL_ALPHA_TEST );
+    glEnable ( GL_BLEND );
+    glBlendFunc ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+    glEnable ( GL_TEXTURE_2D );  
+    glEnable(GL_CULL_FACE);
+  }
   glEnable(GL_MULTISAMPLE);
  
 }
