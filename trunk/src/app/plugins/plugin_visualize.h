@@ -64,8 +64,9 @@ protected:
   VarBool * _v_detected_edges;
 
   const CameraParameters& camera_parameters;
-  const RoboCupCalibrationHalfField& calib_field;
   const RoboCupField& real_field;
+  const RoboCupCalibrationHalfField& calib_field;
+
   LUT3D * _threshold_lut;
   greyImage* edge_image;
   greyImage* temp_grey_image;

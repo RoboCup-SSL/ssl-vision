@@ -87,34 +87,8 @@ public:
   void field2image(GVector::vector3d<double> &p_f, GVector::vector2d<double> &p_i, Eigen::VectorXd &p);
 
   #ifndef NO_PROTOBUFFERS
-  void toProtoBuffer(SSL_GeometryCameraCalibration & buffer, int camera_id) const {
-    buffer.set_focal_length(focal_length->getDouble());
-    buffer.set_principal_point_x(principal_point_x->getDouble());
-    buffer.set_principal_point_y(principal_point_y->getDouble());
-    buffer.set_distortion(distortion->getDouble());
-    buffer.set_q0(q0->getDouble());
-    buffer.set_q1(q1->getDouble());
-    buffer.set_q2(q2->getDouble());
-    buffer.set_q3(q3->getDouble());
-    buffer.set_tx(tx->getDouble());
-    buffer.set_ty(ty->getDouble());
-    buffer.set_tz(tz->getDouble());
-    buffer.set_camera_id(camera_id);
-  }
-
-  void fromProtoBuffer(const SSL_GeometryCameraCalibration & buffer) {
-    focal_length->setDouble(buffer.focal_length());
-    principal_point_x->setDouble(buffer.principal_point_x());
-    principal_point_y->setDouble(buffer.principal_point_y());
-    distortion->setDouble(buffer.distortion());
-    q0->setDouble(buffer.q0());
-    q1->setDouble(buffer.q1());
-    q2->setDouble(buffer.q2());
-    q3->setDouble(buffer.q3());
-    tx->setDouble(buffer.tx());
-    ty->setDouble(buffer.ty());
-    tz->setDouble(buffer.tz());
-  }
+  void toProtoBuffer(SSL_GeometryCameraCalibration & buffer, int camera_id) const;
+  void fromProtoBuffer(const SSL_GeometryCameraCalibration & buffer);
   #endif
 
   enum 

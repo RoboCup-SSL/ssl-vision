@@ -404,6 +404,7 @@ void PluginCameraCalibration::mousePressEvent ( QMouseEvent * event, pixelloc lo
 
 void PluginCameraCalibration::mouseReleaseEvent ( QMouseEvent * event, pixelloc loc ) 
 {
+  (void)loc;
   QTabWidget* tabw = (QTabWidget*) ccw->parentWidget()->parentWidget();
   if (tabw->currentWidget() == ccw)
   {
