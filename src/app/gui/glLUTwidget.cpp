@@ -508,9 +508,8 @@ void GLLUTWidget::initializeGL()
   //make lines smooth:
   glEnable(GL_LINE_SMOOTH);
   //enable depth testing
-  
-  
-//  glClearDepth(1.0f);
+
+  //  glClearDepth(1.0f);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
   glDisable(GL_CULL_FACE);
