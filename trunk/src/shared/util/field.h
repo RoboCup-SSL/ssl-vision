@@ -404,14 +404,12 @@ public:
     right_goal_post_x->setInt(left_goal_post_x->getInt());
     right_goal_post_y->setInt(-left_goal_post_y->getInt());
 
-    //subtract half a line width, because we are measuring the outside of the line:
-    left_centerline_x->setInt(mult_x*(-(field->half_line_width->getInt()))); 
+    left_centerline_x->setInt(0); 
     left_centerline_y->setInt(left_corner_y->getInt());
     left_centercircle_x->setInt(0);
     left_centercircle_y->setInt(mult_y*(field->center_circle_radius->getInt()));
 
-    //subtract half a line width, because we are measuring the outside of the line:
-    right_centerline_x->setInt(-left_centerline_x->getInt());
+    right_centerline_x->setInt(0);
     right_centerline_y->setInt(-left_centerline_y->getInt());
     right_centercircle_x->setInt(0);
     right_centercircle_y->setInt(-left_centercircle_y->getInt());
