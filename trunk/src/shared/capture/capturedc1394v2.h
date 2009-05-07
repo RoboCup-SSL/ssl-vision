@@ -432,6 +432,8 @@ public:
 
   virtual void readAllParameterValues();
 
+  void writeAllParameterValues();
+
   virtual bool copyAndConvertFrame(const RawImage & src, RawImage & target);
 
   virtual string getCaptureMethodName() const;

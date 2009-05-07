@@ -280,6 +280,16 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_WHITE_SHADING->addChild(new VarInt("value B"));
   P_WHITE_SHADING->addChild(new VarBool("use absolute"));
   P_WHITE_SHADING->addChild(new VarDouble("absolute value"));*/
+  
+  vector<VarData *> v=dcam_parameters->getChildren();
+  for (unsigned int i=0;i<v.size();i++) {
+    if (v[i]->getType()==DT_LIST) {
+       VarBool * temp;
+       ((VarList *)v[i])->addChild(temp = new VarBool("was_read",false)); 
+      temp->addRenderFlags(DT_FLAG_HIDDEN);
+    }
+  }
+  
   #ifndef VDATA_NO_QT
     mvc_connect(P_FRAME_RATE);
   #endif
@@ -326,6 +336,15 @@ void CaptureDC1394v2::readAllParameterProperties()
   }
 }
 
+void CaptureDC1394v2::writeAllParameterValues() {
+  vector<VarData *> v=dcam_parameters->getChildren();
+  for (unsigned int i=0;i<v.size();i++) {
+    if (v[i]->getType()==DT_LIST) {
+      writeParameterValues((VarList *)v[i]); 
+    }
+  }
+}
+
 void CaptureDC1394v2::readParameterValues(VarList * item) {
   #ifndef VDATA_NO_QT
     mutex.lock();
@@ -334,6 +353,7 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
   bool valid=true;
   dc1394feature_t feature=getDC1394featureEnum(item,valid);
   if (valid==false) {
+    printf("INVALID FEATURE: %s\n",item->getName().c_str());
     #ifndef VDATA_NO_QT
     mutex.unlock();
     #endif
@@ -344,12 +364,14 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
   VarBool * vuseabs=0;
   VarBool * venabled=0;
   VarBool * vauto=0;
+  VarBool * vwasread=0;
   VarTrigger * vtrigger=0;
   VarInt * vint2=0;
   VarInt * vint3=0;
 
   vector<VarData *> children=item->getChildren();
   for (unsigned int i=0;i<children.size();i++) {
+    if (children[i]->getType()==DT_BOOL && children[i]->getName()=="was_read") vwasread=(VarBool *)children[i];
     if (children[i]->getType()==DT_BOOL && children[i]->getName()=="enabled") venabled=(VarBool *)children[i];
     if (children[i]->getType()==DT_BOOL && children[i]->getName()=="auto") vauto=(VarBool *)children[i];
     if (children[i]->getType()==DT_BOOL && children[i]->getName()=="use absolute") vuseabs=(VarBool *)children[i];
@@ -370,17 +392,24 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
   if (dc1394_feature_is_present(camera,feature,&dcb) == DC1394_SUCCESS) {
     if (dcb==false) {
       //feature doesn't exist
+      if (vwasread!=0) vwasread->setBool(false);
     } else {
       //check for switchability:
-      if (dc1394_feature_is_switchable(camera,feature,&dcb) ==DC1394_SUCCESS && dcb==true) {
-        dc1394switch_t sw;
-        if (dc1394_feature_get_power(camera,feature,&sw) == DC1394_SUCCESS && sw==DC1394_ON) {
-          venabled->setBool(true);
+      if (vwasread!=0) vwasread->setBool(true);
+      if (dc1394_feature_is_switchable(camera,feature,&dcb) == DC1394_SUCCESS) {
+        if (dcb==true) {
+          dc1394switch_t sw;
+          if (dc1394_feature_get_power(camera,feature,&sw) == DC1394_SUCCESS && sw==DC1394_ON) {
+            venabled->setBool(true);
+          } else {
+            venabled->setBool(false);
+          }
         } else {
-          venabled->setBool(false);
+          venabled->setBool(true);
         }
+      } else {
+        fprintf(stderr,"DC1394 ERROR: FAILURE DURING SWITCHABLE READOUT: %s\n", item->getName().c_str());
       }
-
       //feature exists
       if (dc1394_feature_is_readable(camera,feature,&dcb) == DC1394_SUCCESS && dcb==true) {
         //feature is readable
@@ -432,7 +461,7 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
           vuseabs->setBool(false);
         }
       }
-    }
+    } 
 
 
 
@@ -506,6 +535,8 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
       }
     }
   
+  } else {
+    fprintf(stderr,"DC1394 ERROR: FAILURE TO READ SETTING: %s\n", item->getName().c_str());
   }
   
   
@@ -534,10 +565,12 @@ void CaptureDC1394v2::writeParameterValues(VarList * item) {
   VarBool * vauto=0;
   VarInt * vint2=0;
   VarInt * vint3=0;
+  VarBool * vwasread=0;
   VarTrigger * vtrigger=0;
 
   vector<VarData *> children=item->getChildren();
   for (unsigned int i=0;i<children.size();i++) {
+    if (children[i]->getType()==DT_BOOL && children[i]->getName()=="was_read") vwasread=(VarBool *)children[i];
     if (children[i]->getType()==DT_BOOL && children[i]->getName()=="enabled") venabled=(VarBool *)children[i];
     if (children[i]->getType()==DT_BOOL && children[i]->getName()=="auto") vauto=(VarBool *)children[i];
     if (children[i]->getType()==DT_BOOL && children[i]->getName()=="use absolute") vuseabs=(VarBool *)children[i];
@@ -555,50 +588,55 @@ void CaptureDC1394v2::writeParameterValues(VarList * item) {
     }
   }
 
-  if (dc1394_feature_is_present(camera,feature,&dcb) == DC1394_SUCCESS) {
-    if (dcb==false) {
-      //feature doesn't exist
-    } else {
-      //check for switchability:
-      if (dc1394_feature_is_switchable(camera,feature,&dcb) ==DC1394_SUCCESS && dcb==true) {
-        dc1394_feature_set_power(camera,feature,(venabled->getBool() ? DC1394_ON : DC1394_OFF));
-      }
-
-
-      //feature exists
-      if (dc1394_feature_is_readable(camera,feature,&dcb) == DC1394_SUCCESS && dcb==true) {
-        if (vtrigger!=0 && vtrigger->getCounter() > 0) {
-          vtrigger->resetCounter();
-          printf("ONE PUSH for %s!\n",item->getName().c_str());
-          dc1394_feature_set_mode(camera,feature,DC1394_FEATURE_MODE_ONE_PUSH_AUTO);
-          dc1394_feature_set_mode(camera,feature,vauto->getBool() ? DC1394_FEATURE_MODE_AUTO : DC1394_FEATURE_MODE_MANUAL);
-        } else {
-          dc1394_feature_set_mode(camera,feature,vauto->getBool() ? DC1394_FEATURE_MODE_AUTO : DC1394_FEATURE_MODE_MANUAL);
-          if (vauto->getBool()==false && vabs->getBool()==false) {
-            //feature is readable
-            if (feature==DC1394_FEATURE_WHITE_SHADING) {
-              if (vint2!=0 && vint3!=0) {
-                dc1394_feature_whiteshading_set_value(camera,(unsigned int) (vint->getInt()),(unsigned int) (vint2->getInt()),(unsigned int) (vint3->getInt()));
+  if (vwasread!=0 && vwasread->getBool()==true) {
+  //new: only apply parameters which were previously read from the camera
+    if (dc1394_feature_is_present(camera,feature,&dcb) == DC1394_SUCCESS) {
+      if (dcb==false) {
+        //feature doesn't exist
+      } else {
+        //check for switchability:
+        if (dc1394_feature_is_switchable(camera,feature,&dcb) ==DC1394_SUCCESS && dcb==true) {
+          dc1394_feature_set_power(camera,feature,(venabled->getBool() ? DC1394_ON : DC1394_OFF));
+        }
+  
+  
+        //feature exists
+        if (dc1394_feature_is_readable(camera,feature,&dcb) == DC1394_SUCCESS && dcb==true) {
+          if (vtrigger!=0 && vtrigger->getCounter() > 0) {
+            vtrigger->resetCounter();
+            printf("ONE PUSH for %s!\n",item->getName().c_str());
+            dc1394_feature_set_mode(camera,feature,DC1394_FEATURE_MODE_ONE_PUSH_AUTO);
+            dc1394_feature_set_mode(camera,feature,vauto->getBool() ? DC1394_FEATURE_MODE_AUTO : DC1394_FEATURE_MODE_MANUAL);
+          } else {
+            dc1394_feature_set_mode(camera,feature,vauto->getBool() ? DC1394_FEATURE_MODE_AUTO : DC1394_FEATURE_MODE_MANUAL);
+            if (vauto->getBool()==false && vabs->getBool()==false) {
+              //feature is readable
+              if (feature==DC1394_FEATURE_WHITE_SHADING) {
+                if (vint2!=0 && vint3!=0) {
+                  dc1394_feature_whiteshading_set_value(camera,(unsigned int) (vint->getInt()),(unsigned int) (vint2->getInt()),(unsigned int) (vint3->getInt()));
+                }
+              } else if (feature==DC1394_FEATURE_WHITE_BALANCE) {
+                if (vint2!=0) {
+                  dc1394_feature_whitebalance_set_value(camera,(unsigned int) (vint->getInt()),(unsigned int) (vint2->getInt()));
+                }
+              } else {
+                dc1394_feature_set_value(camera,feature, (unsigned int) (vint->getInt()));
               }
-            } else if (feature==DC1394_FEATURE_WHITE_BALANCE) {
-              if (vint2!=0) {
-                dc1394_feature_whitebalance_set_value(camera,(unsigned int) (vint->getInt()),(unsigned int) (vint2->getInt()));
-              }
-            } else {
-              dc1394_feature_set_value(camera,feature, (unsigned int) (vint->getInt()));
             }
           }
-        }
-
-        //------------ABSOLUTE CONTROL READOUT:
-        if (dc1394_feature_has_absolute_control(camera,feature,&dcb) ==DC1394_SUCCESS && dcb==true) {
-          dc1394_feature_set_absolute_control(camera,feature,vuseabs->getBool() ? DC1394_ON : DC1394_OFF);
-          if (vuseabs->getBool() == true && vauto->getBool()==false) {
-            dc1394_feature_set_absolute_value(camera,feature,(float)vabs->getDouble());
+  
+          //------------ABSOLUTE CONTROL READOUT:
+          if (dc1394_feature_has_absolute_control(camera,feature,&dcb) ==DC1394_SUCCESS && dcb==true) {
+            dc1394_feature_set_absolute_control(camera,feature,vuseabs->getBool() ? DC1394_ON : DC1394_OFF);
+            if (vuseabs->getBool() == true && vauto->getBool()==false) {
+              dc1394_feature_set_absolute_value(camera,feature,(float)vabs->getDouble());
+            }
           }
         }
       }
     }
+  } else {
+    //printf("Not writing parameter!\n");
   }
   #ifndef VDATA_NO_QT
     mutex.unlock();
@@ -609,10 +647,12 @@ void CaptureDC1394v2::readParameterProperty(VarList * item) {
   #ifndef VDATA_NO_QT
     mutex.lock();
   #endif
+  bool debug=false;
   dc1394bool_t dcb;
   bool valid=true;
   dc1394feature_t feature=getDC1394featureEnum(item,valid);
   if (valid==false) {
+    fprintf(stderr,"ERROR: INVALID PROPERTY ENCOUNTERED DURING READOUT: %s\n", item->getName().c_str());
     #ifndef VDATA_NO_QT
     mutex.unlock();
     #endif
@@ -648,15 +688,22 @@ void CaptureDC1394v2::readParameterProperty(VarList * item) {
 
   if (dc1394_feature_is_present(camera,feature,&dcb) == DC1394_SUCCESS) {
     if (dcb==false) {
+      if (debug) fprintf(stderr,"DC1394 PROP FEATURE IS *NOT* PRESENT: %s\n", item->getName().c_str());
       //feature doesn't exist
       item->addRenderFlags(DT_FLAG_HIDDEN);
     } else {
+      if (debug) fprintf(stderr,"DC1394 PROP FEATURE IS PRESENT: %s\n", item->getName().c_str());
       item->removeRenderFlags(DT_FLAG_HIDDEN);
       //check for switchability:
-      if (dc1394_feature_is_switchable(camera,feature,&dcb) ==DC1394_SUCCESS && dcb==true) {
-        venabled->removeRenderFlags( DT_FLAG_HIDDEN);
+      if (dc1394_feature_is_switchable(camera,feature,&dcb) ==DC1394_SUCCESS) {
+        if (dcb==true) {
+          venabled->removeRenderFlags( DT_FLAG_HIDDEN);
+        } else {
+          venabled->setBool(true);
+          venabled->addRenderFlags( DT_FLAG_HIDDEN);
+        }
       } else {
-        venabled->addRenderFlags( DT_FLAG_HIDDEN);
+         fprintf(stderr,"DC1394 PROP READOUT ERROR - SWITCHABLE: %s\n", item->getName().c_str());
       }
 
       //feature exists
@@ -715,6 +762,8 @@ void CaptureDC1394v2::readParameterProperty(VarList * item) {
         
       }
     }
+  } else {
+    fprintf(stderr,"DC1394 PROP READOUT ERROR: %s\n", item->getName().c_str());
   }
   #ifndef VDATA_NO_QT
     mutex.unlock();
@@ -825,6 +874,9 @@ bool CaptureDC1394v2::resetBus() {
 
 bool CaptureDC1394v2::stopCapture() {
 
+  if (isCapturing()) {
+    readAllParameterValues();
+  }
   cleanup();
 
   vector<VarData *> tmp = capture_settings->getChildren();
@@ -1438,6 +1490,8 @@ dc1394error_t dc1394_format7_get_packets_per_frame(dc1394camera_t *camera, dc139
     mutex.unlock();
   #endif
   readAllParameterProperties();
+  printf("CaptureDC1394v2 Info: Restoring Previously Saved Camera Parameters\n");
+  writeAllParameterValues();
   readAllParameterValues();
   return true;
 }

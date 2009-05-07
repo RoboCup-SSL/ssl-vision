@@ -28,8 +28,8 @@
 #define DEFAULT_PAN_DISTANCE 0.01
 #define MIN_ZOOM 0.1
 #define MAX_ZOOM 50.0
-#define MAX_PAN 0.5
-#define MIN_PAN -0.5
+#define MAX_PAN 1.0
+#define MIN_PAN -1.0
 
 /*!
   \class  Zoom
