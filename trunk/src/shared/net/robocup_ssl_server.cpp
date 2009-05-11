@@ -75,7 +75,7 @@ bool RoboCupSSLServer::send(const SSL_WrapperPacket & packet) {
   result=mc.send(buffer.c_str(),buffer.length(),multiaddr);
   mutex.unlock();
   if (result==false) {
-    fprintf(stderr,"Sending UDP datagram failed (maybe too large?). Size was: %d byte(s)\n",buffer.length());
+    fprintf(stderr,"Sending UDP datagram failed (maybe too large?). Size was: %zu byte(s)\n",buffer.length());
   }
   return(result);
 }

@@ -58,7 +58,7 @@ public:
     DT_UNLOCK;
     return result;
   }
-  virtual void printdebug() const { printf("VarSelection named %s containing %d element(s)\n",getName().c_str(), list.size()); }
+  virtual void printdebug() const { printf("VarSelection named %s containing %zu element(s)\n",getName().c_str(), list.size()); }
 
   unsigned int getCount() const {
     DT_LOCK;
@@ -111,7 +111,7 @@ public:
     if (list.size() < size) {
       for (unsigned int i=list.size();i<size;i++) {
         char tmp[64];
-        sprintf(tmp,"%d",list.size());
+        sprintf(tmp,"%zu",list.size());
         list.push_back(new VarBool(tmp ,default_val));
         list[list.size()-1]->addRenderFlags(DT_FLAG_HIDDEN);
       }
@@ -143,7 +143,7 @@ public:
     DT_LOCK;
     if (label.compare("")==0) {
       char tmp[64];
-      sprintf(tmp,"%d",list.size());
+      sprintf(tmp,"%zu",list.size());
       list.push_back(new VarBool(tmp , value));
     } else {
       list.push_back(new VarBool(label , value));

@@ -58,7 +58,7 @@ public:
   virtual void resetToDefault() {DT_LOCK; for (unsigned int i=0;i<list.size();i++) { emit(childRemoved(list[i])); } list.clear();  DT_UNLOCK; };
 
   /// prints the label and number of elements
-  virtual void printdebug() const { printf("VarList named %s containing %d element(s)\n",getName().c_str(), list.size()); }
+  virtual void printdebug() const { printf("VarList named %s containing %zu element(s)\n",getName().c_str(), list.size()); }
 
   /// adds a VarData item to the end of the list.
   int addChild(VarData * child) { DT_LOCK; list.push_back(child); emit(childAdded(child)); DT_UNLOCK; CHANGE_MACRO; return (list.size()-1);}
