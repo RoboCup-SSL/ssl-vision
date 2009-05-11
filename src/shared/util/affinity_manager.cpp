@@ -139,10 +139,10 @@ void AffinityManager::parseCpuInfo() {
   }
   fclose(f);
   printf("== Affinity Manager CPU Detection Results =========================\n");
-  printf(" Found %d core(s):\n", cores.size());
+  printf(" Found %zu core(s):\n", cores.size());
   for (unsigned int i=0;i< cores.size(); i++) {
     if (cores[i].enabled) {
-      printf(" - Core %d with %d HT Processor(s) (IDs: ",i,cores[i].processor_ids.size());
+      printf(" - Core %d with %zu HT Processor(s) (IDs: ",i,cores[i].processor_ids.size());
       for (unsigned j=0;j< cores[i].processor_ids.size(); j++) {
         printf("[%d] ",cores[i].processor_ids[j]);
       }

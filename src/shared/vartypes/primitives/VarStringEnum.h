@@ -52,7 +52,7 @@ public:
 
   virtual string getString() const { return selected; }
   virtual void resetToDefault() { list.clear(); selected=default_string; };
-  virtual void printdebug() const { printf("StringEnum named %s containing %d element(s)\n",getName().c_str(), list.size()); }
+  virtual void printdebug() const { printf("StringEnum named %s containing %zu element(s)\n",getName().c_str(), list.size()); }
 
   unsigned int getCount() const {
     DT_LOCK;
@@ -128,7 +128,7 @@ public:
     if (list.size() < size) {
       for (unsigned int i=list.size();i<size;i++) {
         char tmp[64];
-        sprintf(tmp,"%d",list.size());
+        sprintf(tmp,"%zu",list.size());
         list.push_back(new VarString(tmp ,default_label));
         list[list.size()-1]->addRenderFlags(DT_FLAG_HIDDEN);
       }
@@ -163,7 +163,7 @@ public:
   int addItem(const string & label) {
     DT_LOCK;
     char tmp[64];
-    sprintf(tmp,"%d",list.size());
+    sprintf(tmp,"%zu",list.size());
     list.push_back(new VarString(tmp ,label));
     list[list.size()-1]->addRenderFlags(DT_FLAG_HIDDEN);
     DT_UNLOCK;
