@@ -16,7 +16,7 @@
    <string>Video Display</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="icons_gui.qrc" >:/icons/window-new.png</iconset>
+   <iconset resource="icons/icons_gui.qrc" >:/icons/window-new.png</iconset>
   </property>
   <layout class="QVBoxLayout" >
    <property name="margin" >

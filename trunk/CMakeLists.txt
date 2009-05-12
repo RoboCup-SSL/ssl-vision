@@ -78,6 +78,7 @@ qt4_wrap_ui (UI_SRCS
 
 qt4_add_resources(RC_SRCS 
 	src/app/gui/icons/icons_gui.qrc
+	${SHARED_RC}
 )
 
 ## shared qt wrappings

@@ -55,7 +55,7 @@
   </widget>
  </widget>
  <resources>
-  <include location="icons_gui.qrc" />
+  <include location="icons/icons_gui.qrc" />
  </resources>
  <connections/>
 </ui>
