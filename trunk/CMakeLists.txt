@@ -91,6 +91,29 @@ qt4_add_resources(SHARED_RC_SRCS
 	${SHARED_RC}
 )
 
+set (arch ${CMAKE_SYSTEM_PROCESSOR})
+
+message (STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
+message (STATUS "Arch: ${arch}")
+
+if (${arch} MATCHES "x86_64")
+	#set compiler flags here for x86_64
+	set (cc_flags "")
+elseif (${arch} MATCHES "x86")
+	#set compiler flags here for x86
+	set (cc_flags "")
+endif()
+
+#flags to set in debug mode
+set (CMAKE_CXX_FLAGS_DEBUG "-g")
+
+#flags to set in release mode
+set (CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG")
+
+message (STATUS "Custom CC Flags: ${cc_flags}")
+
+add_definitions(${cc_flags})
+
 ## build the common code
 add_library(sslvision ${SHARED_MOC_SRCS} ${SHARED_RC_SRCS} ${CC_PROTO} ${SHARED_SRCS})
 add_dependencies(sslvision GenerateProto)
