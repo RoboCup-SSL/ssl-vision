@@ -16,7 +16,6 @@ For bugs and other problems, please use the "Issue" tracker: http://code.google.
   * support of GigE vision input (*assigned to: GaTech*)
   * support of V4L input
   * improvement of the read from file capture. See also "DVR" plugin below.
-  * support of image position when capturing in format7 mode (*assigned to: Oliver*)
 
 == Calibration: ==
   * use LUTs for the image->world transformation (*assigned to: Oliver*)
