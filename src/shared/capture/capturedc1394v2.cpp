@@ -81,6 +81,8 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   capture_settings->addChild(v_fps              = new VarInt("framerate",60));
   capture_settings->addChild(v_width            = new VarInt("width",640));
   capture_settings->addChild(v_height           = new VarInt("height",480));
+  capture_settings->addChild(v_left            = new VarInt("left",0));
+  capture_settings->addChild(v_top           = new VarInt("top",0));
   capture_settings->addChild(v_colormode        = new VarStringEnum("capture mode",Colors::colorFormatToString(COLOR_YUV422_UYVY)));
   v_colormode->addItem(Colors::colorFormatToString(COLOR_RGB8));
   v_colormode->addItem(Colors::colorFormatToString(COLOR_RGB16));
@@ -988,6 +990,8 @@ bool CaptureDC1394v2::startCapture()
   cam_id=v_cam_bus->getInt();
   width=v_width->getInt();
   height=v_height->getInt();
+  left=v_left->getInt();
+  top=v_left->getInt();
   capture_format=Colors::stringToColorFormat(v_colormode->getString().c_str());
   int fps=v_fps->getInt();
   CaptureMode mode=stringToCaptureMode(v_format->getString().c_str());
@@ -1361,6 +1365,16 @@ bool CaptureDC1394v2::startCapture()
       cleanup();
       return false;
     }
+
+    if (dc1394_format7_set_image_position(camera, dcformat, left, top) != DC1394_SUCCESS) {
+      fprintf(stderr,"CaptureDC1394v2 Error: unable to set Format 7 image size\n");
+      #ifndef VDATA_NO_QT
+        mutex.unlock();
+      #endif
+      cleanup();
+      return false;
+    }
+    
   
   
     uint32_t unit=0;

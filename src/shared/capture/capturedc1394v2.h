@@ -353,6 +353,8 @@ protected:
   VarInt    * v_fps;
   VarInt    * v_width;
   VarInt    * v_height;
+  VarInt    * v_left;
+  VarInt    * v_top;
   VarStringEnum * v_colormode;
   VarStringEnum * v_format;
   VarBool   * v_use1394B;
@@ -362,6 +364,8 @@ protected:
   unsigned int cam_id;
   int width;
   int height;
+  int top;
+  int left;
   ColorFormat capture_format;
   int ring_buffer_size;
   dc1394camera_list_t * cam_list;
