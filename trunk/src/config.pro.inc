@@ -1,6 +1,6 @@
 CONFIG -= warn_off
-#CONFIG -= debug
-#CONFIG += release
+CONFIG -= debug
+CONFIG += release
 CONFIG += qt
 CONFIG += console
 
@@ -15,7 +15,7 @@ unix {
   DEFINES+=_GNU_SOURCE
 
 #profiling:
-  CONFIG += debug
+#  CONFIG += debug
 #  QMAKE_CFLAGS+=-pg
 #  QMAKE_CXXFLAGS+=-pg
 #  QMAKE_LFLAGS+=-pg
