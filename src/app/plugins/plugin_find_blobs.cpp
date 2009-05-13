@@ -28,6 +28,7 @@ PluginFindBlobs::PluginFindBlobs(FrameBuffer * _buffer, YUVLUT * _lut, int _max_
 
   _settings=new VarList("Blob Finding");
   _settings->addChild(_v_min_blob_area=new VarInt("min_blob_area", 5));
+  _settings->addChild(_v_enable=new VarBool("enable", true));
 
 }
 
@@ -58,21 +59,33 @@ ProcessResult PluginFindBlobs::process(FrameData * data, RenderOptions * options
     return ProcessingFailed;
   }
 
-  //Connect the components of the runlength map:
-  CMVision::RegionProcessing::connectComponents(runlist);
-
-  //Extract Regions from runlength map:
-  CMVision::RegionProcessing::extractRegions(reglist, runlist);
-
-  if (reglist->getUsedRegions() == reglist->getMaxRegions()) {
-    printf("Warning: extract regions exceeded maximum number of %d regions\n",reglist->getMaxRegions());
+  if (_v_enable->getBool()==true) {
+    //Connect the components of the runlength map:
+    CMVision::RegionProcessing::connectComponents(runlist);
+  
+    //Extract Regions from runlength map:
+    CMVision::RegionProcessing::extractRegions(reglist, runlist);
+  
+    if (reglist->getUsedRegions() == reglist->getMaxRegions()) {
+      printf("Warning: extract regions exceeded maximum number of %d regions\n",reglist->getMaxRegions());
+    }
+  
+    //Separate Regions by colors:
+    int max_area = CMVision::RegionProcessing::separateRegions(colorlist, reglist, _v_min_blob_area->getInt());
+  
+    //Sort Regions:
+    CMVision::RegionProcessing::sortRegions(colorlist,max_area);
+  } else {
+    //detect nothing.
+    reglist->setUsedRegions(0);
+    int num_colors=colorlist->getNumColorRegions();
+    CMVision::RegionLinkedList * color=colorlist->getColorRegionArrayPointer();
+  
+    // clear out the region list head table
+    for(int i=0; i<num_colors; i++){
+      color[i].reset();
+    }
   }
-
-  //Separate Regions by colors:
-  int max_area = CMVision::RegionProcessing::separateRegions(colorlist, reglist, _v_min_blob_area->getInt());
-
-  //Sort Regions:
-  CMVision::RegionProcessing::sortRegions(colorlist,max_area);
 
   return ProcessingOk;
 
