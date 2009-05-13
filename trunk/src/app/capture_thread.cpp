@@ -45,12 +45,12 @@ CaptureThread::CaptureThread(int cam_id)
   connect(c_stop,SIGNAL(wasEdited(VarData *)),this,SLOT(stop()));
   connect(c_reset,SIGNAL(wasEdited(VarData *)),this,SLOT(reset()));
   connect(c_refresh,SIGNAL(wasEdited(VarData *)),this,SLOT(refresh()));
-
+  connect(captureModule,SIGNAL(hasChanged(VarData *)),this,SLOT(selectCaptureMethod()));
   stack = 0;
   counter=new FrameCounter();
-  capture = 0;
   captureDC1394 = new CaptureDC1394v2(dc1394,camId);
   captureFiles = new CaptureFromFile(fromfile);
+  selectCaptureMethod();
   _kill =false;
   rb=0;
 }
@@ -88,6 +88,28 @@ VisionStack * CaptureThread::getStack() const {
   return stack;
 }
 
+void CaptureThread::selectCaptureMethod() {
+  capture_mutex.lock();
+  CaptureInterface * old_capture=capture;
+  CaptureInterface * new_capture=0;
+  if(captureModule->getString() == "Read from files") {
+    new_capture = captureFiles;
+  } else {
+    new_capture = captureDC1394;
+  }
+
+  if (old_capture!=0 && new_capture!=old_capture && old_capture->isCapturing()) {
+    capture_mutex.unlock();
+    stop();
+    capture_mutex.lock();
+    capture=new_capture;
+    capture_mutex.unlock();
+    return;
+  }
+  capture=new_capture;
+  capture_mutex.unlock();
+}
+
 void CaptureThread::kill() {
  _kill=true; 
   while(isRunning()) {
@@ -97,10 +119,6 @@ void CaptureThread::kill() {
 
 bool CaptureThread::init() {
   capture_mutex.lock();
-  if(captureModule->getString() == "Read from files")
-    capture = captureFiles;
-  else
-    capture = captureDC1394;
   bool res = capture->startCapture();
   if (res==true) {
     c_start->addRenderFlags( DT_FLAG_READONLY );

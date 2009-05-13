@@ -68,6 +68,7 @@ public slots:
   bool stop();
   bool reset();
   void refresh();
+  void selectCaptureMethod();
 
 public:
   void setFrameBuffer(FrameBuffer * _rb);

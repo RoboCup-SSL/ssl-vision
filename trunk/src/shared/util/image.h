@@ -452,10 +452,9 @@ void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
 
   void drawChar(int x, int y, char c, PIXEL val)
   { 
-    if (x < 0 || y < 0 || x > width || y > height)
-      return;
-    
     int charWidth(8), charHeight(8), charSize(8);
+    if (x < 0 || y < 0 || (x+charWidth) >= width || (y+charHeight) >= height)
+      return;
     
     unsigned char* charpos(gfxPrimitivesFontdata + (unsigned char) c * charSize);
     unsigned char* linepos((unsigned char *) &data[y * width + x]);

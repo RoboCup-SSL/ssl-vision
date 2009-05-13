@@ -1,5 +1,6 @@
 # KDevelop Custom Project File List
 .
+CMakeLists.txt
 src
 src/app
 src/app/capture_thread.cpp
