@@ -110,7 +110,7 @@ endif()
 set (CMAKE_CXX_FLAGS_DEBUG "-g")
 
 #flags to set in release mode
-set (CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG")
+set (CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3")
 
 message (STATUS "Custom CC Flags: ${cc_flags}")
 
