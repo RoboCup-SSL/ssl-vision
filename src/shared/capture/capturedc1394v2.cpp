@@ -371,6 +371,8 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
   VarInt * vint2=0;
   VarInt * vint3=0;
 
+  bool has_abs=false;
+
   vector<VarData *> children=item->getChildren();
   for (unsigned int i=0;i<children.size();i++) {
     if (children[i]->getType()==DT_BOOL && children[i]->getName()=="was_read") vwasread=(VarBool *)children[i];
@@ -450,6 +452,7 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
 
         //------------ABSOLUTE CONTROL READOUT:
         if (dc1394_feature_has_absolute_control(camera,feature,&dcb) ==DC1394_SUCCESS && dcb==true) {
+          has_abs=true;
           dc1394switch_t abs_sw;
           if (dc1394_feature_get_absolute_control(camera,feature,&abs_sw) ==DC1394_SUCCESS) {
             vuseabs->setBool( abs_sw==DC1394_ON);
@@ -492,19 +495,20 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
           vtrigger->removeRenderFlags( DT_FLAG_READONLY);
           vtrigger->addRenderFlags( DT_FLAG_PERSISTENT);
         }
-      vuseabs->removeRenderFlags( DT_FLAG_READONLY);
-      if (vuseabs->getBool()) {
-        
+      if (has_abs) {
+        vuseabs->removeRenderFlags( DT_FLAG_READONLY);
+      } else {
+        vuseabs->addRenderFlags( DT_FLAG_READONLY);
+      }
+      if (has_abs && vuseabs->getBool()) {
         vint->addRenderFlags( DT_FLAG_READONLY );
         if (vint2!=0) vint2->addRenderFlags( DT_FLAG_READONLY );
         if (vint3!=0) vint3->addRenderFlags( DT_FLAG_READONLY );
-        
         if (vabs!=0) vabs->removeRenderFlags( DT_FLAG_READONLY );
       } else {
         vint->removeRenderFlags( DT_FLAG_READONLY );
         if (vint2!=0) vint2->removeRenderFlags( DT_FLAG_READONLY );
         if (vint3!=0) vint3->removeRenderFlags( DT_FLAG_READONLY );
-        
         if (vabs!=0) vabs->addRenderFlags( DT_FLAG_READONLY );
       }
       if (venabled->getBool()) {
@@ -638,7 +642,7 @@ void CaptureDC1394v2::writeParameterValues(VarList * item) {
       }
     }
   } else {
-    //printf("Not writing parameter!\n");
+    //printf("==============Not writing parameter %s!===========\n",item->getName().c_str());
   }
   #ifndef VDATA_NO_QT
     mutex.unlock();
@@ -692,17 +696,17 @@ void CaptureDC1394v2::readParameterProperty(VarList * item) {
     if (dcb==false) {
       if (debug) fprintf(stderr,"DC1394 PROP FEATURE IS *NOT* PRESENT: %s\n", item->getName().c_str());
       //feature doesn't exist
-      item->addRenderFlags(DT_FLAG_HIDDEN);
+      item->addRenderFlags(DT_FLAG_READONLY|DT_FLAG_HIDE_CHILDREN);
     } else {
       if (debug) fprintf(stderr,"DC1394 PROP FEATURE IS PRESENT: %s\n", item->getName().c_str());
-      item->removeRenderFlags(DT_FLAG_HIDDEN);
+      item->removeRenderFlags(DT_FLAG_READONLY|DT_FLAG_HIDE_CHILDREN);
       //check for switchability:
       if (dc1394_feature_is_switchable(camera,feature,&dcb) ==DC1394_SUCCESS) {
         if (dcb==true) {
-          venabled->removeRenderFlags( DT_FLAG_HIDDEN);
+          venabled->removeRenderFlags( DT_FLAG_READONLY);
         } else {
           venabled->setBool(true);
-          venabled->addRenderFlags( DT_FLAG_HIDDEN);
+          venabled->addRenderFlags( DT_FLAG_READONLY);
         }
       } else {
          fprintf(stderr,"DC1394 PROP READOUT ERROR - SWITCHABLE: %s\n", item->getName().c_str());
@@ -724,32 +728,32 @@ void CaptureDC1394v2::readParameterProperty(VarList * item) {
         }
         //feature is readable
         if (has_one_push==false) {
-          vtrigger->addRenderFlags(DT_FLAG_HIDDEN);
+          vtrigger->addRenderFlags(DT_FLAG_READONLY);
         }
         if (has_manual_mode) {
           vint->removeRenderFlags( DT_FLAG_READONLY );
           if (vint2!=0) vint2->removeRenderFlags( DT_FLAG_READONLY );
           if (vint3!=0) vint3->removeRenderFlags( DT_FLAG_READONLY );
-          vauto->removeRenderFlags( DT_FLAG_HIDDEN );
+          vauto->removeRenderFlags( DT_FLAG_READONLY );
         } else {
           vint->addRenderFlags( DT_FLAG_READONLY );
           if (vint2!=0) vint2->addRenderFlags( DT_FLAG_READONLY );
           if (vint3!=0) vint3->addRenderFlags( DT_FLAG_READONLY );
-          vauto->addRenderFlags( DT_FLAG_HIDDEN );
+          vauto->addRenderFlags( DT_FLAG_READONLY );
         }
 
         //------------ABSOLUTE CONTROL READOUT:
         if (dc1394_feature_has_absolute_control(camera,feature,&dcb) ==DC1394_SUCCESS && dcb==true) {
-          vabs->removeRenderFlags( DT_FLAG_HIDDEN );
-          vuseabs->removeRenderFlags( DT_FLAG_HIDDEN);
+          vabs->removeRenderFlags( DT_FLAG_READONLY );
+          vuseabs->removeRenderFlags( DT_FLAG_READONLY);
           float minv,maxv;
           if (dc1394_feature_get_absolute_boundaries(camera,feature,&minv,&maxv)==DC1394_SUCCESS) {
             vabs->setMin((double)minv);
             vabs->setMax((double)maxv);
           }
         } else {
-          vabs->addRenderFlags( DT_FLAG_HIDDEN );
-          vuseabs->addRenderFlags( DT_FLAG_HIDDEN );
+          vabs->addRenderFlags( DT_FLAG_READONLY );
+          vuseabs->addRenderFlags( DT_FLAG_READONLY );
         }
 
 
