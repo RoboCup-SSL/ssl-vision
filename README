@@ -18,11 +18,21 @@
 ========================================================================
  
 ========================
+ Online Documentation:
+========================
+
+  To find more in-depth and up-to-date information about SSL-Vision
+  (including installation and configuration), please visit the Wiki
+  Documentation Page:
+
+  http://code.google.com/p/ssl-vision/wiki/Manual
+ 
+========================
  Software Requirements:
 ========================
  - g++
  - QT >= 4.3 with opengl and networking support
- - qmake (should come with QT)
+ - cmake
  - Eigen2
  - Google protocol buffers (protoc)
  - OpenGL
@@ -31,7 +41,7 @@
  - libjpeg
 
 To get all of these packages in (k)ubuntu, run:
-sudo apt-get install g++ libqt4-dev libeigen2-dev protobuf-compiler libprotobuf-dev libdc1394-22 libdc1394-22-dev
+sudo apt-get install g++ libqt4-dev libeigen2-dev protobuf-compiler libprotobuf-dev libdc1394-22 libdc1394-22-dev cmake
 
 
 ========================
@@ -43,11 +53,7 @@ sudo apt-get install g++ libqt4-dev libeigen2-dev protobuf-compiler libprotobuf-
 ===============
  Compilation:
 ===============
- 1) generate the makefile by running:
-
-    qmake-qt4 sslvision.pro
-
- 2) build the code by running:
+ build the code by running:
 
     make
 
