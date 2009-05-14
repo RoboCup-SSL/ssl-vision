@@ -39,7 +39,12 @@ protected:
   vector<CameraParameters *> params;
   VarList * _settings;
   VarTrigger * _pub;
+  VarBool * _pub_auto_enable;
+  VarDouble * _pub_auto_interval;
+  VarList * _pub_auto;
+  QMutex mutex;
   void sendGeometry();
+  double last_t;
 protected slots:
   void slotPublishTriggered();
 public:

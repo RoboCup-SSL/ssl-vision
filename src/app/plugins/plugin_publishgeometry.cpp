@@ -27,6 +27,10 @@ PluginPublishGeometry::PluginPublishGeometry(FrameBuffer * fb, RoboCupSSLServer 
   setSharedAmongStacks(true);
   _settings=new VarList("Publish Geometry");
   _settings->addChild(_pub=new VarTrigger("Publish","Publish!"));
+  _settings->addChild(_pub_auto=new VarList("Auto Publish"));
+  _pub_auto->addChild(_pub_auto_enable=new VarBool("Enable",true));
+  _pub_auto->addChild(_pub_auto_interval=new VarDouble("Interval (seconds)",3.0));
+  last_t=0;
   connect(_pub,SIGNAL(signalTriggered()),this,SLOT(slotPublishTriggered()));
 }
 
@@ -72,7 +76,12 @@ ProcessResult PluginPublishGeometry::process(FrameData * data, RenderOptions * o
   (void)options;
   //TODO: check client requests in server process
   //      if requested, call sendGeometry();
-
+  if (_pub_auto_enable->getBool()==true) {
+    double t = data->time - last_t;
+    if (t > _pub_auto_interval->getDouble()) {
+      sendGeometry();
+      last_t=data->time;
+    }
+  }
   return ProcessingOk;
 }
-
