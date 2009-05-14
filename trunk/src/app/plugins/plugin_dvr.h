@@ -26,6 +26,34 @@
 #include "camera_calibration.h"
 #include "messages_robocup_ssl_geometry.pb.h"
 #include "VarTypes.h"
+#include <QWidget>
+//#include <QPushButton>
+#include <QToolButton>
+#include <QButtonGroup>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QGroupBox>
+#include <QSpacerItem>
+
+class PluginDVRWidget : public QWidget
+{
+  Q_OBJECT
+  protected slots:
+    void slotModeToggled();
+    void slotPauseRefresh();
+  public:
+    PluginDVRWidget(QWidget * parent = 0, Qt::WindowFlags f = 0);
+    QGroupBox * box_mode;
+    QHBoxLayout * layout_mode;
+    QVBoxLayout * layout_main;
+    //QButtonGroup * group_mode;
+    QToolButton * btn_mode_record;
+    QToolButton * btn_mode_pause;
+    QToolButton * btn_mode_off;
+    QToolButton * btn_pause_refresh;
+    
+
+};
 
 /**
 	@author Stefan Zickler
@@ -35,11 +63,13 @@ class PluginDVR : public VisionPlugin
 Q_OBJECT
 protected:
   VarList * _settings;
+  PluginDVRWidget * w;
 public:
     PluginDVR(FrameBuffer * fb);
     virtual VarList * getSettings();
     virtual ~PluginDVR();
     virtual string getName();
+    virtual QWidget * getControlWidget();
     virtual ProcessResult process(FrameData * data, RenderOptions * options);
 };
 
