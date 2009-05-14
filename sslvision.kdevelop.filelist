@@ -42,6 +42,8 @@ src/app/plugins/plugin_detect_balls.cpp
 src/app/plugins/plugin_detect_balls.h
 src/app/plugins/plugin_detect_robots.cpp
 src/app/plugins/plugin_detect_robots.h
+src/app/plugins/plugin_dvr.cpp
+src/app/plugins/plugin_dvr.h
 src/app/plugins/plugin_find_blobs.cpp
 src/app/plugins/plugin_find_blobs.h
 src/app/plugins/plugin_publishgeometry.cpp
