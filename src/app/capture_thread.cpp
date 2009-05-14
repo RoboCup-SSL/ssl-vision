@@ -48,6 +48,7 @@ CaptureThread::CaptureThread(int cam_id)
   connect(captureModule,SIGNAL(hasChanged(VarData *)),this,SLOT(selectCaptureMethod()));
   stack = 0;
   counter=new FrameCounter();
+  capture=0;
   captureDC1394 = new CaptureDC1394v2(dc1394,camId);
   captureFiles = new CaptureFromFile(fromfile);
   selectCaptureMethod();
