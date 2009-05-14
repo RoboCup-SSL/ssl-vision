@@ -31,6 +31,7 @@ PluginCameraCalibration::PluginCameraCalibration(FrameBuffer * _buffer,
   : VisionPlugin(_buffer), camera_parameters(camera_params), field(_field), ccw(0),
      grey_image(0), rgb_image(0), doing_drag(false), drag_x(0), drag_y(0)
 {
+  video_width=video_height=0;
   settings=new VarList("Camera Calibrator");
   settings->addChild(camera_settings = new VarList("Camera Parameters"));
   camera_params.addSettingsToList(*camera_settings);
@@ -53,6 +54,8 @@ PluginCameraCalibration::~PluginCameraCalibration()
 
 ProcessResult PluginCameraCalibration::process(FrameData * data, RenderOptions * options) 
 {
+  video_width=data->video.getWidth();
+  video_height=data->video.getHeight();
   (void)options;
   if(ccw)
   {
@@ -420,6 +423,10 @@ void PluginCameraCalibration::mouseMoveEvent ( QMouseEvent * event, pixelloc loc
   QTabWidget* tabw = (QTabWidget*) ccw->parentWidget()->parentWidget();
   if (doing_drag && tabw->currentWidget() == ccw && (event->buttons() & Qt::LeftButton)!=0) 
   {
+    if (loc.x < 0) loc.x=0;
+    if (loc.y < 0) loc.y=0;
+    if (video_width > 0 && loc.x >= video_width) loc.x=video_width-1;
+    if (video_height > 0 && loc.y >= video_height) loc.y=video_height-1;
     drag_x->setDouble(loc.x);
     drag_y->setDouble(loc.y);
     event->accept();

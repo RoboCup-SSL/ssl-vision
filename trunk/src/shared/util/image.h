@@ -453,35 +453,23 @@ void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
   void drawChar(int x, int y, char c, PIXEL val)
   { 
     int charWidth(8), charHeight(8), charSize(8);
-    if (x < 0 || y < 0 || (x+charWidth) >= width || (y+charHeight) >= height)
-      return;
-    
+    int x0=x;
     unsigned char* charpos(gfxPrimitivesFontdata + (unsigned char) c * charSize);
-    unsigned char* linepos((unsigned char *) &data[y * width + x]);
-    int pitch(width * 3);
 
     unsigned char patt(0);
     for (int iy = 0; iy < charHeight; iy++) {
       unsigned char mask = 0x00;
-      unsigned char *curpos = linepos;
+      x=x0;
       for (int ix = 0; ix < charWidth; ix++) {
         if (!(mask >>= 1)) {
           patt = *charpos++;
           mask = 0x80;
         }
-        
-        if (patt & mask) {
-          *curpos = val.r;
-          curpos++;
-          *curpos = val.g;
-          curpos++;
-          *curpos = val.b;
-          curpos++;
-        }
-        else
-          curpos += 3;
+
+        if (patt & mask) setPixel(x,y,val);
+        x++;
       }
-      linepos += pitch;
+      y++;
     }
   }
   

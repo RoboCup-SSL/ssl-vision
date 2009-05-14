@@ -44,6 +44,8 @@ protected:
   CameraCalibrationWidget * ccw;
   greyImage* grey_image;
   rgbImage* rgb_image;
+  int video_width;
+  int video_height;
   void mouseEvent ( QMouseEvent * event, pixelloc loc );
   enum ImageSide {IMG_LEFT, IMG_RIGHT, IMG_TOP, IMG_BOTTOM};
 
