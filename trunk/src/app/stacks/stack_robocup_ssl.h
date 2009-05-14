@@ -35,6 +35,7 @@
 #include "plugin_detect_robots.h"
 #include "plugin_sslnetworkoutput.h"
 #include "plugin_publishgeometry.h"
+#include "plugin_dvr.h"
 #include "cmpattern_teamdetector.h"
 #include "robocup_ssl_server.h"
 

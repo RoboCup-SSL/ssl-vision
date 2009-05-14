@@ -49,6 +49,7 @@ set (SRCS
 	src/app/plugins/plugin_runlength_encode.cpp
 	src/app/plugins/plugin_sslnetworkoutput.cpp
 	src/app/plugins/plugin_visualize.cpp
+	src/app/plugins/plugin_dvr.cpp
 	src/app/plugins/visionplugin.cpp
 
 	src/app/stacks/multistack_robocup_ssl.cpp
@@ -67,6 +68,7 @@ qt4_wrap_cpp (MOC_SRCS
 	src/app/gui/mainwindow.h
 	src/app/gui/videowidget.h
 	
+	src/app/plugins/plugin_dvr.h
 	src/app/plugins/plugin_publishgeometry.h
 	src/app/plugins/visionplugin.h
 )
