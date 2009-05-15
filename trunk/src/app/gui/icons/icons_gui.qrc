@@ -82,5 +82,14 @@
         <file>arrow-right.png</file>
         <file>trash-empty.png</file>
         <file>view-refresh.png</file>
+        <file>tool-animator.png</file>
+        <file>document-new.png</file>
+        <file>document-open.png</file>
+        <file>go-next.png</file>
+        <file>go-previous.png</file>
+        <file>go-next-view.png</file>
+        <file>go-previous-view.png</file>
+        <file>go-last-view.png</file>
+        <file>go-first-view.png</file>
     </qresource>
 </RCC>

@@ -70,7 +70,6 @@ src/app/stacks/visionstack.h
 src/app/videostats.h
 src/client
 src/client/main.cpp
-src/config.pro.inc
 src/graphicalClient
 src/graphicalClient/ClientThreading.cpp
 src/graphicalClient/ClientThreading.h
@@ -78,11 +77,13 @@ src/graphicalClient/GraphicsPrimitives.cpp
 src/graphicalClient/GraphicsPrimitives.h
 src/graphicalClient/main.cpp
 src/shared
+src/shared/capture
 src/shared/capture/capturedc1394v2.cpp
 src/shared/capture/capturedc1394v2.h
+src/shared/capture/capturefromfile.cpp
+src/shared/capture/capturefromfile.h
 src/shared/capture/captureinterface.cpp
 src/shared/capture/captureinterface.h
-src/shared/capture/sources.pro.inc
 src/shared/cmpattern
 src/shared/cmpattern/cmpattern_pattern.cpp
 src/shared/cmpattern/cmpattern_pattern.h
@@ -101,7 +102,6 @@ src/shared/gl/glcamera.cpp
 src/shared/gl/glcamera.h
 src/shared/gl/globject.cpp
 src/shared/gl/globject.h
-src/shared/gl/sources.pro.inc
 src/shared/net
 src/shared/net/netraw.cpp
 src/shared/net/netraw.h
@@ -110,7 +110,6 @@ src/shared/net/robocup_ssl_client.h
 src/shared/net/robocup_ssl_server.cpp
 src/shared/net/robocup_ssl_server.h
 src/shared/proto
-src/shared/sources.pro.inc
 src/shared/util
 src/shared/util/affinity_manager.cpp
 src/shared/util/affinity_manager.h
@@ -152,7 +151,6 @@ src/shared/util/rawimage.h
 src/shared/util/ringbuffer.cpp
 src/shared/util/ringbuffer.h
 src/shared/util/sobel.h
-src/shared/util/sources.pro.inc
 src/shared/util/texture.cpp
 src/shared/util/texture.h
 src/shared/util/timer.h
@@ -209,7 +207,5 @@ src/shared/vartypes/primitives/VarStringEnum.cpp
 src/shared/vartypes/primitives/VarStringEnum.h
 src/shared/vartypes/primitives/VarTrigger.cpp
 src/shared/vartypes/primitives/VarTrigger.h
-src/shared/vartypes/sources.pro.inc
 src/shared/vartypes/xml/xmlParser.cpp
 src/shared/vartypes/xml/xmlParser.h
-sslvision.pro

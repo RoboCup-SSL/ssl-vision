@@ -35,23 +35,80 @@
 #include <QGroupBox>
 #include <QSpacerItem>
 
+#include "rawimage.h"
+#include "image.h"
+#include "jog_dial.h"
+
+class PluginDVR;
+
 class PluginDVRWidget : public QWidget
 {
   Q_OBJECT
-  protected slots:
-    void slotModeToggled();
-    void slotPauseRefresh();
   public:
-    PluginDVRWidget(QWidget * parent = 0, Qt::WindowFlags f = 0);
+    PluginDVRWidget(PluginDVR * dvr, QWidget * parent = 0, Qt::WindowFlags f = 0);
+    JogDial * jog;
     QGroupBox * box_mode;
+    QGroupBox * box_rec;
+    QGroupBox * box_seek;
+    QWidget * box_dvr;
     QHBoxLayout * layout_mode;
     QVBoxLayout * layout_main;
-    //QButtonGroup * group_mode;
+    QVBoxLayout * layout_dvr;
+    QHBoxLayout * layout_rec;
+    QHBoxLayout * layout_seek;
     QToolButton * btn_mode_record;
     QToolButton * btn_mode_pause;
     QToolButton * btn_mode_off;
     QToolButton * btn_pause_refresh;
+
+    QToolButton * btn_rec_new;
+    QToolButton * btn_rec_load;
+    QToolButton * btn_rec_rec;
+    QToolButton * btn_rec_save;
     
+    QToolButton * btn_seek_front;
+    QToolButton * btn_seek_frame_back;
+    QToolButton * btn_seek_pause;
+    QToolButton * btn_seek_frame_forward;
+    QToolButton * btn_seek_end;
+    QToolButton * btn_seek_play;
+    QToolButton * btn_seek_live;
+    QToolButton * btn_seek_wrap;
+    
+};
+
+
+class DVRFrame
+{
+  public:
+  RawImage video;
+  void getFromFrameData(FrameData * data);
+};
+
+class DVRStream
+{
+  //TODO: add partial memory buffering for long video streams.
+  protected:
+    QList<DVRFrame *> frames;
+    int limit;
+    int current;
+  public:
+    DVRStream();
+    virtual ~DVRStream();
+    int getLimit();
+    void setLimit(int num_frames);
+    bool loadStream(QString file);
+    void newRecording(QString directory);
+    void saveStream(QString directory);
+    void clear();
+    void appendFrame(FrameData * data, bool shift_stream_on_limit_exceed);
+    void seek(int frame);
+    int getFrameCount();
+    void advance(int frames, bool wrap);
+    //void advance(double s, bool wrap);
+    void advanceToMostRecent();
+    int getCurrentFrameIndex();
+    DVRFrame * getCurrentFrame();
 
 };
 
@@ -61,9 +118,38 @@ class PluginDVRWidget : public QWidget
 class PluginDVR : public VisionPlugin
 {
 Q_OBJECT
+protected slots:
+  void slotModeToggled();
+  void slotPauseRefresh();
+  void slotSeekModeToggled();
+  void slotSeekFrameFirst();
+  void slotSeekFrameForward();
+  void slotSeekFrameBack();
+  void slotSeekFrameLast();
+
 protected:
+  enum DVRModeEnum {
+    DVRModeOff,
+    DVRModePause,
+    DVRModeRecord
+  };
+  enum SeekModeEnum {
+    SeekModePause,
+    SeekModePlay,
+    SeekModeLive,
+  };
+  DVRModeEnum mode;
+  SeekModeEnum seek_mode;
+  bool is_recording;
   VarList * _settings;
+  VarInt * _max_frames;
+  VarBool * _shift_on_exceed;
   PluginDVRWidget * w;
+
+
+  bool trigger_pause_refresh;
+  DVRFrame pause_frame;
+  DVRStream stream;
 public:
     PluginDVR(FrameBuffer * fb);
     virtual VarList * getSettings();

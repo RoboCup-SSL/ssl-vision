@@ -77,6 +77,7 @@ class RawImage : public ImageInterface
   void setData(unsigned char * d);
   void allocate (ColorFormat fmt, int w, int h);
   void ensure_allocation (ColorFormat fmt, int w, int h);
+  void deepCopyFromRawImage(const RawImage & img, bool copyMetaData);
   void clear();
 
   //helpers:
