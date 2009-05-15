@@ -133,6 +133,15 @@ void  RawImage::ensure_allocation (ColorFormat fmt, int w, int h)
   }
 }
 
+void RawImage::deepCopyFromRawImage(const RawImage & img, bool copyMetaData)
+{
+  ensure_allocation(img.getColorFormat(),img.getWidth(),img.getHeight());
+  memcpy(getData(),img.getData(),img.getNumBytes());
+  if (copyMetaData) {
+    time=img.time;
+  }
+}
+
 void RawImage::clear()
 {
   allocate(getColorFormat(),0,0);

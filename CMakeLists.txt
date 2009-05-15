@@ -38,6 +38,7 @@ set (SRCS
 	src/app/gui/realtimedisplaywidget.cpp
 	src/app/gui/renderoptions.cpp
 	src/app/gui/videowidget.cpp
+	src/app/gui/jog_dial.cpp
 
 	src/app/plugins/plugin_cameracalib.cpp
 	src/app/plugins/plugin_colorcalib.cpp
@@ -67,6 +68,7 @@ qt4_wrap_cpp (MOC_SRCS
 	src/app/gui/lutwidget.h
 	src/app/gui/mainwindow.h
 	src/app/gui/videowidget.h
+  src/app/gui/jog_dial.h
 	
 	src/app/plugins/plugin_dvr.h
 	src/app/plugins/plugin_publishgeometry.h
