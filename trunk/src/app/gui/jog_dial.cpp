@@ -37,7 +37,7 @@ JogDial::JogDial(QWidget* parent) :
 void JogDial::paintEvent(QPaintEvent* pe)
 {
 	QPainter p(this);
-	
+	mutex.lock();
 	const float s = _offset - _spacing * (int)(_offset/_spacing);
 	
 	for (float angle = s - _viewSpan/2.0; angle <= s + _viewSpan/2.0 ; angle += _spacing)
@@ -47,29 +47,36 @@ void JogDial::paintEvent(QPaintEvent* pe)
 		p.drawLine(pos, 0, pos, height());
 	}
 	
+  mutex.unlock(); 
 	p.drawLine(0, 0, width(), 0);
 	p.drawLine(0, height()-1, width(), height()-1);
 }
 
 void JogDial::mousePressEvent(QMouseEvent* me)
 {
-	_x = me->x();
+ mutex.lock();
+ _x = me->x();
+ mutex.unlock();
 }
 
 void JogDial::mouseMoveEvent(QMouseEvent* me)
 {
+  mutex.lock();
 	int x = me->x();
 	
 	int diff = x - _x;
 	_offset = diff * _viewSpan/width();
 	
+  mutex.unlock();
 	update();
 	valueChanged(offset());
 }
 
 void JogDial::mouseReleaseEvent(QMouseEvent* me)
 {
+  mutex.lock();
 	_offset = 0;
+  mutex.unlock(); 
 	update();
 	valueChanged(offset());
 }

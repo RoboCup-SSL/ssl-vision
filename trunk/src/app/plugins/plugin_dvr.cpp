@@ -25,6 +25,7 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
 
   int mode_icon_size=32;
   jog = new JogDial();
+  connect(jog,SIGNAL(valueChanged(float)),dvr,SLOT(jogValueChanged(float)));
   btn_pause_refresh=new QToolButton();
   btn_pause_refresh->setIcon(QIcon(":/icons/view-refresh.png"));
   btn_pause_refresh->setIconSize(QSize(mode_icon_size,mode_icon_size));
@@ -148,6 +149,8 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
   btn_seek_play->setAutoExclusive(true);
   btn_seek_live->setAutoExclusive(true);
   
+  btn_seek_wrap->setCheckable(true);
+  
     btn_seek_live->setChecked(true);
   
   connect(btn_seek_pause,SIGNAL(toggled(bool)),dvr,SLOT(slotSeekModeToggled()));
@@ -155,10 +158,10 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
   connect(btn_seek_live,SIGNAL(toggled(bool)),dvr,SLOT(slotSeekModeToggled()));
   
   
-  connect(btn_seek_front,SIGNAL(toggled(bool)),dvr,SLOT(slotSeekFrameFirst()));
-  connect(btn_seek_end,SIGNAL(toggled(bool)),dvr,SLOT(slotSeekFrameLast()));
-  connect(btn_seek_frame_back,SIGNAL(toggled(bool)),dvr,SLOT(slotSeekFrameBack()));
-  connect(btn_seek_frame_forward,SIGNAL(toggled(bool)),dvr,SLOT(slotSeekFrameForward()));
+  connect(btn_seek_front,SIGNAL(clicked(bool)),dvr,SLOT(slotSeekFrameFirst()));
+  connect(btn_seek_end,SIGNAL(clicked(bool)),dvr,SLOT(slotSeekFrameLast()));
+  connect(btn_seek_frame_back,SIGNAL(clicked(bool)),dvr,SLOT(slotSeekFrameBack()));
+  connect(btn_seek_frame_forward,SIGNAL(clicked(bool)),dvr,SLOT(slotSeekFrameForward()));
   
   layout_seek = new QHBoxLayout();
   layout_seek->addWidget(btn_rec_rec);
@@ -171,7 +174,8 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
   layout_seek->addWidget(box_subseek);
   layout_seek->addStretch();
 
-
+  label_info = new QLabel();
+ 
   box_rec = new QGroupBox("Manage Recordings");
   box_rec ->setLayout(layout_rec);
 
@@ -181,6 +185,7 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
   layout_dvr= new QVBoxLayout();
   layout_dvr->addWidget(box_rec);
   layout_dvr->addWidget(box_seek);
+  layout_dvr->addWidget(label_info);
   layout_dvr->addStretch();
 
   box_dvr = new QWidget();
@@ -205,6 +210,7 @@ void PluginDVR::slotSeekModeToggled() {
     }
   unlock();
 }
+
 void PluginDVR::slotModeToggled() {
   lock();
   w->btn_pause_refresh->setEnabled(w->btn_mode_pause->isChecked());
@@ -227,6 +233,9 @@ void PluginDVR::slotModeToggled() {
   unlock();
 }
 
+DVRFrame::~DVRFrame() {
+  video.setData(0);
+}
 void PluginDVR::slotSeekFrameFirst() {
   lock();
     stream.seek(0);
@@ -257,16 +266,21 @@ void PluginDVR::slotPauseRefresh() {
   unlock();
 }
 
+void PluginDVR::jogValueChanged(float val) {
+
+}
+
 PluginDVR::PluginDVR(FrameBuffer * fb)
  : VisionPlugin(fb)
 {
   mode = DVRModeOff;
+  advance_last_t=0;
   seek_mode = SeekModeLive;
   w=new PluginDVRWidget(this);
   trigger_pause_refresh=false;
   stream.clear();
  _settings = new VarList("DVR Settings");
-  _max_frames = new VarInt("Max Frames",500);
+  _max_frames = new VarInt("Max Frames",250);
   _max_frames->setMin(0);
   _shift_on_exceed = new VarBool("Shift Video On Exceeding",true);
   _settings->addChild(_max_frames);
@@ -295,22 +309,74 @@ void DVRFrame::getFromFrameData(FrameData * data) {
 
 ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
   (void)options;
-
+  QString status;
+  QString stream_info;
+  stream_info = "";
+  status = "";
   bool is_recording=w->btn_rec_rec->isChecked();
   //capture data:
-  if (mode==DVRModePause && trigger_pause_refresh) {
-    pause_frame.getFromFrameData(data);
-    trigger_pause_refresh=false;
+  if (mode==DVRModePause) {
+    if (trigger_pause_refresh) {
+      pause_frame.getFromFrameData(data);
+      trigger_pause_refresh=false;
+    }
+    status = "Pausing.";
   } else if (mode==DVRModeRecord) {
     if (is_recording) {
+      stream.setLimit(_max_frames->getInt());
       stream.appendFrame(data,_shift_on_exceed->getBool());
+      status = "Recording (Frame " + QString::number(stream.getFrameCount()) + ").";
+      if (stream.getFrameCount() >= stream.getLimit()) {
+        if (_shift_on_exceed->getBool()) {
+          status = status + " Past Max Frame Limit! Now Shift-Recoding!";
+        } else {
+          status = status + " Past Max Frame Limit! Dropping Frames!";
+        }
+      }
+    } else {
+      status = "Recorded " + QString::number(stream.getFrameCount()) + " Frame(s)";
     }
+  } else {
+    status = "Live Pass-Through.";
   }
 
   if (mode==DVRModeRecord) {
     //move stream:
+    double t=GetTimeSec();
+    double advance_passed=t-advance_last_t;
+    double advance_fps=(double)w->jog->offset() * 20.0;
+
+    int frames_advance_int=0;
+    if (advance_fps != 0.0) {
+      double advance_period=1.0/advance_fps;
+      float frames_behind=advance_passed/advance_period;
+      if (fabs(frames_behind) > 1.0) {
+        frames_advance_int=(int)frames_behind;
+      }
+    }
+    if (frames_advance_int!=0) {
+      w->btn_seek_pause->setChecked(true);
+      seek_mode==SeekModePause;
+    }
+
+    
     if (seek_mode==SeekModePlay) {
       stream.advance(1,w->btn_seek_wrap->isChecked());
+    } else if (seek_mode==SeekModePause) {
+      if (frames_advance_int!=0) {
+        stream.advance(frames_advance_int,w->btn_seek_wrap->isChecked());
+        advance_last_t=t;
+      }
+    }
+    if (stream.getFrameCount() <= 0 || seek_mode==SeekModeLive) {
+      stream_info = "Showing Live-View.";
+    } else {
+      double percent = 100.0 * ((double)stream.getCurrentFrameIndex()+1) / ((double)(stream.getFrameCount()));
+      if (seek_mode==SeekModePause) {
+        stream_info = "Paused Playback at Frame " + QString::number(stream.getCurrentFrameIndex()+1) + "/" + QString::number(stream.getFrameCount()) + " (" + QString::number(percent,'f',2) + "%).";
+      } else {
+        stream_info = "Running Playback at Frame " + QString::number(stream.getCurrentFrameIndex()+1) + "/" + QString::number(stream.getFrameCount()) + " (" + QString::number(percent,'f',2) + "%)."; 
+      }
     }
   }
 
@@ -327,7 +393,7 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
   }
   
   //update GUI:
-  
+  w->label_info->setText(status + "\n" + stream_info);
 
   return ProcessingOk;
 }
@@ -359,6 +425,8 @@ void DVRStream::clear() {
 void DVRStream::appendFrame(FrameData * data, bool shift_stream_on_limit_exceed) {
   if (limit!=0 && ((getFrameCount() + 1) > limit)) {
     if (shift_stream_on_limit_exceed) {
+      DVRFrame * f = frames[0];
+      delete f;
       frames.removeFirst();
       if (current > 0) current--;
     } else {
@@ -380,6 +448,14 @@ int DVRStream::getFrameCount() {
   return frames.size();
 }
 
+void DVRStream::setLimit(int num_frames) {
+  limit=num_frames;
+}
+
+int DVRStream::getLimit() {
+  return limit;
+}
+
 DVRStream::DVRStream() {
   limit=0;
   clear();
@@ -388,6 +464,7 @@ DVRStream::~DVRStream() {
  clear();
 }
 void DVRStream::advance(int frames, bool wrap) {
+  if (getFrameCount() == 0) return;
   int new_current=current+frames;
   int max_idx=getFrameCount()-1;
   if (new_current < 0) {

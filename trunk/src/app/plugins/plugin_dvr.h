@@ -34,7 +34,9 @@
 #include <QHBoxLayout>
 #include <QGroupBox>
 #include <QSpacerItem>
+#include <QLabel>
 
+#include "timer.h"
 #include "rawimage.h"
 #include "image.h"
 #include "jog_dial.h"
@@ -75,6 +77,7 @@ class PluginDVRWidget : public QWidget
     QToolButton * btn_seek_live;
     QToolButton * btn_seek_wrap;
     
+    QLabel * label_info;
 };
 
 
@@ -82,6 +85,7 @@ class DVRFrame
 {
   public:
   RawImage video;
+  virtual ~DVRFrame();
   void getFromFrameData(FrameData * data);
 };
 
@@ -126,8 +130,10 @@ protected slots:
   void slotSeekFrameForward();
   void slotSeekFrameBack();
   void slotSeekFrameLast();
+  void jogValueChanged(float val);
 
 protected:
+
   enum DVRModeEnum {
     DVRModeOff,
     DVRModePause,
@@ -146,6 +152,7 @@ protected:
   VarBool * _shift_on_exceed;
   PluginDVRWidget * w;
 
+  double advance_last_t;
 
   bool trigger_pause_refresh;
   DVRFrame pause_frame;

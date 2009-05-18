@@ -18,6 +18,8 @@ src/app/gui/glLUTwidget.h
 src/app/gui/glwidget.cpp
 src/app/gui/glwidget.h
 src/app/gui/icons/icons_gui.qrc
+src/app/gui/jog_dial.cpp
+src/app/gui/jog_dial.h
 src/app/gui/lutwidget.cpp
 src/app/gui/lutwidget.h
 src/app/gui/mainwindow.cpp
