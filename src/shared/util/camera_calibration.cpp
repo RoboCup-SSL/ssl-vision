@@ -6,7 +6,7 @@
 #include "field.h"
 #include "geomalgo.h"
 
-CameraParameters::CameraParameters(RoboCupCalibrationHalfField & _field) : field(_field)
+CameraParameters::CameraParameters(RoboCupCalibrationHalfField & _field) : field(_field), p_alpha(Eigen::VectorXd(1))
 {
   focal_length = new VarDouble("focal length", 500.0);
   principal_point_x = new VarDouble("principal point x", 390.0);
@@ -22,8 +22,6 @@ CameraParameters::CameraParameters(RoboCupCalibrationHalfField & _field) : field
   ty = new VarDouble("ty", 1250);   
   tz = new VarDouble("tz", 3500, 0, 5000);
   additional_calibration_information = new AdditionalCalibrationInformation();
-
-  p_alpha = Eigen::VectorXd(1);
 
   q_rotate180 = Quaternion<double>(0, 0, 1.0,0);
 }
