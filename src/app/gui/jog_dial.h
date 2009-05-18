@@ -22,6 +22,7 @@
 #define jog_dial_H
 
 #include <QWidget>
+#include <QMutex>
 
 
 class JogDial : public QWidget
@@ -32,13 +33,20 @@ class JogDial : public QWidget
     JogDial(QWidget* parent = 0);
     
     /** returns the normalized offset */
-    float offset() const { return _offset*2.0f/_viewSpan; }
+    float offset() { 
+      float result=0.0;
+      mutex.lock();
+      result=_offset*2.0f/_viewSpan;
+      mutex.unlock();
+      return result;
+    }
     
   Q_SIGNALS:
     /** emitted when the offset changes, normalized */
     void valueChanged(float offset);
     
   protected:
+    QMutex mutex;
     void paintEvent(QPaintEvent* pe);
     void mousePressEvent(QMouseEvent* me);
     void mouseMoveEvent(QMouseEvent* me);
