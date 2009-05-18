@@ -26,40 +26,6 @@ ViewUpdateThread::ViewUpdateThread(SoccerView *_soccerView)
     shutdownView = false;
 }
 
-int ViewUpdateThread::printRobotInfo(const SSL_DetectionRobot & robot, int teamID, int cameraID) {
-    const bool printInfo = false;
-    double x,y,orientation,conf =robot.confidence();
-    int id, n=0;
-    if(printInfo)
-        printf("CONF=%4.2f ", conf);
-    if (robot.has_robot_id()) {
-        id = robot.robot_id();
-        if(printInfo)
-            printf("ID=%3d ",id);
-    } else {
-        if(printInfo)
-            printf("ID=N/A ");
-        id = NA;
-    }
-    x = robot.x();
-    y = robot.y();
-    if(printInfo)
-        printf(" HEIGHT=%6.2f POS=<%9.2f,%9.2f> ",robot.height(),x,y);
-    if (robot.has_orientation()) {
-        orientation = robot.orientation();
-        if(printInfo)
-            printf("ANGLE=%6.3f ",orientation);
-    } else {
-        orientation = NAOrientation;
-        if(printInfo)
-            printf("ANGLE=N/A    ");
-    }
-    if(printInfo)
-        printf("RAW=<%8.2f,%8.2f>\n",robot.pixel_x(),robot.pixel_y());
-    n = soccerView->UpdateRobot(x,y,orientation,teamID,id,cameraID,conf);
-    return n;
-}
-
 void ViewUpdateThread::run()
 {
     int n=0;
@@ -70,8 +36,6 @@ void ViewUpdateThread::run()
             if (packet.has_detection()) {
                 SSL_DetectionFrame detection = packet.detection();
                 int balls_n = detection.balls_size();
-                int robots_blue_n =  detection.robots_blue_size();
-                int robots_yellow_n =  detection.robots_yellow_size();
                 //Ball info:
                 QVector<QPointF> balls;
                 for (int i = 0; i < balls_n; i++) {
@@ -84,16 +48,8 @@ void ViewUpdateThread::run()
                     }
                 }
                 if (balls.size() > 0) soccerView->UpdateBalls(balls);
-                //Blue robot info:
-                for (int i = 0; i < robots_blue_n; i++) {
-                    SSL_DetectionRobot robot = detection.robots_blue(i);
-                    n=printRobotInfo(robot, teamBlue, detection.camera_id());
-                }
-                //Yellow robot info:
-                for (int i = 0; i < robots_yellow_n; i++) {
-                    SSL_DetectionRobot robot = detection.robots_yellow(i);
-                    n=printRobotInfo(robot, teamYellow, detection.camera_id());
-                }
+                //Robot info:
+                soccerView->UpdateRobots(detection);
             }
             //see if packet contains geometry data:
             if (packet.has_geometry()) {
@@ -101,6 +57,7 @@ void ViewUpdateThread::run()
                 const SSL_GeometryFieldSize & field = geom.field();
                 soccerView->LoadFieldGeometry((SSL_GeometryFieldSize&)field);
             }
+            //soccerView->updateView();
         }
     }
 }

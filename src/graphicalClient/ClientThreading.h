@@ -36,7 +36,6 @@ private:
     RoboCupSSLClient client;
     SSL_WrapperPacket packet;
     SoccerView *soccerView;
-    int printRobotInfo(const SSL_DetectionRobot & robot, int teamID, int cameraID);
 
 public:
     ViewUpdateThread(){}
