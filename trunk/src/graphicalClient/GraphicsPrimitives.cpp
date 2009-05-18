@@ -53,7 +53,8 @@ Robot::Robot(double _x, double _y, double _orientation, int _teamID, int _id, in
         robotLabel = QString(QByteArray((char *) &id, 4).toHex()).mid(1,1).toUpper();
     else
         robotLabel = "?";
-
+    
+    drawFont = QFont("Courier",80,2,false);
     robotID.addText(-25,25,QFont("Courier",80,2,false),robotLabel);
     switch(teamID)
     {
@@ -98,6 +99,8 @@ QRectF Robot::boundingRect() const
 
 void Robot::paint(QPainter *painter, const QStyleOptionGraphicsItem* , QWidget* )
 {
+  if(conf==0.0)
+    return;
     painter->translate(x,-y);
     painter->setPen(*pen);
     painter->setBrush(*brush);
@@ -109,9 +112,13 @@ void Robot::paint(QPainter *painter, const QStyleOptionGraphicsItem* , QWidget* 
     }
     else
         painter->drawPath(robotOutlineCircle);
+    
     painter->setPen(*idPen);
     painter->setBrush(Qt::black);
-    painter->drawPath(robotID);
+    painter->setFont(drawFont);
+    //painter->drawPath(robotID);
+    painter->drawText(-45,-60,1000,1000,0,robotLabel);
+    
     painter->setPen(Qt::NoPen);
     painter->setBrush(*brush);
     painter->drawRect(-90,-130,(int)(((double)180)*conf),30);
@@ -144,7 +151,7 @@ SoccerView::SoccerView()
     LoadFieldGeometry();
     scene = new QGraphicsScene(this);
     setScene(scene);
-    this->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+    this->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
     scene->setBackgroundBrush(QBrush(QColor(0,0x91,0x19,255),Qt::SolidPattern));
     scene->setSceneRect(-3700,-2700,7400,5400);
     ConstructField();
@@ -154,16 +161,37 @@ SoccerView::SoccerView()
     fieldLinePen->setWidth(10);
     fieldLinePen->setJoinStyle(Qt::MiterJoin);
     fieldItem = scene->addPath(*field,*fieldLinePen,*fieldBrush);
-    this->scale(0.14,0.14);
+    drawScale = 0.15;
     this->setRenderHint(QPainter::Antialiasing, true);
     this->setDragMode(QGraphicsView::ScrollHandDrag);
     this->setGeometry(100,100,1036,756);
-    startTimer(30);
+    scalingRequested = true;
+    startTimer(17);
 }
 
 SoccerView::~SoccerView()
 {
     shutdownSoccerView = true;
+}
+
+void SoccerView::updateView()
+{
+  static float lastScale = 0;
+    if(shutdownSoccerView)
+    {
+      return;
+    }
+    if(!drawMutex.tryLock())
+      return;
+    if(scalingRequested)
+    {
+      qreal factor = matrix().scale(drawScale, drawScale).mapRect(QRectF(0, 0, 1, 1)).width();
+      if (factor > 0.07 && factor < 100.0)
+        scale(drawScale, drawScale);
+      scalingRequested = false;
+    }
+    this->viewport()->update();
+    drawMutex.unlock();
 }
 
 void SoccerView::timerEvent(QTimerEvent *event)
@@ -173,9 +201,17 @@ void SoccerView::timerEvent(QTimerEvent *event)
         killTimer(event->timerId());
         return;
     }
-    PruneRobots();
     if(!drawMutex.tryLock())
         return;
+    
+    if(scalingRequested)
+    {
+      qreal factor = 10;//matrix().scale(drawScale, drawScale).mapRect(QRectF(0, 0, 1, 1)).width();
+      if (factor > 0.07 && factor < 100.0)
+        scale(drawScale, drawScale);
+      scalingRequested = false;
+    }
+    
     this->viewport()->update();
     drawMutex.unlock();
 }
@@ -229,15 +265,15 @@ void SoccerView::ConstructField()
 void SoccerView::scaleView(qreal scaleFactor)
 {
     qreal factor = matrix().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
-    if (factor < 0.07 || factor > 100)
-        return;
-
-    scale(scaleFactor, scaleFactor);
+    if (factor > 0.07 && factor < 100.0)
+      drawScale = scaleFactor;
 }
 
 void SoccerView::wheelEvent(QWheelEvent *event)
 {
-    scaleView(pow((double)2, event->delta() / 540.0));
+    drawScale = pow(2.0, event->delta() / 540.0);
+    scalingRequested = true;
+    event->ignore();
 }
 
 void SoccerView::AddRobot(Robot *robot)
@@ -245,34 +281,82 @@ void SoccerView::AddRobot(Robot *robot)
     robots.append(robot);
     scene->addItem(robot);
 }
-
-int SoccerView::UpdateRobot(double x, double y, double orientation, int team, int robotID, int key, double conf)
+void SoccerView::UpdateRobots(SSL_DetectionFrame &detection)
 {
-    drawMutex.lock();
-    orientation *= 180.0/M_PI;
-    bool found = false;
-    Robot *currentRobot;
-    for(int i=0; i<robots.size() && robotID!=NA ; i++)
+  int robots_blue_n =  detection.robots_blue_size();
+  int robots_yellow_n =  detection.robots_yellow_size();
+  int i,j,yellowj=0,bluej=0;
+  int team=teamBlue;
+  drawMutex.lock();
+  SSL_DetectionRobot robot;
+  for (i = 0; i < robots_blue_n+robots_yellow_n; i++) {
+    if(i<robots_blue_n)
     {
-        currentRobot = robots[i];
-        if(currentRobot->id==robotID && currentRobot->teamID==team && currentRobot->key==key)
-        {
-            currentRobot->SetPose(x,y,orientation,conf);
-            found = true;
-            break;
-        }
+      robot = detection.robots_blue(i);
+      team = teamBlue;
+      j=bluej;
     }
-    if(!found)
+    else 
     {
-        AddRobot(new Robot(x,y,orientation,team,robotID,key,conf));
+      robot = detection.robots_yellow(i-robots_blue_n);
+      team = teamYellow;
+      j=yellowj;
     }
-    drawMutex.unlock();
-    return robots.size();
+    
+    double x,y,orientation,conf =robot.confidence();
+    int id=NA, n=0; 
+    if (robot.has_robot_id())
+      id = robot.robot_id();
+    else 
+      id = NA;
+    x = robot.x();
+    y = robot.y();
+    if (robot.has_orientation()) 
+      orientation = robot.orientation()*180.0/M_PI;
+    else 
+      orientation = NAOrientation;
+    
+    while(j<robots.size() && (robots[j]->key!=detection.camera_id() || robots[j]->teamID!=team) )
+      j++;
+    
+    if(j+1>robots.size())
+      AddRobot(new Robot(x,y,orientation,team,id,detection.camera_id(),conf));
+    
+    robots[j]->SetPose(x,y,orientation,conf);
+    QString label;
+    
+    if(id!=NA)
+      label.setNum(id,16);
+    else
+      label = "?";
+    label = label.toUpper();
+    if(label!=robots[j]->robotLabel)
+      robots[j]->robotLabel = label;
+    
+    j++;
+    
+    if(i<robots_blue_n)
+      bluej=j;
+    else
+      yellowj=j;
+  }
+  for(j=bluej;j<robots.size();j++)
+  {
+    if(robots[j]->key==detection.camera_id() && robots[j]->teamID==teamBlue)
+      robots[j]->conf=0.0;
+  }
+  for(j=yellowj;j<robots.size();j++)
+  {
+    if(robots[j]->key==detection.camera_id() && robots[j]->teamID==teamYellow)
+      robots[j]->conf=0.0;
+  }
+  drawMutex.unlock();
+  return;
 }
 
 int SoccerView::UpdateBalls(QVector<QPointF> &_balls)
 {
-    drawMutex.lock();
+  drawMutex.lock();
     if(balls.size()<_balls.size())
     {
         //need to allocate some space for the new balls
@@ -302,7 +386,7 @@ int SoccerView::UpdateBalls(QVector<QPointF> &_balls)
     }
     drawMutex.unlock();
     if(false)
-        printf("number of balls = %d\n",ballItems.size());
+      printf("number of balls = %d\n",ballItems.size());
     return balls.size();
 }
 
@@ -348,19 +432,3 @@ void SoccerView::LoadFieldGeometry(SSL_GeometryFieldSize &fieldSize)
     drawMutex.unlock();
 }
 
-void SoccerView::PruneRobots()
-{
-    drawMutex.lock();
-    unsigned long int tnow = GetTimeUSec();
-    for(int i=0;i<robots.size();i++)
-    {
-        Robot* robot = robots[i];
-        if(tnow-robot->tStamp>1e6 || ((tnow-robot->tStamp)>2e4 && robot->id==NA) )
-        {
-            robots.remove(i);
-            scene->removeItem(robot);
-            delete robot;
-        }
-    }
-    drawMutex.unlock();
-}

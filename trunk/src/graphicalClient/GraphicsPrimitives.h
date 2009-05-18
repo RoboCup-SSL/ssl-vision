@@ -49,19 +49,22 @@ public:
     int id;                 //ID of the robot in its team
     double x,y;
     double conf;
+    int key;
     QString robotLabel;
 
 private:
     QBrush *brush;
     QPen *pen, *idPen, *confPen;
     QPainterPath robotOutline, robotOutlineCircle, robotID;
+    QFont drawFont;
 
 public:
-    int key;
     QRectF boundingRect() const;
     QPainterPath shape() const;
     unsigned long int tStamp;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    void update( qreal x, qreal y, qreal width, qreal height ) { return;}
+    void update( const QRectF & rect = QRectF() ) {return;}
 
     Robot();
     Robot(double _x, double _y, double _orientation, int _teamID, int _id, int _key, double _conf);
@@ -79,11 +82,16 @@ public:
     SoccerView();
     ~SoccerView();
     void AddRobot(Robot* robot);
-    int UpdateRobot(double x, double y, double orientation, int team, int robotID, int key, double conf);
+    void UpdateRobots(SSL_DetectionFrame &detection);
     int UpdateBalls(QVector<QPointF> &_balls);
     void LoadFieldGeometry();
     void LoadFieldGeometry(SSL_GeometryFieldSize &fieldSize);
-    void PruneRobots();
+    void updateView();
+    void update( qreal x, qreal y, qreal width, qreal height ) { return;}
+    void update( const QRectF & rect = QRectF() ) {return;}
+    void repaint ( int x, int y, int w, int h ) {return;}
+    void repaint ( const QRect & rect ) {return;}
+    void repaint ( const QRegion & rgn ) {return;}
 
 protected:
     //void keyPressEvent(QKeyEvent *event);
@@ -92,10 +100,12 @@ protected:
     void scaleView(qreal scaleFactor);
     void timerEvent(QTimerEvent*);
     QMutex drawMutex;
+    float drawScale;
+    bool scalingRequested;
 
 private:
     //Robots
-    QVector<Robot*> robots;
+  QVector<Robot*> blueRobots,yellowRobots, robots;
     //balls
     QVector<QPointF> balls;
     QVector<QGraphicsEllipseItem*> ballItems;
