@@ -35,6 +35,7 @@
 #include <QGroupBox>
 #include <QSpacerItem>
 #include <QLabel>
+#include <QFileDialog>
 
 #include "timer.h"
 #include "rawimage.h"
@@ -112,6 +113,7 @@ class DVRStream
     //void advance(double s, bool wrap);
     void advanceToMostRecent();
     int getCurrentFrameIndex();
+    DVRFrame * getFrame(int i);
     DVRFrame * getCurrentFrame();
 
 };
@@ -130,6 +132,9 @@ protected slots:
   void slotSeekFrameForward();
   void slotSeekFrameBack();
   void slotSeekFrameLast();
+  void slotMovieNew();
+  void slotMovieLoad();
+  void slotMovieSave();
   void jogValueChanged(float val);
 
 protected:
