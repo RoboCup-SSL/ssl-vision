@@ -27,13 +27,17 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
   jog = new JogDial();
   connect(jog,SIGNAL(valueChanged(float)),dvr,SLOT(jogValueChanged(float)));
   btn_pause_refresh=new QToolButton();
+  btn_pause_refresh->setToolTip("Refresh Paused Image");
   btn_pause_refresh->setIcon(QIcon(":/icons/view-refresh.png"));
   btn_pause_refresh->setIconSize(QSize(mode_icon_size,mode_icon_size));
   btn_pause_refresh->setEnabled(false);
   connect(btn_pause_refresh,SIGNAL(clicked()),dvr,SLOT(slotPauseRefresh()));
   btn_mode_record=new QToolButton();
+  btn_mode_record->setToolTip("DVR Recorder Mode");
   btn_mode_pause=new QToolButton();
+  btn_mode_pause->setToolTip("Pause Mode");
   btn_mode_off=new QToolButton();
+  btn_mode_off->setToolTip("Live Mode (DVR Off)");
 
   btn_mode_record->setIcon(QIcon(":/icons/tool-animator.png"));
   btn_mode_pause->setIcon(QIcon(":/icons/media-playback-pause.png"));
@@ -67,9 +71,13 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
   box_mode ->setLayout(layout_mode);
   
   btn_rec_rec = new QToolButton();
+  btn_rec_rec->setToolTip("Record");
   btn_rec_new = new QToolButton();
+  btn_rec_new->setToolTip("New Recording");
   btn_rec_load = new QToolButton();
+  btn_rec_load->setToolTip("Load Recording");
   btn_rec_save = new QToolButton();
+  btn_rec_save->setToolTip("Save Recording");
 
   btn_rec_rec->setIcon(QIcon(":/icons/media-record.png"));
   btn_rec_rec->setIconSize(QSize(mode_icon_size,mode_icon_size));
@@ -83,15 +91,28 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
   btn_rec_save->setIcon(QIcon(":/icons/document-save.png"));
   btn_rec_save->setIconSize(QSize(mode_icon_size,mode_icon_size));
   
+  connect(btn_rec_new,SIGNAL(clicked(bool)),dvr,SLOT(slotMovieNew()));
+  connect(btn_rec_load,SIGNAL(clicked(bool)),dvr,SLOT(slotMovieLoad()));
+  connect(btn_rec_save,SIGNAL(clicked(bool)),dvr,SLOT(slotMovieSave()));
+
+  
   btn_seek_front = new QToolButton();
+  btn_seek_front->setToolTip("Seek to First Frame");
   btn_seek_frame_back = new QToolButton();
+  btn_seek_frame_back->setToolTip("Seek to Previous Frame");
   btn_seek_pause = new QToolButton();
+  btn_seek_pause->setToolTip("Pause Playback");
   btn_seek_frame_forward = new QToolButton();
+  btn_seek_frame_forward->setToolTip("Seek to Next Frame");
   btn_seek_end = new QToolButton();
+  btn_seek_end->setToolTip("Seek to Last Frame");
   btn_seek_play = new QToolButton();
+  btn_seek_play->setToolTip("Play Recording");
   btn_seek_live = new QToolButton();
+  btn_seek_live->setToolTip("Live View");
   
   btn_seek_wrap = new QToolButton();
+  btn_seek_wrap->setToolTip("Loop Playback");
   
   int seek_icon_size=24;
   btn_seek_front->setIcon(QIcon(":/icons/go-first-view.png"));
@@ -268,6 +289,54 @@ void PluginDVR::slotPauseRefresh() {
 
 void PluginDVR::jogValueChanged(float val) {
 
+}
+
+void PluginDVR::slotMovieNew() {
+  lock();
+  stream.clear();
+  unlock();
+}
+
+void PluginDVR::slotMovieLoad() {
+  lock();
+  QString dir = QFileDialog::getExistingDirectory(0,"Select Directory to Load");
+  if (dir!="") {
+    
+  }
+  unlock();
+}
+
+void PluginDVR::slotMovieSave() {
+  lock();
+  QString dir = QFileDialog::getExistingDirectory(0,"Select Directory to Save");
+  rgbImage output;
+  if (dir!="") {
+    for (int i = 0; i < stream.getFrameCount(); i++) {
+      DVRFrame * f = stream.getFrame(i);
+      
+      if (f!=0) {
+        ColorFormat fmt=f->video.getColorFormat();
+        output.allocate(f->video.getWidth(),f->video.getHeight());
+        if (fmt==COLOR_YUV422_UYVY) {
+          Conversions::uyvy2rgb(f->video.getData(),output.getData(),f->video.getWidth(),f->video.getHeight());
+        } else if (fmt==COLOR_RGB8) {
+          memcpy(output.getData(),f->video.getData(),f->video.getNumBytes());
+        } else {
+          output.allocate(0,0);
+        }
+        if (output.getNumBytes() > 0) {
+          //write file:
+          QString num = QString::number(i);
+          int n = max(5,num.length());
+          num = "00000" + num;
+          num = num.right(5);
+          QString filename = dir + "/" + num + ".png";
+          output.save(filename.toStdString());
+        }
+      }
+    }
+  }
+  unlock();
 }
 
 PluginDVR::PluginDVR(FrameBuffer * fb)
@@ -493,4 +562,10 @@ int DVRStream::getCurrentFrameIndex() {
 DVRFrame * DVRStream::getCurrentFrame() {
   if (current >= frames.size()) return 0;
   return frames[current];
+}
+
+DVRFrame * DVRStream::getFrame(int i) {
+  if (current >= frames.size()) return 0;
+  if (i < 0) return 0;
+  return frames[i];
 }
