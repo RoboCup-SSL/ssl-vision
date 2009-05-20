@@ -68,7 +68,8 @@ qt4_wrap_cpp (MOC_SRCS
 	src/app/gui/lutwidget.h
 	src/app/gui/mainwindow.h
 	src/app/gui/videowidget.h
-  src/app/gui/jog_dial.h
+	src/app/gui/jog_dial.h
+	src/shared/util/lut3d.h
 	
 	src/app/plugins/plugin_dvr.h
 	src/app/plugins/plugin_publishgeometry.h

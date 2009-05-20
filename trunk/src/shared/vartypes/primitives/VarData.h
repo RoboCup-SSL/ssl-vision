@@ -146,6 +146,12 @@ signals:
   /// So, if you would like to catch all events, you should use /c hasChanged() instead.
   void wasEdited(VarData *); //this signal is only triggered when a value was edited by a user through a MVC view-instance.
 
+  /// This signal is triggered if data was written from an xml node
+  void XMLwasRead(VarData *);
+
+  /// This signal is triggered if data was written to an xml node
+  void XMLwasWritten(VarData *);
+
 public slots:
   /// A slot to receive signals from a model-view system that editing of this item was just completed.
   void mvcEditCompleted() {
@@ -309,7 +315,7 @@ public:
   static vector<VarData *> readChildrenHelper(XMLNode & parent , vector<VarData *> existing_children, bool only_update_existing, bool blind_append);
 
   /// Write the contents of this VarData node to an XMLNode.
-  void writeXML(XMLNode & parent, bool blind_append=true) const;
+  void writeXML(XMLNode & parent, bool blind_append=true);
 
   /// Let this VarData node load the contents of an XMLNode.
   void readXML(XMLNode & us);

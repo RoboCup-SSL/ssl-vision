@@ -34,6 +34,7 @@ void GLLUTWidget::editUndo() {
   }
   actionUndo->setEnabled(!undoStack.empty());
   actionRedo->setEnabled(!redoStack.empty());
+  _lut->updateDerivedLUTs();
   redraw();
 }
 
@@ -50,6 +51,7 @@ void GLLUTWidget::editRedo() {
   }
   actionUndo->setEnabled(!undoStack.empty());
   actionRedo->setEnabled(!redoStack.empty());
+  _lut->updateDerivedLUTs();
   redraw();
 }
 
@@ -300,6 +302,7 @@ void GLLUTWidget::drawEvent ( QMouseEvent * event )
     //update texture
     slices[state.slice_idx]->selection_update_pending=true;
     _lut->unlock();
+    
     this->redraw();
   }
 }
@@ -324,6 +327,7 @@ void GLLUTWidget::mouseReleaseEvent ( QMouseEvent * event )
     //drawEvent(event);
     state.drag_on=false;
     state.continuing_undo=false;
+    _lut->updateDerivedLUTs();
   }
   redraw();
 }

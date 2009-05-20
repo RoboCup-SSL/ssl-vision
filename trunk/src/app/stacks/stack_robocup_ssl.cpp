@@ -27,6 +27,8 @@ StackRoboCupSSL::StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, int c
     _udp_server = udp_server;
     lut_yuv = new YUVLUT(4,6,6,cam_settings_filename + "-lut-yuv.xml");
     lut_yuv->loadRoboCupChannels(LUTChannelMode_Numeric);
+    lut_yuv->addDerivedLUT(new RGBLUT(5,5,5,""));
+
     calib_field = new RoboCupCalibrationHalfField(global_field, _camera_id);
     camera_parameters = new CameraParameters(*calib_field);
 

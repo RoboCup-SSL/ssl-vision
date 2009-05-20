@@ -73,8 +73,8 @@ class LUTChannel {
   \brief  A general 3D LUT class, allowing fast bit-wise lookup
   \author Stefan Zickler
 */
-class LUT3D{
-
+class LUT3D : public QObject {
+  Q_OBJECT
   protected:
   public:
     unsigned int X_BITS; //number of index bits for x-dimension
@@ -97,8 +97,14 @@ class LUT3D{
     VarBlob * v_blob;
     VarList * v_settings;
     vector<LUTChannel> channels;
+    vector<LUT3D *> derived_LUTs;
     QMutex mutex;
+  protected slots:
+    void slotVBlobChange() {
+      updateDerivedLUTs();
+    }
   public:
+    //set filename to "" if this LUT should not be stored.
     LUT3D(unsigned int x_bits=7, unsigned int y_bits=7, unsigned int z_bits=7, string filename="3dlut.xml") {
       assert(x_bits <= 8 && y_bits <= 8 && z_bits <= 8);
       X_BITS = x_bits; // bits for each field, should be less or equal to 8
@@ -120,8 +126,14 @@ class LUT3D{
       channels.resize(sizeof(lut_mask_t));
       LUT=new lut_mask_t[LUT_SIZE];
 
-      v_settings=new VarExternal(filename,"LUT 3D");
-      v_settings->addChild(v_blob=new VarBlob((uint8_t *)LUT,(int)LUT_SIZE*sizeof(lut_mask_t),"LUT Data"));
+      if (filename=="") {
+        v_settings=0;
+        v_blob=0;
+      } else {
+        v_settings=new VarExternal(filename,"LUT 3D");
+        v_settings->addChild(v_blob=new VarBlob((uint8_t *)LUT,(int)LUT_SIZE*sizeof(lut_mask_t),"LUT Data"));
+        connect(v_blob,SIGNAL(XMLwasRead(VarData *)),this,SLOT(slotVBlobChange()));
+      }
 
       reset();
     };
@@ -142,6 +154,72 @@ class LUT3D{
       }
       return channels[idx];
 
+    }
+
+    void clearDerivedLUTs(bool unallocate_derived_memory=true) {
+      lock();
+        int n = derived_LUTs.size();
+        if (unallocate_derived_memory) {
+          for (int i = 0; i < n; i ++) {
+            delete derived_LUTs[i];
+          }
+        }
+        derived_LUTs.clear();
+      unlock();
+    }
+
+    int getDerivedLUTcount() {
+      return derived_LUTs.size();
+    }
+
+    LUT3D * getDerivedLUT(int idx) {
+      LUT3D * res=0;
+      lock();
+        res = derived_LUTs[idx];
+      unlock();
+      return res;
+    }
+
+    void addDerivedLUT(LUT3D * lut) {
+      lock();
+      if (lut!=0) {
+        derived_LUTs.push_back(lut);
+      }
+      unlock();
+    }
+
+    LUT3D * getDerivedLUT(ColorSpace space) {
+     LUT3D * result=0;
+     lock();
+      int n = derived_LUTs.size();
+      for (int i = 0; i < n; i ++) {
+        if (derived_LUTs[i]->getColorSpace()==space) {
+          result= derived_LUTs[i];
+          break;
+        }
+      }
+      unlock();
+      return result;
+    }
+
+    void updateDerivedLUTs() {
+      lock();
+      int n = derived_LUTs.size();
+      for (int i = 0; i < n; i ++) {
+        derived_LUTs[i]->copyChannels(*this);
+        derived_LUTs[i]->deriveFromLUT(this);
+      }
+      unlock(); 
+    }
+
+    virtual void deriveFromLUT(LUT3D * lut) {
+      for (int x=0;x<=255;x++) {
+        for (int y=0;y<=255;y++) {
+          for (int z=0;z<=255;z++) {
+            set((unsigned char)x,(unsigned char)y,(unsigned char)z,lut->get((unsigned char)x,(unsigned char)y,(unsigned char)z));
+          }
+        }
+      }
     }
 
     int getChannelID(const string & label) const {
@@ -190,9 +268,10 @@ class LUT3D{
 
     virtual ~LUT3D() {
       channels.clear();
+      clearDerivedLUTs(true);
       delete[] LUT;
-      delete v_blob;
-      delete v_settings;
+      if (v_blob!=0) delete v_blob;
+      if (v_settings!=0) delete v_settings;
     };
 
     virtual ColorSpace getColorSpace() const {
@@ -401,16 +480,35 @@ class LUT3D{
 class RGBLUT : public LUT3D {
   public:
   RGBLUT(unsigned int r_bits=5, unsigned int g_bits=5, unsigned int b_bits=5, string filename="rgblut.xml") : LUT3D(r_bits, g_bits, b_bits,filename) {};
-  void computeFromYUV(LUT3D * lut) {
-    if (lut->getColorSpace()!=CSPACE_YUV) fprintf(stderr,"Warning: computeFromYUV input LUT does not seem to be in YUV color-space\n");
-    int y,u,v;
-    for (int r=0;r<=255;r++) {
-      for (int g=0;g<=255;g++) {
-        for (int b=0;b<=255;b++) {
-          Conversions::rgb2yuv(r,g,b,y,u,v);
-          set((unsigned char)r,(unsigned char)g,(unsigned char)b,lut->get((unsigned char)y,(unsigned char)u,(unsigned char)v));
+  virtual void deriveFromLUT(LUT3D * lut) {
+    if (lut->getColorSpace()!=CSPACE_YUV) {
+      fprintf(stderr,"Warning: deriveFromLUT input on RGBLUT does not seem to be in YUV color-space\n");
+    } else {
+      // OLD :
+      /*int y,u,v;
+      for (int r=0;r<=255;r++) {
+        for (int g=0;g<=255;g++) {
+          for (int b=0;b<=255;b++) {
+            Conversions::rgb2yuv(r,g,b,y,u,v);
+            set((unsigned char)r,(unsigned char)g,(unsigned char)b,lut->get((unsigned char)y,(unsigned char)u,(unsigned char)v));
+          }
+        }
+      }*/
+      
+      //new, faster:
+      int y,u,v;
+      int rn=this->getSizeX();
+      int gn=this->getSizeY();
+      int bn=this->getSizeZ();
+      for (int r=0;r!=rn;r++) {
+        for (int g=0;g!=gn;g++) {
+          for (int b=0;b!=bn;b++) {
+            Conversions::rgb2yuv((int)lut2normX((unsigned char)r),(int)lut2normY((unsigned char)g),(int)lut2normZ((unsigned char)b),y,u,v);
+            set_preshrunk(r,g,b,lut->get((unsigned char)y,(unsigned char)u,(unsigned char)v));
+          }
         }
       }
+      
     }
   }
 
@@ -429,14 +527,29 @@ class YUVLUT : public LUT3D {
   public:
   YUVLUT(unsigned int y_bits=4, unsigned int u_bits=5, unsigned int v_bits=5, string filename="yuvlut.xml") : LUT3D(y_bits, u_bits, v_bits,filename) {};
 
-  void computeFromRGB(LUT3D * lut) {
-    if (lut->getColorSpace()!=CSPACE_RGB) fprintf(stderr,"Warning: computeFromRGB input LUT does not seem to be in RGB color-space\n");
-    int r,g,b;
-    for (int y=0;y<=255;y++) {
-      for (int u=0;u<=255;u++) {
-        for (int v=0;v<=255;v++) {
-          Conversions::yuv2rgb(y,u,v,r,g,b);
-          set((unsigned char)y,(unsigned char)u,(unsigned char)v,lut->get((unsigned char)r,(unsigned char)g,(unsigned char)b));
+  virtual void deriveFromLUT(LUT3D * lut) {
+    if (lut->getColorSpace()!=CSPACE_RGB) {
+      fprintf(stderr,"Warning: deriveFromLUT input on YUVLUT does not seem to be in RGB color-space\n");
+    } else {
+      /*int r,g,b;
+      for (int y=0;y<=255;y++) {
+        for (int u=0;u<=255;u++) {
+          for (int v=0;v<=255;v++) {
+            Conversions::yuv2rgb(y,u,v,r,g,b);
+            set((unsigned char)y,(unsigned char)u,(unsigned char)v,lut->get((unsigned char)r,(unsigned char)g,(unsigned char)b));
+          }
+        }
+      }*/
+      int r,g,b;
+      int yn=this->getSizeX();
+      int un=this->getSizeY();
+      int vn=this->getSizeZ();
+      for (int y=0;y!=yn;y++) {
+        for (int u=0;u!=un;u++) {
+          for (int v=0;v!=vn;v++) {
+            Conversions::yuv2rgb((int)lut2normX((unsigned char)y),(int)lut2normY((unsigned char)u),(int)lut2normZ((unsigned char)v),r,g,b);
+            set_preshrunk((unsigned char)y,(unsigned char)u,(unsigned char)v,lut->get((unsigned char)r,(unsigned char)g,(unsigned char)b));
+          }
         }
       }
     }

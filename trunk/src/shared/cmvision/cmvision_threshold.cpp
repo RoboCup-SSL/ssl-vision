@@ -55,7 +55,10 @@ bool CMVisionThreshold::thresholdImageYUV422_UYVY(Image<raw8> * target, const Ra
   register uyvy *       source_pointer = (uyvy*)(source->getData());
   register raw8 *      target_pointer = target->getPixelData();
 
-  if (target->getNumPixels() != source->getNumPixels()) return false;
+  if (target->getNumPixels() != source->getNumPixels()) {
+    fprintf(stderr, "CMVision YUV422_UYVY thresholding: source (num=%d  w=%d  h=%d) and target (num=%d w=%d h=%d) pixel counts do not match!\n", source->getNumPixels(),source->getWidth(),source->getHeight(), target->getNumPixels(),target->getWidth(),target->getHeight());
+    return false;
+  }
 
   lut->lock();
   int X_SHIFT=lut->X_SHIFT;
@@ -88,7 +91,10 @@ bool CMVisionThreshold::thresholdImageYUV444(Image<raw8> * target, const ImageIn
   register yuv  *                source_pointer = (yuv*)(source->getData());
   register raw8 *                target_pointer = target->getPixelData();
 
-  if (target->getNumPixels() != source->getNumPixels()) return false;
+  if (target->getNumPixels() != source->getNumPixels()) {
+     fprintf(stderr, "CMVision YUV444 thresholding: source (num=%d  w=%d  h=%d) and target (num=%d w=%d h=%d) pixel counts do not match!\n", source->getNumPixels(),source->getWidth(),source->getHeight(), target->getNumPixels(),target->getWidth(),target->getHeight());
+    return false;
+  } 
 
   lut->lock();
   int X_SHIFT=lut->X_SHIFT;
@@ -119,7 +125,10 @@ bool CMVisionThreshold::thresholdImageRGB(Image<raw8> * target, const ImageInter
   rgb *        source_pointer = (rgb*)(source->getData());
   raw8 *      target_pointer = target->getPixelData();
 
-  if (target->getNumPixels() != source->getNumPixels()) return false;
+  if (target->getNumPixels() != source->getNumPixels()) {
+    fprintf(stderr, "CMVision RGB thresholding: source (num=%d  w=%d  h=%d) and target (num=%d w=%d h=%d) pixel counts do not match!\n", source->getNumPixels(),source->getWidth(),source->getHeight(), target->getNumPixels(),target->getWidth(),target->getHeight());
+    return false;
+  }
 
   int X_SHIFT=lut->X_SHIFT;
   int Y_SHIFT=lut->Y_SHIFT;
@@ -129,9 +138,8 @@ bool CMVisionThreshold::thresholdImageRGB(Image<raw8> * target, const ImageInter
   for (int i=0;i<source_size;i++) {
     rgb p=source_pointer[i];
     target_pointer[i] =  LUT[(((p.r >> X_SHIFT) << Z_AND_Y_BITS) | ((p.g >> Y_SHIFT) << Z_BITS) | (p.b >> Z_SHIFT))];
-
   }
-  
+
   return true;
 }
 
