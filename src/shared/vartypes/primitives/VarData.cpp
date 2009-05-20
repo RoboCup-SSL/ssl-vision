@@ -343,7 +343,7 @@ void VarData::deleteAllVarChildren(XMLNode & node)
   }
 }
 
-void VarData::writeXML(XMLNode & parent, bool blind_append) const
+void VarData::writeXML(XMLNode & parent, bool blind_append)
 {
   if (areRenderFlagsSet(DT_FLAG_NOSAVE)) return;
   XMLNode us;
@@ -361,6 +361,7 @@ void VarData::writeXML(XMLNode & parent, bool blind_append) const
   updateAttributes(us);
   updateText(us);
   updateChildren(us);
+  emit(XMLwasWritten(this));
 }
 
 
@@ -382,9 +383,11 @@ void VarData::readChildren(XMLNode & us)
 void VarData::readXML(XMLNode & us)
 {
   if (areRenderFlagsSet(DT_FLAG_NOLOAD)) return;
+  //printf("readXML: %s\n",this->getName().c_str());
   readAttributes(us);
   readText(us);
   readChildren(us);
+  emit(XMLwasRead(this));
 }
 
 void VarData::loadExternal() {
@@ -421,6 +424,7 @@ vector<VarData *> VarData::readChildrenHelper(XMLNode & parent , vector<VarData 
             } else {
               fprintf(stderr,"Type mismatch between XML and Data-Tree. Object name: %s. XML type was: %s. Internal type was: %s\n",sname.c_str(),stype.c_str(),existing_children[j]->getTypeName().c_str());
             }
+            unmatched_children.erase(existing_children[j]);
             found=true;
             break;
             //ok matching name was found...update this node
