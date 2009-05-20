@@ -39,6 +39,7 @@
  - GLU
  - libdc1394 Version >= 2.0
  - libjpeg
+ - libpng
 
 To get all of these packages in (k)ubuntu, run:
 sudo apt-get install g++ libqt4-dev libeigen2-dev protobuf-compiler libprotobuf-dev libdc1394-22 libdc1394-22-dev cmake

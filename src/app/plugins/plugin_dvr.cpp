@@ -299,9 +299,38 @@ void PluginDVR::slotMovieNew() {
 
 void PluginDVR::slotMovieLoad() {
   lock();
-  QString dir = QFileDialog::getExistingDirectory(0,"Select Directory to Load");
-  if (dir!="") {
+  QString dirstr = QFileDialog::getExistingDirectory(0,"Select Directory to Load");
+  if (dirstr!="") {
     
+    int fnum=0;
+    stream.clear();
+    QDir dir(dirstr);
+    QFileInfoList list = dir.entryInfoList ( QDir::Files | QDir::Readable, QDir::Name );
+    QProgressDialog * dlg = new QProgressDialog("Loading Movie from Files...","Cancel", 1,list.size());
+    dlg->setWindowModality(Qt::WindowModal);
+    for (int i = 0 ; i < list.size(); i ++) {
+      dlg->setValue(i+1);
+      QFileInfo info = list[i];
+      if (info.suffix().compare("png",Qt::CaseInsensitive) == 0 ||
+          info.suffix().compare("bmp",Qt::CaseInsensitive) == 0 ||
+          info.suffix().compare("jpg",Qt::CaseInsensitive) == 0 ||
+          info.suffix().compare("jpeg",Qt::CaseInsensitive) == 0) {
+          int w,h;
+          rgb * data = ImageIO::readRGB(w,h,info.filePath().toStdString().c_str());
+          FrameData fdata;
+          fdata.time = 0.0;
+          fdata.number = fnum;
+          fnum++;
+          fdata.video.setColorFormat(COLOR_RGB8);
+          fdata.video.setData((unsigned char*)data);
+          fdata.video.setWidth(w);
+          fdata.video.setHeight(h);
+          stream.appendFrame(&fdata,false);
+          delete[] data;
+      }
+      if (dlg->wasCanceled()) break;
+    }
+    delete dlg;
   }
   unlock();
 }
@@ -310,10 +339,13 @@ void PluginDVR::slotMovieSave() {
   lock();
   QString dir = QFileDialog::getExistingDirectory(0,"Select Directory to Save");
   rgbImage output;
+  QProgressDialog * dlg = new QProgressDialog("Saving Movie to PNG Files...","Cancel", 1,stream.getFrameCount());
+  dlg->setWindowModality(Qt::WindowModal);
+
   if (dir!="") {
     for (int i = 0; i < stream.getFrameCount(); i++) {
       DVRFrame * f = stream.getFrame(i);
-      
+      dlg->setValue(i+1);
       if (f!=0) {
         ColorFormat fmt=f->video.getColorFormat();
         output.allocate(f->video.getWidth(),f->video.getHeight());
@@ -334,8 +366,10 @@ void PluginDVR::slotMovieSave() {
           output.save(filename.toStdString());
         }
       }
+      if (dlg->wasCanceled()) break;
     }
   }
+  delete dlg;
   unlock();
 }
 

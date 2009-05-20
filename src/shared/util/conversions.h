@@ -93,7 +93,7 @@ inline static yuv rgb2yuv(rgb const &in)
   col.v = (unsigned char) v;
   return (col);
 }
-  
+
 
 //DC1394 accelerated:
 static void uyvy2rgb (unsigned char *src, unsigned char *dest, int width, int height);

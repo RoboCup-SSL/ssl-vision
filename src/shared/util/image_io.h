@@ -23,6 +23,7 @@
 
 #include "colors.h"
 #include "jpeglib.h"
+#include "png.h"
 
 /*!
   \class ImageIO
@@ -38,6 +39,7 @@ protected:
   static void copyBGRtoRGB(rgb * dst,unsigned char * src,unsigned int size);
   static void copyBGRtoRGBA(rgba * dst,unsigned char * src,unsigned int size);
   static void copyBGRAtoRGB(rgb * dst,unsigned char * src,unsigned int size);
+  static bool WritePNG( const unsigned char *imgbuf, ColorFormat fmt, int width, int height, const char *filename);
 
 public:
   static unsigned char *readGrayscale(int &width,int &height, const char *filename);
@@ -49,10 +51,9 @@ public:
   static bool writeJPEG(rgb *imgbuf, int width, int height, const char *filename,
                int quality, bool flipY=false);
 
-
-  //bool WriteJPEG(rgb *imgbuf, int width, int height, const char *filename,
-  //               int quality = 90);
-  //bool WritePNG( rgb *imgbuf, int width, int height, const char *filename);
+  static bool WritePNG( rgb *imgbuf, int width, int height, const char *filename);
+  static bool WritePNG( rgba *imgbuf, int width, int height, const char *filename);
+  
 
 };
 
