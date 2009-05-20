@@ -213,7 +213,7 @@ bool ImageIO::writeRGB(rgb *imgbuf, int width, int height, const char *filename)
 
   if(strcmp(ext,".ppm") == 0) return(ImageIO::writePPM (imgbuf,width,height,filename));
   if(strcmp(ext,".jpg") == 0) return(ImageIO::writeJPEG(imgbuf,width,height,filename,90));
- // if(strcmp(ext,".png") == 0) return(WritePNG (imgbuf,width,height,filename));
+  if(strcmp(ext,".png") == 0) return(ImageIO::WritePNG(imgbuf,width,height,filename));
 
   printf("WriteRGB: Unknown extension \"%s\"\n",ext);
   return(false);
@@ -298,10 +298,103 @@ bool ImageIO::writeJPEG (rgb *imgbuf, int width, int height, const char * filena
 }
 
 
+bool ImageIO::WritePNG( rgb *imgbuf, int width, int height, const char *filename) {
+  return WritePNG((const unsigned char *)imgbuf,COLOR_RGB8, width, height, filename);
+}
+
+bool ImageIO::WritePNG( rgba *imgbuf, int width, int height, const char *filename) {
+  return WritePNG((const unsigned char *)imgbuf,COLOR_RGBA8, width, height, filename);
+}
+
+bool ImageIO::WritePNG(const unsigned char *imgbuf, ColorFormat fmt, int width, int height, const char *filename)
+{
+  /* create file */
+  FILE *fp = fopen(filename, "wb");
+  if (!fp) {
+    fprintf(stderr, "can't open %s\n", filename);
+    return false;
+  }
+
+  /* initialize stuff */
+  png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  
+  if (!png_ptr) {
+    fprintf(stderr, "[write_png_file] png_create_write_struct failed\n");
+    fclose(fp);
+    return false;
+  }
+
+  png_infop info_ptr = png_create_info_struct(png_ptr);
+  if (!info_ptr) {
+    fprintf(stderr, "[write_png_file] png_create_info_struct failed\n");
+    fclose(fp);
+    return false;
+  }
+
+  if (setjmp(png_jmpbuf(png_ptr))) {
+    fprintf(stderr, "[write_png_file] png_jmbbuf error\n");
+    fclose(fp);
+    return false;
+  }
+
+  png_init_io(png_ptr, fp);
+
+  /* write header */
+  if (setjmp(png_jmpbuf(png_ptr))) {
+    fprintf(stderr, "[write_png_file] Error during writing header\n");
+    fclose(fp);
+    return false;
+  }
+
+  png_byte bit_depth=8;
+  png_byte color_type;
+  int bytes_per_pixel=3;
+  if (fmt==COLOR_RGB8) {
+    color_type=PNG_COLOR_TYPE_RGB;
+    bytes_per_pixel=3;
+  } else if (fmt==COLOR_RGBA8) {
+    color_type=PNG_COLOR_TYPE_RGB_ALPHA;
+    bytes_per_pixel=4;
+  } else {
+    fprintf(stderr, "[write_png_file] Unsupported Color Type\n");
+    fclose(fp);
+    return false;
+  }
+
+  
+  png_set_IHDR(png_ptr, info_ptr, width, height,
+         bit_depth, color_type, PNG_INTERLACE_NONE,
+         PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+  png_write_info(png_ptr, info_ptr);
 
 
+  /* write bytes */
+  if (setjmp(png_jmpbuf(png_ptr))) {
+    fprintf(stderr, "[write_png_file] Error during byte-write\n");
+    fclose(fp);
+    return false;
+  }
 
+  png_bytep * row_pointers = new png_bytep[height];
+  for (int i = 0; i < height;i++) {
+    row_pointers[i]=(png_bytep)(imgbuf + (bytes_per_pixel * width * i));
+  }
+  png_write_image(png_ptr, row_pointers);
+  
+  delete[] row_pointers;
 
+  /* end write */
+  if (setjmp(png_jmpbuf(png_ptr))) {
+    fprintf(stderr,"[write_png_file] Error during end of write\n");
+    fclose(fp);
+    return false;
+  }
+
+  png_write_end(png_ptr, NULL);
+  fclose(fp);
+  return true;
+}
 
 
 

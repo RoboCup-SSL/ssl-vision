@@ -36,11 +36,14 @@
 #include <QSpacerItem>
 #include <QLabel>
 #include <QFileDialog>
+#include <QProgressDialog>
+#include <QDir>
 
 #include "timer.h"
 #include "rawimage.h"
 #include "image.h"
 #include "jog_dial.h"
+
 
 class PluginDVR;
 

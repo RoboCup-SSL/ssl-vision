@@ -395,17 +395,17 @@ void GLWidget::saveImage() {
     QFileDialog dialog ( this,
                          "Export image to file...",
                          "",
-                         "PPM (*.ppm)" );
+                         "PNG (*.png)" );
     dialog.setConfirmOverwrite ( true );
-    dialog.setDefaultSuffix ( "ppm" );
+    dialog.setDefaultSuffix ( "png" );
     dialog.setAcceptMode ( QFileDialog::AcceptSave );
     if ( dialog.exec() ) {
       if ( dialog.selectedFiles().size() > 0 ) {
         QString filename=dialog.selectedFiles().at ( 0 );
         if ( temp.save ( filename.toStdString() ) ) {
-          QMessageBox::information ( this, "Success","PPM was saved successfully." );
+          QMessageBox::information ( this, "Success","PNG was saved successfully." );
         } else {
-          QMessageBox::warning ( this, "Error","Unknown error while saving ppm." );
+          QMessageBox::warning ( this, "Error","Unknown error while saving PNG." );
         }
       }
     }
