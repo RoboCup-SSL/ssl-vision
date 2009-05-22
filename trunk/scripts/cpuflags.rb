@@ -16,6 +16,7 @@ def cpuflags(model)
 
     when /Intel.*Core.*i7/   then "-march=core2 -msse4.1 -msse4.2 -mfpmath=sse"
     when /Intel.*Core.*2\s/  then "-march=core2 -mfpmath=sse"
+    when /Intel.*Pentium.*\s4\s/ then "-march=pentium4 -mfpmath=sse"
     when /Intel.*Core/       then "-march=pentium-m -mfpmath=sse"
     when /Intel.* T[0-9]*00/ then "-march=pentium-m -mfpmath=sse"
     when /Pentium/           then "-march=pentium"
