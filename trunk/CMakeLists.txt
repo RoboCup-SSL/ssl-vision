@@ -109,12 +109,22 @@ elseif (${arch} MATCHES "x86")
 	set (cc_flags "")
 endif()
 
+set (ARCHITECTURE_OPTIMIZATION_FLAGS )
+execute_process(
+  COMMAND ${PROJECT_SOURCE_DIR}/scripts/cpuflags.rb
+  OUTPUT_VARIABLE ARCHITECTURE_OPTIMIZATION_FLAGS
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+message( STATUS "Detected Architecture Flags: ${ARCHITECTURE_OPTIMIZATION_FLAGS}")
+
 #flags to set in debug mode
 set (CMAKE_CXX_FLAGS_DEBUG "-g")
 
 #flags to set in release mode
-set (CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3")
+set (CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 ${ARCHITECTURE_OPTIMIZATION_FLAGS}")
 
+message( STATUS "CC Flags: ${CMAKE_CXX_FLAGS_RELEASE}")
 message (STATUS "Custom CC Flags: ${cc_flags}")
 
 add_definitions(${cc_flags})

@@ -3,10 +3,13 @@ buildDir=build
 #change to Debug for debug mode
 buildType=Release
 
-all: build
+all: scripts_executable build
 
 cmake: CMakeLists.txt
 	cd $(buildDir) && cmake -DCMAKE_BUILD_TYPE=$(buildType) ..
+
+scripts_executable:
+	chmod +x scripts/*.rb
 
 build: cmake
 	$(MAKE) -C $(buildDir)
