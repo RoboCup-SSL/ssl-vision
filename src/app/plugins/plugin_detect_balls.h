@@ -83,7 +83,7 @@ public:
     _filter_general->addChild(_ball_min_height = new VarInt("Min Height (pixels)", 3));
     _filter_general->addChild(_ball_max_height = new VarInt("Max Height (pixels)", 30));
     _filter_general->addChild(_ball_min_area = new VarInt("Min Area (sq-pixels)", 9));
-    _filter_general->addChild(_ball_max_area = new VarInt("Max Area (sq-pixels)", 100));    
+    _filter_general->addChild(_ball_max_area = new VarInt("Max Area (sq-pixels)", 1000));    
 
   _settings->addChild(_filter_gauss = new VarList("Gaussian Size Filter"));
     _filter_gauss->addChild(_ball_gauss_enabled = new VarBool("Enable Filter",true));
