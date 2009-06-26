@@ -18,6 +18,7 @@
   \author  Author Name, 2009
 */
 //========================================================================
+#include <list>
 #include "plugin_detect_balls.h"
 
 PluginDetectBalls::PluginDetectBalls ( FrameBuffer * _buffer, LUT3D * lut, const CameraParameters& camera_params, const RoboCupField& field,PluginDetectBallsSettings * settings )
@@ -87,6 +88,23 @@ bool PluginDetectBalls::checkHistogram ( const Image<raw8> * image, const CMVisi
   if ( markeryness > max_markeryness ) return ( false );
   return ( true );
 }
+
+//Data structure for storing and sorting the filtered regions
+class BallDetectResult
+{
+public:
+  const CMVision::Region* reg;
+  float conf;
+
+  BallDetectResult(const CMVision::Region* reg, float conf) {
+    this->reg = reg;
+    this->conf = conf;    
+  }
+
+  bool operator< (BallDetectResult a) {
+    return conf < a.conf;
+  }
+};
 
 ProcessResult PluginDetectBalls::process ( FrameData * data, RenderOptions * options ) {
   ( void ) options;
@@ -178,15 +196,11 @@ ProcessResult PluginDetectBalls::process ( FrameData * data, RenderOptions * opt
     }
   }
 
-  const CMVision::Region * best_reg = 0;
-  float best_conf=0.0;
   if ( max_balls > 0 ) {
+    list<BallDetectResult> result;
     filter.init ( reg );
-    if ( max_balls > 1 ) printf ( "Multiple ball detection is currently not supported.\n" );
-    SSL_DetectionBall* ball = detection_frame->add_balls();
-    ball->set_confidence ( 0.0 );
+    
     while ( ( reg = filter.getNext() ) != 0 ) {
-
       float conf = 1.0;
 
       if ( filter_gauss==true ) {
@@ -249,34 +263,36 @@ ProcessResult PluginDetectBalls::process ( FrameData * data, RenderOptions * opt
         conf = 0.0;
       }
 
-      if ( conf > best_conf ) {
-        best_conf = conf;
-        best_reg = reg;
+      // add filtered region to the region list
+      if(conf > 0) {
+        result.push_back(BallDetectResult(reg,conf));
       }
 
     }
 
-    if ( best_conf > 0.0 && best_reg !=0 ) {
-      //update result:
-      ball->set_confidence ( best_conf );
+    // sort result by confidence and output first max_balls region(s)
+    result.sort();
+    
+    int num_ball = 0;
+    list<BallDetectResult>::reverse_iterator it;
+    for(it=result.rbegin(); it!=result.rend(); it++) {
+      if(++num_ball > max_balls)
+        break;
 
-      vector2d pixel_pos ( best_reg->cen_x,best_reg->cen_y );
+      //update result:
+      SSL_DetectionBall* ball = detection_frame->add_balls();
+
+      ball->set_confidence ( it->conf );
+
+      vector2d pixel_pos ( it->reg->cen_x,it->reg->cen_y );
       vector3d field_pos_3d;
       camera_parameters.image2field ( field_pos_3d,pixel_pos,z_height );
 
-      ball->set_area ( best_reg->area );
+      ball->set_area ( it->reg->area );
       ball->set_x ( field_pos_3d.x );
       ball->set_y ( field_pos_3d.y );
-      ball->set_pixel_x ( best_reg->cen_x );
-      ball->set_pixel_y ( best_reg->cen_y );
-
-    } else {
-      ball->set_confidence ( 0.0 );
-      ball->set_area ( 0 );
-      ball->set_x ( 0.0 );
-      ball->set_y ( 0.0 );
-      ball->set_pixel_x ( 0.0 );
-      ball->set_pixel_y ( 0.0 );
+      ball->set_pixel_x ( it->reg->cen_x );
+      ball->set_pixel_y ( it->reg->cen_y );
     }
 
   }
