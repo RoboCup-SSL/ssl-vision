@@ -194,13 +194,7 @@ protected:
 
   double _pattern_max_dist;
   MultiPatternModel::PatternFitParameters _pattern_fit_params;
-  //_pattern_fit_params includes the former following variables:
-  /*double _pattern_fitness_weight_area;
-  double _pattern_fitness_weight_center_distance;
-  double _pattern_fitness_weight_next_distance;
-  double _pattern_fitness_max_error;
-  double _pattern_fitness_variance;
-  double _pattern_fitness_uniform;*/
+
   //----END OF TEAM CONFIG---------
 
   //color ids:

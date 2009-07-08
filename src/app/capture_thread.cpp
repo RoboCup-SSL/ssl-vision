@@ -34,10 +34,13 @@ CaptureThread::CaptureThread(int cam_id)
   control->addChild( (VarData*) (c_auto_refresh= new VarBool("auto refresh params",true)));
   control->addChild( (VarData*) (c_refresh= new VarTrigger("re-read params","Refresh")));
   control->addChild( (VarData*) (captureModule= new VarStringEnum("Capture Module","DC 1394")));
+  captureModule->addRenderFlags(DT_FLAG_NOLOAD_ENUM_CHILDREN);
   captureModule->addItem("DC 1394");
   captureModule->addItem("Read from files");
+  captureModule->addItem("Generator");
   settings->addChild( (VarData*) (dc1394 = new VarList("DC1394")));
   settings->addChild( (VarData*) (fromfile = new VarList("Read from files")));
+  settings->addChild( (VarData*) (generator = new VarList("Generator")));
   settings->addRenderFlags( DT_FLAG_AUTO_EXPAND_TREE );
   c_stop->addRenderFlags( DT_FLAG_READONLY );
   c_refresh->addRenderFlags( DT_FLAG_READONLY );
@@ -51,6 +54,7 @@ CaptureThread::CaptureThread(int cam_id)
   capture=0;
   captureDC1394 = new CaptureDC1394v2(dc1394,camId);
   captureFiles = new CaptureFromFile(fromfile);
+  captureGenerator = new CaptureGenerator(generator);
   selectCaptureMethod();
   _kill =false;
   rb=0;
@@ -74,6 +78,7 @@ CaptureThread::~CaptureThread()
 {
   delete captureDC1394;
   delete captureFiles;
+  delete captureGenerator;
   delete counter;
 }
 
@@ -95,6 +100,8 @@ void CaptureThread::selectCaptureMethod() {
   CaptureInterface * new_capture=0;
   if(captureModule->getString() == "Read from files") {
     new_capture = captureFiles;
+  } else if(captureModule->getString() == "Generator") {
+    new_capture = captureGenerator;
   } else {
     new_capture = captureDC1394;
   }

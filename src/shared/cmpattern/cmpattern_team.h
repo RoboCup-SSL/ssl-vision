@@ -94,6 +94,7 @@ protected:
       VarDouble * _pattern_fitness_weight_area;
       VarDouble * _pattern_fitness_weight_center_distance;
       VarDouble * _pattern_fitness_weight_next_distance;
+      VarDouble * _pattern_fitness_weight_next_angle_distance;
       VarDouble * _pattern_fitness_max_error;
       VarDouble * _pattern_fitness_stddev;
       VarDouble * _pattern_fitness_uniform;

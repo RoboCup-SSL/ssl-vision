@@ -62,6 +62,11 @@ public:
     return (fabs(pos.x) <= (half_field_length+boundary_width) &&  fabs(pos.y) <= (half_field_width+boundary_width));
   }
 
+  ///check whether a point is within the legal field (excluding all boundary areas) plus some threshold
+  bool isInFieldPlusThreshold(const vector2d & pos, double threshold) {
+    return (fabs(pos.x) <= (half_field_length+threshold) &&  fabs(pos.y) <= (half_field_width+threshold));
+  }
+
   ///check whether a point is within the legal field (excluding all boundary areas)
   bool isInField(const vector2d & pos) {
     return (fabs(pos.x) <= half_field_length && fabs(pos.y) <= half_field_width);

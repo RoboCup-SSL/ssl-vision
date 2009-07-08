@@ -66,6 +66,7 @@ protected:
     VarDouble * _ball_histogram_max_markeryness;
   VarList   * _filter_geometry;
     VarBool   * _ball_on_field_filter;
+    VarDouble * _ball_on_field_filter_threshold;
     VarBool   * _ball_in_goal_filter;
 
 public:
@@ -101,7 +102,8 @@ public:
     _filter_histogram->addChild(_ball_histogram_max_markeryness = new VarDouble("Max Markeryness",2.0));
 
   _settings->addChild(_filter_geometry = new VarList("Geometry Filters"));
-    _filter_geometry->addChild(_ball_on_field_filter = new VarBool("Ball-In-Field Filter",true));  
+    _filter_geometry->addChild(_ball_on_field_filter = new VarBool("Ball-In-Field Filter",true));
+    _filter_geometry->addChild(_ball_on_field_filter_threshold = new VarDouble("Ball-In-Field Extra Space (mm)",30.0));
     _filter_geometry->addChild(_ball_in_goal_filter = new VarBool("Ball-In-Goal Filter",true));
 
   }
@@ -119,6 +121,7 @@ protected:
   //these are updated automatically if a change is reported by vartypes
   VarNotifier vnotify;
   bool filter_ball_in_field;
+  double filter_ball_on_field_filter_threshold;
   bool filter_ball_in_goal;
   bool filter_ball_histogram;
   double min_greenness;

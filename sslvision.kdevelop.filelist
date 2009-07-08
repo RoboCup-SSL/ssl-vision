@@ -1,19 +1,6 @@
 # KDevelop Custom Project File List
 .
-CMakeFiles
-CMakeFiles/CompilerIdC
-CMakeFiles/CompilerIdC/CMakeCCompilerId.c
-CMakeFiles/CompilerIdCXX
-CMakeFiles/CompilerIdCXX/CMakeCXXCompilerId.cpp
 CMakeLists.txt
-messages_robocup_ssl_detection.pb.cc
-messages_robocup_ssl_detection.pb.h
-messages_robocup_ssl_geometry.pb.cc
-messages_robocup_ssl_geometry.pb.h
-messages_robocup_ssl_wrapper.pb.cc
-messages_robocup_ssl_wrapper.pb.h
-qrc_icons.cxx
-qrc_icons_gui.cxx
 src
 src/app
 src/app/capture_thread.cpp
@@ -99,6 +86,8 @@ src/shared/capture/capturefromfile.cpp
 src/shared/capture/capturefromfile.h
 src/shared/capture/captureinterface.cpp
 src/shared/capture/captureinterface.h
+src/shared/capture/capture_generator.cpp
+src/shared/capture/capture_generator.h
 src/shared/cmpattern
 src/shared/cmpattern/cmpattern_pattern.cpp
 src/shared/cmpattern/cmpattern_pattern.h
@@ -139,6 +128,8 @@ src/shared/util/field.h
 src/shared/util/field_filter.h
 src/shared/util/font.h
 src/shared/util/framecounter.h
+src/shared/util/framelimiter.cpp
+src/shared/util/framelimiter.h
 src/shared/util/geomalgo.h
 src/shared/util/geometry.h
 src/shared/util/global_random.cpp
@@ -224,5 +215,3 @@ src/shared/vartypes/primitives/VarTrigger.cpp
 src/shared/vartypes/primitives/VarTrigger.h
 src/shared/vartypes/xml/xmlParser.cpp
 src/shared/vartypes/xml/xmlParser.h
-ui_mainwindow.h
-ui_videowidget.h

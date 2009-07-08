@@ -129,6 +129,7 @@ void TeamDetector::init(Team * team)
   _pattern_fit_params.fit_area_weight=_team->_pattern_fitness_weight_area->getDouble();
   _pattern_fit_params.fit_cen_dist_weight=_team->_pattern_fitness_weight_center_distance->getDouble();
   _pattern_fit_params.fit_next_dist_weight=_team->_pattern_fitness_weight_next_distance->getDouble();
+  _pattern_fit_params.fit_next_dist_weight=_team->_pattern_fitness_weight_next_angle_distance->getDouble();
   _pattern_fit_params.fit_max_error=_team->_pattern_fitness_max_error->getDouble();
   _pattern_fit_params.fit_variance=sq(_team->_pattern_fitness_stddev->getDouble());
   _pattern_fit_params.fit_uniform=_team->_pattern_fitness_uniform->getDouble();
@@ -435,7 +436,7 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
       int num_markers = 0;
 
       reg_tree.startQuery(*reg,20.0);
-      double sd;
+      double sd=0.0;
       CMVision::Region *mreg;
       while((mreg=reg_tree.getNextNearest(sd))!=0 && num_markers<MaxMarkers) { 
         //TODO: implement masking:
@@ -446,6 +447,7 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
           vector3d marker_center3d;
           _camera_params.image2field(marker_center3d,marker_img_center,_robot_height);
           Marker &m = markers[num_markers];
+
           m.set(mreg,marker_center3d,getRegionArea(mreg,_robot_height));
           vector2f ofs = m.loc - cen.loc;
           m.dist = ofs.length();
@@ -464,6 +466,7 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
         for(int i=0; i<num_markers; i++){
           int j = (i + 1) % num_markers;
           markers[i].next_dist = dist(markers[i].loc,markers[j].loc);
+          markers[i].next_angle_dist = angle_pos(angle_diff(markers[i].angle,markers[j].angle));
         }
         
         if (model.findPattern(res,markers,num_markers,_pattern_fit_params,_camera_params)) {
