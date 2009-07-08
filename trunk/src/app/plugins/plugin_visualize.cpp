@@ -219,6 +219,30 @@ ProcessResult PluginVisualize::process(FrameData * data, RenderOptions * options
                     camera_parameters.field.right_centerline_y->getInt(), 
                     stepsPerLine, vis_frame);
 
+      //draw boundary lines:
+      // Left boundary line:
+      double boundary_width=real_field.boundary_width->getInt();
+      drawFieldLine(camera_parameters.field.left_corner_x->getInt() + (sign(camera_parameters.field.left_corner_x->getInt()) * boundary_width),
+                    camera_parameters.field.left_corner_y->getInt() + (sign(camera_parameters.field.left_corner_y->getInt()) * boundary_width),
+                    camera_parameters.field.left_centerline_x->getInt(),
+                    camera_parameters.field.left_centerline_y->getInt() + (sign(camera_parameters.field.left_centerline_y->getInt()) * boundary_width), 
+                    stepsPerLine, vis_frame);
+
+      // Right boundary line:
+      drawFieldLine(camera_parameters.field.right_corner_x->getInt() + (sign(camera_parameters.field.right_corner_x->getInt()) * boundary_width),
+                    camera_parameters.field.right_corner_y->getInt() + (sign(camera_parameters.field.right_corner_y->getInt()) * boundary_width),
+                    camera_parameters.field.right_centerline_x->getInt(),
+                    camera_parameters.field.right_centerline_y->getInt() + (sign(camera_parameters.field.right_centerline_y->getInt()) * boundary_width),
+                    stepsPerLine, vis_frame);
+
+      // Goal boundary line:
+      drawFieldLine(camera_parameters.field.right_corner_x->getInt() + (sign(camera_parameters.field.right_corner_x->getInt()) * boundary_width),
+                    camera_parameters.field.right_corner_y->getInt() + (sign(camera_parameters.field.right_corner_y->getInt()) * boundary_width),
+                    camera_parameters.field.left_corner_x->getInt() + (sign(camera_parameters.field.left_corner_x->getInt()) * boundary_width),
+                    camera_parameters.field.left_corner_y->getInt() + (sign(camera_parameters.field.left_corner_y->getInt()) * boundary_width),
+                    stepsPerLine, vis_frame);
+      
+
       const int mult = calib_field.isCamPosHalfNegX() ? -1 : 1;
 
       // Center circle:

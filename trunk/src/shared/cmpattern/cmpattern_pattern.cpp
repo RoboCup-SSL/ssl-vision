@@ -31,6 +31,7 @@ void Marker::reset() {
     height=0.0;
     area=0.0;
     dist=0.0;
+    next_angle_dist=0.0;
     conf=0.0;
     angle=0.0;
     next_dist=0.0;
@@ -46,6 +47,7 @@ void Marker::set(const CMVision::Region *_reg, const vector3d & _loc, double _ar
   // these fields are set later by consumers
   dist = 0.0;
   angle = 0.0;
+  next_angle_dist=0.0;
   next_dist = 0.0;
   next = 0;
 }
@@ -236,7 +238,7 @@ bool MultiPatternModel::loadSinglePatternImage(const yuvImage & image, YUVLUT * 
 
   // run low level vision on the image
 
-  proc.processYUV444(&image,3);
+  proc.processYUV444(&image,10);
 
   CMVision::ColorRegionList * colors = proc.getColorRegionList();
 
@@ -256,8 +258,10 @@ bool MultiPatternModel::loadSinglePatternImage(const yuvImage & image, YUVLUT * 
     reg = colors->getRegionList(color_height_id).getInitialElement();
 
     if(reg!=0 ){
-      if(reg->width()!=1 || reg->next) {
+      if(reg->width()<1 || reg->width() > 3) {
         printf("WARNING: No Object Height Indicator Found in Image!\n");
+      } else if ( reg->next != 0) {
+        printf("WARNING: Multiple Height Indicators Found in Image!\n");
       } else {
         height = reg->height();
       }
@@ -271,14 +275,16 @@ bool MultiPatternModel::loadSinglePatternImage(const yuvImage & image, YUVLUT * 
   for(unsigned int c=0; c<marker_color_ids.size(); c++) {
     reg = colors->getRegionList(marker_color_ids[c]).getInitialElement();
     while(reg != 0){
-      vector2f p(-reg->cen_y,-reg->cen_x);
-      m.loc = p - cen;
-      m.id = marker_color_ids[c];
-      m.area = reg->area;
-      m.angle = angle_pos(m.loc.angle());
-      m.dist  = m.loc.length();
-      markers.push_back(m);
-      reg = reg->next;
+      if (reg->width() > 3 && reg->height() > 3) {
+        vector2f p(-reg->cen_y,-reg->cen_x);
+        m.loc = p - cen;
+        m.id = marker_color_ids[c];
+        m.area = reg->area;
+        m.angle = angle_pos(m.loc.angle());
+        m.dist  = m.loc.length();
+        markers.push_back(m);
+        reg = reg->next;
+      }
     }
   }
 
@@ -291,6 +297,7 @@ bool MultiPatternModel::loadSinglePatternImage(const yuvImage & image, YUVLUT * 
   for(int i=0; i<num_markers; i++){
     int j = (i+1) % num_markers;
     markers[i].next_dist = dist(markers[i].loc,markers[j].loc);
+    markers[i].next_angle_dist = angle_pos(angle_diff(markers[i].angle,markers[j].angle));
     loc_sum += markers[i].loc;
     pattern = (pattern << 8) | (markers[i].id.v);
   }
@@ -318,11 +325,40 @@ double MultiPatternModel::calcFitError(const Marker *model,
   double sse = 0.0;
   for(int i=0; i<num_markers; i++){
     int j = (i + ofs) % num_markers;
+    
+    /* OLD FIT:
     sse +=
-      fit_params.fit_area_weight      * fabs(model[i].area      - markers[j].area) +
+      
+      (fit_params.fit_area_weight      * sq( model[i].area      - markers[j].area) +
       fit_params.fit_cen_dist_weight  * sq(  model[i].dist      - markers[j].dist) +
-      fit_params.fit_next_dist_weight * sq(  model[i].next_dist - markers[j].next_dist);
+      fit_params.fit_next_dist_weight * sq(  model[i].next_dist - markers[j].next_dist) +
+      fit_params.fit_next_angle_dist_weight * sq(  model[i].next_angle_dist - markers[j].next_angle_dist));
+      printf("----------\narea: %8.2f\ncent: %8.2f\ndist: %8.2f\nangd: %8.2f\nTOTAL %8.2f\n",sq( model[i].area      - markers[j].area),sq(  model[i].dist      - markers[j].dist),sq(  model[i].next_dist - markers[j].next_dist),sq(  model[i].next_angle_dist - markers[j].next_angle_dist),sse);
+      printf("areas: %f vs. %f\n",model[i].area,markers[j].area);
+      printf("diff: %f\n", model[i].area      - markers[j].area\n);
+      printf("diff sq: %f\n",sq( model[i].area      - markers[j].area));*/
+      
+     //NORMALIZED FIT:
+    sse +=
+      
+      (fit_params.fit_area_weight      * sq( (model[i].area      - markers[j].area) / model[i].area) +
+      fit_params.fit_cen_dist_weight  * sq(  (model[i].dist      - markers[j].dist) / model[i].dist) +
+      fit_params.fit_next_dist_weight * sq(  (model[i].next_dist - markers[j].next_dist) / model[i].next_dist) +
+      fit_params.fit_next_angle_dist_weight * sq(  (model[i].next_angle_dist - markers[j].next_angle_dist) /  model[i].next_angle_dist));
+      /*printf("----------\narea: %8.5f\ncent: %8.5f\ndist: %8.5f\nangd: %8.5f\nTOTAL %8.5f\n",
+      sq((model[i].area      - markers[j].area) / model[i].area),
+      sq((model[i].dist      - markers[j].dist) / model[i].dist),
+       sq(  (model[i].next_dist - markers[j].next_dist) / model[i].next_dist),
+       sq(  (model[i].next_angle_dist - markers[j].next_angle_dist) /  model[i].next_angle_dist),sse);*/
+      //sq(  model[i].dist      - markers[j].dist),sq(  model[i].next_dist - markers[j].next_dist),sq(  model[i].next_angle_dist - markers[j].next_angle_dist),sse);
+      //printf("areas: %f vs. %f\n",model[i].area,markers[j].area);
+      //printf("diff: %f\n", model[i].area      - markers[j].area);
+      //printf("ang: %f  %f  dist: %f   sqdist: %f\n",model[i].next_angle_dist,markers[j].next_angle_dist,(model[i].next_angle_dist - markers[j].next_angle_dist),sq(  (model[i].next_angle_dist - markers[j].next_angle_dist) /  model[i].next_angle_dist));
+      //printf("diff sq: %f\n",sq( model[i].area      - markers[j].area));
+      
   }
+  //normalize sse over number of markers:
+  sse/=num_markers;
   return(sse);
 }
 

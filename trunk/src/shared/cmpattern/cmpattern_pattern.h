@@ -52,6 +52,7 @@ public:
   // The following two fields are for use by callers (i.e. FindRobots)
   float dist;         // distance from center marker
   float angle;        // angle around center marker
+  float next_angle_dist;   // angular distance to next marker CW (always positive) around pattern
   float next_dist;    // distance to next marker CW around pattern
 
   Marker *next; // linked list storage for markmap
@@ -113,6 +114,7 @@ public:
     float fit_area_weight;
     float fit_cen_dist_weight;
     float fit_next_dist_weight;
+    float fit_next_angle_dist_weight;
     void reset() {
       fit_max_error = 0.0;
       fit_variance  = 1.0;
@@ -120,6 +122,7 @@ public:
       fit_area_weight = 1.0;
       fit_cen_dist_weight = 1.0;
       fit_next_dist_weight = 1.0;
+      fit_next_angle_dist_weight = 1.0;
     }
     PatternFitParameters() {
       reset();

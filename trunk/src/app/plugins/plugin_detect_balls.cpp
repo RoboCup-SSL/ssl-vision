@@ -136,6 +136,7 @@ ProcessResult PluginDetectBalls::process ( FrameData * data, RenderOptions * opt
 
     //copy all vartypes to local variables for faster repeated lookup:
     filter_ball_in_field = _settings->_ball_on_field_filter->getBool();
+    filter_ball_on_field_filter_threshold = _settings->_ball_on_field_filter_threshold->getDouble();
     filter_ball_in_goal  = _settings->_ball_in_goal_filter->getBool();
     filter_ball_histogram = _settings->_ball_histogram_enabled->getBool();
     if ( filter_ball_histogram ) {
@@ -219,7 +220,7 @@ ProcessResult PluginDetectBalls::process ( FrameData * data, RenderOptions * opt
       vector2d field_pos ( field_pos_3d.x,field_pos_3d.y );
 
       //filter points that are outside of the field:
-      if ( filter_ball_in_field==true && field_filter.isInFieldOrPlayableBoundary ( field_pos ) ==false ) {
+      if ( filter_ball_in_field==true && field_filter.isInFieldPlusThreshold ( field_pos, max(0.0,filter_ball_on_field_filter_threshold) ) ==false ) {
         conf = 0.0;
       }
 

@@ -83,12 +83,13 @@ Team::Team(VarList * team_root)
 
     _pattern_fitness = _settings->findChildOrReplace(new VarList("Pattern Fitting"));
       _pattern_max_dist = _pattern_fitness->findChildOrReplace(new VarDouble("Max Marker Center Dist (mm)",100));
-      _pattern_fitness_weight_area = _pattern_fitness->findChildOrReplace(new VarDouble("Weight Area",0.001));
-      _pattern_fitness_weight_center_distance = _pattern_fitness->findChildOrReplace(new VarDouble("Weight Center-Dist",0.1));
+      _pattern_fitness_weight_area = _pattern_fitness->findChildOrReplace(new VarDouble("Weight Area",0.1));
+      _pattern_fitness_weight_center_distance = _pattern_fitness->findChildOrReplace(new VarDouble("Weight Center-Dist",0.2));
       _pattern_fitness_weight_next_distance = _pattern_fitness->findChildOrReplace(new VarDouble("Weight Next-Dist",1.0));
-      _pattern_fitness_max_error = _pattern_fitness->findChildOrReplace(new VarDouble("Max Error",40.0));
-      _pattern_fitness_stddev = _pattern_fitness->findChildOrReplace(new VarDouble("Expected StdDev",9.0));
-      _pattern_fitness_uniform = _pattern_fitness->findChildOrReplace(new VarDouble("Uniform",0.02));
+      _pattern_fitness_weight_next_angle_distance = _pattern_fitness->findChildOrReplace(new VarDouble("Weight Next-Angle-Dist",0.5));
+      _pattern_fitness_max_error = _pattern_fitness->findChildOrReplace(new VarDouble("Max Error",1.0));
+      _pattern_fitness_stddev = _pattern_fitness->findChildOrReplace(new VarDouble("Expected StdDev",0.5));
+      _pattern_fitness_uniform = _pattern_fitness->findChildOrReplace(new VarDouble("Uniform",0.05));
 
   _notifier.addRecursive(_settings);
   connect(&_notifier,SIGNAL(changeOccured(VarData*)),this,SLOT(slotChangeOccured(VarData *)));

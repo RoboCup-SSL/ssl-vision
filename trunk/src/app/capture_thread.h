@@ -23,6 +23,7 @@
 #define CAPTURE_THREAD_H
 #include "capturedc1394v2.h"
 #include "capturefromfile.h"
+#include "capture_generator.h"
 #include <QThread>
 #include "ringbuffer.h"
 #include "framedata.h"
@@ -47,12 +48,14 @@ protected:
   CaptureInterface * capture;
   CaptureInterface * captureDC1394;
   CaptureInterface * captureFiles;
+  CaptureInterface * captureGenerator;
   AffinityManager * affinity;
   FrameBuffer * rb;
   bool _kill;
   int camId;
   VarList * settings;
   VarList * dc1394;
+  VarList * generator;
   VarList * fromfile;
   VarList * control;
   VarTrigger * c_start;
