@@ -43,7 +43,7 @@ const double NAOrientation = 1000.0;
 
 class Robot : public QGraphicsPathItem
 {
-public:
+  public:
     double orientation;     //In degrees
     int teamID;             //Team ID. 0 = blue, 1 = yellow
     int id;                 //ID of the robot in its team
@@ -52,23 +52,23 @@ public:
     int key;
     QString robotLabel;
 
-private:
+  private:
     QBrush *brush;
     QPen *pen, *idPen, *confPen;
     QPainterPath robotOutline, robotOutlineCircle, robotID;
     QFont drawFont;
 
-public:
+  public:
     QRectF boundingRect() const;
     QPainterPath shape() const;
     unsigned long int tStamp;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    void update( qreal x, qreal y, qreal width, qreal height ) { return;}
-    void update( const QRectF & rect = QRectF() ) {return;}
+    void paint ( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget );
+    void update ( qreal x, qreal y, qreal width, qreal height ) { return;}
+    void update ( const QRectF & rect = QRectF() ) {return;}
 
     Robot();
-    Robot(double _x, double _y, double _orientation, int _teamID, int _id, int _key, double _conf);
-    void SetPose(double _x, double _y, double _orientation, double _conf);
+    Robot ( double _x, double _y, double _orientation, int _teamID, int _id, int _key, double _conf );
+    void SetPose ( double _x, double _y, double _orientation, double _conf );
     ~Robot();
 };
 
@@ -78,37 +78,36 @@ class SoccerView : public QGraphicsView
 {
     //Q_OBJECT
 
-public:
+  public:
     SoccerView();
     ~SoccerView();
-    void AddRobot(Robot* robot);
-    void UpdateRobots(SSL_DetectionFrame &detection);
-    int UpdateBalls(QVector<QPointF> &_balls);
+    void AddRobot ( Robot* robot );
+    void UpdateRobots ( SSL_DetectionFrame &detection );
+    int UpdateBalls ( QVector<QPointF> &_balls, int cameraID );
     void LoadFieldGeometry();
-    void LoadFieldGeometry(SSL_GeometryFieldSize &fieldSize);
+    void LoadFieldGeometry ( SSL_GeometryFieldSize &fieldSize );
     void updateView();
-    void update( qreal x, qreal y, qreal width, qreal height ) { return;}
-    void update( const QRectF & rect = QRectF() ) {return;}
+    void update ( qreal x, qreal y, qreal width, qreal height ) { return;}
+    void update ( const QRectF & rect = QRectF() ) {return;}
     void repaint ( int x, int y, int w, int h ) {return;}
     void repaint ( const QRect & rect ) {return;}
     void repaint ( const QRegion & rgn ) {return;}
 
-protected:
+  protected:
     //void keyPressEvent(QKeyEvent *event);
-    void wheelEvent(QWheelEvent *event);
+    void wheelEvent ( QWheelEvent *event );
     //void drawBackground(QPainter *painter, const QRectF &rect);
-    void scaleView(qreal scaleFactor);
-    void timerEvent(QTimerEvent*);
+    void scaleView ( qreal scaleFactor );
+    void timerEvent ( QTimerEvent* );
     QMutex drawMutex;
     float drawScale;
     bool scalingRequested;
 
-private:
+  private:
     //Robots
-  QVector<Robot*> blueRobots,yellowRobots, robots;
+    QVector<Robot*> blueRobots,yellowRobots, robots;
     //balls
-    QVector<QPointF> balls;
-    QVector<QGraphicsEllipseItem*> ballItems;
+    QVector < QVector<QGraphicsEllipseItem*> > ballItems;
     //scene
     QGraphicsScene* scene;
     //field

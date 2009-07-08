@@ -31,15 +31,15 @@
 
 class ViewUpdateThread : public QThread
 {
-private:
+  private:
     bool shutdownView;
     RoboCupSSLClient client;
     SSL_WrapperPacket packet;
     SoccerView *soccerView;
 
-public:
-    ViewUpdateThread(){}
-    ViewUpdateThread(SoccerView *_soccer);
+  public:
+    ViewUpdateThread() {}
+    ViewUpdateThread ( SoccerView *_soccer );
     void run();
     void Terminate();
 };
