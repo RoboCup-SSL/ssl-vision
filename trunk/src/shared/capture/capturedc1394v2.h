@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #include <string>
 #include "VarTypes.h"
-#include <libraw1394/raw1394.h>
 #include <dc1394/control.h>
 #include <dc1394/conversions.h>
 
