@@ -20,7 +20,91 @@
 //========================================================================
 #include <stdio.h>
 #include <QImage>
+#include <QImageReader>
+#include <QImageWriter>
 #include "image_io.h"
+
+void ImageIO::copyQRGBtoRGB(rgb * dst,QRgb * src,unsigned int size) {
+  unsigned int i;
+  for (i=0;i!=size;i++) {
+    dst->r=qRed(*src);
+    dst->g=qGreen(*src);
+    dst->b=qBlue(*src);
+    if (i != (size-1)) {
+      src++;
+      dst++;
+    }
+  }
+}
+
+void ImageIO::copyQRGBtoRGBA(rgba * dst,QRgb * src,unsigned int size) {
+  unsigned int i;
+  for (i=0;i!=size;i++) {
+    dst->r=qRed(*src);
+    dst->g=qGreen(*src);
+    dst->b=qBlue(*src);
+    dst->a=qAlpha(*src);
+    if (i != (size-1)) {
+      src++;
+      dst++;
+    }
+  }
+}
+
+void ImageIO::copyRGBtoQRGB(QRgb * dst, rgb * src,unsigned int size) {
+  unsigned int i;
+  for (i=0;i!=size;i++) {
+    *dst = qRgb(src->r, src->g, src->b);
+    if (i != (size-1)) {
+      src++;
+      dst++;
+    }
+  }
+}
+
+void ImageIO::copyRGBAtoQRGB(QRgb * dst, rgba * src,unsigned int size) {
+  unsigned int i;
+  for (i=0;i!=size;i++) {
+    *dst = qRgba(src->r, src->g, src->b, src->a);
+    if (i != (size-1)) {
+      src++;
+      dst++;
+    }
+  }
+}
+
+void ImageIO::copyARGBtoRGB(rgb * dst,unsigned char * src,unsigned int size) {
+  unsigned int i;
+  for (i=0;i!=size;i++) {
+    src++;
+    dst->r=(*src);
+    src++;
+    dst->g=(*src);
+    src++;
+    dst->b=(*src);
+    if (i != (size-1)) {
+      src++;
+      dst++;
+    }
+  }
+}
+
+void ImageIO::copyARGBtoRGBA(rgba * dst,unsigned char * src,unsigned int size) {
+  unsigned int i;
+  for (i=0;i!=size;i++) {
+    dst->a=(*src);
+    src++;
+    dst->r=(*src);
+    src++;
+    dst->g=(*src);
+    src++;
+    dst->b=(*src);
+    if (i != (size-1)) {
+      src++;
+      dst++;
+    }
+  }
+}
 
 void ImageIO::copyBGRAtoRGBA(rgba * dst,unsigned char * src,unsigned int size) {
   unsigned int i;
@@ -62,7 +146,7 @@ void ImageIO::copyBGRtoRGBA(rgba * dst,unsigned char * src,unsigned int size) {
     dst->g=(*src);
     src++;
     dst->r=(*src);
-    dst->a=0;
+    dst->a=0xFF;
     if (i != (size-1)) {
       src++;
       dst++;
@@ -79,6 +163,22 @@ void ImageIO::copyBGRAtoRGB(rgb * dst,unsigned char * src,unsigned int size) {
     src++;
     dst->r=(*src);
     src++;
+    if (i != (size-1)) {
+      src++;
+      dst++;
+    }
+  }
+}
+
+void ImageIO::copyRGBtoRGBA(rgba * dst,unsigned char * src,unsigned int size) {
+  unsigned int i;
+  for (i=0;i!=size;i++) {
+    dst->r=(*src);
+    src++;
+    dst->g=(*src);
+    src++;
+    dst->b=(*src);
+    dst->a=0xFF;
     if (i != (size-1)) {
       src++;
       dst++;
@@ -133,6 +233,35 @@ unsigned char * ImageIO::readGrayscale(int &width,int &height, const char *filen
 
 rgb * ImageIO::readRGB(int &width,int &height, const char *filename)
 {
+  QString qfilename(filename);
+  QImageReader reader(qfilename);
+  QImage image;
+  if (reader.read(&image)) {
+    width  = image.width();
+    height = image.height();
+    //convert qimage to rgb pointer:
+    if (width > 0 && height > 0 && image.bits() != 0) {
+      /*if (image.format() == QImage::Format_RGB888) {
+        rgb *imgbuf = new rgb[width*height];
+        memcpy(imgbuf,image.bits(),width*height*sizeof(rgb));
+        return imgbuf;
+      } else */
+      if (image.format() == QImage::Format_RGB32 || image.format() == QImage::Format_ARGB32) {
+        rgb *imgbuf = new rgb[width*height];
+        copyQRGBtoRGB(imgbuf,(QRgb *)(image.bits()),width * height);
+        return imgbuf;
+
+      } else {
+        printf("WRONG FORMAT RETURNED BY QIMAGE!!!!!!\n");
+        return 0;
+      }
+    } else {
+      return 0;
+    }
+  } else {
+    return 0;
+  }
+  /*
   rgb *imgbuf = NULL;
   width = height = 0;
   
@@ -161,11 +290,41 @@ rgb * ImageIO::readRGB(int &width,int &height, const char *filename)
   }
  end:
   delete(img);
-  return(imgbuf);
+  return(imgbuf);*/
 }
 
 rgba * ImageIO::readRGBA(int &width,int &height, const char *filename)
 {
+  QString qfilename(filename);
+  QImageReader reader(qfilename);
+  QImage image;
+  if (reader.read(&image)) {
+    width  = image.width();
+    height = image.height();
+    //convert qimage to rgb pointer:
+    if (width > 0 && height > 0 && image.bits() != 0) {
+      /*if (image.format() == QImage::Format_RGB888) {
+        rgba *imgbuf = new rgba[width*height];
+        copyRGBtoRGBA(imgbuf,image.bits(),width * height);
+        return imgbuf;
+
+      } else */
+      if (image.format() == QImage::Format_RGB32 || image.format() == QImage::Format_ARGB32) {
+        rgba *imgbuf = new rgba[width*height];
+        copyQRGBtoRGBA(imgbuf,(QRgb *)(image.bits()),width * height);
+        return imgbuf;
+
+      } else {
+        printf("WRONG FORMAT RETURNED BY QIMAGE!!!!!!\n");
+        return 0;
+      }
+    } else {
+      return 0;
+    }
+  } else {
+    return 0;
+  }
+  /*
   rgba *imgbuf = NULL;
   width = height = 0;
   QImage *img = NULL;
@@ -190,7 +349,7 @@ rgba * ImageIO::readRGBA(int &width,int &height, const char *filename)
   }
  end:
   delete(img);
-  return(imgbuf);
+  return(imgbuf);*/
 }
 
 bool ImageIO::writePPM(rgb *imgbuf, int width, int height, const char *filename)
@@ -207,7 +366,7 @@ bool ImageIO::writePPM(rgb *imgbuf, int width, int height, const char *filename)
   return(fclose(out) == 0);
 }
 
-bool ImageIO::writeRGB(rgb *imgbuf, int width, int height, const char *filename)
+/*bool ImageIO::writeRGB(rgb *imgbuf, int width, int height, const char *filename)
 {
   const char *ext = strrchr(filename,'.');
 
@@ -217,11 +376,28 @@ bool ImageIO::writeRGB(rgb *imgbuf, int width, int height, const char *filename)
 
   printf("WriteRGB: Unknown extension \"%s\"\n",ext);
   return(false);
+}*/
+
+
+bool ImageIO::writeRGB(rgb *imgbuf, int width, int height, const char *filename)
+{
+  QImage img(width,height,QImage::Format_RGB32);
+  copyRGBtoQRGB((QRgb *)(img.bits()),imgbuf,width*height);
+  QImageWriter writer;
+  QString qfilename(filename);
+  writer.setFileName(qfilename);
+  const char *ext = strrchr(filename,'.');
+  return writer.write(img);
+
+/*  if(strcmp(ext,".ppm") == 0) return(ImageIO::writePPM (imgbuf,width,height,filename));
+  if(strcmp(ext,".jpg") == 0) return(ImageIO::writeJPEG(imgbuf,width,height,filename,90));
+  if(strcmp(ext,".png") == 0) return(ImageIO::WritePNG(imgbuf,width,height,filename));
+
+  printf("WriteRGB: Unknown extension \"%s\"\n",ext);
+  return(false);*/
 }
 
-
-
-
+#ifdef IMAGE_IO_USE_LIBJPEG
 bool ImageIO::writeJPEG (rgb *imgbuf, int width, int height, const char * filename, int quality, bool flipY) {
   //Most code in this function has been adapted from the libjpeg
   //example code.
@@ -297,7 +473,9 @@ bool ImageIO::writeJPEG (rgb *imgbuf, int width, int height, const char * filena
   return true;
 }
 
+#endif
 
+#ifdef IMAGE_IO_USE_LIB_PNG
 bool ImageIO::WritePNG( rgb *imgbuf, int width, int height, const char *filename) {
   return WritePNG((const unsigned char *)imgbuf,COLOR_RGB8, width, height, filename);
 }
@@ -396,62 +574,4 @@ bool ImageIO::WritePNG(const unsigned char *imgbuf, ColorFormat fmt, int width, 
   return true;
 }
 
-
-
-
-//bool WritePNG(rgb *imgbuf, int width, int height, const char *filename)
-//{
-  /*png_structp png = NULL;
-  png_infop info = NULL;
-  png_bytep *row = NULL;
-  bool ok = false;
-
-  // open the output file
-  FILE *out = fopen(filename,"wb");
-  if(!out) return(false);
-
-  // create writing and info header structures
-  png = png_create_write_struct(PNG_LIBPNG_VER_STRING,NULL,NULL,NULL);
-  if(!png) goto end;
-  info = png_create_info_struct(png);
-  if(!info) goto end;
-
-  // set the error handler
-  if(setjmp(png_jmpbuf(png))) goto end;
-
-  // Set up the output stream
-  png_init_io(png,out);
-
-  // Set image information
-  png_set_IHDR(png, info, width, height, 8,
-               PNG_COLOR_TYPE_RGB, PNG_INTERLACE_ADAM7,
-               PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
-  // Write the file header information.
-  png_write_info(png,info);
-
-  // swap location of alpha bytes from ARGB to RGBA
-  // png_set_swap_alpha(png);
-
-  // Get rid of filler byte if present (4->3 channels)
-  // png_set_filler(png, 0, PNG_FILLER_BEFORE);
-
-  // set up row pointers
-  row = new png_bytep[height];
-  if(!row) goto end;
-  for(int i=0; i<height; i++){
-    row[i] = (png_bytep)(&imgbuf[i * width]);
-  }
-
-  // write out the image
-  png_write_image(png,row);
-  png_write_end(png,info);
-
-  // clean up and exit
-  ok = true;
- end:
-  delete[](row);
-  if(png) png_destroy_write_struct(&png, &info);
-  fclose(out);
-  return(ok);*/
-//}
+#endif

@@ -65,6 +65,7 @@ protected:
   VarInt * v_width;
   VarInt * v_height;
   VarDouble * v_framerate;
+  VarBool * v_test_image;
   
 public:
 #ifndef VDATA_NO_QT
