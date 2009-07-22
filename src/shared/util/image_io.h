@@ -22,25 +22,37 @@
 #define __IMAGE_IO_H__
 
 #include "colors.h"
-#include "jpeglib.h"
-#include "png.h"
+#ifdef IMAGE_IO_USE_LIBJPEG
+  #include "jpeglib.h"
+#endif
+#ifdef IMAGE_IO_USE_LIBPNG
+  #include "png.h"
+#endif
+#include <QColor>
 
 /*!
   \class ImageIO
   \brief A class containing helper functions for reading and writing image data to/from files
 
-  This class relies on QT4 as well as the standard jpeg lib.
+  This class relies on QT4's image i/o functions
 
-  Note, that this class is not particularly clean, and needs some work!
 */
 class ImageIO {
 protected:
   static void copyBGRAtoRGBA(rgba * dst,unsigned char * src,unsigned int size);
   static void copyBGRtoRGB(rgb * dst,unsigned char * src,unsigned int size);
   static void copyBGRtoRGBA(rgba * dst,unsigned char * src,unsigned int size);
+  static void copyRGBtoRGBA(rgba * dst,unsigned char * src,unsigned int size);
   static void copyBGRAtoRGB(rgb * dst,unsigned char * src,unsigned int size);
+  static void copyQRGBtoRGB(rgb * dst,QRgb * src,unsigned int size);
+  static void copyQRGBtoRGBA(rgba * dst,QRgb * src,unsigned int size);
+  static void copyRGBtoQRGB(QRgb * dst, rgb * src,unsigned int size);
+  static void copyRGBAtoQRGB(QRgb * dst, rgba * src,unsigned int size);
+  static void copyARGBtoRGB(rgb * dst,unsigned char * src,unsigned int size);
+  static void copyARGBtoRGBA(rgba * dst,unsigned char * src,unsigned int size);
+  #ifdef IMAGE_IO_USE_LIBPNG
   static bool WritePNG( const unsigned char *imgbuf, ColorFormat fmt, int width, int height, const char *filename);
-
+  #endif
 public:
   static unsigned char *readGrayscale(int &width,int &height, const char *filename);
   static rgb *readRGB(             int &width,int &height,const char *filename);
@@ -48,12 +60,14 @@ public:
   static bool writeRGB(rgb *imgbuf,int  width,int  height,const char *filename);
   // manually selected format image writers
   static bool writePPM( rgb *imgbuf, int width, int height, const char *filename);
+  #ifdef IMAGE_IO_USE_LIBJPEG
   static bool writeJPEG(rgb *imgbuf, int width, int height, const char *filename,
                int quality, bool flipY=false);
-
+  #endif
+  #ifdef IMAGE_IO_USE_LIBPNG
   static bool WritePNG( rgb *imgbuf, int width, int height, const char *filename);
   static bool WritePNG( rgba *imgbuf, int width, int height, const char *filename);
-  
+  #endif
 
 };
 

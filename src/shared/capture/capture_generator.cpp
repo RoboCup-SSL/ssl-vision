@@ -43,6 +43,7 @@ CaptureGenerator::CaptureGenerator ( VarList * _settings ) : CaptureInterface ( 
   capture_settings->addChild ( v_framerate = new VarDouble ( "Framerate (FPS)", 60.0 ) );
   capture_settings->addChild ( v_width = new VarInt ( "Width (pixels)", 780 ) );
   capture_settings->addChild ( v_height = new VarInt ( "Height (pixels)", 580 ) );
+  capture_settings->addChild ( v_test_image = new VarBool ( "Generate Color Test Image", false ) );
 }
 
 CaptureGenerator::~CaptureGenerator()
@@ -126,7 +127,44 @@ RawImage CaptureGenerator::getFrame()
   result.allocate ( COLOR_RGB8,v_width->getInt(),v_height->getInt() );
   rgbImage img;
   img.fromRawImage(result);
-  img.fillBlack();
+
+  if (v_test_image->getBool()) {
+    int w = result.getWidth();
+    int h = result.getHeight();
+    int n_colors = 8;
+    int slice_width = w/n_colors;
+    rgb color=RGB::Black;
+    rgb color2;
+    int gradient=h/256;
+    for (int x = 0 ; x < w; x++) {
+      int c_idx= x/slice_width;
+      if (c_idx==0) {
+        color=RGB::White;
+      } else if (c_idx==1) {
+        color=RGB::Red;
+      } else if (c_idx==2) {
+        color=RGB::Green;
+      } else if (c_idx==3) {
+        color=RGB::Blue;
+      } else if (c_idx==4) {
+        color=RGB::Cyan;
+      } else if (c_idx==5) {
+        color=RGB::Pink;
+      } else if (c_idx==6) {
+        color=RGB::Yellow;
+      } else if (c_idx==7) {
+        color=RGB::Black;
+      }
+      for (int y = 0 ; y < h; y++) {
+        color2.r= max(0,min(255,((int)color.r * (h-1-y))/h));
+        color2.g= max(0,min(255,((int)color.g * (h-1-y))/h));
+        color2.b= max(0,min(255,((int)color.b * (h-1-y))/h));
+        img.setPixel(x,y,color2);
+      }
+    }
+  } else {
+    img.fillBlack();
+  }
 
 
 #ifndef VDATA_NO_QT
