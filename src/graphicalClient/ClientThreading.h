@@ -16,6 +16,7 @@
   \file    ClientThreading.h
   \brief   C++ Interface: ViewUpdateThread
   \author  Joydeep Biswas, Stefan Zickler (C) 2009
+  \edit    Ulfert Nehmiz (LogPlayer included) 2009
 */
 //========================================================================
 
@@ -28,20 +29,55 @@
 #include "GraphicsPrimitives.h"
 #include "robocup_ssl_client.h"
 #include "timer.h"
+#include "LogControl.h"
 
 class ViewUpdateThread : public QThread
 {
+    Q_OBJECT
+
   private:
     bool shutdownView;
     RoboCupSSLClient client;
     SSL_WrapperPacket packet;
     SoccerView *soccerView;
+    int execute();
+
+    //Logplayer
+    Refbox_Log logs;
+    bool play;
+    int start_play_record();
+    void end_play_record();
+    QString fileName;
+
+  protected:
+    QMutex* drawMutex;
 
   public:
     ViewUpdateThread() {}
-    ViewUpdateThread ( SoccerView *_soccer );
+    ViewUpdateThread ( SoccerView *_soccer, QMutex* _drawMutex );
+    ~ViewUpdateThread() {}
     void run();
     void Terminate();
+
+    //Logplayer
+    LogControl* log_control;
+
+  //LogPlayer data
+  public slots:
+    void playLogfilePressed();
+
+  signals:
+    //Slider and QLCDNumber
+    void update_frame(int);
+    //QLCDNumber
+    void log_size(int);
+    //Slider
+    void initializeSlider(int,int,int,int,int);
+    //LogControl
+    void showLogControl(bool);
+    //change Button text
+    void change_play_button(QString);
+
 };
 
 #endif // VIEWUPDATETHREAD_H
