@@ -16,6 +16,7 @@
   \file    GraphicsPrimitives.cpp
   \brief   C++ Interface: Robot, SoccerView
   \author  Joydeep Biswas (C) 2009
+  \edit    Ulfert Nehmiz (LogPlayer included) 2009
 */
 //========================================================================
 
@@ -31,6 +32,7 @@
 #include <QThread>
 #include <QGLWidget>
 #include <QMutex>
+#include <QtGui/QPushButton>
 #include "field_default_constants.h"
 #include "robocup_ssl_client.h"
 #include "timer.h"
@@ -73,13 +75,12 @@ class Robot : public QGraphicsPathItem
 };
 
 
-
 class SoccerView : public QGraphicsView
 {
-    //Q_OBJECT
+    Q_OBJECT
 
   public:
-    SoccerView();
+    SoccerView(QMutex*);
     ~SoccerView();
     void AddRobot ( Robot* robot );
     void UpdateRobots ( SSL_DetectionFrame &detection );
@@ -87,11 +88,20 @@ class SoccerView : public QGraphicsView
     void LoadFieldGeometry();
     void LoadFieldGeometry ( SSL_GeometryFieldSize &fieldSize );
     void updateView();
+
     void update ( qreal x, qreal y, qreal width, qreal height ) { return;}
     void update ( const QRectF & rect = QRectF() ) {return;}
     void repaint ( int x, int y, int w, int h ) {return;}
     void repaint ( const QRect & rect ) {return;}
     void repaint ( const QRegion & rgn ) {return;}
+
+    void initView();
+
+    //LogPlayer data
+    QPushButton* playLogfile;
+
+  public slots:
+    void change_play_button(QString text) {playLogfile->setText(text);}
 
   protected:
     //void keyPressEvent(QKeyEvent *event);
@@ -99,7 +109,8 @@ class SoccerView : public QGraphicsView
     //void drawBackground(QPainter *painter, const QRectF &rect);
     void scaleView ( qreal scaleFactor );
     void timerEvent ( QTimerEvent* );
-    QMutex drawMutex;
+    QMutex* drawMutex;
+    QMutex scrollMutex;
     float drawScale;
     bool scalingRequested;
 

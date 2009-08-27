@@ -1,7 +1,9 @@
 buildDir=build
+#buildDir=build_debug
 
 #change to Debug for debug mode
 buildType=Release
+#buildType=Debug
 
 all: scripts_executable build
 

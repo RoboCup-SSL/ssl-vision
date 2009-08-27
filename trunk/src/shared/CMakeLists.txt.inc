@@ -129,6 +129,7 @@ set (PROTO_FILES
 	messages_robocup_ssl_detection
 	messages_robocup_ssl_geometry
 	messages_robocup_ssl_wrapper
+	messages_robocup_ssl_refbox_log
 )
 
 set (CC_PROTO)

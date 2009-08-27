@@ -13,36 +13,54 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    main.cpp
-  \brief   The ssl-vision graphicalClient application entry point.
-  \author  Joydeep Biswas, Stefan Zickler, (C) 2008
-  \edit    Ulfert Nehmiz (LogPlayer included) 2009
+  \file    LogControl.h
+  \brief   C++ Interface: LogControl
+  \author  Ulfert Nehmiz, 2009
 */
 //========================================================================
 
+#ifndef LOGCONTROL_H
+#define LOGCONTROL_H
 
-#include <stdio.h>
-#include <QTime>
-#include "CentralWindow.h"
+#include <QObject>
+#include <iostream>
 
-
-QApplication *app;
-
-int main(int argc, char *argv[])
+class LogControl : public QObject
 {
-    (void)argc;
-    (void)argv;
+    Q_OBJECT
 
+public:
+    LogControl();
+    ~LogControl();
 
-    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+    void reset(int);
+    int get_current_frame();
+    int get_next_frame();
+    int get_prop_next_frame();
+    double get_play_speed();
 
+public slots:
+    void log_forward();
+    void log_backward();
+    void log_play();
+    void log_pause();
+    void log_faster();
+    void log_slower();
+    void log_frame_forward();
+    void log_frame_back();
+    void goto_frame(int);
 
-    app = new QApplication(argc,argv);
+signals:
+    void update_speed(QString);
 
-    CentralWindow* centralWindow = new CentralWindow();
-    centralWindow->show();
+private:
+    int current_frame;
+    int next_frame;
+    int log_length;
+    double play_speed;
+    double play_speed_save;
+    void update_play_speed();
 
-    app->exec();
+};
 
-    return 0;
-}
+#endif //LOGCONTROL_H

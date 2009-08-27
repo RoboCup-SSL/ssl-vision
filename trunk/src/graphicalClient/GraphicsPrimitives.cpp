@@ -16,6 +16,7 @@
   \file    GraphicsPrimitives.cpp
   \brief   C++ Implementation: Robot, SoccerView
   \author  Joydeep Biswas (C) 2009
+  \edit    Ulfert Nehmiz (LogPlayer included) 2009
 */
 //========================================================================
 
@@ -143,10 +144,11 @@ void Robot::SetPose ( double _x, double _y, double _orientation, double _conf )
   tStamp = GetTimeUSec();
 }
 
-SoccerView::SoccerView()
+SoccerView::SoccerView(QMutex* _drawMutex)
 {
+  drawMutex = _drawMutex;
   shutdownSoccerView = false;
-  glWidget = new QGLWidget ( QGLFormat ( QGL::SampleBuffers ) );
+  glWidget = new QGLWidget ( QGLFormat ( QGL::DoubleBuffer ) );
   setViewport ( glWidget );
   LoadFieldGeometry();
   scene = new QGraphicsScene ( this );
@@ -168,12 +170,27 @@ SoccerView::SoccerView()
   this->setDragMode ( QGraphicsView::ScrollHandDrag );
   this->setGeometry ( 100,100,1036,756 );
   scalingRequested = true;
-  startTimer ( 16 );
+
+  //LogPlayer data
+  playLogfile = new QPushButton(this);
+  playLogfile->setObjectName(QString::fromUtf8("play_logfile_button"));
+  playLogfile->setCheckable(false);
+  playLogfile->setText("Play Logfile");
+  playLogfile->setGeometry(10, 10, 150, 30);
+
+  //Timer for casual redraw
+  startTimer ( 1000 );
 }
 
 SoccerView::~SoccerView()
 {
   shutdownSoccerView = true;
+}
+
+void SoccerView::initView()
+{
+  drawScale = pow ( 2.0, (-120) / 540.0 );
+  scalingRequested = true;
 }
 
 void SoccerView::updateView()
@@ -183,8 +200,6 @@ void SoccerView::updateView()
   {
     return;
   }
-  if ( !drawMutex.tryLock() )
-    return;
   if ( scalingRequested )
   {
     qreal factor = matrix().scale ( drawScale, drawScale ).mapRect ( QRectF ( 0, 0, 1, 1 ) ).width();
@@ -192,8 +207,14 @@ void SoccerView::updateView()
       scale ( drawScale, drawScale );
     scalingRequested = false;
   }
+  //causes segfaults, update-queue is evil
+  //*** glibc detected *** PATH/ssl-vision-read-only/bin/graphicalClient: malloc(): memory corruption (fast): 0xb15682f2 ***
+
+  //  Program received signal SIGSEGV, Segmentation fault.
+  //  [Switching to Thread 0xb494ab90 (LWP 13615)]
+  //  0xb766db63 in QRegion::operator+= () from /usr/lib/libQtGui.so.4
+
   this->viewport()->update();
-  drawMutex.unlock();
 }
 
 void SoccerView::timerEvent ( QTimerEvent *event )
@@ -203,19 +224,9 @@ void SoccerView::timerEvent ( QTimerEvent *event )
     killTimer ( event->timerId() );
     return;
   }
-  if ( !drawMutex.tryLock() )
-    return;
-
-  if ( scalingRequested )
-  {
-    qreal factor = 10;//matrix().scale(drawScale, drawScale).mapRect(QRectF(0, 0, 1, 1)).width();
-    if ( factor > 0.07 && factor < 100.0 )
-      scale ( drawScale, drawScale );
-    scalingRequested = false;
-  }
-
-  this->viewport()->update();
-  drawMutex.unlock();
+  drawMutex->lock();
+  this->updateView();
+  drawMutex->unlock();
 }
 
 void SoccerView::ConstructField()
@@ -273,9 +284,14 @@ void SoccerView::scaleView ( qreal scaleFactor )
 
 void SoccerView::wheelEvent ( QWheelEvent *event )
 {
+  scrollMutex.lock();
   drawScale = pow ( 2.0, event->delta() / 540.0 );
   scalingRequested = true;
+  drawMutex->lock();
+  this->updateView();
+  drawMutex->unlock();
   event->ignore();
+  scrollMutex.unlock();
 }
 
 void SoccerView::AddRobot ( Robot *robot )
@@ -283,13 +299,13 @@ void SoccerView::AddRobot ( Robot *robot )
   robots.append ( robot );
   scene->addItem ( robot );
 }
+
 void SoccerView::UpdateRobots ( SSL_DetectionFrame &detection )
 {
   int robots_blue_n =  detection.robots_blue_size();
   int robots_yellow_n =  detection.robots_yellow_size();
   int i,j,yellowj=0,bluej=0;
   int team=teamBlue;
-  drawMutex.lock();
   SSL_DetectionRobot robot;
   for ( i = 0; i < robots_blue_n+robots_yellow_n; i++ )
   {
@@ -354,18 +370,15 @@ void SoccerView::UpdateRobots ( SSL_DetectionFrame &detection )
     if ( robots[j]->key==detection.camera_id() && robots[j]->teamID==teamYellow )
       robots[j]->conf=0.0;
   }
-  drawMutex.unlock();
   return;
 }
 
 int SoccerView::UpdateBalls ( QVector<QPointF> &_balls, int cameraID )
 {
-  drawMutex.lock();
-  
   QVector<QGraphicsEllipseItem*> tmp;
   while(cameraID+1>ballItems.size())
     ballItems.append(tmp);
-  
+
   if ( ballItems[cameraID].size() < _balls.size() ){
     //need to allocate some space for the new balls
     QPen pen ( QColor ( 0xcd,0x59,0x00,0xff ) );
@@ -388,9 +401,9 @@ int SoccerView::UpdateBalls ( QVector<QPointF> &_balls, int cameraID )
     //Let's update the ball positions now
     ballItems[cameraID][i]->setPos ( _balls[i].x()-21,-_balls[i].y()-21 );
   }
-  
-  drawMutex.unlock();
-  return ballItems[cameraID].size();
+
+  int balls = ballItems[cameraID].size();
+  return balls;
 }
 
 void SoccerView::LoadFieldGeometry()
@@ -428,10 +441,8 @@ void SoccerView::LoadFieldGeometry ( SSL_GeometryFieldSize &fieldSize )
   this->penalty_spot_from_field_line_dist = fieldSize.penalty_spot_from_field_line_dist();
   this->penalty_line_from_spot_dist = fieldSize.penalty_line_from_spot_dist();
 
-  drawMutex.lock();
   scene->removeItem ( fieldItem );
   ConstructField();
   fieldItem = scene->addPath ( *field,*fieldLinePen,*fieldBrush );
-  drawMutex.unlock();
 }
 
