@@ -106,6 +106,32 @@ public:
 
 class MultiPatternModel {
 public:
+  class ColorsUsed {
+    protected:
+    int n;
+    uint8_t * used;
+    public:
+    ColorsUsed(uint8_t max_color_id=32) {
+      n=max_color_id;
+      used = new uint8_t[n];
+      clear();
+    }
+    ~ColorsUsed() {
+      delete[] used;
+    }
+    void clear() {
+      for (int i=0;i<n;i++) {
+        used[i]=0;
+      }
+    }
+    void use(uint8_t color_id) {
+      if (color_id < n) used[color_id]=1;
+    }
+    inline bool isUsed(uint8_t color_id) const {
+      if (color_id >= n) return false;
+      return used[color_id];
+    }
+  };
   class PatternFitParameters {
     public:
     float fit_max_error;
@@ -150,6 +176,7 @@ protected:
   float     marker_max_dist;
   int       num_patterns;
   Pattern * patterns;
+  ColorsUsed used;
 protected:
   void calcDerived();
   void allocate(int num_patterns);
@@ -160,10 +187,11 @@ public:
   Pattern & getPattern(int idx);
   int getNumPatterns();
   void clearPatternModels();
+  bool usesColor(raw8 color_id) const;
   bool loadSinglePatternImage(const yuvImage & image, YUVLUT * _lut,int idx, float default_object_height=0.0);
   bool loadMultiPatternImage(const yuvImage & image, YUVLUT * _lut, int rows=4, int cols=4, float default_object_height=0.0);
   bool findPattern(PatternDetectionResult & result, Marker * markers,int num_markers, const PatternFitParameters & fit_params,const CameraParameters& camera_params) const;
-
+  void recheckColorsUsed();//to be used if patterns have been enabled/disabled;
 };
 
 
