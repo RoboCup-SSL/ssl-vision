@@ -168,6 +168,9 @@
 				0.000000
 			</Var>
 		</Var>
+		<Var name="Use Heights from Marker Image" type="bool">
+			true
+		</Var>
 	</Var>
 	<Var name="CMDragons" type="list">
 		<Var name="Team Name" type="string">
@@ -263,7 +266,7 @@
 				600
 			</Var>
 			<Var name="Duplicate Merge Distance (mm)" type="int" minval="" maxval="">
-				135
+				120
 			</Var>
 		</Var>
 		<Var name="Other Markers Settings" type="list">
@@ -314,7 +317,7 @@
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				90.000000
+				80.000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
 				0.100000
@@ -329,7 +332,7 @@
 				4.000000
 			</Var>
 			<Var name="Expected StdDev" type="double" minval="" maxval="">
-				0.900000
+				1.000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
 				0.050000
@@ -337,6 +340,9 @@
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
 				0.800000
 			</Var>
+		</Var>
+		<Var name="Use Heights from Marker Image" type="bool">
+			true
 		</Var>
 	</Var>
 	<Var name="RoboJackets" type="list">
@@ -508,6 +514,9 @@
 				0.000000
 			</Var>
 		</Var>
+		<Var name="Use Heights from Marker Image" type="bool">
+			true
+		</Var>
 	</Var>
 	<Var name="RFC Cambridge" type="list">
 		<Var name="Team Name" type="string">
@@ -677,6 +686,9 @@
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
 				0.000000
 			</Var>
+		</Var>
+		<Var name="Use Heights from Marker Image" type="bool">
+			true
 		</Var>
 	</Var>
 	<Var name="Parsian" type="list">
@@ -848,6 +860,9 @@
 				1.000000
 			</Var>
 		</Var>
+		<Var name="Use Heights from Marker Image" type="bool">
+			true
+		</Var>
 	</Var>
 	<Var name="Robofei" type="list">
 		<Var name="Team Name" type="string">
@@ -1017,6 +1032,9 @@
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
 				0.000000
 			</Var>
+		</Var>
+		<Var name="Use Heights from Marker Image" type="bool">
+			true
 		</Var>
 	</Var>
 	<Var name="Kiks" type="list">
@@ -1188,6 +1206,9 @@
 				2.000000
 			</Var>
 		</Var>
+		<Var name="Use Heights from Marker Image" type="bool">
+			true
+		</Var>
 	</Var>
 	<Var name="Austrian Cubes" type="list">
 		<Var name="Team Name" type="string">
@@ -1357,6 +1378,9 @@
 			<Var name="Uniform" type="double" minval="" maxval="">
 				0.050000
 			</Var>
+		</Var>
+		<Var name="Use Heights from Marker Image" type="bool">
+			true
 		</Var>
 	</Var>
 	<Var name="Skuba" type="list">
@@ -1528,6 +1552,9 @@
 				0.050000
 			</Var>
 		</Var>
+		<Var name="Use Heights from Marker Image" type="bool">
+			true
+		</Var>
 	</Var>
 	<Var name="Odens" type="list">
 		<Var name="Team Name" type="string">
@@ -1697,6 +1724,9 @@
 			<Var name="Uniform" type="double" minval="" maxval="">
 				0.050000
 			</Var>
+		</Var>
+		<Var name="Use Heights from Marker Image" type="bool">
+			true
 		</Var>
 	</Var>
 </VarXML>

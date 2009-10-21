@@ -137,6 +137,10 @@ int MultiPatternModel::getNumPatterns() {
   return num_patterns;
 }
 
+bool MultiPatternModel::usesColor(raw8 color_id) const {
+  return used.isUsed(color_id.v);
+}
+
 bool MultiPatternModel::loadMultiPatternImage(const yuvImage & multi_image, YUVLUT * _lut, int rows, int cols, float default_object_height)
 {
   yuvImage single_image;
@@ -182,10 +186,9 @@ bool MultiPatternModel::loadMultiPatternImage(const yuvImage & multi_image, YUVL
 }
 
 void MultiPatternModel::clearPatternModels() {
-  //TODO FIXME:
+  used.clear();
   for (int i = 0; i < num_patterns; i ++) {
     patterns[i].reset();
-    
   }
   marker_max_dist=0.0;
 }
@@ -258,13 +261,15 @@ bool MultiPatternModel::loadSinglePatternImage(const yuvImage & image, YUVLUT * 
     reg = colors->getRegionList(color_height_id).getInitialElement();
 
     if(reg!=0 ){
-      if(reg->width()<1 || reg->width() > 3) {
-        printf("WARNING: No Object Height Indicator Found in Image!\n");
+      if(reg->width()<1 || reg->width() > 6) {
+        printf("WARNING: No Object Height Indicator Found in Image (for robot id=%d)!\n",idx);
       } else if ( reg->next != 0) {
-        printf("WARNING: Multiple Height Indicators Found in Image!\n");
+        printf("WARNING: Multiple Height Indicators Found in Image (for robot id=%d)!\n",idx);
       } else {
         height = reg->height();
       }
+    } else {
+      printf("WARNING: No Object Height Indicator Found in Image (for robot id=%d)!\n",idx);
     }
   }
 
@@ -279,6 +284,7 @@ bool MultiPatternModel::loadSinglePatternImage(const yuvImage & image, YUVLUT * 
         vector2f p(-reg->cen_y,-reg->cen_x);
         m.loc = p - cen;
         m.id = marker_color_ids[c];
+        used.use(m.id.v);
         m.area = reg->area;
         m.angle = angle_pos(m.loc.angle());
         m.dist  = m.loc.length();
@@ -365,6 +371,17 @@ double MultiPatternModel::calcFitError(const Marker *model,
 
 Pattern & MultiPatternModel::getPattern(int idx) {
   return patterns[idx];
+}
+
+void MultiPatternModel::recheckColorsUsed() {
+  used.clear();
+  for (int i=0;i<num_patterns;i++) {
+    if (getPattern(i).enabled) {
+      for (int j=0;j<getPattern(i).num_markers;j++) {
+        used.use(getPattern(i).markers[j].id.v);
+      }
+    }
+  }
 }
 
 bool MultiPatternModel::findPattern(PatternDetectionResult & result, Marker * markers,int num_markers, const PatternFitParameters & fit_params,const CameraParameters& camera_params) const {

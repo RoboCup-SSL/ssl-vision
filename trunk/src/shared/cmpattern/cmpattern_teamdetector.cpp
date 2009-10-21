@@ -148,7 +148,7 @@ void TeamDetector::init(Team * team)
       yuvImage yuvi;
       yuvi.allocate(rgbi.getWidth(),rgbi.getHeight());
       Images::convert(rgbi,yuvi);
-      
+      printf("Loading Team Image %s\n",_marker_image_file.c_str());
       if (model.loadMultiPatternImage(yuvi,&minilut,_marker_image_rows,_marker_image_cols,_team->_robot_height->getDouble())==false) {
           fprintf(stderr,"Errors while processing team image file: '%s'.\n",_marker_image_file.c_str());
           fflush(stderr);
@@ -160,6 +160,7 @@ void TeamDetector::init(Team * team)
     for (int i=0;i<model.getNumPatterns();i++) {
       model.getPattern(i).setEnabled(_team->_valid_patterns->isSelected(i));
     }
+    model.recheckColorsUsed();
   }
 
 
@@ -424,6 +425,7 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
   SSL_DetectionRobot * robot=0;
 
   MultiPatternModel::PatternDetectionResult res;
+
   while((reg = filter_team.getNext()) != 0) {
     vector2d reg_img_center(reg->cen_x,reg->cen_y);
     vector3d reg_center3d;
@@ -442,7 +444,7 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
         //TODO: implement masking:
         // filter_other.check(*mreg) && det.mask.get(mreg->cen_x,mreg->cen_y)>=0.5
 
-        if(filter_others.check(*mreg)) {
+        if(filter_others.check(*mreg) && model.usesColor(mreg->color)) {
           vector2d marker_img_center(mreg->cen_x,mreg->cen_y);
           vector3d marker_center3d;
           _camera_params.image2field(marker_center3d,marker_img_center,_robot_height);
@@ -462,17 +464,23 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
 
       if(num_markers >= 2){
         CMPattern::PatternProcessing::sortMarkersByAngle(markers,num_markers);
-
         for(int i=0; i<num_markers; i++){
+          /*DEBUG CODE:
+          char colorchar='?';
+          if (markers[i].id==color_id_green) colorchar='g';
+          if (markers[i].id==color_id_pink) colorchar='p';
+          if (markers[i].id==color_id_white) colorchar='w';
+          if (markers[i].id==color_id_team) colorchar='t';
+          if (markers[i].id==color_id_field_green) colorchar='f';
+          if (markers[i].id==color_id_cyan) colorchar='c';
+          printf("%c ",colorchar);*/
           int j = (i + 1) % num_markers;
           markers[i].next_dist = dist(markers[i].loc,markers[j].loc);
           markers[i].next_angle_dist = angle_pos(angle_diff(markers[i].angle,markers[j].angle));
         }
-        
-        if (model.findPattern(res,markers,num_markers,_pattern_fit_params,_camera_params)) {
-        
-              robot=addRobot(robots,res.conf,_max_robots*2);
 
+        if (model.findPattern(res,markers,num_markers,_pattern_fit_params,_camera_params)) {
+              robot=addRobot(robots,res.conf,_max_robots*2);
               if (robot!=0) {
                 //setup robot:
                 robot->set_x(cen.loc.x);
@@ -484,26 +492,6 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
                 robot->set_height(cen.height);
               }
         }
-        /*
-        // find out which robot this is
-        int idx = model.findRobot(markers,num_markers,vr);
-
-        // save the results
-        if(idx >= 0){
-          seen[idx] += 2;
-          Net::RawVisionPos &r = robot[idx];
-          if(vr.timestamp > r.timestamp || vr.conf > r.conf){
-            r.timestamp = det.timestamp;
-            r.loc   = vr.loc;
-            r.angle = vr.angle;
-            r.conf  = vr.conf;
-
-            if(debug){
-              printf("    id=%X loc=(%8.1f %8.1f) angle=%6.3f c=%0.3f\n",
-                     idx,V2COMP(r.loc),r.angle,r.conf);
-            }
-          }
-        }*/
       }
     }
   }

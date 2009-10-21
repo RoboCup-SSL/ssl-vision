@@ -42,6 +42,7 @@ Team::Team(VarList * team_root)
     _unique_patterns = _settings->findChildOrReplace(new VarBool("Unique Patterns"));
     _have_angle = _settings->findChildOrReplace(new VarBool("Have Angles"));
     _robot_height = _settings->findChildOrReplace(new VarDouble("Robot Height (mm)", 140.0));
+    _use_marker_image_heights = _settings->findChildOrReplace(new VarBool("Use Heights from Marker Image", true));
 
     _marker_image = _settings->findChildOrReplace(new VarList("Marker Image"));
       _load_markers_from_image_file = _marker_image->findChildOrReplace(new VarBool("Load Image File",true));

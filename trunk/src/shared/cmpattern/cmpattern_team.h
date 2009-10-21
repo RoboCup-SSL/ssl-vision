@@ -56,7 +56,7 @@ protected:
     VarInt *    _marker_image_cols;
     VarSelection * _valid_patterns;
     VarDouble * _robot_height;
-
+    VarBool   * _use_marker_image_heights;
     VarList * _marker_image;
 
     VarList * _center_marker_filter;
