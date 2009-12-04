@@ -995,7 +995,7 @@ bool CaptureDC1394v2::startCapture()
   width=v_width->getInt();
   height=v_height->getInt();
   left=v_left->getInt();
-  top=v_left->getInt();
+  top=v_top->getInt();
   capture_format=Colors::stringToColorFormat(v_colormode->getString().c_str());
   int fps=v_fps->getInt();
   CaptureMode mode=stringToCaptureMode(v_format->getString().c_str());
