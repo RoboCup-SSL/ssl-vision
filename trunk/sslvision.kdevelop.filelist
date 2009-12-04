@@ -80,14 +80,14 @@ src/graphicalClient/GraphicsPrimitives.h
 src/graphicalClient/main.cpp
 src/shared
 src/shared/capture
+src/shared/capture/capture_generator.cpp
+src/shared/capture/capture_generator.h
 src/shared/capture/capturedc1394v2.cpp
 src/shared/capture/capturedc1394v2.h
 src/shared/capture/capturefromfile.cpp
 src/shared/capture/capturefromfile.h
 src/shared/capture/captureinterface.cpp
 src/shared/capture/captureinterface.h
-src/shared/capture/capture_generator.cpp
-src/shared/capture/capture_generator.h
 src/shared/cmpattern
 src/shared/cmpattern/cmpattern_pattern.cpp
 src/shared/cmpattern/cmpattern_pattern.h
