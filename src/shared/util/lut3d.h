@@ -40,6 +40,7 @@
 typedef uint8_t lut_mask_t;
 
 using namespace std;
+using namespace VarTypes;
 
 enum LUTChannelMode {
   LUTChannelMode_Numeric, //each YUV color is mapped to exactly one channel. Channels are numerated
@@ -132,7 +133,7 @@ class LUT3D : public QObject {
       } else {
         v_settings=new VarExternal(filename,"LUT 3D");
         v_settings->addChild(v_blob=new VarBlob((uint8_t *)LUT,(int)LUT_SIZE*sizeof(lut_mask_t),"LUT Data"));
-        connect(v_blob,SIGNAL(XMLwasRead(VarData *)),this,SLOT(slotVBlobChange()));
+        connect(v_blob,SIGNAL(XMLwasRead(VarType *)),this,SLOT(slotVBlobChange()));
       }
 
       reset();

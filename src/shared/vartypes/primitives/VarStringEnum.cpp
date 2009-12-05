@@ -19,15 +19,3 @@
 */
 
 #include "primitives/VarStringEnum.h"
-
-VarStringEnum::VarStringEnum(string _name, string _default) : VarData(_name) {
-  default_string=_default;
-  selected=_default;
-}
-
-VarStringEnum::~VarStringEnum() {
-  int n = list.size();
-  for (int i=n-1;i>=0;i--) {
-    delete list[(unsigned int)i];
-  }
-}

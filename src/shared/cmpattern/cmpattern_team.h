@@ -24,6 +24,7 @@
 #include "VarTypes.h"
 #include "geometry.h"
 #include "VarNotifier.h"
+using namespace VarTypes;
 namespace CMPattern {
 
 /**
@@ -40,10 +41,10 @@ friend class TeamDetector;
 signals:
    void signalTeamNameChanged();
 signals:
-   void signalChangeOccured(VarData * item);
+   void signalChangeOccured(VarType * item);
 protected slots:
    void slotTeamNameChanged();
-   void slotChangeOccured(VarData * item);
+   void slotChangeOccured(VarType * item);
 protected:
   VarNotifier _notifier;
   VarList * _settings;

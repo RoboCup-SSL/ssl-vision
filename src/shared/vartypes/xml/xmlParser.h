@@ -39,7 +39,7 @@
 #define __INCLUDE_XML_NODE__
 
 #include <stdlib.h>
-
+#include <string>
 #ifdef _UNICODE
 // If you comment the next "define" line then the library will never "switch to" _UNICODE (wchar_t*) mode (16/32 bits per characters).
 // This is useful when you get error messages like:
@@ -51,7 +51,7 @@
 
 #if defined(WIN32) || defined(UNDER_CE)
 // comment the next line if you are under windows and the compiler is not Microsoft Visual Studio (6.0 or .NET)
-//#define _XMLWINDOWS
+#define _XMLWINDOWS
 #endif
 
 #define _XMLPARSER_NO_MESSAGEBOX_
@@ -110,6 +110,7 @@
     #define TRUE 1
 #endif /* TRUE */
 
+namespace VarTypes {
 
 // Enumeration for XML parse errors.
 typedef enum XMLError
@@ -487,14 +488,48 @@ DLLENTRY XMLSTR toXMLString(XMLSTR dest,XMLCSTR source);
 // functions can also be used to "encrypt/decrypt" some critical data contained inside
 // the XML.
 
+// class DLLENTRY XMLParserBase64Tool
+// {
+// public:
+//     XMLParserBase64Tool(): buf(NULL),buflen(0){}
+//     ~XMLParserBase64Tool();
+// 
+//     void freeBuffer();
+// 
+//     // returns the length of the base64 string that encodes a data buffer of size inBufLen bytes.
+//     // If "formatted" parameter is true, some space will be reserved for a carriage-return every 72 chars.
+//     static int encodeLength(int inBufLen, char formatted=0);
+// 
+//     // The "base64Encode" function returns a string containing the base64 encoding of "inByteLen" bytes
+//     // from "inByteBuf". If "formatted" parameter is true, then there will be a carriage-return every 72 chars.
+//     // The string will be free'd when the XMLParserBase64Tool object is deleted.
+//     // All returned strings are sharing the same memory space.
+//     XMLSTR encode(unsigned char *inByteBuf, unsigned int inByteLen, char formatted=0);
+// 
+//     // returns the number of bytes which will be decoded from "inString".
+//     static unsigned int decodeSize(XMLCSTR inString, XMLError *xe=NULL);
+// 
+//     // returns a pointer to a buffer containing the binary data decoded from "inString"
+//     // If "inString" is malformed NULL will be returned
+//     // The output buffer will be free'd when the XMLParserBase64Tool object is deleted.
+//     // All output buffer are sharing the same memory space.
+//     unsigned char* decode(XMLCSTR inString, int *outByteLen=NULL, XMLError *xe=NULL);
+// 
+//     // The next function is deprecated.
+//     // decodes data from "inString" to "outByteBuf". You need to provide the size (in byte) of "outByteBuf"
+//     // in "inMaxByteOutBuflen". If "outByteBuf" is not large enough or if data is malformed, then "FALSE"
+//     // will be returned; otherwise "TRUE".
+//     static unsigned char decode(XMLCSTR inString, unsigned char *outByteBuf, int inMaxByteOutBuflen, XMLError *xe=NULL);
+// 
+// private:
+//     void *buf;
+//     int buflen;
+//     void alloc(int newsize);
+// };
+
 class DLLENTRY XMLParserBase64Tool
 {
 public:
-    XMLParserBase64Tool(): buf(NULL),buflen(0){}
-    ~XMLParserBase64Tool();
-
-    void freeBuffer();
-
     // returns the length of the base64 string that encodes a data buffer of size inBufLen bytes.
     // If "formatted" parameter is true, some space will be reserved for a carriage-return every 72 chars.
     static int encodeLength(int inBufLen, char formatted=0);
@@ -503,7 +538,8 @@ public:
     // from "inByteBuf". If "formatted" parameter is true, then there will be a carriage-return every 72 chars.
     // The string will be free'd when the XMLParserBase64Tool object is deleted.
     // All returned strings are sharing the same memory space.
-    XMLSTR encode(unsigned char *inByteBuf, unsigned int inByteLen, char formatted=0);
+    static void encode(unsigned char *inData, unsigned int inDataLen, std::string & outString, char formatted=0);
+    static void encode(const std::string & inString, std::string & outString, char formatted=0);
 
     // returns the number of bytes which will be decoded from "inString".
     static unsigned int decodeSize(XMLCSTR inString, XMLError *xe=NULL);
@@ -512,20 +548,20 @@ public:
     // If "inString" is malformed NULL will be returned
     // The output buffer will be free'd when the XMLParserBase64Tool object is deleted.
     // All output buffer are sharing the same memory space.
-    unsigned char* decode(XMLCSTR inString, int *outByteLen=NULL, XMLError *xe=NULL);
+    
+    static bool decode(const std::string & inString, std::string & outString, XMLError *xe=NULL);
+
+    static bool decode(const std::string & inString, unsigned char *outByteBuf, int inMaxByteOutBuflen, XMLError *xe=NULL);
 
     // The next function is deprecated.
     // decodes data from "inString" to "outByteBuf". You need to provide the size (in byte) of "outByteBuf"
     // in "inMaxByteOutBuflen". If "outByteBuf" is not large enough or if data is malformed, then "FALSE"
     // will be returned; otherwise "TRUE".
-    static unsigned char decode(XMLCSTR inString, unsigned char *outByteBuf, int inMaxByteOutBuflen, XMLError *xe=NULL);
 
-private:
-    void *buf;
-    int buflen;
-    void alloc(int newsize);
+    
+
 };
 
 #undef  DLLENTRY
-
+};
 #endif

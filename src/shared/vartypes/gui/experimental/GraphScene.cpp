@@ -75,7 +75,7 @@ void GraphScene::drawBackground ( QPainter * painter, const QRectF & rect ) {
 	
 }
 
-void GraphScene::addVariable(VarData * tl) {
+void GraphScene::addVariable(VarType * tl) {
 	if (tl->getType()==DT_TIMELINE) {
 		((TimeLine *)tl)->setTimePointer(control->getTimePointer());
 		lines.append((TimeLine *)tl);

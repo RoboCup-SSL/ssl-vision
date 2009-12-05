@@ -20,65 +20,42 @@
 
 #ifndef VSTRING_H_
 #define VSTRING_H_
-#include "primitives/VarData.h"
+#include "primitives/VarType.h"
+#include "primitives/VarStringVal.h"
 
-
-/*!
-  \class  VarString
-  \brief  This is the string VarType of the VarTypes system
-  \author Stefan Zickler, (C) 2008
-  \see    VarTypes.h
-
-  If you don't know what VarTypes are, please see \c VarTypes.h 
-*/
-class VarString : public VarData
-{
-#ifndef VDATA_NO_QT
-  Q_OBJECT
-#endif
-protected:
-
-  string _val;
-  string _def;
-public:
-
-  VarString(string name="", string default_val="") : VarData(name)
+namespace VarTypes {
+  /*!
+    \class  VarString
+    \brief  This is the string VarType of the VarTypes system
+    \author Stefan Zickler, (C) 2008
+    \see    VarTypes.h
+  
+    If you don't know what VarTypes are, please see \c VarTypes.h 
+  */
+  class VarString : public VarTypeTemplate<VarStringVal> 
   {
-    DT_LOCK;
-    _val=_def=default_val;
-    DT_UNLOCK;
-    CHANGE_MACRO;
-  }
+    Q_OBJECT
+  protected:
+    SafeVarVal<VarStringVal> _def;
+  public:
+    VarString(string name="", string default_val="") : VarStringVal(default_val), VarTypeTemplate<VarStringVal>(name)
+    {
+      _def.setString(default_val);
+      changed();
+    }
 
-  virtual ~VarString() {}
+    virtual ~VarString() {}
 
-  virtual void resetToDefault()
-  {
-    DT_LOCK;
-    _val=_def;
-    DT_UNLOCK;
-    CHANGE_MACRO;
-  }
-  virtual void setDefault(string val)
-  {
-    DT_LOCK;
-    _def=val;
-    DT_UNLOCK;
-    CHANGE_MACRO;
-  }
-  virtual void printdebug() const
-  {
-    DT_LOCK;
-    printf("%s\n",_val.c_str());
-    DT_UNLOCK;
-  }
+    virtual void resetToDefault()
+    {
+      setString(_def.getString());
+    }
 
-  virtual vDataTypeEnum getType() const { return DT_STRING; };
-  virtual string getString() const { DT_LOCK; string v=_val; DT_UNLOCK; return v;  };
-  virtual bool   hasValue()  const { return false; };
-  virtual bool setString(const string & val) { DT_LOCK; if (_val!=val) {_val=val; DT_UNLOCK; CHANGE_MACRO; return true;} else { DT_UNLOCK; return false;} };
-
-
+    virtual void setDefault(string val)
+    {
+      _def.setString(val);
+      changed();
+    }
+  };
 };
-
 #endif /*VSTRING_H_*/

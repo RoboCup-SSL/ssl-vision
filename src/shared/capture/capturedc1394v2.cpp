@@ -74,13 +74,13 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
     v_debayer_method->addItem(bayerMethodToString((dc1394bayer_method_t)i));
   }
   conversion_settings->addChild(v_debayer_y16=new VarInt("de-bayer y16 bits",16));
-  dcam_parameters->addRenderFlags( DT_FLAG_HIDE_CHILDREN );
+  dcam_parameters->addFlags( VARTYPE_FLAG_HIDE_CHILDREN );
 
   //=======================CAPTURE SETTINGS==========================
   capture_settings->addChild(v_cam_bus          = new VarInt("cam idx",default_camera_id));
   capture_settings->addChild(v_fps              = new VarInt("framerate",60));
-  capture_settings->addChild(v_width            = new VarInt("width",640));
-  capture_settings->addChild(v_height           = new VarInt("height",480));
+  capture_settings->addChild(v_width            = new VarInt("width",780));
+  capture_settings->addChild(v_height           = new VarInt("height",580));
   capture_settings->addChild(v_left            = new VarInt("left",0));
   capture_settings->addChild(v_top           = new VarInt("top",0));
   capture_settings->addChild(v_colormode        = new VarStringEnum("capture mode",Colors::colorFormatToString(COLOR_YUV422_UYVY)));
@@ -98,7 +98,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
     v_format->addItem(captureModeToString((CaptureMode)i));
   }
   capture_settings->addChild(v_use1394B         = new VarBool("use 1394B"  ,true));
-  capture_settings->addChild(v_use_iso_800      = new VarBool("use ISO800",false));
+  capture_settings->addChild(v_use_iso_800      = new VarBool("use ISO800", true));
   capture_settings->addChild(v_buffer_size      = new VarInt("ringbuffer size",4));
   
   //=======================DCAM PARAMETERS===========================
@@ -283,12 +283,12 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_WHITE_SHADING->addChild(new VarBool("use absolute"));
   P_WHITE_SHADING->addChild(new VarDouble("absolute value"));*/
   
-  vector<VarData *> v=dcam_parameters->getChildren();
+  vector<VarType *> v=dcam_parameters->getChildren();
   for (unsigned int i=0;i<v.size();i++) {
-    if (v[i]->getType()==DT_LIST) {
+    if (v[i]->getType()==VARTYPE_ID_LIST) {
        VarBool * temp;
        ((VarList *)v[i])->addChild(temp = new VarBool("was_read",false)); 
-      temp->addRenderFlags(DT_FLAG_HIDDEN);
+      temp->addFlags(VARTYPE_FLAG_HIDDEN);
     }
   }
   
@@ -303,15 +303,15 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
 
 #ifndef VDATA_NO_QT
   void CaptureDC1394v2::mvc_connect(VarList * group) {
-    vector<VarData *> v=group->getChildren();
+    vector<VarType *> v=group->getChildren();
     for (unsigned int i=0;i<v.size();i++) {
-      connect(v[i],SIGNAL(wasEdited(VarData *)),group,SLOT(mvcEditCompleted()));
+      connect(v[i],SIGNAL(wasEdited(VarType *)),group,SLOT(mvcEditCompleted()));
     }
-    connect(group,SIGNAL(wasEdited(VarData *)),this,SLOT(changed(VarData *)));
+    connect(group,SIGNAL(wasEdited(VarType *)),this,SLOT(changed(VarType *)));
   }
 
-  void CaptureDC1394v2::changed(VarData * group) {
-    if (group->getType()==DT_LIST) {
+  void CaptureDC1394v2::changed(VarType * group) {
+    if (group->getType()==VARTYPE_ID_LIST) {
       writeParameterValues( (VarList *)group );
       readParameterValues( (VarList *)group );
     }
@@ -320,9 +320,9 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
 
 
 void CaptureDC1394v2::readAllParameterValues() {
-  vector<VarData *> v=dcam_parameters->getChildren();
+  vector<VarType *> v=dcam_parameters->getChildren();
   for (unsigned int i=0;i<v.size();i++) {
-    if (v[i]->getType()==DT_LIST) {
+    if (v[i]->getType()==VARTYPE_ID_LIST) {
       readParameterValues((VarList *)v[i]); 
     }
   }
@@ -330,18 +330,18 @@ void CaptureDC1394v2::readAllParameterValues() {
 
 void CaptureDC1394v2::readAllParameterProperties()
 {
-  vector<VarData *> v=dcam_parameters->getChildren();
+  vector<VarType *> v=dcam_parameters->getChildren();
   for (unsigned int i=0;i<v.size();i++) {
-    if (v[i]->getType()==DT_LIST) {
+    if (v[i]->getType()==VARTYPE_ID_LIST) {
       readParameterProperty((VarList *)v[i]); 
     }
   }
 }
 
 void CaptureDC1394v2::writeAllParameterValues() {
-  vector<VarData *> v=dcam_parameters->getChildren();
+  vector<VarType *> v=dcam_parameters->getChildren();
   for (unsigned int i=0;i<v.size();i++) {
-    if (v[i]->getType()==DT_LIST) {
+    if (v[i]->getType()==VARTYPE_ID_LIST) {
       writeParameterValues((VarList *)v[i]); 
     }
   }
@@ -373,23 +373,23 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
 
   bool has_abs=false;
 
-  vector<VarData *> children=item->getChildren();
+  vector<VarType *> children=item->getChildren();
   for (unsigned int i=0;i<children.size();i++) {
-    if (children[i]->getType()==DT_BOOL && children[i]->getName()=="was_read") vwasread=(VarBool *)children[i];
-    if (children[i]->getType()==DT_BOOL && children[i]->getName()=="enabled") venabled=(VarBool *)children[i];
-    if (children[i]->getType()==DT_BOOL && children[i]->getName()=="auto") vauto=(VarBool *)children[i];
-    if (children[i]->getType()==DT_BOOL && children[i]->getName()=="use absolute") vuseabs=(VarBool *)children[i];
-    if (children[i]->getType()==DT_INT && children[i]->getName()=="value") vint=(VarInt *)children[i];
-    if (children[i]->getType()==DT_DOUBLE && children[i]->getName()=="absolute value") vabs=(VarDouble *)children[i];
-    if (children[i]->getType()==DT_TRIGGER && children[i]->getName()=="one-push") vtrigger=(VarTrigger *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="was_read") vwasread=(VarBool *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="enabled") venabled=(VarBool *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="auto") vauto=(VarBool *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="use absolute") vuseabs=(VarBool *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value") vint=(VarInt *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_DOUBLE && children[i]->getName()=="absolute value") vabs=(VarDouble *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_TRIGGER && children[i]->getName()=="one-push") vtrigger=(VarTrigger *)children[i];
     if (feature==DC1394_FEATURE_WHITE_BALANCE) {
-      if (children[i]->getType()==DT_INT && children[i]->getName()=="value U") vint=(VarInt *)children[i]; 
-      if (children[i]->getType()==DT_INT && children[i]->getName()=="value V") vint2=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value U") vint=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value V") vint2=(VarInt *)children[i]; 
     }
     if (feature==DC1394_FEATURE_WHITE_SHADING) {
-      if (children[i]->getType()==DT_INT && children[i]->getName()=="value R") vint=(VarInt *)children[i]; 
-      if (children[i]->getType()==DT_INT && children[i]->getName()=="value G") vint2=(VarInt *)children[i]; 
-      if (children[i]->getType()==DT_INT && children[i]->getName()=="value B") vint3=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value R") vint=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value G") vint2=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value B") vint3=(VarInt *)children[i]; 
     }
   }
 
@@ -492,52 +492,52 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
     //update render flags:
     if (venabled->getBool() && vauto->getBool()==false) {
       if (has_one_push) {
-          vtrigger->removeRenderFlags( DT_FLAG_READONLY);
-          vtrigger->addRenderFlags( DT_FLAG_PERSISTENT);
+          vtrigger->removeFlags( VARTYPE_FLAG_READONLY);
+          vtrigger->addFlags( VARTYPE_FLAG_PERSISTENT);
         }
       if (has_abs) {
-        vuseabs->removeRenderFlags( DT_FLAG_READONLY);
+        vuseabs->removeFlags( VARTYPE_FLAG_READONLY);
       } else {
-        vuseabs->addRenderFlags( DT_FLAG_READONLY);
+        vuseabs->addFlags( VARTYPE_FLAG_READONLY);
       }
       if (has_abs && vuseabs->getBool()) {
-        vint->addRenderFlags( DT_FLAG_READONLY );
-        if (vint2!=0) vint2->addRenderFlags( DT_FLAG_READONLY );
-        if (vint3!=0) vint3->addRenderFlags( DT_FLAG_READONLY );
-        if (vabs!=0) vabs->removeRenderFlags( DT_FLAG_READONLY );
+        vint->addFlags( VARTYPE_FLAG_READONLY );
+        if (vint2!=0) vint2->addFlags( VARTYPE_FLAG_READONLY );
+        if (vint3!=0) vint3->addFlags( VARTYPE_FLAG_READONLY );
+        if (vabs!=0) vabs->removeFlags( VARTYPE_FLAG_READONLY );
       } else {
-        vint->removeRenderFlags( DT_FLAG_READONLY );
-        if (vint2!=0) vint2->removeRenderFlags( DT_FLAG_READONLY );
-        if (vint3!=0) vint3->removeRenderFlags( DT_FLAG_READONLY );
-        if (vabs!=0) vabs->addRenderFlags( DT_FLAG_READONLY );
+        vint->removeFlags( VARTYPE_FLAG_READONLY );
+        if (vint2!=0) vint2->removeFlags( VARTYPE_FLAG_READONLY );
+        if (vint3!=0) vint3->removeFlags( VARTYPE_FLAG_READONLY );
+        if (vabs!=0) vabs->addFlags( VARTYPE_FLAG_READONLY );
       }
       if (venabled->getBool()) {
         if (has_auto_mode && has_manual_mode) {
-          vauto->removeRenderFlags( DT_FLAG_READONLY );
+          vauto->removeFlags( VARTYPE_FLAG_READONLY );
         } else {
-          vauto->addRenderFlags( DT_FLAG_READONLY );
+          vauto->addFlags( VARTYPE_FLAG_READONLY );
         }
       } else {
-        vauto->addRenderFlags( DT_FLAG_READONLY );
+        vauto->addFlags( VARTYPE_FLAG_READONLY );
       }
     } else {
       if (has_one_push) {
-        vtrigger->addRenderFlags( DT_FLAG_READONLY);
+        vtrigger->addFlags( VARTYPE_FLAG_READONLY);
       }
-      vint->addRenderFlags( DT_FLAG_READONLY );
-      if (vint2!=0) vint2->addRenderFlags( DT_FLAG_READONLY );
-      if (vint3!=0) vint3->addRenderFlags( DT_FLAG_READONLY );
+      vint->addFlags( VARTYPE_FLAG_READONLY );
+      if (vint2!=0) vint2->addFlags( VARTYPE_FLAG_READONLY );
+      if (vint3!=0) vint3->addFlags( VARTYPE_FLAG_READONLY );
       
-      if (vabs!=0) vabs->addRenderFlags( DT_FLAG_READONLY );
-      vuseabs->addRenderFlags( DT_FLAG_READONLY);
+      if (vabs!=0) vabs->addFlags( VARTYPE_FLAG_READONLY );
+      vuseabs->addFlags( VARTYPE_FLAG_READONLY);
       if (venabled->getBool()) {
         if (has_auto_mode && has_manual_mode) {
-          vauto->removeRenderFlags( DT_FLAG_READONLY );
+          vauto->removeFlags( VARTYPE_FLAG_READONLY );
         } else {
-          vauto->addRenderFlags( DT_FLAG_READONLY );
+          vauto->addFlags( VARTYPE_FLAG_READONLY );
         }
       } else {
-        vauto->addRenderFlags( DT_FLAG_READONLY );
+        vauto->addFlags( VARTYPE_FLAG_READONLY );
       }
     }
   
@@ -574,23 +574,23 @@ void CaptureDC1394v2::writeParameterValues(VarList * item) {
   VarBool * vwasread=0;
   VarTrigger * vtrigger=0;
 
-  vector<VarData *> children=item->getChildren();
+  vector<VarType *> children=item->getChildren();
   for (unsigned int i=0;i<children.size();i++) {
-    if (children[i]->getType()==DT_BOOL && children[i]->getName()=="was_read") vwasread=(VarBool *)children[i];
-    if (children[i]->getType()==DT_BOOL && children[i]->getName()=="enabled") venabled=(VarBool *)children[i];
-    if (children[i]->getType()==DT_BOOL && children[i]->getName()=="auto") vauto=(VarBool *)children[i];
-    if (children[i]->getType()==DT_BOOL && children[i]->getName()=="use absolute") vuseabs=(VarBool *)children[i];
-    if (children[i]->getType()==DT_INT && children[i]->getName()=="value") vint=(VarInt *)children[i];
-    if (children[i]->getType()==DT_DOUBLE && children[i]->getName()=="absolute value") vabs=(VarDouble *)children[i];
-    if (children[i]->getType()==DT_TRIGGER && children[i]->getName()=="one-push") vtrigger=(VarTrigger *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="was_read") vwasread=(VarBool *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="enabled") venabled=(VarBool *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="auto") vauto=(VarBool *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="use absolute") vuseabs=(VarBool *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value") vint=(VarInt *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_DOUBLE && children[i]->getName()=="absolute value") vabs=(VarDouble *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_TRIGGER && children[i]->getName()=="one-push") vtrigger=(VarTrigger *)children[i];
     if (feature==DC1394_FEATURE_WHITE_BALANCE) {
-      if (children[i]->getType()==DT_INT && children[i]->getName()=="value U") vint=(VarInt *)children[i]; 
-      if (children[i]->getType()==DT_INT && children[i]->getName()=="value V") vint2=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value U") vint=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value V") vint2=(VarInt *)children[i]; 
     }
     if (feature==DC1394_FEATURE_WHITE_SHADING) {
-      if (children[i]->getType()==DT_INT && children[i]->getName()=="value R") vint=(VarInt *)children[i]; 
-      if (children[i]->getType()==DT_INT && children[i]->getName()=="value G") vint2=(VarInt *)children[i]; 
-      if (children[i]->getType()==DT_INT && children[i]->getName()=="value B") vint3=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value R") vint=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value G") vint2=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value B") vint3=(VarInt *)children[i]; 
     }
   }
 
@@ -673,22 +673,22 @@ void CaptureDC1394v2::readParameterProperty(VarList * item) {
   VarInt * vint3=0;
   VarTrigger * vtrigger=0;
 
-  vector<VarData *> children=item->getChildren();
+  vector<VarType *> children=item->getChildren();
   for (unsigned int i=0;i<children.size();i++) {
-    if (children[i]->getType()==DT_BOOL && children[i]->getName()=="enabled") venabled=(VarBool *)children[i];
-    if (children[i]->getType()==DT_BOOL && children[i]->getName()=="auto") vauto=(VarBool *)children[i];
-    if (children[i]->getType()==DT_BOOL && children[i]->getName()=="use absolute") vuseabs=(VarBool *)children[i];
-    if (children[i]->getType()==DT_INT && children[i]->getName()=="value") vint=(VarInt *)children[i];
-    if (children[i]->getType()==DT_DOUBLE && children[i]->getName()=="absolute value") vabs=(VarDouble *)children[i];
-    if (children[i]->getType()==DT_TRIGGER && children[i]->getName()=="one-push") vtrigger=(VarTrigger *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="enabled") venabled=(VarBool *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="auto") vauto=(VarBool *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="use absolute") vuseabs=(VarBool *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value") vint=(VarInt *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_DOUBLE && children[i]->getName()=="absolute value") vabs=(VarDouble *)children[i];
+    if (children[i]->getType()==VARTYPE_ID_TRIGGER && children[i]->getName()=="one-push") vtrigger=(VarTrigger *)children[i];
     if (feature==DC1394_FEATURE_WHITE_BALANCE) {
-      if (children[i]->getType()==DT_INT && children[i]->getName()=="value U") vint=(VarInt *)children[i]; 
-      if (children[i]->getType()==DT_INT && children[i]->getName()=="value V") vint2=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value U") vint=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value V") vint2=(VarInt *)children[i]; 
     }
     if (feature==DC1394_FEATURE_WHITE_SHADING) {
-      if (children[i]->getType()==DT_INT && children[i]->getName()=="value R") vint=(VarInt *)children[i]; 
-      if (children[i]->getType()==DT_INT && children[i]->getName()=="value G") vint2=(VarInt *)children[i]; 
-      if (children[i]->getType()==DT_INT && children[i]->getName()=="value B") vint3=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value R") vint=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value G") vint2=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value B") vint3=(VarInt *)children[i]; 
     }
   }
 
@@ -696,17 +696,17 @@ void CaptureDC1394v2::readParameterProperty(VarList * item) {
     if (dcb==false) {
       if (debug) fprintf(stderr,"DC1394 PROP FEATURE IS *NOT* PRESENT: %s\n", item->getName().c_str());
       //feature doesn't exist
-      item->addRenderFlags(DT_FLAG_READONLY|DT_FLAG_HIDE_CHILDREN);
+      item->addFlags(VARTYPE_FLAG_READONLY|VARTYPE_FLAG_HIDE_CHILDREN);
     } else {
       if (debug) fprintf(stderr,"DC1394 PROP FEATURE IS PRESENT: %s\n", item->getName().c_str());
-      item->removeRenderFlags(DT_FLAG_READONLY|DT_FLAG_HIDE_CHILDREN);
+      item->removeFlags(VARTYPE_FLAG_READONLY|VARTYPE_FLAG_HIDE_CHILDREN);
       //check for switchability:
       if (dc1394_feature_is_switchable(camera,feature,&dcb) ==DC1394_SUCCESS) {
         if (dcb==true) {
-          venabled->removeRenderFlags( DT_FLAG_READONLY);
+          venabled->removeFlags( VARTYPE_FLAG_READONLY);
         } else {
           venabled->setBool(true);
-          venabled->addRenderFlags( DT_FLAG_READONLY);
+          venabled->addFlags( VARTYPE_FLAG_READONLY);
         }
       } else {
          fprintf(stderr,"DC1394 PROP READOUT ERROR - SWITCHABLE: %s\n", item->getName().c_str());
@@ -728,32 +728,32 @@ void CaptureDC1394v2::readParameterProperty(VarList * item) {
         }
         //feature is readable
         if (has_one_push==false) {
-          vtrigger->addRenderFlags(DT_FLAG_READONLY);
+          vtrigger->addFlags(VARTYPE_FLAG_READONLY);
         }
         if (has_manual_mode) {
-          vint->removeRenderFlags( DT_FLAG_READONLY );
-          if (vint2!=0) vint2->removeRenderFlags( DT_FLAG_READONLY );
-          if (vint3!=0) vint3->removeRenderFlags( DT_FLAG_READONLY );
-          vauto->removeRenderFlags( DT_FLAG_READONLY );
+          vint->removeFlags( VARTYPE_FLAG_READONLY );
+          if (vint2!=0) vint2->removeFlags( VARTYPE_FLAG_READONLY );
+          if (vint3!=0) vint3->removeFlags( VARTYPE_FLAG_READONLY );
+          vauto->removeFlags( VARTYPE_FLAG_READONLY );
         } else {
-          vint->addRenderFlags( DT_FLAG_READONLY );
-          if (vint2!=0) vint2->addRenderFlags( DT_FLAG_READONLY );
-          if (vint3!=0) vint3->addRenderFlags( DT_FLAG_READONLY );
-          vauto->addRenderFlags( DT_FLAG_READONLY );
+          vint->addFlags( VARTYPE_FLAG_READONLY );
+          if (vint2!=0) vint2->addFlags( VARTYPE_FLAG_READONLY );
+          if (vint3!=0) vint3->addFlags( VARTYPE_FLAG_READONLY );
+          vauto->addFlags( VARTYPE_FLAG_READONLY );
         }
 
         //------------ABSOLUTE CONTROL READOUT:
         if (dc1394_feature_has_absolute_control(camera,feature,&dcb) ==DC1394_SUCCESS && dcb==true) {
-          vabs->removeRenderFlags( DT_FLAG_READONLY );
-          vuseabs->removeRenderFlags( DT_FLAG_READONLY);
+          vabs->removeFlags( VARTYPE_FLAG_READONLY );
+          vuseabs->removeFlags( VARTYPE_FLAG_READONLY);
           float minv,maxv;
           if (dc1394_feature_get_absolute_boundaries(camera,feature,&minv,&maxv)==DC1394_SUCCESS) {
             vabs->setMin((double)minv);
             vabs->setMax((double)maxv);
           }
         } else {
-          vabs->addRenderFlags( DT_FLAG_READONLY );
-          vuseabs->addRenderFlags( DT_FLAG_READONLY );
+          vabs->addFlags( VARTYPE_FLAG_READONLY );
+          vuseabs->addFlags( VARTYPE_FLAG_READONLY );
         }
 
 
@@ -885,11 +885,11 @@ bool CaptureDC1394v2::stopCapture() {
   }
   cleanup();
 
-  vector<VarData *> tmp = capture_settings->getChildren();
+  vector<VarType *> tmp = capture_settings->getChildren();
   for (unsigned int i=0; i < tmp.size();i++) {
-    tmp[i]->removeRenderFlags( DT_FLAG_READONLY );
+    tmp[i]->removeFlags( VARTYPE_FLAG_READONLY );
   }
-  dcam_parameters->addRenderFlags( DT_FLAG_HIDE_CHILDREN );
+  dcam_parameters->addFlags( VARTYPE_FLAG_HIDE_CHILDREN );
   return true;
 }
 
@@ -1491,19 +1491,19 @@ dc1394error_t dc1394_format7_get_packets_per_frame(dc1394camera_t *camera, dc139
     return false;
   }
 
-  vector<VarData *> l = capture_settings->getChildren();
+  vector<VarType *> l = capture_settings->getChildren();
   for (unsigned int i = 0; i < l.size(); i++) {
-    l[i]->addRenderFlags(DT_FLAG_READONLY);
+    l[i]->addFlags(VARTYPE_FLAG_READONLY);
   }
 
   is_capturing=true;
   
-  vector<VarData *> tmp = capture_settings->getChildren();
+  vector<VarType *> tmp = capture_settings->getChildren();
   for (unsigned int i=0; i < tmp.size();i++) {
-    tmp[i]->addRenderFlags( DT_FLAG_READONLY );
+    tmp[i]->addFlags( VARTYPE_FLAG_READONLY );
   }
 
-  dcam_parameters->removeRenderFlags( DT_FLAG_HIDE_CHILDREN );
+  dcam_parameters->removeFlags( VARTYPE_FLAG_HIDE_CHILDREN );
   #ifndef VDATA_NO_QT
     mutex.unlock();
   #endif

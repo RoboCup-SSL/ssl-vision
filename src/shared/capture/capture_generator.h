@@ -46,7 +46,7 @@ class CaptureGenerator : public CaptureInterface
 #ifndef VDATA_NO_QT
   Q_OBJECT
 /*   public slots: */
-/*   void changed(VarData * group); */
+/*   void changed(VarType * group); */
   protected:
   QMutex mutex;
   public:

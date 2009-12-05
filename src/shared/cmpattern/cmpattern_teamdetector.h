@@ -63,7 +63,7 @@ Q_OBJECT
 signals:
   void teamInfoChanged();
  protected slots:
-   void slotTeamNodeAdded(VarData * node);
+   void slotTeamNodeAdded(VarType * node);
    void slotAddPressed();
  public:
  vector<Team *> getTeams() const;
@@ -107,10 +107,10 @@ protected:
     }
     if (new_team!=current_team) {
       if (current_team!=0) {
-        disconnect(current_team,SIGNAL(signalChangeOccured(VarData*)),this,SLOT(slotTeamDataChanged()));
+        disconnect(current_team,SIGNAL(signalChangeOccured(VarType*)),this,SLOT(slotTeamDataChanged()));
       }
       if (new_team!=0) {
-        connect(new_team,SIGNAL(signalChangeOccured(VarData*)),this,SLOT(slotTeamDataChanged()));
+        connect(new_team,SIGNAL(signalChangeOccured(VarType*)),this,SLOT(slotTeamDataChanged()));
       }
       current_team=new_team;
     }
@@ -130,7 +130,7 @@ public:
     current_team=0;
     _settings= new VarList(label);
     _settings->addChild(_selector = new VarStringEnum("Team",""));
-    _selector->addRenderFlags(DT_FLAG_NOLOAD_ENUM_CHILDREN);
+    _selector->addFlags(VARTYPE_FLAG_NOLOAD_ENUM_CHILDREN);
     _settings->addChild(_num_robots = new VarInt("Max Robots",5));
     update();
   }

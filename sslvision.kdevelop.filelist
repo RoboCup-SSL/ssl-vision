@@ -213,5 +213,9 @@ src/shared/vartypes/primitives/VarStringEnum.cpp
 src/shared/vartypes/primitives/VarStringEnum.h
 src/shared/vartypes/primitives/VarTrigger.cpp
 src/shared/vartypes/primitives/VarTrigger.h
+src/shared/vartypes/primitives/VarType.cpp
+src/shared/vartypes/primitives/VarType.h
+src/shared/vartypes/primitives/VarVal.cpp
+src/shared/vartypes/primitives/VarVal.h
 src/shared/vartypes/xml/xmlParser.cpp
 src/shared/vartypes/xml/xmlParser.h

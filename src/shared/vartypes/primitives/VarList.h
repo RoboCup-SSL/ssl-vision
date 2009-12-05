@@ -20,149 +20,168 @@
 
 #ifndef DATAGROUP_H_
 #define DATAGROUP_H_
-#include "primitives/VarData.h"
+#include "primitives/VarType.h"
 #include <vector>
 using namespace std;
+namespace VarTypes {
+  
+  /*!
+    \class  VarList
+    \brief  This is the list type of the VarTypes system
+    \author Stefan Zickler, (C) 2008
+    \see    VarTypes.h
+  
+    VarList allows the storage of an ordered list of children nodes.
+  
+    If you don't know what VarTypes are, please see \c VarTypes.h 
+  */
+  
+  class VarList : public VarType
+  {
+  #ifndef VDATA_NO_QT
+    Q_OBJECT
+  #endif
+  protected:
+    vector<VarType *> list;
+  signals:
+    void childAdded(VarType * child);
+    void childRemoved(VarType * child);
+  public:
+    /// Creates an empty VarList
+    VarList(string _name="") : VarType(_name) {
+    };
+    virtual ~VarList() {
+    };
+  
 
+    
+    /// this will always return the empty string ""
+    virtual string getString() const { return ""; }
+  
+    /// this will clear the list
+    virtual void resetToDefault() {lock(); for (unsigned int i=0;i<list.size();i++) { emit(childRemoved(list[i])); } list.clear();  unlock(); };
+  
+    /// prints the label and number of elements
+    virtual void printdebug() const { printf("VarList named %s containing %zu element(s)\n",getName().c_str(), list.size()); }
+  
+    /// adds a VarType item to the end of the list.
+    int addChild(VarType * child) { lock(); list.push_back(child); emit(childAdded(child)); unlock(); changed(); return (list.size()-1);}
+    bool removeChild(VarType * child) {
+      lock();
+      vector<VarType *> newlist;
+      unsigned int n=list.size();
+      bool found=false;
+      for (unsigned int i=0;i<n;i++) {
+        if (list[i]!=child) {
+          newlist.push_back(list[i]);
+        } else {
+          found=true;
+        }
+      }
+      if (found) {
+        emit(childRemoved(child));
+        list=newlist;
+        changed();
+      }
+      unlock();
+      return found;
+    };
+  
+    virtual VarTypeId getType() const { return VARTYPE_ID_LIST; } ;
+  
+    /// returns the number of children of this list
+    virtual int getChildrenCount() const
+    {
+      int res;
+      lock();
+      res = list.size();
+      unlock();
+      return res;
+    }
+  
+    /// removes all children, by actually deleting them in memory
+    /// note that this is recursive.
+    /// use it to un-allocate entire hierarchies from memory
+    virtual void deleteAllChildren() {
+      lock();
+      int n = list.size();
+      for (int i = 0; i < n ; i++) {
+        if (list[i]!=0) {
+          list[i]->deleteAllChildren();
+          delete list[i];
+        }
+      }
+      list.clear();
+      unlock();
+    }
 
-/*!
-  \class  VarList
-  \brief  This is the list type of the VarTypes system
-  \author Stefan Zickler, (C) 2008
-  \see    VarTypes.h
-
-  VarList allows the storage of an ordered list of children nodes.
-
-  If you don't know what VarTypes are, please see \c VarTypes.h 
-*/
-
-class VarList : public VarData
-{
-#ifndef VDATA_NO_QT
-  Q_OBJECT
-#endif
-protected:
-  vector<VarData *> list;
-signals:
-  void childAdded(VarData * child);
-  void childRemoved(VarData * child);
-public:
-  /// Creates an empty VarList
-  VarList(string _name="");
-  virtual ~VarList();
-
-  /// this will always return the empty string ""
-  virtual string getString() const { return ""; }
-
-  /// this will clear the list
-  virtual void resetToDefault() {DT_LOCK; for (unsigned int i=0;i<list.size();i++) { emit(childRemoved(list[i])); } list.clear();  DT_UNLOCK; };
-
-  /// prints the label and number of elements
-  virtual void printdebug() const { printf("VarList named %s containing %zu element(s)\n",getName().c_str(), list.size()); }
-
-  /// adds a VarData item to the end of the list.
-  int addChild(VarData * child) { DT_LOCK; list.push_back(child); emit(childAdded(child)); DT_UNLOCK; CHANGE_MACRO; return (list.size()-1);}
-  bool removeChild(VarData * child) {
-    DT_LOCK;
-    vector<VarData *> newlist;
-    unsigned int n=list.size();
-    bool found=false;
-    for (unsigned int i=0;i<n;i++) {
-      if (list[i]!=child) {
-        newlist.push_back(list[i]);
+    /// returns a vector of all children in the order that they occur in internally
+    virtual vector<VarType *> getChildren() const
+    {
+      lock();
+      vector<VarType *> l = list;
+      unlock();
+      return l;
+    }
+  
+    /// Finds a child based on the label of 'other'
+    /// If the child is not found then other is returned
+    /// However, if the child *is* found then other will be *deleted* and the child will be returned!
+    VarType * findChildOrReplace(VarType * other) {
+      VarType * data = findChild(other->getName());
+      if (data!=0) {
+        delete other;
+        return data;
       } else {
-        found=true;
+        addChild(other);
+        return other;
       }
     }
-    if (found) {
-      emit(childRemoved(child));
-      list=newlist;
-      CHANGE_MACRO;
+  
+    /// Finds a child based on the label of 'other'
+    /// If the child is not found then other is returned
+    /// However, if the child *is* found then other will be *deleted* and the child will be returned!
+    template <class VCLASS> 
+    VCLASS * findChildOrReplace(VCLASS * other) {
+      VCLASS * data = (VCLASS *)findChild(other->getName());
+      if (data!=0) {
+        delete other;
+        return data;
+      } else {
+        addChild(other);
+        return other;
+      }
     }
-    DT_UNLOCK;
-    return found;
+  
+  
+  #ifndef VDATA_NO_XML
+  protected:
+    virtual void readChildren(XMLNode & us)
+    {
+      lock();
+      int before=list.size();
+      list=readChildrenHelper(us, list, false, false);
+      int after=list.size();
+      if (after > before) {
+        for (int i=before; i < after; i++) {
+          emit(childAdded(list[i]));
+        }
+      }
+      unlock();
+      changed();
+    }
+  #endif
+  
+  //Qt model/view gui stuff:
+  public:
+  virtual QWidget * createEditor(const VarItemDelegate * delegate, QWidget *parent, const QStyleOptionViewItem &option) {
+    (void)delegate;
+    (void)option;
+    (void)parent;
+    return 0;
+  }
+
   };
-
-  virtual vDataTypeEnum getType() const { return DT_LIST; } ;
-
-  /// returns the number of children of this list
-  virtual int getChildrenCount() const
-  {
-    int res;
-    DT_LOCK;
-    res = list.size();
-    DT_UNLOCK;
-    return res;
-  }
-
-  /// returns a vector of all children in the order that they occur in internally
-  virtual vector<VarData *> getChildren() const
-  {
-    DT_LOCK;
-    vector<VarData *> l = list;
-    DT_UNLOCK;
-    return l;
-  }
-
-  /// Finds a child based on the label of 'other'
-  /// If the child is not found then other is returned
-  /// However, if the child *is* found then other will be *deleted* and the child will be returned!
-  VarData * findChildOrReplace(VarData * other) {
-    VarData * data = findChild(other->getName());
-    if (data!=0) {
-      delete other;
-      return data;
-    } else {
-      addChild(other);
-      return other;
-    }
-  }
-
-  /// Finds a child based on the label of 'other'
-  /// If the child is not found then other is returned
-  /// However, if the child *is* found then other will be *deleted* and the child will be returned!
-  template <class VCLASS> 
-  VCLASS * findChildOrReplace(VCLASS * other) {
-    VCLASS * data = (VCLASS *)findChild(other->getName());
-    if (data!=0) {
-      delete other;
-      return data;
-    } else {
-      addChild(other);
-      return other;
-    }
-  }
-
-
-#ifndef VDATA_NO_XML
-protected:
-  virtual void readChildren(XMLNode & us)
-  {
-    DT_LOCK;
-    int before=list.size();
-    list=readChildrenHelper(us, list, false, false);
-    int after=list.size();
-    if (after > before) {
-      for (int i=before; i < after; i++) {
-         emit(childAdded(list[i]));
-      }
-    }
-    DT_UNLOCK;
-    CHANGE_MACRO;
-  }
-#endif
-
-//Qt model/view gui stuff:
-public:
-virtual QWidget * createEditor(const VarItemDelegate * delegate, QWidget *parent, const QStyleOptionViewItem &option) {
-  (void)delegate;
-  (void)option;
-  (void)parent;
-  return 0;
-}
-
-
 };
-
 
 #endif /*DATAGROUP_H_*/

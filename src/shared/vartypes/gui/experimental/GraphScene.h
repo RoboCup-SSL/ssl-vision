@@ -28,39 +28,39 @@
 #include "VarTypes.h"
 class GraphScene : public QGraphicsScene
 {
-	Q_OBJECT
-	QList<TimeLine *> lines;
+  Q_OBJECT
+  QList<TimeLine *> lines;
 protected:
-	TimeControl * control;
-	bool draw_smooth;
-	bool shade_area;
-	QPainterPath makePath(TimeLine * l, int minidx, int maxidx, bool zero_edges);
+  TimeControl * control;
+  bool draw_smooth;
+  bool shade_area;
+  QPainterPath makePath(TimeLine * l, int minidx, int maxidx, bool zero_edges);
 public:
-	void setDrawSmooth(bool val) {
-		draw_smooth=val;
-	}
-	
-	void setShadeArea(bool val) {
-		shade_area=val;
-	}
-	
-	GraphScene(QObject * parent=0);
-	void setTimeControl(TimeControl * tcontrol) {
-		control=tcontrol;
-		for (int i=0;i<lines.size();i++) {
-			lines.at(i)->setTimePointer(control->getTimePointer());
-		}
-	}
-	virtual ~GraphScene();
-	void addVariable(VarData * tl);
-	//let's use direct drawing instead of storing items in the scene.
-	void drawBackground ( QPainter * painter, const QRectF & rect ); 
-	void drawForeground ( QPainter * painter, const QRectF & rect );
+  void setDrawSmooth(bool val) {
+    draw_smooth=val;
+  }
+  
+  void setShadeArea(bool val) {
+    shade_area=val;
+  }
+  
+  GraphScene(QObject * parent=0);
+  void setTimeControl(TimeControl * tcontrol) {
+    control=tcontrol;
+    for (int i=0;i<lines.size();i++) {
+      lines.at(i)->setTimePointer(control->getTimePointer());
+    }
+  }
+  virtual ~GraphScene();
+  void addVariable(VarType * tl);
+  //let's use direct drawing instead of storing items in the scene.
+  void drawBackground ( QPainter * painter, const QRectF & rect ); 
+  void drawForeground ( QPainter * painter, const QRectF & rect );
 
-	void updateArea();
-	
-	void mouseMoveEvent ( QGraphicsSceneMouseEvent * mouseEvent );
-	
+  void updateArea();
+  
+  void mouseMoveEvent ( QGraphicsSceneMouseEvent * mouseEvent );
+  
 };
 
 #endif /*GRAPHDRAWWIDGET_H_*/

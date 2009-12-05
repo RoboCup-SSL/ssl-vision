@@ -19,15 +19,3 @@
 */
 
 #include "primitives/VarSelection.h"
-
-VarSelection::VarSelection(string _name, int num_items, bool default_value) : VarData(_name) {
-  setSize(num_items,default_value);
-  //addRenderFlags( DT_FLAG_PERSISTENT );
-}
-
-VarSelection::~VarSelection() {
-  int n = list.size();
-  for (int i=n-1;i>=0;i--) {
-    delete list[(unsigned int)i];
-  }
-}

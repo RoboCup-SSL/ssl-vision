@@ -21,41 +21,42 @@
 #define VARTREEVIEWOPTIONS_H_
 #include "VarTypes.h"
 
-enum DT_GUI_COL_ENUM {
-  DT_COL_NONE=0x00,
-  DT_COL_TREE_NODE=0x01 << 0,
-  DT_COL_TEXT_LABEL=0x01 << 1,
-  DT_COL_ICON=0x01 << 2,
-  DT_COL_TEXT_VALUE=0x01 << 3,
-  DT_COL_EDITABLE=0x01 << 4,
-  DT_COL_RANGEBARS=0x01 << 5,
+namespace VarTypes {
+  enum GuiColumnFlagEnum {
+    GUI_COLUMN_FLAG_NONE=0x00,
+    GUI_COLUMN_FLAG_TREE_NODE=0x01 << 0,
+    GUI_COLUMN_FLAG_TEXT_LABEL=0x01 << 1,
+    GUI_COLUMN_FLAG_ICON=0x01 << 2,
+    GUI_COLUMN_FLAG_TEXT_VALUE=0x01 << 3,
+    GUI_COLUMN_FLAG_EDITABLE=0x01 << 4,
+    GUI_COLUMN_FLAG_RANGEBARS=0x01 << 5,
+  };
+  
+  typedef int GuiColumnFlag;
+  
+  /*!
+    \class  VarTreeViewOptions
+    \brief  An internal set of rendering parameters used by the VarTypes view-model.
+    \author Stefan Zickler, (C) 2008
+    \see    VarTypes.h
+  
+    This file is part of the QT4 Item-Model for VarTypes.
+    It is used when you want to edit/visualize VarTypes using
+    QT4's model/view system.
+  
+    If you don't know what VarTypes are, please see \c VarTypes.h 
+  */
+  class VarTreeViewOptions
+  {
+    protected:
+        vector<GuiColumnFlag> cols;
+    public:
+    void setColumns(vector<GuiColumnFlag> v);
+    vector<GuiColumnFlag> getColumns() const;
+    VarTreeViewOptions();
+    virtual ~VarTreeViewOptions();
+  
+  };
 };
-
-typedef int VarColumnFlag;
-
-/*!
-  \class  VarTreeViewOptions
-  \brief  An internal set of rendering parameters used by the VarTypes view-model.
-  \author Stefan Zickler, (C) 2008
-  \see    VarTypes.h
-
-  This file is part of the QT4 Item-Model for VarTypes.
-  It is used when you want to edit/visualize VarTypes using
-  QT4's model/view system.
-
-  If you don't know what VarTypes are, please see \c VarTypes.h 
-*/
-class VarTreeViewOptions
-{
-  protected:
-      vector<VarColumnFlag> cols;
-  public:
-  void setColumns(vector<VarColumnFlag> v);
-  vector<VarColumnFlag> getColumns() const;
-  VarTreeViewOptions();
-  virtual ~VarTreeViewOptions();
-
-};
-
 
 #endif /*VDATATYPETREEWIDGETITEM_H_*/

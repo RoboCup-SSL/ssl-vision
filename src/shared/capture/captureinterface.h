@@ -27,7 +27,7 @@
 #include "rawimage.h"
 #include "colors.h"
 #include "VarTypes.h"
-
+using namespace VarTypes;
 /*!
   \class   CaptureInterface
   \brief   The interface to be used by all video capture methods

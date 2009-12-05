@@ -32,6 +32,7 @@
 #include "realtimedisplaywidget.h"
 #include "pixelloc.h"
 using namespace std;
+using namespace VarTypes;
 
 enum ProcessResult {
   ProcessingOk = 0,

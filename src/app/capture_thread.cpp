@@ -27,28 +27,28 @@ CaptureThread::CaptureThread(int cam_id)
   affinity=0;
   settings=new VarList("Image Capture");
 
-  settings->addChild( (VarData*) (control= new VarList("Capture Control")));
-  control->addChild( (VarData*) (c_start  = new VarTrigger("start capture","Start")));
-  control->addChild( (VarData*) (c_stop   = new VarTrigger("stop capture","Stop")));
-  control->addChild( (VarData*) (c_reset  = new VarTrigger("reset bus","Reset")));
-  control->addChild( (VarData*) (c_auto_refresh= new VarBool("auto refresh params",true)));
-  control->addChild( (VarData*) (c_refresh= new VarTrigger("re-read params","Refresh")));
-  control->addChild( (VarData*) (captureModule= new VarStringEnum("Capture Module","DC 1394")));
-  captureModule->addRenderFlags(DT_FLAG_NOLOAD_ENUM_CHILDREN);
+  settings->addChild( (VarType*) (control= new VarList("Capture Control")));
+  control->addChild( (VarType*) (c_start  = new VarTrigger("start capture","Start")));
+  control->addChild( (VarType*) (c_stop   = new VarTrigger("stop capture","Stop")));
+  control->addChild( (VarType*) (c_reset  = new VarTrigger("reset bus","Reset")));
+  control->addChild( (VarType*) (c_auto_refresh= new VarBool("auto refresh params",true)));
+  control->addChild( (VarType*) (c_refresh= new VarTrigger("re-read params","Refresh")));
+  control->addChild( (VarType*) (captureModule= new VarStringEnum("Capture Module","DC 1394")));
+  captureModule->addFlags(VARTYPE_FLAG_NOLOAD_ENUM_CHILDREN);
   captureModule->addItem("DC 1394");
   captureModule->addItem("Read from files");
   captureModule->addItem("Generator");
-  settings->addChild( (VarData*) (dc1394 = new VarList("DC1394")));
-  settings->addChild( (VarData*) (fromfile = new VarList("Read from files")));
-  settings->addChild( (VarData*) (generator = new VarList("Generator")));
-  settings->addRenderFlags( DT_FLAG_AUTO_EXPAND_TREE );
-  c_stop->addRenderFlags( DT_FLAG_READONLY );
-  c_refresh->addRenderFlags( DT_FLAG_READONLY );
-  connect(c_start,SIGNAL(wasEdited(VarData *)),this,SLOT(init()));
-  connect(c_stop,SIGNAL(wasEdited(VarData *)),this,SLOT(stop()));
-  connect(c_reset,SIGNAL(wasEdited(VarData *)),this,SLOT(reset()));
-  connect(c_refresh,SIGNAL(wasEdited(VarData *)),this,SLOT(refresh()));
-  connect(captureModule,SIGNAL(hasChanged(VarData *)),this,SLOT(selectCaptureMethod()));
+  settings->addChild( (VarType*) (dc1394 = new VarList("DC1394")));
+  settings->addChild( (VarType*) (fromfile = new VarList("Read from files")));
+  settings->addChild( (VarType*) (generator = new VarList("Generator")));
+  settings->addFlags( VARTYPE_FLAG_AUTO_EXPAND_TREE );
+  c_stop->addFlags( VARTYPE_FLAG_READONLY );
+  c_refresh->addFlags( VARTYPE_FLAG_READONLY );
+  connect(c_start,SIGNAL(wasEdited(VarType *)),this,SLOT(init()));
+  connect(c_stop,SIGNAL(wasEdited(VarType *)),this,SLOT(stop()));
+  connect(c_reset,SIGNAL(wasEdited(VarType *)),this,SLOT(reset()));
+  connect(c_refresh,SIGNAL(wasEdited(VarType *)),this,SLOT(refresh()));
+  connect(captureModule,SIGNAL(hasChanged(VarType *)),this,SLOT(selectCaptureMethod()));
   stack = 0;
   counter=new FrameCounter();
   capture=0;
@@ -129,10 +129,10 @@ bool CaptureThread::init() {
   capture_mutex.lock();
   bool res = capture->startCapture();
   if (res==true) {
-    c_start->addRenderFlags( DT_FLAG_READONLY );
-    c_reset->addRenderFlags( DT_FLAG_READONLY );
-    c_refresh->removeRenderFlags( DT_FLAG_READONLY );
-    c_stop->removeRenderFlags( DT_FLAG_READONLY );
+    c_start->addFlags( VARTYPE_FLAG_READONLY );
+    c_reset->addFlags( VARTYPE_FLAG_READONLY );
+    c_refresh->removeFlags( VARTYPE_FLAG_READONLY );
+    c_stop->removeFlags( VARTYPE_FLAG_READONLY );
   }
   capture_mutex.unlock();
   return res;
@@ -142,10 +142,10 @@ bool CaptureThread::stop() {
   capture_mutex.lock();
   bool res = capture->stopCapture();
   if (res==true) {
-    c_stop->addRenderFlags( DT_FLAG_READONLY );
-    c_refresh->addRenderFlags( DT_FLAG_READONLY );
-    c_start->removeRenderFlags( DT_FLAG_READONLY );
-    c_reset->removeRenderFlags( DT_FLAG_READONLY );
+    c_stop->addFlags( VARTYPE_FLAG_READONLY );
+    c_refresh->addFlags( VARTYPE_FLAG_READONLY );
+    c_start->removeFlags( VARTYPE_FLAG_READONLY );
+    c_reset->removeFlags( VARTYPE_FLAG_READONLY );
   }
   capture_mutex.unlock();
   return res;

@@ -19,19 +19,20 @@
 */
 #include "VarTreeViewOptions.h"
 
-
-
-VarTreeViewOptions::VarTreeViewOptions() {
-
-}
-
-VarTreeViewOptions::~VarTreeViewOptions() {
-
-}
-void VarTreeViewOptions::setColumns(vector<VarColumnFlag> v) {
-  cols=v;
-}
-
-vector<VarColumnFlag> VarTreeViewOptions::getColumns() const {
-  return cols;
-}
+namespace VarTypes {
+  
+  VarTreeViewOptions::VarTreeViewOptions() {
+  
+  }
+  
+  VarTreeViewOptions::~VarTreeViewOptions() {
+  
+  }
+  void VarTreeViewOptions::setColumns(vector<GuiColumnFlag> v) {
+    cols=v;
+  }
+  
+  vector<GuiColumnFlag> VarTreeViewOptions::getColumns() const {
+    return cols;
+  }
+};

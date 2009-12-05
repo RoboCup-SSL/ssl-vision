@@ -21,124 +21,124 @@
 
 #ifndef VARTRIGGER_H_
 #define VARTRIGGER_H_
-#include "primitives/VarData.h"
+#include "primitives/VarType.h"
 #include <QPushButton>
 
-/*!
-  \class  VarTrigger
-  \brief  This is a Trigger-like VarType of the VarTypes system
-  \author Stefan Zickler, (C) 2008
-  \see    VarTypes.h
-
-  This vartype will be represented as a single button in the
-  GUI. If clicked the trigger() slot will be called and an
-  internal counter will be incremented by one.
-
-  If you don't know what VarTypes are, please see \c VarTypes.h 
-*/
-class VarTrigger : public VarData
-{
-#ifndef VDATA_NO_QT
-  Q_OBJECT
-protected:
-  int _counter;
-  string label;
-signals:
-  void signalTriggered();
-protected slots:
-  void trigger() {
-    DT_LOCK;
-    _counter++;
-    emit(signalTriggered());
-    DT_UNLOCK;
-    CHANGE_MACRO;
-    wasEdited((VarData*)this);
-  }
-
-public:
-
-  /// constructs a new VarTrigger
-  /// \param _label The label of the button to be rendered in a GUI view.
-  VarTrigger(string _name="", string _label="") : VarData(_name)
+namespace VarTypes {
+  /*!
+    \class  VarTrigger
+    \brief  This is a Trigger-like VarType of the VarTypes system
+    \author Stefan Zickler, (C) 2008
+    \see    VarTypes.h
+  
+    This vartype will be represented as a single button in the
+    GUI. If clicked, the trigger() slot will be called and an
+    internal counter will be incremented by one.
+  
+    If you don't know what VarTypes are, please see \c VarTypes.h 
+  */
+  class VarTrigger : public VarType
   {
-    label=_label;
-    _counter=0;
-    _flags |= DT_FLAG_PERSISTENT;
-    CHANGE_MACRO;
-  }
-
-  virtual ~VarTrigger() {
-  }
-
-  virtual void resetToDefault()
-  {
-  }
-
-  /// get and reset the internal counter
-  virtual int getAndResetCounter() {
-    DT_LOCK;
-    int v=_counter;
-    _counter=0;
-    DT_UNLOCK;
-    return v;
-  }
-
-  /// get the internal counter
-  virtual int getCounter() {
-    DT_LOCK;
-    int v=_counter;
-    DT_UNLOCK;
-    return v;
-  }
-
-  /// reset the internal counter back to zero.
-  virtual void resetCounter() {
-    DT_LOCK;
-    _counter=0;
-    DT_UNLOCK;
-  }
-
-  virtual void printdebug() const
-  {
-  }
-
-  /// get the label of the button
-  virtual string getLabel() const {
-    DT_LOCK;
-    string tmp=label;
-    DT_UNLOCK;
-    return tmp;
-  }
-
-  /// set the label of the button
-  virtual void setLabel(string _label) {
-    DT_LOCK;
-    label=_label;
-    DT_UNLOCK;
-    CHANGE_MACRO;
-  }
-
-  virtual vDataTypeEnum getType() const { return DT_TRIGGER; };
-
-#endif
-  //Qt model/view gui stuff:
+    Q_OBJECT
+  protected:
+    int _counter;
+    string label;
+  signals:
+    void signalTriggered();
+  protected slots:
+    void trigger() {
+      lock();
+      _counter++;
+      emit(signalTriggered());
+      unlock();
+      changed();
+      wasEdited((VarType*)this);
+    }
+  
   public:
-  virtual QWidget * createEditor(const VarItemDelegate * delegate, QWidget *parent, const QStyleOptionViewItem &option) {
-    (void)delegate;
-    (void)option;
-    QPushButton * tmp=new QPushButton(parent);
-    tmp->setText(QString::fromStdString(label));
-    connect(tmp,SIGNAL(clicked()),this,SLOT(trigger()));
-    return tmp;
-  }
-  virtual void setEditorData(const VarItemDelegate * delegate, QWidget *editor) const {
-    (void)delegate;
-    (void)editor;
-  }
-  virtual void setModelData(const VarItemDelegate * delegate, QWidget *editor) {
-    (void)delegate;
-    (void)editor;
-  }
-
+  
+    /// constructs a new VarTrigger
+    /// \param _label The label of the button to be rendered in a GUI view.
+    VarTrigger(string _name="", string _label="") : VarType(_name)
+    {
+      label=_label;
+      _counter=0;
+      _flags |= VARTYPE_FLAG_PERSISTENT;
+      changed();
+    }
+  
+    virtual ~VarTrigger() {
+    }
+  
+    virtual void resetToDefault()
+    {
+    }
+  
+    /// get and reset the internal counter
+    virtual int getAndResetCounter() {
+      lock();
+      int v=_counter;
+      _counter=0;
+      unlock();
+      return v;
+    }
+  
+    /// get the internal counter
+    virtual int getCounter() {
+      lock();
+      int v=_counter;
+      unlock();
+      return v;
+    }
+  
+    /// reset the internal counter back to zero.
+    virtual void resetCounter() {
+      lock();
+      _counter=0;
+      unlock();
+    }
+  
+    virtual void printdebug() const
+    {
+    }
+  
+    /// get the label of the button
+    virtual string getLabel() const {
+      lock();
+      string tmp=label;
+      unlock();
+      return tmp;
+    }
+  
+    /// set the label of the button
+    virtual void setLabel(string _label) {
+      lock();
+      label=_label;
+      unlock();
+      changed();
+    }
+  
+    virtual VarTypeId getType() const { return VARTYPE_ID_TRIGGER; };
+  
+    //Qt model/view gui stuff:
+    public:
+    virtual QWidget * createEditor(const VarItemDelegate * delegate, QWidget *parent, const QStyleOptionViewItem &option) {
+      (void)delegate;
+      (void)option;
+      QPushButton * tmp=new QPushButton(parent);
+      tmp->setText(QString::fromStdString(label));
+      connect(tmp,SIGNAL(clicked()),this,SLOT(trigger()));
+      return tmp;
+    }
+    virtual void setEditorData(const VarItemDelegate * delegate, QWidget *editor) const {
+      (void)delegate;
+      (void)editor;
+    }
+    virtual void setModelData(const VarItemDelegate * delegate, QWidget *editor) {
+      (void)delegate;
+      (void)editor;
+    }
+  
+  };
 };
 #endif

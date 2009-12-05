@@ -19,7 +19,7 @@
 */
 #include "ValueVis.h"
 
-ValueVis::ValueVis(VarData * _dt)
+ValueVis::ValueVis(VarType * _dt)
 {
   dt=_dt;
   children = new QList<ValueVis *>();
@@ -39,7 +39,7 @@ void ValueVis::setupUi() {
   setLayout(layout);
   if (dt!=0) {
     if (dt->getType() == DT_LIST) {
-      vector<VarData *> v = dt->getChildren();
+      vector<VarType *> v = dt->getChildren();
       for (unsigned int i=0;i<v.size();i++) {
         children->append(new ValueVis(v[i]));
         layout->addWidget(children->last());
@@ -63,14 +63,14 @@ void ValueVis::update(bool recurse) {
   font.setPointSize(8);
   title->setFont(font);
 
-//  this->setVisible(dt->areRenderFlagsSet( DT_FLAG_HIDDEN));
+//  this->setVisible(dt->areFlagsSet( VARTYPE_FLAG_HIDDEN));
 
   
   if (dt!=0) {
     title->setText(QString::fromStdString(dt->getName()));
     if (dt->getType() == DT_LIST) {
       if (recurse) {
-        /*vector<VarData *> v = dt->getChildren();
+        /*vector<VarType *> v = dt->getChildren();
         for (unsigned int i=0;i<v.size();i++) {
           layout->addWidget(new ValueVis(v[i]));
         }*/

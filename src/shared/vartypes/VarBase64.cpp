@@ -21,18 +21,20 @@
 
 #include "VarBase64.h"
 
-VarBase64* VarBase64::pinstance = 0;// initialize pointer
-
-XMLParserBase64Tool* VarBase64::getTool ()
-{
-  if (pinstance == 0)  // is it the first call?
+namespace VarTypes {
+  VarBase64* VarBase64::pinstance = 0;// initialize pointer
+  
+  XMLParserBase64Tool* VarBase64::getTool ()
   {
-    pinstance = new VarBase64; // create sole instance
+    if (pinstance == 0)  // is it the first call?
+    {
+      pinstance = new VarBase64; // create sole instance
+    }
+    return pinstance->tool; // address of sole instance
   }
-  return pinstance->tool; // address of sole instance
-}
-
-VarBase64::VarBase64()
-{
-  tool = new XMLParserBase64Tool();
-}
+  
+  VarBase64::VarBase64()
+  {
+    tool = new XMLParserBase64Tool();
+  }
+};

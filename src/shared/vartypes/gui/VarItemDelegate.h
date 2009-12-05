@@ -32,43 +32,45 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QDoubleSpinBox>
-/*!
-  \class  VarItemDelegate
-  \brief  The 'item-delegate' inheriting QItemDelegate for displaying VarTypes in the QT4 Item-Model
-  \author Stefan Zickler, (C) 2008
-  \see    VarTypes.h
 
-  This file is part of the QT4 Item-Model for VarTypes.
-  It is used when you want to edit/visualize VarTypes using
-  QT4's model/view system.
-
-  If you don't know what VarTypes are, please see \c VarTypes.h 
-*/
-class VarItemDelegate : public QItemDelegate
-{
-Q_OBJECT
-public:
-  VarItemDelegate(QObject *parent = 0);
-  virtual ~VarItemDelegate();
-public slots:
-  void editorChangeEvent();
-protected:
-  virtual void paint ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
-  virtual void drawBar ( VarData * dt, QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
-  QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
-                         const QModelIndex &index) const;
-
-  virtual QSize sizeHint ( const QStyleOptionViewItem & option, const QModelIndex & index ) const;
-
-  void setEditorData(QWidget *editor, const QModelIndex &index) const;
-
-  void setModelData(QWidget *editor, QAbstractItemModel *model,
-                     const QModelIndex &index) const;
-
-  void updateEditorGeometry(QWidget *editor,
-       const QStyleOptionViewItem &option, const QModelIndex &index) const;
-
-
+namespace VarTypes {
+  /*!
+    \class  VarItemDelegate
+    \brief  The 'item-delegate' inheriting QItemDelegate for displaying VarTypes in the QT4 Item-Model
+    \author Stefan Zickler, (C) 2008
+    \see    VarTypes.h
+  
+    This file is part of the QT4 Item-Model for VarTypes.
+    It is used when you want to edit/visualize VarTypes using
+    QT4's model/view system.
+  
+    If you don't know what VarTypes are, please see \c VarTypes.h 
+  */
+  class VarItemDelegate : public QItemDelegate
+  {
+  Q_OBJECT
+  public:
+    VarItemDelegate(QObject *parent = 0);
+    virtual ~VarItemDelegate();
+  public slots:
+    void editorChangeEvent();
+  protected:
+    virtual void paint ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
+    virtual void drawBar ( VarType * dt, QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const;
+  
+    virtual QSize sizeHint ( const QStyleOptionViewItem & option, const QModelIndex & index ) const;
+  
+    void setEditorData(QWidget *editor, const QModelIndex &index) const;
+  
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+                      const QModelIndex &index) const;
+  
+    void updateEditorGeometry(QWidget *editor,
+        const QStyleOptionViewItem &option, const QModelIndex &index) const;
+  
+  
+  };
 };
-
 #endif /*GRAPHITEMDELEGATE_H_*/

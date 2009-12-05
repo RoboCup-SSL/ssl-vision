@@ -28,42 +28,42 @@
 #include "gui/VarTreeModel.h"
 #include "gui/VarItem.h"
 #include "gui/VarItemDelegate.h"
-
-/*!
-  \class  VarTreeView
-  \brief  The 'view' using a QTreeView for displaying VarTypes in the QT4 Item-Model
-  \author Stefan Zickler, (C) 2008
-  \see    VarTypes.h
-
-  This file is part of the QT4 Item-Model for VarTypes.
-  It is used when you want to edit/visualize VarTypes using
-  QT4's model/view system.
-
-  If you don't know what VarTypes are, please see \c VarTypes.h 
-*/
-class VarTreeView : public QWidget
-{
-  Q_OBJECT
-protected:
-  QList<VarItem *> search_result;
-  int result_idx;
-  QLineEdit * search_edit;
-  QTreeView * tw; //tree widget
-  VarItemDelegate * delegate;
-  VarTreeModel * model;
-  QVBoxLayout * l;
-protected slots:
-  void newItemChecksRows(const QModelIndex & parent, int start, int end);
-  void checkDataChanged ( const QModelIndex & topLeft, const QModelIndex & bottomRight );
-public:
-  void setModel(VarTreeModel * tmodel);
-  VarTreeView(VarTreeModel * tmodel=0);
-  virtual ~VarTreeView();
-  void fitColumns(); //fit columns to data
-  void expandAndFocus(VarData * search); //will focus on and expand an item, if it exists
-public slots:
-  void search(const QString & text);
-  void nextSearchResult();
+namespace VarTypes {
+  /*!
+    \class  VarTreeView
+    \brief  The 'view' using a QTreeView for displaying VarTypes in the QT4 Item-Model
+    \author Stefan Zickler, (C) 2008
+    \see    VarTypes.h
+  
+    This file is part of the QT4 Item-Model for VarTypes.
+    It is used when you want to edit/visualize VarTypes using
+    QT4's model/view system.
+  
+    If you don't know what VarTypes are, please see \c VarTypes.h 
+  */
+  class VarTreeView : public QWidget
+  {
+    Q_OBJECT
+  protected:
+    QList<VarItem *> search_result;
+    int result_idx;
+    QLineEdit * search_edit;
+    QTreeView * tw; //tree widget
+    VarItemDelegate * delegate;
+    VarTreeModel * model;
+    QVBoxLayout * l;
+  protected slots:
+    void newItemChecksRows(const QModelIndex & parent, int start, int end);
+    void checkDataChanged ( const QModelIndex & topLeft, const QModelIndex & bottomRight );
+  public:
+    void setModel(VarTreeModel * tmodel);
+    VarTreeView(VarTreeModel * tmodel=0);
+    virtual ~VarTreeView();
+    void fitColumns(); //fit columns to data
+    void expandAndFocus(VarType * search); //will focus on and expand an item, if it exists
+  public slots:
+    void search(const QString & text);
+    void nextSearchResult();
+  };
 };
-
 #endif /*VARTREEVIEW_H_*/
