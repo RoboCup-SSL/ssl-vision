@@ -30,6 +30,8 @@
   #include "messages_robocup_ssl_geometry.pb.h"
 #endif
 
+using namespace VarTypes;
+
 /*!
   \class RoboCupField
 
@@ -42,8 +44,8 @@ class RoboCupField : public QObject
 Q_OBJECT
 
 protected:
-  vector<VarData *> field_params;
-  vector<VarData *> derived_params;
+  vector<VarType *> field_params;
+  vector<VarType *> derived_params;
   VarList * settings;
   VarTrigger * restore;
 public:
@@ -155,7 +157,7 @@ public:
     settings = new VarList("Field Configuration");
     settings->addChild(restore = new VarTrigger("Reset SSL 2009","Reset SSL 2009"));
     
-    connect(restore,SIGNAL(wasEdited(VarData*)),this,SLOT(restoreRoboCup()));
+    connect(restore,SIGNAL(wasEdited(VarType*)),this,SLOT(restoreRoboCup()));
     //regulation-based symmetric field:
     field_params.push_back(line_width             = new VarInt("Line Width"));
    
@@ -208,11 +210,11 @@ public:
     derived_params.push_back(half_field_total_surface_width     = new VarInt("Half Total Surface Width")); 
     
     for (unsigned int i=0;i<field_params.size();i++) {
-      connect(field_params[i],SIGNAL(hasChanged(VarData *)),this,SLOT(changed()));
+      connect(field_params[i],SIGNAL(hasChanged(VarType *)),this,SLOT(changed()));
       settings->addChild(field_params[i]);
     }
     for (unsigned int i=0;i<derived_params.size();i++) {
-      derived_params[i]->addRenderFlags( DT_FLAG_READONLY );
+      derived_params[i]->addFlags( VARTYPE_FLAG_READONLY );
       settings->addChild(derived_params[i]);
     }
     
@@ -315,21 +317,21 @@ protected slots:
     if (auto_update->getBool()==true) {
       //disable all items
       for (unsigned int i = 0; i < params.size(); i++) {
-        params[i]->addRenderFlags(DT_FLAG_READONLY|DT_FLAG_NOLOAD);
+        params[i]->addFlags(VARTYPE_FLAG_READONLY|VARTYPE_FLAG_NOLOAD);
       }
-      camera_pos->removeRenderFlags(DT_FLAG_READONLY);
+      camera_pos->removeFlags(VARTYPE_FLAG_READONLY);
       update();
     } else {
       //enable all items
       for (unsigned int i = 0; i < params.size(); i++) {
-        params[i]->removeRenderFlags(DT_FLAG_READONLY|DT_FLAG_NOLOAD);
+        params[i]->removeFlags(VARTYPE_FLAG_READONLY|VARTYPE_FLAG_NOLOAD);
       }
-      camera_pos->addRenderFlags(DT_FLAG_READONLY);
+      camera_pos->addFlags(VARTYPE_FLAG_READONLY);
     }
   }
 protected:
   RoboCupField * robocup_field;
-  vector<VarData *> params;
+  vector<VarType *> params;
   VarBool * auto_update;
   VarStringEnum * camera_pos;
 public:
@@ -340,7 +342,7 @@ public:
     }
     auto_update = new VarBool("Auto-Copy from Global Field Config",true);
     camera_pos = new VarStringEnum("Camera Position",(cam_id==0) ? cameraPositionEnumToString(CAM_POS_HALF_NEG_X) : cameraPositionEnumToString(CAM_POS_HALF_POS_X));
-    camera_pos->addRenderFlags(DT_FLAG_NOLOAD_ENUM_CHILDREN);
+    camera_pos->addFlags(VARTYPE_FLAG_NOLOAD_ENUM_CHILDREN);
     for (int i=0;i<CAM_POS_ENUM_COUNT;i++) {
       camera_pos->addItem(cameraPositionEnumToString((CameraPositionEnum)i));
     }
@@ -368,8 +370,8 @@ public:
     params.push_back(right_centerline_x = new VarInt("right centerline x", 0));
     params.push_back(right_centerline_y = new VarInt("right centerline y", -2025));
     
-    connect(auto_update,SIGNAL(hasChanged(VarData *)),this,SLOT(autoUpdateChanged()));
-    connect(camera_pos,SIGNAL(hasChanged(VarData *)),this,SLOT(globalCalibrationChanged()));
+    connect(auto_update,SIGNAL(hasChanged(VarType *)),this,SLOT(autoUpdateChanged()));
+    connect(camera_pos,SIGNAL(hasChanged(VarType *)),this,SLOT(globalCalibrationChanged()));
 
     autoUpdateChanged();
     update();

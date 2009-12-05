@@ -20,10 +20,3 @@
 
 #include "primitives/VarList.h"
 
-VarList::VarList(string _name) : VarData(_name)
-{
-}
-
-VarList::~VarList()
-{
-}

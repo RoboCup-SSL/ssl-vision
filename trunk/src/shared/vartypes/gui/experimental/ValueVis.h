@@ -28,16 +28,16 @@
 class ValueVis : public QFrame
 {
 protected:
-	VarData * dt;
-	QVBoxLayout * layout;
-	QLabel * label;
-	QLabel * title;
+  VarType * dt;
+  QVBoxLayout * layout;
+  QLabel * label;
+  QLabel * title;
         QList<ValueVis *> * children;
 public:
-	ValueVis(VarData * _dt);
-	virtual ~ValueVis();
+  ValueVis(VarType * _dt);
+  virtual ~ValueVis();
         void setupUi();
-	void update(bool recurse=true);
+  void update(bool recurse=true);
 };
 
 #endif /*VALUEVIS_H_*/

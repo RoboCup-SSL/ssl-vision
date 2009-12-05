@@ -29,7 +29,7 @@ void Team::slotTeamNameChanged() {
   emit(signalTeamNameChanged());
 }
 
-void Team::slotChangeOccured(VarData * item) {
+void Team::slotChangeOccured(VarType * item) {
   emit(signalChangeOccured(item));
 }
 
@@ -38,7 +38,7 @@ Team::Team(VarList * team_root)
 {
     _settings=team_root;
     _team_name = _settings->findChildOrReplace(new VarString("Team Name", team_root->getName()));
-    connect(_team_name,SIGNAL(hasChanged(VarData *)),this,SLOT(slotTeamNameChanged()));
+    connect(_team_name,SIGNAL(hasChanged(VarType *)),this,SLOT(slotTeamNameChanged()));
     _unique_patterns = _settings->findChildOrReplace(new VarBool("Unique Patterns"));
     _have_angle = _settings->findChildOrReplace(new VarBool("Have Angles"));
     _robot_height = _settings->findChildOrReplace(new VarDouble("Robot Height (mm)", 140.0));
@@ -50,7 +50,7 @@ Team::Team(VarList * team_root)
       _marker_image_rows = _marker_image->findChildOrReplace(new VarInt("Marker Image Rows",3));
       _marker_image_cols = _marker_image->findChildOrReplace(new VarInt("Marker Image Cols",4));
       _valid_patterns = _marker_image->findChildOrReplace(new VarSelection("Valid Patterns",12,true));
-      _valid_patterns->addRenderFlags(DT_FLAG_PERSISTENT);
+      _valid_patterns->addFlags(VARTYPE_FLAG_PERSISTENT);
 
     _center_marker_filter = _settings->findChildOrReplace(new VarList("Center Marker Settings"));
       _center_marker_area_mean = _center_marker_filter->findChildOrReplace(new VarDouble("Expected Area Mean (sq-mm)",sq(50.0)));
@@ -93,7 +93,7 @@ Team::Team(VarList * team_root)
       _pattern_fitness_uniform = _pattern_fitness->findChildOrReplace(new VarDouble("Uniform",0.05));
 
   _notifier.addRecursive(_settings);
-  connect(&_notifier,SIGNAL(changeOccured(VarData*)),this,SLOT(slotChangeOccured(VarData *)));
+  connect(&_notifier,SIGNAL(changeOccured(VarType*)),this,SLOT(slotChangeOccured(VarType *)));
 }
 
 

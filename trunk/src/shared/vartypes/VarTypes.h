@@ -30,34 +30,15 @@
                 Supported base types are int, bool, double, string,
                 lists, binary data (uchar* blocks).
                 More complex types can be added easily by inheriting the
-                VarData base-class.
+                VarType base-class.
 
-  \b Usage:     All VarTypes extend the base-class VarData (see \c VarData.h )
+  \b Usage:     All VarTypes extend the base-class VarType (see \c VarType.h )
 */
 //========================================================================
 
 #ifndef VTYPES_H_
 #define VTYPES_H_
 
-//include base-class
-#include "primitives/VarData.h"
-
-//include primitives
-#include "primitives/VarInt.h"
-#include "primitives/VarBool.h"
-#include "primitives/VarDouble.h"
-#include "primitives/VarString.h"
-#include "primitives/VarBlob.h"
-#include "primitives/VarList.h"
-#include "primitives/VarStringEnum.h"
-#include "primitives/VarSelection.h"
-#include "primitives/VarExternal.h"
-#include "primitives/VarQWidget.h"
-#include "primitives/VarTrigger.h"
-
-#ifdef DT_USE_TYPES_TIMEBASED
-  #include "enhanced/TimeLine.h"
-  #include "enhanced/TimeVar.h"
-#endif
+#include "VarTypesInstance.h"
 
 #endif /*VTYPES_H_*/

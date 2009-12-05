@@ -23,38 +23,39 @@
 #include "VarTypes.h"
 #include "xml/xmlParser.h"
 
-/*!
-  \class  VarXML
-  \brief  XML helper functions of the VarType system.
-  \author Stefan Zickler, (C) 2008
-  \see    VarTypes.h
-
-  This class provides static functions to parse or write an XML file
-  representing a VarTypes tree.
-
-  If you don't know what VarTypes are, please see \c VarTypes.h 
-*/
-class VarXML
-{
-public:
-  VarXML();
-  virtual ~VarXML();
-
-  /// write a VarData node (and all of its children) to an xml file
-  static void write(VarData * rootVar, string filename);
-
-  /// write a vector of VarData nodes (and all of their children) to an xml file
-  static void write(vector<VarData *> rootVars, string filename);
-
-  /// read a VarData-tree from an xml file and return its root nodes as a vector.
-  ///
-  /// \param existing_nodes represents any pre-defined vartypes tree and should
-  ///                       be an empty vector if no tree pre-exists.
-  ///
-  /// If a tree does pre-exist then the read function will update the data of
-  /// any existing nodes, or create new nodes if they are missing in the existing
-  /// tree.
-  static vector<VarData *> read(vector<VarData *> existing_nodes, string filename);
+namespace VarTypes {
+  /*!
+    \class  VarXML
+    \brief  XML helper functions of the VarType system.
+    \author Stefan Zickler, (C) 2008
+    \see    VarTypes.h
+  
+    This class provides static functions to parse or write an XML file
+    representing a VarTypes tree.
+  
+    If you don't know what VarTypes are, please see \c VarTypes.h 
+  */
+  class VarXML
+  {
+  public:
+    VarXML();
+    virtual ~VarXML();
+  
+    /// write a VarType node (and all of its children) to an xml file
+    static void write(VarType * rootVar, string filename);
+  
+    /// write a vector of VarType nodes (and all of their children) to an xml file
+    static void write(vector<VarType *> rootVars, string filename);
+  
+    /// read a VarType-tree from an xml file and return its root nodes as a vector.
+    ///
+    /// \param existing_nodes represents any pre-defined vartypes tree and should
+    ///                       be an empty vector if no tree pre-exists.
+    ///
+    /// If a tree does pre-exist then the read function will update the data of
+    /// any existing nodes, or create new nodes if they are missing in the existing
+    /// tree.
+    static vector<VarType *> read(vector<VarType *> existing_nodes, string filename);
+  };
 };
-
 #endif /*VARXML_H_*/

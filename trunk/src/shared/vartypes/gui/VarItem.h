@@ -24,7 +24,7 @@
 #include <QObject>
 #include "VarTypes.h"
 #include "VarTreeViewOptions.h"
-
+namespace VarTypes {
 
 /*!
   \class  VarItem
@@ -44,22 +44,22 @@ class VarItem : public QObject, public QStandardItem
 public:
   static int const VarItemTypeNumber = (QStandardItem::UserType + 1);
 protected:
-  static bool areColFlagsSet(VarColumnFlag _flags, VarColumnFlag f) {
+  static bool areColFlagsSet(GuiColumnFlag _flags, GuiColumnFlag f) {
     return ((_flags & f) == f);
   }
-  vector<VarColumnFlag> * cols;
-  VarData * dt;
-  VarColumnFlag colflags;
+  vector<GuiColumnFlag> * cols;
+  VarType * dt;
+  GuiColumnFlag colflags;
   const VarTreeViewOptions * opts;
-  static void searchTree(QStandardItem * node, const VarData * search, QList<VarItem *> & result);
-  static void updateTree(QStandardItem * node, const vector<VarData *> & children, const VarTreeViewOptions * _opts, bool recurse);
+  static void searchTree(QStandardItem * node, const VarType * search, QList<VarItem *> & result);
+  static void updateTree(QStandardItem * node, const vector<VarType *> & children, const VarTreeViewOptions * _opts, bool recurse);
 public:
-  VarColumnFlag getColFlags() const;
+  GuiColumnFlag getColFlags() const;
   const VarTreeViewOptions * getViewOptions() const;
-  VarData * getVarData();
-  VarItem(VarData * _dt, const VarTreeViewOptions * _opts, VarColumnFlag myflags);
+  VarType * getVarType();
+  VarItem(VarType * _dt, const VarTreeViewOptions * _opts, GuiColumnFlag myflags);
   virtual ~VarItem();
-  void update(VarData * _dt, const VarTreeViewOptions * _opts, VarColumnFlag myflags);
+  void update(VarType * _dt, const VarTreeViewOptions * _opts, GuiColumnFlag myflags);
   virtual int type() const;
 friend class VarTreeModel;
 
@@ -67,6 +67,8 @@ public slots:
   void changeUpdate();
 };
 
-Q_DECLARE_METATYPE(VarItem *);
+};
+
+Q_DECLARE_METATYPE(VarTypes::VarItem *);
 
 #endif /*VDATATYPETREEWIDGETITEM_H_*/

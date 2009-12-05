@@ -23,31 +23,32 @@
 #ifndef VARBASE64_H_
 #define VARBASE64_H_
 #include "xml/xmlParser.h"
-
-/*!
-  \class  VarBase64
-  \brief  A singleton wrapper to XMLParserBase64Tool
-  \author Stefan Zickler, (C) 2008
-  \see    VarTypes.h
-
-  This is a singleton wrapper to the XMLParserBase64Tool
-  It is used for the en/decoding of binary data to/from xml using the
-  Base64 ascii format.
-
-  If you don't know what VarTypes are, please see \c VarTypes.h 
-*/
-//singleton instanciation of XML base64 encoder
-class VarBase64
-  {
-  public:
-      static XMLParserBase64Tool* getTool();
-  protected:
-      VarBase64();
-      VarBase64(const VarBase64&);
-      VarBase64& operator= (const VarBase64&);
-  private:
-      static VarBase64* pinstance;
-      XMLParserBase64Tool * tool;
- };
-
+namespace VarTypes {
+  
+  /*!
+    \class  VarBase64
+    \brief  A singleton wrapper to XMLParserBase64Tool
+    \author Stefan Zickler, (C) 2008
+    \see    VarTypes.h
+  
+    This is a singleton wrapper to the XMLParserBase64Tool
+    It is used for the en/decoding of binary data to/from xml using the
+    Base64 ascii format.
+  
+    If you don't know what VarTypes are, please see \c VarTypes.h 
+  */
+  //singleton instanciation of XML base64 encoder
+  class VarBase64
+    {
+    public:
+        static VarTypes::XMLParserBase64Tool* getTool();
+    protected:
+        VarBase64();
+        VarBase64(const VarBase64&);
+        VarBase64& operator= (const VarBase64&);
+    private:
+        static VarBase64* pinstance;
+        VarTypes::XMLParserBase64Tool * tool;
+  };
+};
 #endif /*VARBASE64_H_*/

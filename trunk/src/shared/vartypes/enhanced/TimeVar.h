@@ -20,25 +20,25 @@
 
 #ifndef TIMEVAR_H_
 #define TIMEVAR_H_
-#include "primitives/VarData.h"
+#include "primitives/VarType.h"
 #include "TimeIndex.h"
 
-class TimeVar : public VarData, public TimeIndex {
+class TimeVar : public VarType, public TimeIndex {
     Q_OBJECT
   protected:
-    VarData * data;
+    VarType * data;
   public:
-    TimeVar ( string _name = "", TimeIndex idx = 0.0, VarData * vdt = 0 ) : VarData ( _name ), TimeIndex ( idx ) {
+    TimeVar ( string _name = "", TimeIndex idx = 0.0, VarType * vdt = 0 ) : VarType ( _name ), TimeIndex ( idx ) {
       setData ( vdt );
     };
-    VarData * getData() const {
+    VarType * getData() const {
       return data;
     }
-    void setData ( VarData * vdt ) {
+    void setData ( VarType * vdt ) {
       data = vdt;
     }
     virtual ~TimeVar() {};
-    virtual vDataTypeEnum getType() const { return DT_TIMEVAR; };
+    virtual VarTypeId getType() const { return DT_TIMEVAR; };
     virtual string getTypeName() const { return typeToString ( getType() ); };
     virtual string getString() const {
       char result[255];
@@ -51,13 +51,13 @@ class TimeVar : public VarData, public TimeIndex {
 
     virtual void resetToDefault() {
       setTime ( 0.0 );
-      CHANGE_MACRO;
+      changed();
     }
     virtual void printdebug() const {
       printf ( "Time Index : %f\n", getTime() );
     }
 
-    virtual void setDouble ( double val ) { setTime ( val ); CHANGE_MACRO; };
+    virtual void setDouble ( double val ) { setTime ( val ); changed(); };
 
 
     virtual double getDouble() const { return getTime(); }
@@ -67,8 +67,8 @@ class TimeVar : public VarData, public TimeIndex {
     virtual bool hasMaxValue() const { return false; }
     virtual bool hasMinValue() const { return false; }
 
-    virtual vector<VarData *> getChildren() const {
-      vector<VarData *> v;
+    virtual vector<VarType *> getChildren() const {
+      vector<VarType *> v;
       v.push_back ( data );
       return v;
     }
@@ -86,14 +86,14 @@ class TimeVar : public VarData, public TimeIndex {
   protected:
 
     virtual void readChildren ( XMLNode & us ) {
-      vector<VarData *> v;
+      vector<VarType *> v;
       v = readChildrenHelper ( us, v, false, true );
       if ( v.size() > 0 ) {
         data = v[0];
       } else {
         data = 0;
       }
-      CHANGE_MACRO;
+      changed();
     }
 
 
@@ -105,7 +105,7 @@ class TimeVar : public VarData, public TimeIndex {
         double num = 0; sscanf ( s.c_str(), "%lf", &num );
         setTime ( num );
       }
-      CHANGE_MACRO;
+      changed();
     }
 
     virtual void updateAttributes ( XMLNode & us ) const {

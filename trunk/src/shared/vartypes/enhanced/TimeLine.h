@@ -29,7 +29,7 @@
 
 
 //NOTE: a timeline should normally be of template type TimeVarTemplate<vDataType>
-class TimeLine : public VarData {
+class TimeLine : public VarType {
     Q_OBJECT
   protected:
     TimePointer * cur;
@@ -37,10 +37,10 @@ class TimeLine : public VarData {
   public slots:
     void slotPointerChange() {
       qDebug ( "TIME CHANGED\n" );
-      CHANGE_MACRO;
+      changed();
     }
   public:
-    TimeLine ( string name = "", TimePointer * current = 0 ) : VarData ( name ) {
+    TimeLine ( string name = "", TimePointer * current = 0 ) : VarType ( name ) {
       setTimePointer ( current );
       //list.append(new type);
     };
@@ -74,7 +74,7 @@ class TimeLine : public VarData {
     void append ( TimeVar * value ) {
       list.append ( value );
 
-      CHANGE_MACRO;
+      changed();
     }
     TimeClosedRange getTimeClosedRange() const {
 
@@ -93,12 +93,12 @@ class TimeLine : public VarData {
 
     void setTimePointer ( TimePointer * tp ) {
       if ( cur != 0 ) {
-        disconnect ( tp, SIGNAL ( hasChanged(VarData *) ), this, SLOT ( slotPointerChange() ) );
+        disconnect ( tp, SIGNAL ( hasChanged(VarType *) ), this, SLOT ( slotPointerChange() ) );
       }
       qDebug ( "setup pointer\n" );
       cur = tp;
-      connect ( tp, SIGNAL ( hasChanged(VarData *) ), this, SLOT ( slotPointerChange() ) );
-      CHANGE_MACRO;
+      connect ( tp, SIGNAL ( hasChanged(VarType *) ), this, SLOT ( slotPointerChange() ) );
+      changed();
     }
 
     TimePointer * getTimePointer() const {
@@ -149,7 +149,7 @@ class TimeLine : public VarData {
     virtual void resetToDefault() { list.clear(); };
     virtual void printdebug() const { printf ( "TimeLine named %s containing %d element(s)\n", getName().c_str(), list.size() ); }
 
-    virtual vDataTypeEnum getType() const { return DT_TIMELINE; };
+    virtual VarTypeId getType() const { return DT_TIMELINE; };
     virtual ~TimeLine() {};
 
 
@@ -164,13 +164,13 @@ class TimeLine : public VarData {
 
     virtual void sort() {
       qSort ( list.begin(), list.end(), timePointerLessThan );
-      CHANGE_MACRO;
+      changed();
     }
 
-    virtual vector<VarData *> getChildren() const {
-      vector<VarData *> v;
+    virtual vector<VarType *> getChildren() const {
+      vector<VarType *> v;
       //findCurrent();
-      VarData * tmp = ( VarData * ) findCurrent();
+      VarType * tmp = ( VarType * ) findCurrent();
       if ( tmp != 0 ) {
         v.push_back ( tmp );
       }
@@ -181,13 +181,13 @@ class TimeLine : public VarData {
   protected:
     virtual void readChildren ( XMLNode & us ) {
       qDebug ( "updating children\n" );
-      vector<VarData *> v;
+      vector<VarType *> v;
       QListIterator<TimeVar *> i ( list );
       while ( i.hasNext() ) {
-        v.push_back ( ( VarData * ) i.next() );
+        v.push_back ( ( VarType * ) i.next() );
       }
 
-      vector<VarData *> result;
+      vector<VarType *> result;
 
       result = readChildrenHelper ( us, v, false, true );
 

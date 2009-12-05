@@ -21,28 +21,30 @@
 
 #include "VarXML.h"
 
-VarXML::VarXML() {};
-VarXML::~VarXML() {};
-
-void VarXML::write(VarData * rootVar, string filename)
-{
-  vector<VarData *> v;
-  v.push_back(rootVar);
-  write(v,filename);
-}
-void VarXML::write(vector<VarData *> rootVars, string filename)
-{
-
-  XMLNode root = XMLNode::openFileHelper(filename.c_str(),"VarXML");
-  VarData::deleteAllVarChildren(root);
-  for (unsigned int i=0;i<rootVars.size();i++) {
-    rootVars[i]->writeXML(root,true);
+namespace VarTypes {
+  VarXML::VarXML() {};
+  VarXML::~VarXML() {};
+  
+  void VarXML::write(VarType * rootVar, string filename)
+  {
+    vector<VarType *> v;
+    v.push_back(rootVar);
+    write(v,filename);
   }
-  root.writeToFile(filename.c_str());
-}
-
-vector<VarData *> VarXML::read(vector<VarData *> existing_nodes, string filename)
-{
-  XMLNode root = XMLNode::openFileHelper(filename.c_str(),"VarXML");
-  return VarData::readChildrenHelper(root ,existing_nodes, false, false);
-}
+  void VarXML::write(vector<VarType *> rootVars, string filename)
+  {
+  
+    XMLNode root = XMLNode::openFileHelper(filename.c_str(),"VarXML");
+    VarType::deleteAllVarChildren(root);
+    for (unsigned int i=0;i<rootVars.size();i++) {
+      rootVars[i]->writeXML(root,true);
+    }
+    root.writeToFile(filename.c_str());
+  }
+  
+  vector<VarType *> VarXML::read(vector<VarType *> existing_nodes, string filename)
+  {
+    XMLNode root = XMLNode::openFileHelper(filename.c_str(),"VarXML");
+    return VarType::readChildrenHelper(root ,existing_nodes, false, false);
+  }
+};

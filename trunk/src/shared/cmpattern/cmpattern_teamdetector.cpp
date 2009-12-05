@@ -30,13 +30,13 @@ TeamDetectorSettings::TeamDetectorSettings(string external_file) {
  } else {
     settings->addChild(teams = new VarExternal(external_file,"Teams"));; // a global variable, defining all teams
  }
- connect(teams,SIGNAL(childAdded(VarData *)),this,SLOT(slotTeamNodeAdded(VarData *)));
+ connect(teams,SIGNAL(childAdded(VarType *)),this,SLOT(slotTeamNodeAdded(VarType *)));
  settings->addChild(addTeam = new VarTrigger("Add", "Add Team..."));
  connect(addTeam,SIGNAL(signalTriggered()),this,SLOT(slotAddPressed()));
  
 }
 
-void TeamDetectorSettings::slotTeamNodeAdded(VarData * node) {
+void TeamDetectorSettings::slotTeamNodeAdded(VarType * node) {
   team_vector.push_back(new Team((VarList *)node));
   connect(team_vector[team_vector.size()-1],SIGNAL(signalTeamNameChanged()),this,SIGNAL(teamInfoChanged()));
   emit(teamInfoChanged());

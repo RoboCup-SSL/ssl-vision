@@ -53,21 +53,31 @@ set (SHARED_SRCS
 	${shared_dir}/vartypes/VarNotifier.cpp
 	${shared_dir}/vartypes/VarTypes.cpp
 	${shared_dir}/vartypes/VarXML.cpp
-
+  ${shared_dir}/vartypes/VarTypesInstance.cpp
+  ${shared_dir}/vartypes/VarTypesFactory.cpp
 	${shared_dir}/vartypes/xml/xmlParser.cpp
 
-	${shared_dir}/vartypes/primitives/VarBlob.cpp
-	${shared_dir}/vartypes/primitives/VarBool.cpp
-	${shared_dir}/vartypes/primitives/VarData.cpp
-	${shared_dir}/vartypes/primitives/VarDouble.cpp
-	${shared_dir}/vartypes/primitives/VarExternal.cpp
-	${shared_dir}/vartypes/primitives/VarInt.cpp
-	${shared_dir}/vartypes/primitives/VarList.cpp
-	${shared_dir}/vartypes/primitives/VarQWidget.cpp
-	${shared_dir}/vartypes/primitives/VarSelection.cpp
-	${shared_dir}/vartypes/primitives/VarString.cpp
-	${shared_dir}/vartypes/primitives/VarStringEnum.cpp
-	${shared_dir}/vartypes/primitives/VarTrigger.cpp
+  ${shared_dir}/vartypes/primitives/VarStringVal.cpp
+  ${shared_dir}/vartypes/primitives/VarBoolVal.cpp
+  ${shared_dir}/vartypes/primitives/VarVal.cpp
+  ${shared_dir}/vartypes/primitives/VarIntVal.cpp
+  ${shared_dir}/vartypes/primitives/VarDoubleVal.cpp
+
+  ${shared_dir}/vartypes/primitives/VarType.cpp
+  ${shared_dir}/vartypes/primitives/VarBlob.cpp
+  ${shared_dir}/vartypes/primitives/VarBool.cpp
+  ${shared_dir}/vartypes/primitives/VarDouble.cpp
+  ${shared_dir}/vartypes/primitives/VarExternal.cpp
+  ${shared_dir}/vartypes/primitives/VarInt.cpp
+  ${shared_dir}/vartypes/primitives/VarList.cpp
+  ${shared_dir}/vartypes/primitives/VarQWidget.cpp
+  ${shared_dir}/vartypes/primitives/VarSelection.cpp
+  ${shared_dir}/vartypes/primitives/VarString.cpp
+  ${shared_dir}/vartypes/primitives/VarStringEnum.cpp
+  ${shared_dir}/vartypes/primitives/VarTrigger.cpp
+
+  #${shared_dir}/vartypes/primitives/VarProtoBufferVal.cpp
+  #${shared_dir}/vartypes/primitives/VarProtoBuffer.cpp
 
 	${shared_dir}/vartypes/gui/VarItem.cpp
 	${shared_dir}/vartypes/gui/VarItemDelegate.cpp
@@ -83,6 +93,7 @@ set (SHARED_SRCS
 
 	#${shared_dir}/vartypes/enhanced/TimeLine.cpp
 	#${shared_dir}/vartypes/enhanced/TimeVar.cpp
+
 )
 
 #only ones that need to be moc'ed
@@ -98,9 +109,9 @@ set (SHARED_HEADERS
 
 	${shared_dir}/vartypes/VarNotifier.h
 
+  ${shared_dir}/vartypes/primitives/VarType.h
 	${shared_dir}/vartypes/primitives/VarBlob.h
 	${shared_dir}/vartypes/primitives/VarBool.h
-	${shared_dir}/vartypes/primitives/VarData.h
 	${shared_dir}/vartypes/primitives/VarDouble.h
 	${shared_dir}/vartypes/primitives/VarExternal.h
 	${shared_dir}/vartypes/primitives/VarInt.h
@@ -110,6 +121,7 @@ set (SHARED_HEADERS
 	${shared_dir}/vartypes/primitives/VarString.h
 	${shared_dir}/vartypes/primitives/VarStringEnum.h
 	${shared_dir}/vartypes/primitives/VarTrigger.h
+  #${shared_dir}/vartypes/primitives/VarProtoBuffer.h 
 
 	${shared_dir}/vartypes/gui/VarItem.h
 	${shared_dir}/vartypes/gui/VarItemDelegate.h

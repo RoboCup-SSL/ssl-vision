@@ -24,36 +24,38 @@
 #include "VarItem.h"
 #include "VarTypes.h"
 
-/*!
-  \class  VarTreeModel
-  \brief  The 'item-model' inheriting QStandardItemModel for displaying VarTypes in the QT4 Item-Model
-  \author Stefan Zickler, (C) 2008
-  \see    VarTypes.h
-
-  This file is part of the QT4 Item-Model for VarTypes.
-  It is used when you want to edit/visualize VarTypes using
-  QT4's model/view system.
-
-  If you don't know what VarTypes are, please see \c VarTypes.h 
-*/
-class VarTreeModel : public QStandardItemModel
-{
-  Q_OBJECT
-
-protected:
-  VarTreeViewOptions opts;
-public:
-  void resetViewOptions();
-  const VarTreeViewOptions * getViewOptions() const;
-  VarTreeModel();
-  virtual ~VarTreeModel();
-  void updateHeader();
-  void setRootItems(vector<VarData *> items);
-  void setRootItem(VarData * item);
-  virtual const QStandardItem * itemPrototype () const;
-  QList<VarItem *> findItems( const QString & text, bool case_sensitive=false ) const;
-  QList<VarItem *> findItems( const VarData * item) const;
-
+namespace VarTypes {
+  
+  /*!
+    \class  VarTreeModel
+    \brief  The 'item-model' inheriting QStandardItemModel for displaying VarTypes in the QT4 Item-Model
+    \author Stefan Zickler, (C) 2008
+    \see    VarTypes.h
+  
+    This file is part of the QT4 Item-Model for VarTypes.
+    It is used when you want to edit/visualize VarTypes using
+    QT4's model/view system.
+  
+    If you don't know what VarTypes are, please see \c VarTypes.h 
+  */
+  class VarTreeModel : public QStandardItemModel
+  {
+    Q_OBJECT
+  
+  protected:
+    VarTreeViewOptions opts;
+  public:
+    void resetViewOptions();
+    const VarTreeViewOptions * getViewOptions() const;
+    VarTreeModel();
+    virtual ~VarTreeModel();
+    void updateHeader();
+    void setRootItems(vector<VarType *> items);
+    void setRootItem(VarType * item);
+    virtual const QStandardItem * itemPrototype () const;
+    QList<VarItem *> findItems( const QString & text, bool case_sensitive=false ) const;
+    QList<VarItem *> findItems( const VarType * item) const;
+  
+  };
 };
-
 #endif /*VDATATYPETREEWIDGETITEM_H_*/

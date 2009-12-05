@@ -59,7 +59,7 @@ public:
   QSplitter * splitter;
   QSplitter * splitter2;
   VarList * settings;
-  vector<VarData * > world;
+  vector<VarType * > world;
   VarTreeModel * tmodel;
   vector<RealTimeDisplayWidget *> display_widgets;
   vector<QSplitter *> stack_widgets;

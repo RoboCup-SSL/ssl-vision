@@ -20,19 +20,21 @@
 
 #include "primitives/VarExternal.h"
 
+namespace VarTypes {
+
 VarExternal::VarExternal(string _filename, VarList * vlist) : VarList(vlist->getName())
 {
   list=vlist->getChildren();
-  DT_LOCK;
+  lock();
   filename=_filename;
-  DT_UNLOCK;
+  unlock();
 }
 
 VarExternal::VarExternal(string _filename, string _name) : VarList(_name)
 {
-  DT_LOCK;
+  lock();
   filename=_filename;
-  DT_UNLOCK;
+  unlock();
 }
 
 VarExternal::~VarExternal()
@@ -40,7 +42,7 @@ VarExternal::~VarExternal()
 }
 
 void VarExternal::loadExternal() {
-  DT_LOCK;
+  lock();
   //load file to empty parent
   int before=list.size();
   XMLNode parent = XMLNode::openFileHelper(filename.c_str(),"VarXML");
@@ -51,11 +53,12 @@ void VarExternal::loadExternal() {
         emit(childAdded(list[i]));
     }
   }
-  CHANGE_MACRO;
-  DT_UNLOCK;
+  changed();
+  unlock();
 }
 
 void VarExternal::readChildren(XMLNode & us) {
   (void)us;
   loadExternal();
 }
+};

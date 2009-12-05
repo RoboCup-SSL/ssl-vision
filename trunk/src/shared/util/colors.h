@@ -24,6 +24,7 @@
 #include <string>
 #include <math.h>
 #include <string.h>
+#include <stdint.h>
 using namespace std;
 
 enum ColorSpace {
