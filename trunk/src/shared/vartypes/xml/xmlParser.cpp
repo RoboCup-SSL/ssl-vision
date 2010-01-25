@@ -74,6 +74,8 @@
   #define _CRT_SECURE_NO_DEPRECATE
   #endif
   #include "xmlParser.h"
+  #include <cstdio>
+  
   namespace VarTypes {
   #ifdef _XMLWINDOWS
   //#ifdef _DEBUG
