@@ -6,22 +6,65 @@ This page is a TODO list of new features and improvements for ssl-vision. If you
 == Bugs ==
 For bugs and other problems, please use the "Issue" tracker: http://code.google.com/p/ssl-vision/issues/list 
 
-== Usability Features: ==
-  * buttons to sync the multiple segmentation LUTs (*assigned to: Stefan*)
-  * visualization of the stack, showing the order and names of plugins, allowing check-boxes to enable/disable each plugin. This could become another tab on the left, where the data-tree is currently the only tab. This should also include optional visualization of the measured processing time values of each plugin.
-  * command line options to run in console-only (maybe -c) mode
-  * Allow network clients to request calibration data. Currently the camera calibration data and field dimensions are sent over the network only if the "publish" button is hit in the GUI. We might want to let clients request this data, and also auto re-publish this data if it is changed in the GUI.
+== Currently Open Tasks ==
 
-== Capturing: ==
-  * support of GigE vision input (*assigned to: GaTech*)
-  * support of V4L input
-  * improvement of the read from file capture. See also "DVR" plugin below.
+=== TCP-server ===
+Relying on UDP has some risks of interference by other teams. An
+optional TCP server mode would be nice.
 
-== Calibration: ==
-  * use LUTs for the image->world transformation (*assigned to: Oliver*)
+=== UDP port selection from within GUI ===
+Allowing to select the UDP server port from within SSL-Vision would be
+extremely beneficial, especially if 1) will not be used.
 
-== New Plugins: ==
-  * "DVR" plugin, basically allowing to buffer / record to file / read from file / pause / delay / replay / seek video.
-  * "competition mode" plugin, which checks and ensures that all settings of the system are set correctly for maximum performance (e.g. visualizations are turned off, DCAM parameter auto-refresh is turned off, video capture and convert to are both set to yuv422, shutter-speed is set to some value below the frame period). This plugin really only needs two push-buttons "Check" and "Auto-Fix" and an informational label.
-  * "goal detection" plugin which automatically saves the captured image to a file and possibly lights up in the GUI if the ball entered a goal. This can help the refs to determine the validity of some of those questionable goals. (*probably assigned to: Malte, Uni-Bremen*)
-  * "confidence masking" plugin which allows to draw a mask layer on top of the video frame to disable processing of certain regions in the image.
+=== Packet information ===
+One item that we might want to add  to the vision packet is what framerate it is capturing at. I know teams can measure this themselves, but it might be helpful to provide this data in the packet.
+
+=== Definition of ball-detection results ===
+We need to define how many balls (the "Max Ball Count" parameter) the
+system will return when used during RoboCup 2010. Some teams like to
+receive more than just the biggest blob, and then perform filtering
+themselves. Maybe 10 is a good value?
+
+=== Performance review ===
+Some people have reported instances of high CPU usage. We need to
+determine whether this originates in the image processing stack or the
+GUI components. One idea is to use SSE instructions to speed up the color thresholding task.
+
+=== LUT cloning / synching ===
+We still need a feature where we can copy the state from one LUT to
+the other one, for either a single color, or all colors.
+
+=== Global team height override ===
+If we use SSL-Vision with a single pattern at RoboCup 2010, then we
+will need the ability to quickly enter the robot height for a team
+into the system. Right now the heights are obtained from the pattern
+template image, but there also is a "team height" value that is
+currently only used if no heights are found in the pattern. It would
+be nice to have a checkbox that ensures this global team height is
+always used if checked.
+
+=== Competition-Mode Plugin ===
+A plugin that ensures that all parameters are reasonable for max
+performance (e.g. visualizations off, etc..) to be used during
+competition.
+
+=== Fast GL-based Graphical Client ===
+The graphical client uses excessive amounts of CPU. I think we should
+switch to a GL-based rendering method that runs at a constant
+framerate. It could then also be integrated as a plugin into
+SSL-Vision.
+
+=== Masking Plugin ===
+A plugin that allows masking out certain areas in the field. I believe some teams (Plasma-Z?) have already implemented this?
+
+=== Improving Camera Calibration ===
+Consider center circle and goal area for camera calibration to provide
+more precise results.
+
+=== Referee Box ===
+Delete the old "Referee Box" and write a new Application based on Qt and
+Google Protocol Buffers. This application should be part of the
+SSL-Vision repository and might offer a plug-in mode for SSL-Vision.
+
+=== Support additional capture methods ===
+(e.g., video4linux)
