@@ -87,7 +87,7 @@ qt4_add_resources(RC_SRCS
 )
 
 ## generate moc files for graphicalClient
-qt4_wrap_cpp(GCLIENT_MOC_SRCS
+qt4_wrap_cpp(GRAPHICALCLIENT_MOC_SRCS
     src/graphicalClient/CentralWindow.h
     src/graphicalClient/ClientThreading.h
     src/graphicalClient/GraphicsPrimitives.h
@@ -145,14 +145,21 @@ add_executable(${client} src/client/main.cpp )
 target_link_libraries(${client} ${libs})
 
 ##build graphical client
-set (gclient graphicalClient)
-add_executable(${gclient} ${GCLIENT_MOC_SRCS}
+set (graphicalclient graphicalClient)
+add_executable(${graphicalclient} ${GRAPHICALCLIENT_MOC_SRCS}
 	src/graphicalClient/main.cpp 
 	src/graphicalClient/CentralWindow.cpp
 	src/graphicalClient/ClientThreading.cpp
 	src/graphicalClient/GraphicsPrimitives.cpp
 	src/graphicalClient/LogControl.cpp
 )
-target_link_libraries(${gclient} ${libs})
+target_link_libraries(${graphicalclient} ${libs})
 
+##build new client
+set (gclient gClient)
+add_executable(${gclient}
+	src/gClient/main.cpp 
+	src/gClient/sslField.cpp
+)
+target_link_libraries(${gclient} ${libs})
 
