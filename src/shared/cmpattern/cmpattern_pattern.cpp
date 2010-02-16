@@ -385,7 +385,7 @@ void MultiPatternModel::recheckColorsUsed() {
 }
 
 bool MultiPatternModel::findPattern(PatternDetectionResult & result, Marker * markers,int num_markers, const PatternFitParameters & fit_params,const CameraParameters& camera_params) const {
-  if(markers==0 || num_markers<0) return(-1);
+  if(markers==0 || num_markers<0) return(false);
 
   int best_idx = -1;
   int best_ofs = 0;

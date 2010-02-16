@@ -49,6 +49,7 @@ protected slots:
 public:
     GLLUTWidget * getGLLUTWidget();
     void samplePixel(const yuv & color);
+    void add_del_Pixel(yuv color, bool add, bool continuing_undo);
     void sampleImage(const RawImage & img);
     void focusInEvent ( QFocusEvent * event );
     LUTWidget(LUT3D * lut, LUTChannelMode mode);

@@ -151,6 +151,13 @@ bool UDP::addMulticast(const Address &multiaddr,const Address &interface)
   int ret = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP,
                        &imreq, sizeof(imreq));
   if(debug) printf("ret=%d\n",ret);
+  if(ret != 0)
+    return false;
+
+  //set multicast output interface
+  ret = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF,
+                   &imreq.imr_interface.s_addr, sizeof(imreq.imr_interface.s_addr));
+  if(debug) printf("ret=%d\n",ret);
 
   return(ret == 0);
 }

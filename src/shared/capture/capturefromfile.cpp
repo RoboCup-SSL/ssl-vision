@@ -161,6 +161,9 @@ bool CaptureFromFile::isImageFileName(const std::string& fileName)
 
 bool CaptureFromFile::copyAndConvertFrame(const RawImage & src, RawImage & target)
 {
+#ifndef VDATA_NO_QT
+  mutex.lock();
+#endif
   ColorFormat output_fmt = Colors::stringToColorFormat(v_colorout->getSelection().c_str());
   ColorFormat src_fmt=src.getColorFormat();
     

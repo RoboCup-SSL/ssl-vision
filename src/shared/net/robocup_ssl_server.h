@@ -31,6 +31,7 @@ using namespace std;
 	@author Stefan Zickler
 */
 class RoboCupSSLServer{
+friend class MultiStackRoboCupSSL;
 protected:
   Net::UDP mc; // multicast server
   QMutex mutex;

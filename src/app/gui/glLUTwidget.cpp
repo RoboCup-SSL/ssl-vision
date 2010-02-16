@@ -20,14 +20,16 @@
 //========================================================================
 #include "glLUTwidget.h"
 
+#define UNDO_SIZE 20
 
 void GLLUTWidget::editUndo() {
   if (_lut==0) return;
   if (undoStack.empty() == false) {
     UndoState * s=undoStack.back();
-    UndoState * r=new UndoState(_lut,s->slice_idx);
+    UndoState * r=new UndoState(_lut);
     s->restore(_lut);
-    drawSlice(slices[s->slice_idx],_lut, s->slice_idx, false,true,false);
+    for(int i=0; i<slices.size(); i++)
+      drawSlice(slices[i],_lut, i, false,true,false);
     undoStack.pop_back();
     delete s;
     redoStack.push_back(r);
@@ -42,9 +44,10 @@ void GLLUTWidget::editRedo() {
   if (_lut==0) return;
   if (redoStack.empty() == false) {
     UndoState * s=redoStack.back();
-    UndoState * r=new UndoState(_lut,s->slice_idx);
+    UndoState * r=new UndoState(_lut);
     s->restore(_lut);
-    drawSlice(slices[s->slice_idx],_lut, s->slice_idx, false,true,false);
+    for(int i=0; i<slices.size(); i++)
+      drawSlice(slices[i],_lut, i, false,true,false);
     redoStack.pop_back();
     delete s;
     undoStack.push_back(r);
@@ -62,12 +65,12 @@ void GLLUTWidget::editStore() {
     redoStack.pop_back();
     delete s;
   }
-  while (undoStack.size() > 20) {
+  while (undoStack.size() > UNDO_SIZE) {
     UndoState * f = undoStack.front();
     undoStack.pop_front();
     delete f;
   }
-  undoStack.push_back(new UndoState(_lut,state.slice_idx));
+  undoStack.push_back(new UndoState(_lut));
   actionUndo->setEnabled(!undoStack.empty());
   actionRedo->setEnabled(!redoStack.empty());
   redraw();
@@ -305,6 +308,27 @@ void GLLUTWidget::drawEvent ( QMouseEvent * event )
     
     this->redraw();
   }
+}
+
+void GLLUTWidget::add_del_Pixel(yuv color, bool add, bool continuing_undo)
+{
+  _lut->lock();
+
+  //compute slice it sits on:
+  int i=_lut->norm2lutX(color.y);
+  if (i >= 0 && i < (int)slices.size())
+    state.slice_idx = i;
+
+  if(!continuing_undo)
+    editStore();
+  Qt::KeyboardModifiers mod = add ? Qt::NoModifier : Qt::ShiftModifier;
+  drawSinglePixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),
+                  new QMouseEvent(QEvent::None,QPoint(),Qt::NoButton,Qt::NoButton,mod));
+
+  slices[state.slice_idx]->selection_update_pending=true;
+  _lut->unlock();
+
+  this->redraw();
 }
 
 void GLLUTWidget::mousePressEvent ( QMouseEvent * event )

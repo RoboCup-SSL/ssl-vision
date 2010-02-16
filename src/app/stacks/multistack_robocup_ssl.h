@@ -21,6 +21,7 @@
 #ifndef MULTISTACK_ROBOCUP_SSL_H
 #define MULTISTACK_ROBOCUP_SSL_H
 
+#include <QObject>
 #include "multivisionstack.h"
 #include "stack_robocup_ssl.h"
 #include "plugin_detect_balls.h"
@@ -35,7 +36,8 @@ using namespace std;
   \brief   The multi-camera vision processing stack used for the RoboCup SSL vision system.
   \author  Stefan Zickler, (C) 2008
 */
-class MultiStackRoboCupSSL : public MultiVisionStack {
+class MultiStackRoboCupSSL : public QObject, public MultiVisionStack {
+  Q_OBJECT
   protected:
   RoboCupField * global_field;
   PluginDetectBallsSettings * global_ball_settings;
@@ -43,11 +45,14 @@ class MultiStackRoboCupSSL : public MultiVisionStack {
   CMPattern::TeamDetectorSettings * global_team_settings;
   CMPattern::TeamSelector * global_team_selector_blue;
   CMPattern::TeamSelector * global_team_selector_yellow;
+  PluginSSLNetworkOutputSettings * global_network_output_settings;
   RoboCupSSLServer * udp_server;
   public:
   MultiStackRoboCupSSL(RenderOptions * _opts, int cameras);
   virtual string getSettingsFileName();
   virtual ~MultiStackRoboCupSSL();
+  public slots:
+  void RefreshNetworkOutput();
 };
 
 #endif
