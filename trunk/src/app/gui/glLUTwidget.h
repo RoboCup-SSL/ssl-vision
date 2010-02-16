@@ -62,20 +62,16 @@ class GLLUTWidget : public QGLWidget, public RealTimeDisplayWidget
   {
     public:
       lut_mask_t * table;
-      int slice_idx;
-      UndoState(LUT3D * lut, int slice) {
-        slice_idx=slice;
-        int slice_size=sizeof(lut_mask_t) * (0x01 << (lut->Z_AND_Y_BITS+1));
-        table=new lut_mask_t[slice_size];
-        memcpy(table,lut->getPointerPreshrunk(slice_idx,0,0),slice_size);
+      UndoState(LUT3D * lut) {
+        table=new lut_mask_t[lut->LUT_SIZE];
+        memcpy(table,lut->getPointerPreshrunk(0,0,0),lut->LUT_SIZE);
       }
 
       ~UndoState() {
-        delete table;
+        delete[] table;
       };
       void restore(LUT3D * lut) {
-        int slice_size=sizeof(lut_mask_t) * (0x01 << (lut->Z_AND_Y_BITS+1));
-        memcpy(lut->getPointerPreshrunk(slice_idx,0,0),table,slice_size);
+        memcpy(lut->getPointerPreshrunk(0,0,0),table,lut->LUT_SIZE);
       }
   };
 
@@ -191,6 +187,7 @@ protected:
   int vpW;
   int vpH;
   void samplePixel(const yuv & color);
+  void add_del_Pixel(yuv color, bool add, bool continuing_undo);
   virtual void initializeGL();
   virtual void paintGL();
   virtual void resizeGL(int width, int height);

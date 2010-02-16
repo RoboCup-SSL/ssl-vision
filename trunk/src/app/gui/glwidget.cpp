@@ -326,7 +326,7 @@ void GLWidget::callZoomFit() {
 
 void GLWidget::callHelp() {
   QMessageBox::information ( this,"Keyboard and Mouse shortcuts",
-                             "Left-Click: Pick RGB Color\nArrow-Keys (or Right-Drag Mouse): Panning\nPage Up/Down (or Mousewheel): Zooming\nHome: Reset Zoom to 100%\nSpace: Reset Zoom to Best Fit\nCtrl-f: Toggle Fullscreen\nCtrl-w: Toggle Detach Window" );
+                             "Left-Click: Pick RGB Color\nShift-Modifier: Erase pixel from LUT\nCtrl-Modifier: Add pixel to LUT\nArrow-Keys (or Right-Drag Mouse): Panning\nPage Up/Down (or Mousewheel): Zooming\nHome: Reset Zoom to 100%\nSpace: Reset Zoom to Best Fit\nCtrl-f: Toggle Fullscreen\nCtrl-w: Toggle Detach Window" );
 }
 
 void GLWidget::keyPressEvent ( QKeyEvent * event ) {

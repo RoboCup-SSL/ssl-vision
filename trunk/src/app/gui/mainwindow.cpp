@@ -136,6 +136,8 @@ MainWindow::MainWindow(bool start_capture, bool enforce_affinity)
   world.push_back(root); 
   world=VarXML::read( world,"settings.xml");
 
+  //update network output settings from xml file
+  ((MultiStackRoboCupSSL*)multi_stack)->RefreshNetworkOutput();
   multi_stack->start();
 
   if (start_capture==true) {
@@ -200,7 +202,6 @@ void MainWindow::closeEvent(QCloseEvent * event ) {
     window_settings.setValue("size", size());
     window_settings.endGroup();
   }
-  delete this;
 }
 
 MainWindow::~MainWindow() {
@@ -210,5 +211,5 @@ MainWindow::~MainWindow() {
 
   // Stop stack:
   multi_stack->stop();
-      exit(0);
+  exit(0);
 }

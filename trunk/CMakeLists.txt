@@ -74,6 +74,8 @@ qt4_wrap_cpp (MOC_SRCS
 	src/app/plugins/plugin_dvr.h
 	src/app/plugins/plugin_publishgeometry.h
 	src/app/plugins/visionplugin.h
+	
+	src/app/stacks/multistack_robocup_ssl.h
 )
 
 qt4_wrap_ui (UI_SRCS

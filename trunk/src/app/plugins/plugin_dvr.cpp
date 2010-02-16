@@ -459,7 +459,7 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
     }
     if (frames_advance_int!=0) {
       w->btn_seek_pause->setChecked(true);
-      seek_mode==SeekModePause;
+      seek_mode=SeekModePause;
     }
 
     
@@ -506,7 +506,7 @@ QWidget * PluginDVR::getControlWidget() {
 }
 
 bool DVRStream::loadStream(QString file) {
-  
+  return false;
 }
 
 void DVRStream::newRecording(QString directory) {

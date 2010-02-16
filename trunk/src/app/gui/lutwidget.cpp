@@ -94,6 +94,10 @@ void LUTWidget::samplePixel(const yuv & color) {
   gllut->samplePixel( color );
 }
 
+void LUTWidget::add_del_Pixel(yuv color, bool add, bool continuing_undo) {
+  gllut->add_del_Pixel(color, add, continuing_undo);
+}
+
 void LUTWidget::sampleImage(const RawImage & img) {
   gllut->sampleImage( img );
 }

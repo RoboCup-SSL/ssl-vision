@@ -37,11 +37,13 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
   global_team_selector_yellow = new CMPattern::TeamSelector("Yellow Team", global_team_settings);
   settings->addChild(global_team_selector_yellow->getSettings());
 
+  global_network_output_settings = new PluginSSLNetworkOutputSettings();
+  settings->addChild(global_network_output_settings->getSettings());
+  connect(global_network_output_settings->multicast_port,SIGNAL(wasEdited(VarType *)),this,SLOT(RefreshNetworkOutput()));
+  connect(global_network_output_settings->multicast_address,SIGNAL(wasEdited(VarType *)),this,SLOT(RefreshNetworkOutput()));
+  connect(global_network_output_settings->multicast_interface,SIGNAL(wasEdited(VarType *)),this,SLOT(RefreshNetworkOutput()));
+
   udp_server = new RoboCupSSLServer();
-  if (udp_server->open()==false) {
-    fprintf(stderr,"ERROR WHEN TRYING TO OPEN UDP NETWORK SERVER!\n");
-    fflush(stderr);
-  }
 
   global_plugin_publish_geometry = new PluginPublishGeometry(0,udp_server,*global_field);
 
@@ -67,5 +69,16 @@ MultiStackRoboCupSSL::~MultiStackRoboCupSSL() {
   delete global_ball_settings;
 }
 
-
-
+void MultiStackRoboCupSSL::RefreshNetworkOutput()
+{
+  udp_server->mutex.lock();
+  udp_server->close();
+  udp_server->_port = global_network_output_settings->multicast_port->getInt();
+  udp_server->_net_address = global_network_output_settings->multicast_address->getString();
+  udp_server->_net_interface = global_network_output_settings->multicast_interface->getString();
+  if (udp_server->open()==false) {
+    fprintf(stderr,"ERROR WHEN TRYING TO OPEN UDP NETWORK SERVER!\n");
+    fflush(stderr);
+  }
+  udp_server->mutex.unlock();
+}

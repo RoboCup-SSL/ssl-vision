@@ -36,6 +36,7 @@ protected:
     VarList * settings;
     LUTWidget * lutw;
     LUTChannelMode mode;
+    bool continuing_undo;
     void mouseEvent ( QMouseEvent * event, pixelloc loc );
 public:
 

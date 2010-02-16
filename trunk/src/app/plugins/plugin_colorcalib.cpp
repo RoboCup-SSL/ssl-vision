@@ -27,6 +27,7 @@ PluginColorCalibration::PluginColorCalibration(FrameBuffer * _buffer, YUVLUT * _
   lut=_lut;
   lutw=0;
   settings=new VarList("YUV Calibrator");
+  continuing_undo = false;
 }
 
 VarList * PluginColorCalibration::getSettings() {
@@ -53,7 +54,7 @@ QWidget * PluginColorCalibration::getControlWidget() {
 void PluginColorCalibration::mouseEvent( QMouseEvent * event, pixelloc loc) {
   QTabWidget* tabw = (QTabWidget*) lutw->parentWidget()->parentWidget();  
   if (tabw->currentWidget() == lutw) {
-    if ((event->buttons() & Qt::LeftButton)!=0) {
+    if (event->buttons()==Qt::LeftButton) {
       FrameBuffer * rb=getFrameBuffer();
       if (rb!=0) {
         rb->lockRead();
@@ -88,6 +89,14 @@ void PluginColorCalibration::mouseEvent( QMouseEvent * event, pixelloc loc) {
             }
             lutw->samplePixel(color);
             //img.setPixel(loc.x,loc.y,rgb(255,0,0));
+
+            if (event->modifiers()!=Qt::NoModifier) {
+              if(event->modifiers() & Qt::ShiftModifier) 
+                lutw->add_del_Pixel(color, false, continuing_undo);
+              else if(event->modifiers() & Qt::ControlModifier) 
+                lutw->add_del_Pixel(color, true, continuing_undo);
+              continuing_undo = true;
+            }
           }
         }
         rb->unlockRead();
@@ -122,6 +131,7 @@ void PluginColorCalibration::mousePressEvent ( QMouseEvent * event, pixelloc loc
 }
 
 void PluginColorCalibration::mouseReleaseEvent ( QMouseEvent * event, pixelloc loc ) {
+  continuing_undo = false;
   mouseEvent(event,loc);
 }
 
