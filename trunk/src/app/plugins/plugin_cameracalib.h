@@ -59,10 +59,12 @@ protected:
                          const GVector::vector3d<double>& end);
   
   void detectEdges(FrameData * data);
-  
+  void detectEdgesOnSingleArc(const GVector::vector3d<double>& center,
+                              double radius, double theta1, double theta2,
+                              int numPoints);
   void detectEdgesOnSingleLine(const GVector::vector3d<double>& start,
                                const GVector::vector3d<double>& end,
-                               int pointsPerLine, bool detectCenter = true);
+                               int pointsPerLine, bool detectCenter = false);
 
 public:
   PluginCameraCalibration(FrameBuffer * _buffer, CameraParameters& camera_params, RoboCupCalibrationHalfField& _field);

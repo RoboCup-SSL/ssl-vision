@@ -176,6 +176,43 @@ class Sobel
     }
     return (maxBrightX + maxDarkX) / 2;
   }
+  
+  //Scans img along the line from (xStart,yStart) to (xEnd,yEnd) and returns the point p of the center of the line
+  static void centerOfLine(const greyImage& img, int xStart, int xEnd, int yStart, int yEnd, GVector::vector2d<double> &p, bool &centerFound,
+                                  int threshold)
+  {
+    int maxDarkEdge(0);
+    int maxBrightEdge(0);
+    GVector::vector2d<double> maxDarkP(0.0,0.0);
+    GVector::vector2d<double> maxBrightP(0.0,0.0);
+    int numSteps = max(abs(xEnd-xStart),abs(yEnd-yStart));
+    double xIncr = ((double) (xEnd-xStart))/((double) numSteps);
+    double yIncr = ((double) (yEnd-yStart))/((double) numSteps);
+    
+    for(int i=0; i<=numSteps; i++)
+    {
+      int x = floor((double) xStart + ((double) i)*xIncr + 0.5);
+      int y = floor((double) yStart + ((double) i)*yIncr + 0.5);
+      int Dx = Sobel::horizontalDarker(img, x, y, threshold);
+      int Dy = Sobel::verticalDarker(img, x, y, threshold);
+      int Bx = Sobel::horizontalBrighter(img, x, y, threshold);
+      int By = Sobel::verticalBrighter(img, x, y, threshold);
+      int currentDarkEdge = (Dx*Dx+Dy*Dy);
+      int currentBrightEdge = (Bx*Bx+By*By);
+      if( currentDarkEdge > maxDarkEdge)
+      {
+        maxDarkEdge = currentDarkEdge;
+        maxDarkP = GVector::vector2d<double>(x,y);
+      }
+      if(currentBrightEdge > maxBrightEdge)
+      {
+        maxBrightEdge = currentBrightEdge;
+        maxBrightP = GVector::vector2d<double>(x,y);
+      }
+    }
+    p = 0.5*(maxBrightP + maxDarkP);
+    centerFound = (maxDarkEdge>0) && (maxBrightEdge>0);
+  }
 };
 
 
