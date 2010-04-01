@@ -83,6 +83,13 @@ public:
   void image2field(GVector::vector3d<double> &p_f, GVector::vector2d<double> &p_i, double z) const;
   void calibrate(std::vector<GVector::vector3d<double> > &p_f, std::vector<GVector::vector2d<double> > &p_i, int cal_type);
   
+  double radialDistortion(double ru) const;  //apply radial distortion to (undistorted) radius ru and return distorted radius 
+  double radialDistortionInv(double rd) const;  //invert radial distortion from (distorted) radius rd and return undistorted radius 
+  void radialDistortionInv(GVector::vector2d<double> &pu, const GVector::vector2d<double> &pd) const;
+  void radialDistortion(const GVector::vector2d<double> pu, GVector::vector2d<double> &pd) const;
+  double radialDistortion(double ru, double dist) const;  
+  void radialDistortion(const GVector::vector2d<double> pu, GVector::vector2d<double> &pd, double dist) const;    
+  
   double calc_chisqr(std::vector<GVector::vector3d<double> > &p_f, std::vector<GVector::vector2d<double> > &p_i, Eigen::VectorXd &p, int);
   void field2image(GVector::vector3d<double> &p_f, GVector::vector2d<double> &p_i, Eigen::VectorXd &p);
 
@@ -166,9 +173,9 @@ public:
   class LSCalibrationData
   {
     public:
-    GVector::vector3d<double> p1;
-    GVector::vector3d<double> p2;
-    std::vector< std::pair<GVector::vector2d<double>,bool> > pts_on_line;
+    GVector::vector3d<double> p1; //Start point of the line segment in world space coords
+    GVector::vector3d<double> p2; //End point of the line segment in world space coords
+    std::vector< std::pair<GVector::vector2d<double>,bool> > pts_on_line; //Image points on the line segment, paired with a bool that indicates whether the point was correctly detected on the line edge
     bool horizontal;
   };
   

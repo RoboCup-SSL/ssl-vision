@@ -105,7 +105,7 @@ namespace VarTypes {
       return VarDoubleVal::setDouble(tmp);
     };
   
-    VarDouble(string name="", double default_val=0, double min_val=DBL_MIN, double max_val=DBL_MAX) : VarDoubleVal(default_val), VarTypeTemplate<VarDoubleVal>(name)
+    VarDouble(string name="", double default_val=0, double min_val=-1e20, double max_val=DBL_MAX) : VarDoubleVal(default_val), VarTypeTemplate<VarDoubleVal>(name)
     {
       setMin(min_val);
       setMax(max_val);

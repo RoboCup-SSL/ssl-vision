@@ -33,7 +33,11 @@
  **/
 class Sobel
 {
+  //For explanation, refer to wikipedia's enlightening description of the Sobel Operator:
+  // http://en.wikipedia.org/w/index.php?title=Sobel_operator&oldid=351797455
   public:
+  
+  //Gx convolution. see: http://en.wikipedia.org/w/index.php?title=Sobel_operator&oldid=351797455#Formulation
   static int horizontalBrighter(const greyImage& img, int x, int y, int threshold)
   {
     int sobel = (-1*img.getPixel(x-1,y-1).v) + 
@@ -45,6 +49,7 @@ class Sobel
     return sobel > threshold ? sobel : 0;
   }
   
+  //-Gx convolution. see: http://en.wikipedia.org/w/index.php?title=Sobel_operator&oldid=351797455#Formulation
   static int horizontalDarker(const greyImage& img, int x, int y, int threshold)
   {
     int sobel = ( 1*img.getPixel(x-1,y-1).v) + 
@@ -56,6 +61,7 @@ class Sobel
     return sobel > threshold ? sobel : 0;
   }
   
+  //-Gy convolution. see: http://en.wikipedia.org/w/index.php?title=Sobel_operator&oldid=351797455#Formulation
   static int verticalBrighter(const greyImage& img, int x, int y, int threshold)
   {
     int sobel = (-1*img.getPixel(x-1,y-1).v) + 
@@ -67,6 +73,7 @@ class Sobel
     return sobel > threshold ? sobel : 0;
   }
   
+  //Gy convolution. see: http://en.wikipedia.org/w/index.php?title=Sobel_operator&oldid=351797455#Formulation
   static int verticalDarker(const greyImage& img, int x, int y, int threshold)
   {
     int sobel = ( 1*img.getPixel(x-1,y-1).v) + 
@@ -78,6 +85,8 @@ class Sobel
     return sobel > threshold ? sobel : 0;
   }
   
+  //Scans img raster from pixel (xStart,y) to (xEnd,y) and returns the x coordinate which provided the maximum response to the (convolution) function f
+  //If no pixel had a response>0, the function returns -1
   static int maximumHorizontalEdge(const greyImage& img, int y, int xStart, int xEnd,
                                    int threshold, int f(const greyImage&, int, int, int))
   {
@@ -95,6 +104,8 @@ class Sobel
     return resX;
   }
   
+  //Scans img vertical line from pixel (x,yStart) to (x,yEnd) and returns the y coordinate which provided the maximum response to the (convolution) function f
+  //If no pixel had a response>0, the function returns -1
   static int maximumVerticalEdge(const greyImage& img, int x, int yStart, int yEnd,
                                    int threshold, int f(const greyImage&, int, int, int))
   {
@@ -112,6 +123,9 @@ class Sobel
     return resY;
   }
   
+  //Scans img vertical line from pixel (x,yStart) to (x,yEnd) and returns the y coordinate of the center of the horizontal line
+  //The line is demarcated by the low-to-high transition maxBrightEdge, and the high-to-low transition maxDarkEdge
+  //Note that this function does not care whether the line is light on dark or dark on light.
   static int centerOfHorizontalLine(const greyImage& img, int x, int yStart, int yEnd,
                                     int threshold)
   {
@@ -135,6 +149,32 @@ class Sobel
       }
     }
     return (maxBrightY + maxDarkY) / 2;
+  }
+  
+  //Scans img raster from pixel (xStart,y) to (xEnd,y) and returns the x coordinate of the center of the vertical line
+  static int centerOfVerticalLine(const greyImage& img, int y, int xStart, int xEnd,
+                                    int threshold)
+  {
+    int maxDarkEdge(0);
+    int maxBrightEdge(0);
+    int maxDarkX(0);
+    int maxBrightX(0);
+    for(int x=xStart; x<=xEnd; ++x)
+    {
+      int currentDarkEdge = Sobel::horizontalDarker(img, x, y, threshold);
+      int currentBrightEdge = Sobel::horizontalBrighter(img, x, y, threshold);
+      if(currentDarkEdge > maxDarkEdge)
+      {
+        maxDarkEdge = currentDarkEdge;
+        maxDarkX = x;
+      }
+      if(currentBrightEdge > maxBrightEdge)
+      {
+        maxBrightEdge = currentBrightEdge;
+        maxBrightX = x;
+      }
+    }
+    return (maxBrightX + maxDarkX) / 2;
   }
 };
 

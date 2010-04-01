@@ -62,7 +62,7 @@ protected:
   
   void detectEdgesOnSingleLine(const GVector::vector3d<double>& start,
                                const GVector::vector3d<double>& end,
-                               int pointsPerLine, bool detectCenter = false);
+                               int pointsPerLine, bool detectCenter = true);
 
 public:
   PluginCameraCalibration(FrameBuffer * _buffer, CameraParameters& camera_params, RoboCupCalibrationHalfField& _field);
