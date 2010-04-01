@@ -193,8 +193,6 @@ src/shared/vartypes/primitives/VarBlob.cpp
 src/shared/vartypes/primitives/VarBlob.h
 src/shared/vartypes/primitives/VarBool.cpp
 src/shared/vartypes/primitives/VarBool.h
-src/shared/vartypes/primitives/VarData.cpp
-src/shared/vartypes/primitives/VarData.h
 src/shared/vartypes/primitives/VarDouble.cpp
 src/shared/vartypes/primitives/VarDouble.h
 src/shared/vartypes/primitives/VarExternal.cpp

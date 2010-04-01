@@ -89,7 +89,7 @@ QWidget * PluginCameraCalibration::getControlWidget()
 
 void PluginCameraCalibration::detectEdges(FrameData * data)
 {
-  std::cout<<"Detect Edges"<<std::endl;
+  //std::cout<<"Detect Edges"<<std::endl;
   // Set config value:
   int pointsPerLine(16);
   int pointsInsideGoal(4);
@@ -106,12 +106,12 @@ void PluginCameraCalibration::detectEdges(FrameData * data)
   {
     Conversions::uyvy2rgb(data->video.getData(),(unsigned char*)(rgb_image->getData()),data->video.getWidth(),data->video.getHeight());
     Images::convert(*rgb_image, *grey_image);
-    std::cout<<"Hmmm. YUV422."<<std::endl;
+    //std::cout<<"Hmmm. YUV422."<<std::endl;
   } 
   else if (data->video.getColorFormat()==COLOR_RGB8) 
   {
     Images::convert(data->video, *grey_image);
-    std::cout<<"OK. RGB8."<<std::endl;
+    //std::cout<<"OK. RGB8."<<std::endl;
   } 
   else 
   {
