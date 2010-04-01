@@ -12,15 +12,21 @@ CameraParameters::CameraParameters(RoboCupCalibrationHalfField & _field) : field
   principal_point_x = new VarDouble("principal point x", 390.0);
   principal_point_y = new VarDouble("principal point y", 290.0);
   distortion = new VarDouble("distortion", 0.0, 0.0, 2.0);
-   
+  //do not overwrite min/max ranges with values from config file
+  distortion->addFlags(VARTYPE_FLAG_NOLOAD_ATTRIBUTES);
+
   q0 = new VarDouble("q0", 0.7);
   q1 = new VarDouble("q1", -0.7);
   q2 = new VarDouble("q2", .0);
   q3 = new VarDouble("q3", .0);
   
   tx = new VarDouble("tx", 0);
-  ty = new VarDouble("ty", 1250);   
+  ty = new VarDouble("ty", 1250);
+  
   tz = new VarDouble("tz", 3500, 0, 5000);
+  //do not overwrite min/max ranges with values from config file
+  tz->addFlags(VARTYPE_FLAG_NOLOAD_ATTRIBUTES);
+
   additional_calibration_information = new AdditionalCalibrationInformation();
 
   q_rotate180 = Quaternion<double>(0, 0, 1.0,0);

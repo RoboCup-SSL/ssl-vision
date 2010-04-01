@@ -73,7 +73,8 @@ namespace VarTypes {
     VARTYPE_FLAG_PERSISTENT = 0x01 << 6, /// make the item editor be persistent (always open, not just when clicked on it)
     VARTYPE_FLAG_HIDE_CHILDREN = 0x01 << 7, /// hide the entire subtree (but not node itself)
     VARTYPE_FLAG_NOLOAD_ENUM_CHILDREN = 0x01 << 8, /// don't load this subtree from XML  
-    VARTYPE_FLAG_ENUM_COUNT = 0x01 << 9,
+    VARTYPE_FLAG_NOLOAD_ATTRIBUTES = 0x01 << 9, /// only load the value, but do not load the attributes, like min/max ranges.
+    VARTYPE_FLAG_ENUM_COUNT = 0x01 << 10,
     VARTYPE_FLAG_NOSTORE = VARTYPE_FLAG_NOSAVE | VARTYPE_FLAG_NOLOAD
   };
   

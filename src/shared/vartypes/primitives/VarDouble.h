@@ -58,7 +58,7 @@ namespace VarTypes {
     /// \see getMin(...)
     /// \see setMin(...)
     /// \see unsetMin()
-    virtual bool hasMin() const { lock(); bool v= (_min != DBL_MIN); unlock(); return v; }
+    virtual bool hasMin() const { lock(); bool v= (_min != (-DBL_MAX)); unlock(); return v; }
   
     /// check whether this data type has a limited maximum value
     /// \see getMax(...)
@@ -82,7 +82,7 @@ namespace VarTypes {
     /// \see getMin(...)
     /// \see setMin(...)
     /// \see hasMin()
-    virtual void unsetMin() { lock(); _min=DBL_MIN; unlock(); changed(); }
+    virtual void unsetMin() { lock(); _min=(-DBL_MAX); unlock(); changed(); }
   
     /// unset any previous limit of maximum value of this parameter
     /// \see getMax(...)
@@ -105,7 +105,7 @@ namespace VarTypes {
       return VarDoubleVal::setDouble(tmp);
     };
   
-    VarDouble(string name="", double default_val=0, double min_val=-1e20, double max_val=DBL_MAX) : VarDoubleVal(default_val), VarTypeTemplate<VarDoubleVal>(name)
+    VarDouble(string name="", double default_val=0, double min_val=(-DBL_MAX), double max_val=DBL_MAX) : VarDoubleVal(default_val), VarTypeTemplate<VarDoubleVal>(name)
     {
       setMin(min_val);
       setMax(max_val);

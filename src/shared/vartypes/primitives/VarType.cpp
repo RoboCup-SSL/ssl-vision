@@ -235,7 +235,7 @@ namespace VarTypes {
   {
     if (areFlagsSet(VARTYPE_FLAG_NOLOAD)) return;
     //printf("readXML: %s\n",this->getName().c_str());
-    readAttributes(us);
+    if (areFlagsSet(VARTYPE_FLAG_NOLOAD_ATTRIBUTES)==false) readAttributes(us);
     readText(us);
     readChildren(us);
     emit(XMLwasRead(this));
