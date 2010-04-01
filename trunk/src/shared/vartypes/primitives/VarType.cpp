@@ -205,10 +205,10 @@ namespace VarTypes {
       //do a name-based find and update, or append if it does not exist.
       us = findOrAppendChild(parent,"name",getName());
     }
-  
+    
     us.updateAttribute(getName().c_str(),"name","name");
     us.updateAttribute(getTypeName().c_str(),"type","type");
-  
+
     updateAttributes(us);
     updateText(us);
     updateChildren(us);

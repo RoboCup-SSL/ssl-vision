@@ -11,8 +11,8 @@ CameraParameters::CameraParameters(RoboCupCalibrationHalfField & _field) : field
   focal_length = new VarDouble("focal length", 500.0);
   principal_point_x = new VarDouble("principal point x", 390.0);
   principal_point_y = new VarDouble("principal point y", 290.0);
-  distortion = new VarDouble("distortion", 0.0, -0.5, 0.5);
-  
+  distortion = new VarDouble("distortion", 0.0, 0.0, 2.0);
+   
   q0 = new VarDouble("q0", 0.7);
   q1 = new VarDouble("q1", -0.7);
   q2 = new VarDouble("q2", .0);
@@ -103,7 +103,64 @@ void CameraParameters::addSettingsToList(VarList& list)
   list.addChild(tz);
 }
 
- void CameraParameters::field2image(const GVector::vector3d<double> &p_f, GVector::vector2d<double> &p_i) const
+double CameraParameters::radialDistortion(double ru) const
+{
+  if((distortion->getDouble())<=DBL_MIN)
+    return ru;
+  double rd = 0;
+  double a = distortion->getDouble();
+  double b = -9.0*a*a*ru + a*sqrt(a*(12.0 + 81.0*a*ru*ru));
+  //Pre-computing numerical constants to optimize for speed...
+  //b = b<0.0?-pow(b,1.0/3.0):pow(b,1.0/3.0);
+  //rd = pow(2.0/3.0,1.0/3.0)/b - b/(pow(2.0*3.0*3.0,1.0/3.0)*a);
+  b = b<0.0?-pow(-b,0.33333333333333333333333333333333333333333333333333):pow(b,0.33333333333333333333333333333333333333333333333333);
+  rd = 0.87358046473629886904722042681399875674647588190788/b - b/(2.62074139420889660714166128044199627023942764572363*a);
+  return rd;
+}
+
+double CameraParameters::radialDistortion(double ru, double dist) const
+{
+  if(dist<=DBL_MIN)
+    return ru;
+  double rd = 0;
+  double a = dist;
+  double b = -9.0*a*a*ru + a*sqrt(a*(12.0 + 81.0*a*ru*ru));
+  //Pre-computing numerical constants to optimize for speed...
+  //b = b<0.0?-pow(b,1.0/3.0):pow(b,1.0/3.0);
+  //rd = pow(2.0/3.0,1.0/3.0)/b - b/(pow(2.0*3.0*3.0,1.0/3.0)*a);
+  b = b<0.0?-pow(-b,0.33333333333333333333333333333333333333333333333333):pow(b,0.33333333333333333333333333333333333333333333333333);
+  rd = 0.87358046473629886904722042681399875674647588190788/b - b/(2.62074139420889660714166128044199627023942764572363*a);
+  return rd;
+}
+
+double CameraParameters::radialDistortionInv(double rd) const
+{
+  double ru = rd*(1.0+rd*rd*distortion->getDouble());
+  return ru;
+}
+    
+void CameraParameters::radialDistortionInv(GVector::vector2d<double> &pu, const GVector::vector2d<double> &pd) const
+{
+  double ru = radialDistortionInv(pd.length());
+  pu = pd;
+  pu = pu.norm(ru);
+}
+      
+void CameraParameters::radialDistortion(const GVector::vector2d<double> pu, GVector::vector2d<double> &pd) const
+{
+  double rd = radialDistortion(pu.length());
+  pd = pu;
+  pd = pd.norm(rd);
+}
+
+void CameraParameters::radialDistortion(const GVector::vector2d<double> pu, GVector::vector2d<double> &pd, double dist) const
+{
+  double rd = radialDistortion(pu.length(), dist);
+  pd = pu;
+  pd = pd.norm(rd);
+}
+
+void CameraParameters::field2image(const GVector::vector3d<double> &p_f, GVector::vector2d<double> &p_i) const
 {
   Quaternion<double> q_field2cam = Quaternion<double>(q0->getDouble(),q1->getDouble(),q2->getDouble(),q3->getDouble());
   q_field2cam.norm();
@@ -114,12 +171,12 @@ void CameraParameters::addSettingsToList(VarList& list)
   GVector::vector2d<double> p_un = GVector::vector2d<double>(p_c.x/p_c.z, p_c.y/p_c.z);
 
   // Apply distortion
-  double r_squared(p_un.x * p_un.x + p_un.y * p_un.y);
-  double f = 1 + (distortion->getDouble()) * r_squared;
+  GVector::vector2d<double> p_d;
+  radialDistortion(p_un,p_d);
   
   // Then project from the camera coordinate system onto the image plane using the instrinsic parameters
-  p_i = focal_length->getDouble() * GVector::vector2d<double>(p_un.x * f, p_un.y * f) +
-    GVector::vector2d<double>(principal_point_x->getDouble(), principal_point_y->getDouble());
+  p_i = focal_length->getDouble() * p_d +
+      GVector::vector2d<double>(principal_point_x->getDouble(), principal_point_y->getDouble());
 }
 
 void CameraParameters::field2image(GVector::vector3d<double> &p_f, GVector::vector2d<double> &p_i, Eigen::VectorXd &p)
@@ -140,31 +197,24 @@ void CameraParameters::field2image(GVector::vector3d<double> &p_f, GVector::vect
   GVector::vector2d<double> p_un = GVector::vector2d<double>(p_c.x/p_c.z, p_c.y/p_c.z);
 
   // Apply distortion
-  double r_squared(p_un.x * p_un.x + p_un.y * p_un.y);
-  double f = 1 + (distortion->getDouble() + p[DIST]) * r_squared;
+  GVector::vector2d<double> p_d;
+  radialDistortion(p_un,p_d,distortion->getDouble() + p[DIST]);
 
   // Then project from the camera coordinate system onto the image plane using the instrinsic parameters
-  p_i = (focal_length->getDouble() + p[FOCAL_LENGTH]) * GVector::vector2d<double>(p_un.x * f, p_un.y * f) +
-    GVector::vector2d<double>(principal_point_x->getDouble() + p[PP_X], principal_point_y->getDouble() + p[PP_Y]);
+  p_i = (focal_length->getDouble() + p[FOCAL_LENGTH]) * p_d +
+      GVector::vector2d<double>(principal_point_x->getDouble() + p[PP_X], principal_point_y->getDouble() + p[PP_Y]);
 }
 
 void CameraParameters::image2field(GVector::vector3d<double> &p_f, GVector::vector2d<double> &p_i, double z) const
 {
   // Undo scaling and offset
-  GVector::vector2d<double> p_un((p_i.x - principal_point_x->getDouble()) / focal_length->getDouble(),
-                                 (p_i.y - principal_point_y->getDouble()) / focal_length->getDouble());
+  GVector::vector2d<double> p_d((p_i.x - principal_point_x->getDouble()) / focal_length->getDouble(),
+                                  (p_i.y - principal_point_y->getDouble()) / focal_length->getDouble());
   
-  double x0 = p_un.x;
-  double y0 = p_un.y;
+  // Compensate for distortion (undistort)
+  GVector::vector2d<double> p_un;
+  radialDistortionInv(p_un,p_d);
   
-  // Compensate distortion (undistort)
-  for(int j = 0; j < 20; j++ )
-  {
-    double f = 1./(1 + (distortion->getDouble()) * (p_un.x * p_un.x + p_un.y * p_un.y));
-    p_un.x = x0 * f;
-    p_un.y = y0 * f;
-  }
-
   // Now we got a ray on the z axis
   GVector::vector3d<double> v(p_un.x, p_un.y, 1);
 
@@ -184,6 +234,7 @@ void CameraParameters::image2field(GVector::vector3d<double> &p_f, GVector::vect
   // Set p_f
   p_f = zero_in_w + v_in_w.norm() * t;
 }
+
 
 double CameraParameters::calc_chisqr(std::vector<GVector::vector3d<double> > &p_f, std::vector<GVector::vector2d<double> > &p_i, Eigen::VectorXd &p, int cal_type)
 {
@@ -293,7 +344,7 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
 
   if (cal_type & FULL_ESTIMATION)
   {
-    int count_alpha(0);
+    int count_alpha(0); //The number of well detected line segment points
     std::vector<LSCalibrationData>::iterator ls_it = line_segment_data.begin();
     for (; ls_it != line_segment_data.end(); ls_it++)
     {
@@ -372,7 +423,7 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
     beta.setZero();
  
     for(; it_p_f != p_f.end(); it_p_f++, it_p_i++)
-    { 
+    {
       J.setZero();
 
       GVector::vector2d<double> proj_p;
@@ -399,52 +450,52 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
     
     if (cal_type & FULL_ESTIMATION)
     {
-    // First, calculate how many alpha we need to estimate
-    std::vector<LSCalibrationData>::iterator ls_it = line_segment_data.begin();
-    
-    int i = 0;
-    for (; ls_it != line_segment_data.end(); ls_it++)
-    {
-      std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it = (*ls_it).pts_on_line.begin();
-      for(; pts_it != (*ls_it).pts_on_line.end(); pts_it++)
+      // First, calculate how many alpha we need to estimate
+      std::vector<LSCalibrationData>::iterator ls_it = line_segment_data.begin();
+      
+      int i = 0;
+      for (; ls_it != line_segment_data.end(); ls_it++)
       {
-        if(pts_it->second)
-        { 
-          GVector::vector2d<double> proj_p;
-          GVector::vector3d<double >alpha_point = p_alpha(i) * (*ls_it).p1 + (1 - p_alpha(i)) * (*ls_it).p2;
-          field2image(alpha_point, proj_p, p);
-          proj_p = proj_p - (*pts_it).first;
-          
-          J.setZero();
-          
-          std::vector<int>::iterator it = p_to_est.begin();
-          for(; it != p_to_est.end(); it++)
-          {
-            int j = *it;
+        std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it = (*ls_it).pts_on_line.begin();
+        for(; pts_it != (*ls_it).pts_on_line.end(); pts_it++)
+        {
+          if(pts_it->second)
+          { 
+            GVector::vector2d<double> proj_p;
+            GVector::vector3d<double >alpha_point = p_alpha(i) * (*ls_it).p1 + (1 - p_alpha(i)) * (*ls_it).p2;
+            field2image(alpha_point, proj_p, p);
+            proj_p = proj_p - (*pts_it).first;
             
-            Eigen::VectorXd p_diff = p;
-            p_diff(j) = p_diff(j) + epsilon;
+            J.setZero();
+            
+            std::vector<int>::iterator it = p_to_est.begin();
+            for(; it != p_to_est.end(); it++)
+            {
+              int j = *it;
+              
+              Eigen::VectorXd p_diff = p;
+              p_diff(j) = p_diff(j) + epsilon;
+              
+              GVector::vector2d<double> proj_p_diff;
+              field2image(alpha_point, proj_p_diff, p_diff);
+              J(0,j) = ((proj_p_diff.x - (*pts_it).first.x) - proj_p.x) / epsilon;
+              J(1,j) = ((proj_p_diff.y - (*pts_it).first.y) - proj_p.y) / epsilon;
+            }
+            
+            double my_alpha = p_alpha(i) + epsilon;
+            alpha_point = my_alpha * (*ls_it).p1 + (1 - my_alpha) * (*ls_it).p2;
             
             GVector::vector2d<double> proj_p_diff;
-            field2image(alpha_point, proj_p_diff, p_diff);
-            J(0,j) = ((proj_p_diff.x - (*pts_it).first.x) - proj_p.x) / epsilon;
-            J(1,j) = ((proj_p_diff.y - (*pts_it).first.y) - proj_p.y) / epsilon;
+            field2image(alpha_point, proj_p_diff);
+            J(0,STATE_SPACE_DIMENSION + i) = ((proj_p_diff.x - (*pts_it).first.x) - proj_p.x) / epsilon;
+            J(1,STATE_SPACE_DIMENSION + i) = ((proj_p_diff.y - (*pts_it).first.y) - proj_p.y) / epsilon;
+            
+            alpha += J.transpose() * cov_ls_inv * J;
+            beta += J.transpose() * cov_ls_inv * Eigen::Vector2d(proj_p.x, proj_p.y);
+            i++;
           }
-          
-          double my_alpha = p_alpha(i) + epsilon;
-          alpha_point = my_alpha * (*ls_it).p1 + (1 - my_alpha) * (*ls_it).p2;
-          
-          GVector::vector2d<double> proj_p_diff;
-          field2image(alpha_point, proj_p_diff);
-          J(0,STATE_SPACE_DIMENSION + i) = ((proj_p_diff.x - (*pts_it).first.x) - proj_p.x) / epsilon;
-          J(1,STATE_SPACE_DIMENSION + i) = ((proj_p_diff.y - (*pts_it).first.y) - proj_p.y) / epsilon;
-          
-          alpha += J.transpose() * cov_ls_inv * J;
-          beta += J.transpose() * cov_ls_inv * Eigen::Vector2d(proj_p.x, proj_p.y);
-          i++;
         }
-      }
-    }    
+      }    
     }
     
     // Augment alpha

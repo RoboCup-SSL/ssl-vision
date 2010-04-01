@@ -215,7 +215,10 @@ void PluginCameraCalibration::detectEdgesOnSingleLine(
           imgEnd.x = imgStart.x;
           imgStart.x = dummy;
         }
-        x = Sobel::maximumHorizontalEdge(*grey_image, y, imgStart.x, imgEnd.x,
+        if(detectCenter)
+          x = Sobel::centerOfVerticalLine(*grey_image, y, imgStart.x, imgEnd.x, threshold);
+        else
+          x = Sobel::maximumHorizontalEdge(*grey_image, y, imgStart.x, imgEnd.x,
                                           threshold, Sobel::horizontalBrighter);
         if(x!=-1)
         {
@@ -232,7 +235,7 @@ void PluginCameraCalibration::detectEdgesOnSingleLine(
         worldStart.y -= distToLine;
         worldEnd.y += distToLine;
         camera_parameters.field2image(worldStart,imgStart);  
-        camera_parameters.field2image(worldEnd,imgEnd);  
+        camera_parameters.field2image(worldEnd,imgEnd);
         sanitizeSobel(grey_image,imgStart);
         sanitizeSobel(grey_image,imgEnd);
         y = (imgStart.y + imgEnd.y) / 2;
@@ -242,7 +245,12 @@ void PluginCameraCalibration::detectEdgesOnSingleLine(
           imgEnd.x = imgStart.x;
           imgStart.x = dummy;
         }
-        x = Sobel::maximumHorizontalEdge(*grey_image, y, imgStart.x, imgEnd.x,
+        
+        
+        if(detectCenter)
+          x = Sobel::centerOfVerticalLine(*grey_image, y, imgStart.x, imgEnd.x, threshold);
+        else
+          x = Sobel::maximumHorizontalEdge(*grey_image, y, imgStart.x, imgEnd.x,
                                           threshold, Sobel::horizontalDarker);
         if(x!=-1)
         {
