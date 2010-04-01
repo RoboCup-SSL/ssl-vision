@@ -341,6 +341,9 @@ public:
       connect(robocup_field,SIGNAL(calibrationChanged()),this,SLOT(globalCalibrationChanged()));
     }
     auto_update = new VarBool("Auto-Copy from Global Field Config",true);
+    useFeaturesOnCenterCircle = new VarBool("Use features on center circle",true);
+    useFeaturesInDefenseArea = new VarBool("Use features in defense area",true);
+    useFeaturesInGoal = new VarBool("Use features between goal posts ",true);
     camera_pos = new VarStringEnum("Camera Position",(cam_id==0) ? cameraPositionEnumToString(CAM_POS_HALF_NEG_X) : cameraPositionEnumToString(CAM_POS_HALF_POS_X));
     camera_pos->addFlags(VARTYPE_FLAG_NOLOAD_ENUM_CHILDREN);
     for (int i=0;i<CAM_POS_ENUM_COUNT;i++) {
@@ -369,6 +372,10 @@ public:
     params.push_back(right_centercircle_y = new VarInt("right centercircle y", -500)); 
     params.push_back(right_centerline_x = new VarInt("right centerline x", 0));
     params.push_back(right_centerline_y = new VarInt("right centerline y", -2025));
+    params.push_back(centercircle_radius = new VarInt("centercircle radius",500));
+    params.push_back(defense_area_radius = new VarInt("defense area radius",500));
+    params.push_back(defense_stretch = new VarInt("defense stretch",350));
+    
     
     connect(auto_update,SIGNAL(hasChanged(VarType *)),this,SLOT(autoUpdateChanged()));
     connect(camera_pos,SIGNAL(hasChanged(VarType *)),this,SLOT(globalCalibrationChanged()));
@@ -418,12 +425,19 @@ public:
 
     centerpoint_x->setInt(0);
     centerpoint_y->setInt(0);
+    
+    centercircle_radius->setInt(field->center_circle_radius->getInt());
+    defense_area_radius->setInt(field->defense_radius->getInt());
+    defense_stretch->setInt(field->defense_stretch->getInt());
   }
 
   ~RoboCupCalibrationHalfField()
   {
     params.clear();
     delete auto_update;
+    delete useFeaturesOnCenterCircle;
+    delete useFeaturesInDefenseArea;
+    delete useFeaturesInGoal;
     delete camera_pos;
     delete left_corner_x;
     delete left_corner_y;
@@ -447,12 +461,18 @@ public:
     delete right_centercircle_y; 
     delete right_centerline_x;
     delete right_centerline_y;
+    delete centercircle_radius;
+    delete defense_area_radius;
+    delete defense_stretch;
   }
   
   void addSettingsToList(VarList& list) 
   {
     list.addChild(auto_update);
     list.addChild(camera_pos);
+    list.addChild(useFeaturesOnCenterCircle);
+    list.addChild(useFeaturesInDefenseArea);
+    list.addChild(useFeaturesInGoal);
     list.addChild(left_corner_x);
     list.addChild(left_corner_y);
     list.addChild(left_goal_area_x); 
@@ -475,8 +495,14 @@ public:
     list.addChild(right_centercircle_y); 
     list.addChild(right_centerline_x);
     list.addChild(right_centerline_y);
+    list.addChild(centercircle_radius);
+    list.addChild(defense_area_radius);
+    list.addChild(defense_stretch);
   }
   
+  VarBool* useFeaturesOnCenterCircle;
+  VarBool* useFeaturesInDefenseArea;
+  VarBool* useFeaturesInGoal;
   VarInt* left_corner_x;
   VarInt* left_corner_y;
   VarInt* left_goal_area_x; 
@@ -499,6 +525,9 @@ public:
   VarInt* right_centercircle_y; 
   VarInt* right_centerline_x;
   VarInt* right_centerline_y;
+  VarInt* centercircle_radius;
+  VarInt* defense_area_radius;
+  VarInt* defense_stretch;
 };
 
 

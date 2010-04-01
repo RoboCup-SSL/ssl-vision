@@ -262,33 +262,41 @@ double CameraParameters::calc_chisqr(std::vector<GVector::vector3d<double> > &p_
   {
     GVector::vector2d<double> proj_p;
     field2image(*it_p_f, proj_p, p);
-    chisqr += pow(proj_p.x - it_p_i->x,2) * cov_cx_inv + pow(proj_p.y - it_p_i->y,2) * cov_cy_inv;
+    chisqr += (proj_p.x - it_p_i->x) * (proj_p.x - it_p_i->x) * cov_cx_inv + 
+        (proj_p.y - it_p_i->y) * (proj_p.y - it_p_i->y) * cov_cy_inv;
   }
 
   // Iterate of line edge points, but only when performing a full estimation
   if (cal_type & FULL_ESTIMATION)
   {
-    std::vector<LSCalibrationData>::iterator ls_it = line_segment_data.begin();
+    std::vector<CalibrationData>::iterator ls_it = calibrationSegments.begin();
     
     int i = 0;
-    for (; ls_it != line_segment_data.end(); ls_it++)
+    for (; ls_it != calibrationSegments.end(); ls_it++)
     {
-      std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it = (*ls_it).pts_on_line.begin();
-      for(; pts_it != (*ls_it).pts_on_line.end(); pts_it++)
+      std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator imgPts_it = (*ls_it).imgPts.begin();
+      for(; imgPts_it != (*ls_it).imgPts.end(); imgPts_it++)
       {
         // Integrate only if a valid point on line
-        if (pts_it->second)
+        if (imgPts_it->second)
         { 
           GVector::vector2d<double> proj_p; 
           double alpha = p_alpha(i) + p(STATE_SPACE_DIMENSION + i);
           
-          // Calculate point on line
-          GVector::vector3d<double >alpha_point = alpha * (*ls_it).p1 + (1 - alpha) * (*ls_it).p2;
+          // Calculate point on segment
+          GVector::vector3d<double> alpha_point;
+          if(ls_it->straightLine){
+            alpha_point = alpha * (*ls_it).p1 + (1.0 - alpha) * (*ls_it).p2;
+          }else{
+            double theta = alpha * (*ls_it).theta1 + (1.0 - alpha) * (*ls_it).theta2;
+            alpha_point = ls_it->center + ls_it->radius*GVector::vector3d<double>(cos(theta),sin(theta),0.0);
+          }
           
           // Project into image plane
           field2image(alpha_point, proj_p, p);
           
-          chisqr += pow(proj_p.x - pts_it->first.x,2) * cov_lsx_inv + pow(proj_p.y - pts_it->first.y,2) * cov_lsy_inv;
+          chisqr += (proj_p.x-imgPts_it->first.x) * (proj_p.x-imgPts_it->first.x) * cov_lsx_inv +
+              (proj_p.y - imgPts_it->first.y) * (proj_p.y - imgPts_it->first.y) * cov_lsy_inv;
           i++;
         }
       }
@@ -351,11 +359,11 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
   if (cal_type & FULL_ESTIMATION)
   {
     int count_alpha(0); //The number of well detected line segment points
-    std::vector<LSCalibrationData>::iterator ls_it = line_segment_data.begin();
-    for (; ls_it != line_segment_data.end(); ls_it++)
+    std::vector<CalibrationData>::iterator ls_it = calibrationSegments.begin();
+    for (; ls_it != calibrationSegments.end(); ls_it++)
     {
-      std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it = (*ls_it).pts_on_line.begin();
-      for(; pts_it != (*ls_it).pts_on_line.end(); pts_it++)
+      std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it = (*ls_it).imgPts.begin();
+      for(; pts_it != (*ls_it).imgPts.end(); pts_it++)
       {
         if (pts_it->second)
           count_alpha ++;
@@ -368,15 +376,16 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
       p_alpha = Eigen::VectorXd(count_alpha);
 
       count_alpha = 0;
-      ls_it = line_segment_data.begin();
-      for (; ls_it != line_segment_data.end(); ls_it++)
+      ls_it = calibrationSegments.begin();
+      for (; ls_it != calibrationSegments.end(); ls_it++)
       {
-        std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it = (*ls_it).pts_on_line.begin();
-        for(int lambda = (*ls_it).pts_on_line.size(); pts_it != (*ls_it).pts_on_line.end(); pts_it++, lambda--)
+        std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it = (*ls_it).imgPts.begin();
+        std::vector< double >::iterator alphas_it = (*ls_it).alphas.begin();
+        for(; pts_it != (*ls_it).imgPts.end() && alphas_it != (*ls_it).alphas.end(); pts_it++, alphas_it++)
         {
           if (pts_it->second)
           {
-            p_alpha(count_alpha++) = (double) lambda / (double) (*ls_it).pts_on_line.size() + 1;
+            p_alpha(count_alpha++) = (*alphas_it);
           }
         }
       }
@@ -457,18 +466,24 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
     if (cal_type & FULL_ESTIMATION)
     {
       // First, calculate how many alpha we need to estimate
-      std::vector<LSCalibrationData>::iterator ls_it = line_segment_data.begin();
+      std::vector<CalibrationData>::iterator ls_it = calibrationSegments.begin();
       
       int i = 0;
-      for (; ls_it != line_segment_data.end(); ls_it++)
+      for (; ls_it != calibrationSegments.end(); ls_it++)
       {
-        std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it = (*ls_it).pts_on_line.begin();
-        for(; pts_it != (*ls_it).pts_on_line.end(); pts_it++)
+        std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it = (*ls_it).imgPts.begin();
+        for(; pts_it != (*ls_it).imgPts.end(); pts_it++)
         {
           if(pts_it->second)
           { 
             GVector::vector2d<double> proj_p;
-            GVector::vector3d<double >alpha_point = p_alpha(i) * (*ls_it).p1 + (1 - p_alpha(i)) * (*ls_it).p2;
+            GVector::vector3d<double >alpha_point;
+            if(ls_it->straightLine){
+              alpha_point = p_alpha(i) * (*ls_it).p1 + (1 - p_alpha(i)) * (*ls_it).p2;
+            }else{
+              double theta = p_alpha(i) * (*ls_it).theta1 + (1.0 - p_alpha(i)) * (*ls_it).theta2;
+              alpha_point = ls_it->center + ls_it->radius*GVector::vector3d<double>(cos(theta),sin(theta),0.0);
+            }
             field2image(alpha_point, proj_p, p);
             proj_p = proj_p - (*pts_it).first;
             
@@ -489,7 +504,13 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
             }
             
             double my_alpha = p_alpha(i) + epsilon;
-            alpha_point = my_alpha * (*ls_it).p1 + (1 - my_alpha) * (*ls_it).p2;
+            if(ls_it->straightLine){
+              alpha_point = my_alpha * (*ls_it).p1 + (1 - my_alpha) * (*ls_it).p2;
+            }else{
+              double theta = my_alpha * (*ls_it).theta1 + (1.0 - my_alpha) * (*ls_it).theta2;
+              alpha_point = ls_it->center + ls_it->radius*GVector::vector3d<double>(cos(theta),sin(theta),0.0);
+            }
+            
             
             GVector::vector2d<double> proj_p_diff;
             field2image(alpha_point, proj_p_diff);
@@ -608,8 +629,8 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
     std::cerr << "Point in world: ("<< it_p_f->x << "," << it_p_f->y << "," << it_p_f->z  << ")" << std::endl;
     std::cerr << "Point should be at (" << it_p_i->x << "," << it_p_i->y << ") and is projected at (" << proj_p.x << "," << proj_p.y <<")" << std::endl;
     
-    corner_x += pow(proj_p.x - it_p_i->x,2);
-    corner_y += pow(proj_p.y - it_p_i->y,2);
+    corner_x += (proj_p.x - it_p_i->x) * (proj_p.x - it_p_i->x);
+    corner_y += (proj_p.y - it_p_i->y) * (proj_p.y - it_p_i->y);
   }
   
   std::cerr << "RESIDUAL CORNER POINTS: " << sqrt(corner_x/4) << " " << sqrt(corner_y/4) << std::endl;
@@ -621,24 +642,30 @@ void CameraParameters::calibrate(std::vector<GVector::vector3d<double> > &p_f, s
   double line_x(0);
   double line_y(0);
 
-  std::vector<LSCalibrationData>::iterator ls_it = line_segment_data.begin();
+  std::vector<CalibrationData>::iterator ls_it = calibrationSegments.begin();
 
   int i = 0;
-  for (; ls_it != line_segment_data.end(); ls_it++)
+  for (; ls_it != calibrationSegments.end(); ls_it++)
   {
-    std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it = (*ls_it).pts_on_line.begin();
-    for(; pts_it != (*ls_it).pts_on_line.end(); pts_it++)
+    std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it = (*ls_it).imgPts.begin();
+    for(; pts_it != (*ls_it).imgPts.end(); pts_it++)
     {
       if(pts_it->second)
       { 
         GVector::vector2d<double> proj_p; 
         double alpha = p_alpha(i);
-        GVector::vector3d<double >alpha_point = alpha * (*ls_it).p1 + (1 - alpha) * (*ls_it).p2;
+        GVector::vector3d<double >alpha_point;
+        if(ls_it->straightLine){
+          alpha_point = alpha * (*ls_it).p1 + (1 - alpha) * (*ls_it).p2;
+        }else{
+          double theta = alpha * (*ls_it).theta1 + (1.0 - alpha) * (*ls_it).theta2;
+          alpha_point = ls_it->center + ls_it->radius*GVector::vector3d<double>(cos(theta),sin(theta),0.0);
+        }
         
         field2image(alpha_point, proj_p, p);
         
-        line_x += pow(proj_p.x - pts_it->first.x,2);
-        line_y += pow(proj_p.y - pts_it->first.y,2);
+        line_x += (proj_p.x - pts_it->first.x) * (proj_p.x - pts_it->first.x);
+        line_y += (proj_p.y - pts_it->first.y) * (proj_p.y - pts_it->first.y);
         
         i++;
       }
@@ -671,6 +698,12 @@ CameraParameters::AdditionalCalibrationInformation::AdditionalCalibrationInforma
   cov_corner_y = new VarDouble("Cov corner measurement y", 1.0);
   cov_ls_x = new VarDouble("Cov line segment measurement x", 1.0);
   cov_ls_y = new VarDouble("Cov line segment measurement y", 1.0);
+  pointsPerLine = new VarInt("Points per line",20);
+  pointsInsideGoal = new VarInt("Points inside the goal",5);
+  pointsInsideCenterCircle = new VarInt("Points inside center circle",6);
+  pointsOnCenterCircle = new VarInt("Points on center circle",12);
+  pointsOnDefenseAreaArc = new VarInt("Points on defense area arc",5);
+  pointsOnDefenseStretch = new VarInt("Points on defense stretch",4);
 }
 
 CameraParameters::AdditionalCalibrationInformation::~AdditionalCalibrationInformation()
@@ -691,6 +724,12 @@ CameraParameters::AdditionalCalibrationInformation::~AdditionalCalibrationInform
   delete cov_corner_y;
   delete cov_ls_x;
   delete cov_ls_y;
+  delete pointsPerLine;
+  delete pointsInsideGoal;
+  delete pointsInsideCenterCircle;
+  delete pointsOnCenterCircle;
+  delete pointsOnDefenseAreaArc;
+  delete pointsOnDefenseStretch;
 }
 
 void CameraParameters::AdditionalCalibrationInformation::addSettingsToList(VarList& list) 
@@ -711,4 +750,10 @@ void CameraParameters::AdditionalCalibrationInformation::addSettingsToList(VarLi
   list.addChild(cov_corner_y);
   list.addChild(cov_ls_x);
   list.addChild(cov_ls_y);
+  list.addChild(pointsPerLine);
+  list.addChild(pointsInsideGoal);
+  list.addChild(pointsInsideCenterCircle);
+  list.addChild(pointsOnCenterCircle);
+  list.addChild(pointsOnDefenseAreaArc);
+  list.addChild(pointsOnDefenseStretch);
 }

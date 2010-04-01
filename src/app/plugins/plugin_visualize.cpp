@@ -394,22 +394,27 @@ ProcessResult PluginVisualize::process(FrameData * data, RenderOptions * options
     {
       // The edges:
       rgb edge_draw_color;
-      for(unsigned int ls=0; ls<camera_parameters.line_segment_data.size(); ++ls)
+      for(unsigned int ls=0; ls<camera_parameters.calibrationSegments.size(); ++ls)
       {
-        const CameraParameters::LSCalibrationData& segment =
-            camera_parameters.line_segment_data[ls];
-        for(unsigned int edge=0; edge<segment.pts_on_line.size(); ++edge)
+        const CameraParameters::CalibrationData& segment =
+            camera_parameters.calibrationSegments[ls];
+        for(unsigned int edge=0; edge<segment.imgPts.size(); ++edge)
         {
-          const GVector::vector2d<double>& pt = segment.pts_on_line[edge].first;
-          if(segment.pts_on_line[edge].second)
+          const GVector::vector2d<double>& pt = segment.imgPts[edge].first;
+          if(segment.imgPts[edge].second)
             edge_draw_color.set(255,0,0);
           else
             edge_draw_color.set(255,0,255);
           vis_frame->data.drawBox(pt.x-5,pt.y-5,11,11,edge_draw_color);
-          if(segment.horizontal)
+          if(segment.straightLine){
+            if(segment.horizontal)
+              vis_frame->data.drawLine(pt.x,pt.y-2,pt.x,pt.y+2,edge_draw_color);
+            else
+              vis_frame->data.drawLine(pt.x-2,pt.y,pt.x+2,pt.y,edge_draw_color);
+          }else{
             vis_frame->data.drawLine(pt.x,pt.y-2,pt.x,pt.y+2,edge_draw_color);
-          else
             vis_frame->data.drawLine(pt.x-2,pt.y,pt.x+2,pt.y,edge_draw_color);
+          }
         }
       }
       // The search corridor:
@@ -502,8 +507,8 @@ void PluginVisualize::drawFieldLine(double xStart, double yStart,
     //    std::cout<<"Point in image: "<<posInImage.x<<","<<posInImage.y<<std::endl;
     rgb draw_color;
     draw_color.set(r,g,b);
-    vis_frame->data.drawFatLine(lastInImage.x,lastInImage.y,
-                                nextInImage.x,nextInImage.y,draw_color);
+    vis_frame->data.drawFatLine(lastInImage.x,lastInImage.y,nextInImage.x,nextInImage.y,draw_color);
+    
     lastInWorld = nextInWorld;
     lastInImage = nextInImage;
   }

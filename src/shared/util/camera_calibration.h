@@ -48,7 +48,7 @@ class CameraParameters
 public:
   
   class AdditionalCalibrationInformation;
-  class LSCalibrationData;
+  class CalibrationData;
 
   CameraParameters(RoboCupCalibrationHalfField &field);
   ~CameraParameters();
@@ -69,7 +69,7 @@ public:
   VarDouble* ty;
   VarDouble* tz;
 
-  std::vector<LSCalibrationData> line_segment_data;
+  std::vector<CalibrationData> calibrationSegments;
 
   Eigen::VectorXd p_alpha;
   Quaternion<double> q_rotate180;
@@ -162,21 +162,43 @@ public:
       
       VarDouble* cov_ls_x;
       VarDouble* cov_ls_y;
+      
+      VarInt* pointsPerLine;
+      VarInt* pointsInsideGoal;
+      VarInt* pointsInsideCenterCircle;
+      VarInt* pointsOnCenterCircle;
+      VarInt* pointsOnDefenseAreaArc;
+      VarInt* pointsOnDefenseStretch;
   };
   
   /*!
-  \class LSCalibrationData
+  \class CalibrationData
   \brief Additional structure for holding information about 
   image points on line segments
   \author OB, (C) 2009
    **/
-  class LSCalibrationData
+  class CalibrationData
   {
     public:
-    GVector::vector3d<double> p1; //Start point of the line segment in world space coords
-    GVector::vector3d<double> p2; //End point of the line segment in world space coords
-    std::vector< std::pair<GVector::vector2d<double>,bool> > pts_on_line; //Image points on the line segment, paired with a bool that indicates whether the point was correctly detected on the line edge
-    bool horizontal;
+      bool straightLine;  //false implies that it is an arc segment
+      
+      //Parameters for straight line segments
+      bool horizontal;  //false implies that it is vertical (if straightLine==true)
+      GVector::vector3d<double> p1; //Start point of the straight line segment in world space coords
+      GVector::vector3d<double> p2; //End point of the straight line segment in world space coords
+      
+      //Parameters for arc segments
+      GVector::vector3d<double> center; //center point of the arc segment in world space coords
+      double theta1; //Start angle (CCW, right-handed system) of the arc in world space 
+      double theta2; //End angle (CCW, right-handed system) of the arc in world space 
+      double radius;  //Radius of the arc in world space
+      
+      std::vector< std::pair<GVector::vector2d<double>,bool> > imgPts; //Image points, paired with a bool indicating whether the point was correctly detected
+      std::vector< double > alphas; //Denotes the position along the line or arc. 
+      //During calibration, this is varied to move the point along the line / arc to minimize the fitting error - see how p_alpha varies
+    
+      CalibrationData() {straightLine = horizontal = true;}
+    
   };
   
 
