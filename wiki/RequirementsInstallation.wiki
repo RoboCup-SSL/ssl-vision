@@ -22,7 +22,7 @@ The following tools and libraries are required to compile SSL-Vision:
    * libpng
 To get all these packages in (Ku,U)buntu, run:
 {{{
-sudo apt-get install g++ libqt4-dev libeigen2-dev protobuf-compiler libprotobuf-dev libdc1394-22 libdc1394-22-dev cmake libjpeg-dev libpng-dev
+sudo apt-get install g++ libqt4-dev libeigen2-dev protobuf-compiler libprotobuf-dev libdc1394-22 libdc1394-22-dev cmake libjpeg-dev libpng12-dev
 }}}
 
 
