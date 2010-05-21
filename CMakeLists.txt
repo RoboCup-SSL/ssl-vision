@@ -134,7 +134,7 @@ add_definitions(${cc_flags})
 add_library(sslvision ${SHARED_MOC_SRCS} ${SHARED_RC_SRCS} ${CC_PROTO} ${SHARED_SRCS})
 add_dependencies(sslvision GenerateProto)
 
-set (libs ${QT_LIBRARIES} dc1394 jpeg png protobuf sslvision)
+set (libs ${QT_LIBRARIES} dc1394 jpeg png protobuf pthread GL GLU sslvision)
 
 ## build the main app
 set (target vision)
