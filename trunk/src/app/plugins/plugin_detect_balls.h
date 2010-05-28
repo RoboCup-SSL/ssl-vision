@@ -74,7 +74,7 @@ public:
 
   _settings=new VarList("Ball Detection");
 
-  _settings->addChild(_max_balls = new VarInt("Max Ball Count",1));
+  _settings->addChild(_max_balls = new VarInt("Max Ball Count",10));
   _settings->addChild(_color_label = new VarString("Ball Color","Orange"));
 
   _settings->addChild(_filter_general = new VarList("Ball Properties"));
