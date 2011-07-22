@@ -13,36 +13,56 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    main.cpp
-  \brief   The ssl-vision graphicalClient application entry point.
-  \author  Joydeep Biswas, Stefan Zickler, (C) 2008
-  \edit    Ulfert Nehmiz (LogPlayer included) 2009
+\file    main.cpp
+\brief   Main Entry point for the graphicalClient binary`
+\author  Joydeep Biswas (C) 2011
 */
 //========================================================================
 
-
 #include <stdio.h>
-#include <QTime>
-#include "CentralWindow.h"
+#include <QtGui>
+#include <QApplication>
+#include "soccerview.h"
 
+GLSoccerView *view;
 
-QApplication *app;
+bool runApp = true;
 
-int main(int argc, char *argv[])
+class MyThread : public QThread
+{  
+protected:
+  void run()
+  {
+    RoboCupSSLClient client;
+    client.open(true);
+    SSL_WrapperPacket packet;
+    while(runApp) {
+      if (client.receive(packet)) {
+        if (packet.has_detection()) {
+          SSL_DetectionFrame detection = packet.detection();
+          view->updateDetection(detection);
+        }
+        if (packet.has_geometry()) {
+        }
+      }
+    }
+  }
+  
+public:
+  MyThread(QObject* parent = 0){}
+  ~MyThread(){}
+};
+
+int main(int argc, char **argv)
 {
-    (void)argc;
-    (void)argv;
-
-
-    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
-
-
-    app = new QApplication(argc,argv);
-
-    CentralWindow* centralWindow = new CentralWindow();
-    centralWindow->show();
-
-    app->exec();
-
-    return 0;
+  QApplication app(argc, argv);  
+  view = new GLSoccerView();
+  view->show();
+  MyThread thread;
+  thread.start();
+  int retVal = app.exec();
+  runApp = false;
+  thread.wait();
+  return retVal;
 }
+
