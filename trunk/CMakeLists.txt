@@ -89,11 +89,16 @@ qt4_add_resources(RC_SRCS
 )
 
 ## generate moc files for graphicalClient
+qt4_wrap_cpp(LCLIENT_MOC_SRCS
+    src/logClient/CentralWindow.h
+    src/logClient/ClientThreading.h
+    src/logClient/GraphicsPrimitives.h
+    src/logClient/LogControl.h
+)
+
+## generate moc files for graphicalClient2
 qt4_wrap_cpp(GCLIENT_MOC_SRCS
-    src/graphicalClient/CentralWindow.h
-    src/graphicalClient/ClientThreading.h
-    src/graphicalClient/GraphicsPrimitives.h
-    src/graphicalClient/LogControl.h
+    src/graphicalClient/soccerview.h
 )
 
 ## shared qt wrappings
@@ -146,14 +151,23 @@ set (client client)
 add_executable(${client} src/client/main.cpp )
 target_link_libraries(${client} ${libs})
 
+##build logging client
+set (lclient logClient)
+add_executable(${lclient} ${LCLIENT_MOC_SRCS}
+	src/logClient/main.cpp 
+	src/logClient/CentralWindow.cpp
+	src/logClient/ClientThreading.cpp
+	src/logClient/GraphicsPrimitives.cpp
+	src/logClient/LogControl.cpp
+)
+target_link_libraries(${lclient} ${libs})
+
 ##build graphical client
 set (gclient graphicalClient)
 add_executable(${gclient} ${GCLIENT_MOC_SRCS}
-	src/graphicalClient/main.cpp 
-	src/graphicalClient/CentralWindow.cpp
-	src/graphicalClient/ClientThreading.cpp
-	src/graphicalClient/GraphicsPrimitives.cpp
-	src/graphicalClient/LogControl.cpp
+  src/graphicalClient/main.cpp
+  src/graphicalClient/soccerview.cpp
+  src/graphicalClient/gltext.cpp
 )
 target_link_libraries(${gclient} ${libs})
 
