@@ -34,7 +34,7 @@ protected:
   void run()
   {
     RoboCupSSLClient client;
-    client.open(true);
+    client.open(false);
     SSL_WrapperPacket packet;
     while(runApp) {
       if (client.receive(packet)) {
