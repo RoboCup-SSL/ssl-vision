@@ -263,7 +263,7 @@ void GLSoccerView::vectorTextTest()
   TextTest(vector2d(1,1)*353.6,45,500,"123agdo0",GLText::LeftAligned,GLText::MedianAligned)
   TextTest(vector2d(fieldDim.field_length*0.5,0),0,500,"123agdo0",GLText::RightAligned,GLText::BottomAligned)
   TextTest(vector2d(0,-fieldDim.field_width*0.5),0,500,"123agdo0",GLText::CenterAligned,GLText::TopAligned)
-  TextTest(vector2d(-fieldDim.field_length*0.5,0),0,500,"123agdo0",GLText::CenterAligned,GLText::MiddleAligned)
+  TextTest(vector2d(-fieldDim.field_length*0.5,0),0,500,"1\ub023agdo0",GLText::CenterAligned,GLText::MiddleAligned)
 }
 
 void GLSoccerView::paintEvent(QPaintEvent* event)
