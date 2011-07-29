@@ -23,6 +23,7 @@
 #include <QtGui>
 #include <QApplication>
 #include "soccerview.h"
+#include "timer.h"
 
 GLSoccerView *view;
 
@@ -33,6 +34,7 @@ class MyThread : public QThread
 protected:
   void run()
   {
+    static const double minDuration = 0.01; //100FPS
     RoboCupSSLClient client;
     client.open(false);
     SSL_WrapperPacket packet;
@@ -45,6 +47,7 @@ protected:
         if (packet.has_geometry()) {
         }
       }
+      Sleep(minDuration);
     }
   }
   
