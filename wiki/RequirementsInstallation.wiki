@@ -34,11 +34,11 @@ The system currently supports 1394B / !FireWire 800 as well as 1394A / !FireWire
 
 In theory, all !FireWire cameras should work with SSL-Vision. Here is a list of all cameras we actually use for testing and thus _know_ how they perform:
 || *Camera* || *Resolution* || *Frame rate* || *Image encoding* ||
-|| _AVT Stingray_ || 780x580 || 60Hz || YUV422 ||
+|| _AVT Stingray F046C_ {{{*}}} || 780x580 || 60Hz || YUV422 ||
 || _AVT Marlin F046C_ || 780x580 || 36Hz || YUV422 ||
-|| || 780x580 || 52Hz || Raw8{{{*}}} ||
+|| _AVT Guppy F036C_ * || 780x480 || 59Hz || Raw8 ||
 
-{{{*}}} _still some problems regarding conversion of image encoding_
+{{{*}}} _recommended model_
 
 
 
