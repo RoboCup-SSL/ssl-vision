@@ -82,6 +82,8 @@ void Address::print(FILE *out) const
 
 bool UDP::open(int port, bool share_port_for_multicasting, bool multicast_include_localhost, bool blocking)
 {
+  const int TTL = 32;
+  
   // open the socket
   if(fd >= 0) ::close(fd);
   fd = socket(PF_INET, SOCK_DGRAM, 0);
@@ -111,8 +113,13 @@ bool UDP::open(int port, bool share_port_for_multicasting, bool multicast_includ
         fflush(stderr);
     }
   }
-
-
+	// sets the TTL value so routing of the packet is possible, if needed.
+  int ret = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_TTL, &TTL, sizeof(TTL));
+  if(ret != 0)
+  {
+    printf("ERROR %d WHEN SETTING IP_MULTICAST_TTL\n", ret);
+    return false;
+  }
 
   // bind socket to port if nonzero
   if(port != 0){
@@ -153,7 +160,7 @@ bool UDP::addMulticast(const Address &multiaddr,const Address &interface)
   if(debug) printf("ret=%d\n",ret);
   if(ret != 0)
     return false;
-
+    
   //set multicast output interface
   ret = setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF,
                    &imreq.imr_interface.s_addr, sizeof(imreq.imr_interface.s_addr));
