@@ -33,3 +33,10 @@ If you want to test the application on a computer which does not have any camera
 Before starting to capture, a directory containing the images needs to be configured. This is done by setting the "directory" parameter in the "Read from files" submenu. The directory needs to be specified relative to the directory from which the application is executed.
 
 All images (being in BMP, JPG, or PNG format) in that directory are read into memory and will be looped. The current repository version already includes one test image (of a half of a 2008 SSL field) in the {{{test-data}}} directory.
+
+== Recording Images to Files ==
+Recording images is useful for (among other things) debugging ssl-vision configurations on a different computer than the one connected to the cameras, and for color calibration of moving objects (e.g. calibrating the orange color of a moving ball).
+
+To record images, you need to first set up camera capture for your cameras (See the "Capture Control" section above). Next, click on the "DVR" tab on the camera control pane (on the right hand edge of the SSL-Vision window) for the camera that you wish to record from. Click on the "DVR recorder mode" button (it looks like a [https://www.google.com/search?q=clapperboard&hl=en&tbo=d&tbm=isch clapperboard]) to enable the recording controls.
+
+Use the controls under "Record and Playback" to record a sequence of images. Note that if the maximum number of images is exceeded, the oldest frames will be dropped, and new frames added. Once you're satisfied with a recording, you can save the recording using the save button under the "Manage Recordings" section.
