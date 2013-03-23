@@ -23,20 +23,20 @@
 
 GLSoccerView::FieldDimensions::FieldDimensions()
 {
-  line_width = FieldConstantsRoboCup2009::line_width;
-  field_length = FieldConstantsRoboCup2009::field_length;
-  field_width = FieldConstantsRoboCup2009::field_width;
-  boundary_width = FieldConstantsRoboCup2009::boundary_width;
-  referee_width = FieldConstantsRoboCup2009::referee_width;
-  goal_width = FieldConstantsRoboCup2009::goal_width;
-  goal_depth = FieldConstantsRoboCup2009::goal_depth;
-  goal_wall_width = FieldConstantsRoboCup2009::goal_wall_width;
-  center_circle_radius = FieldConstantsRoboCup2009::center_circle_radius;
-  defense_radius = FieldConstantsRoboCup2009::defense_radius;
-  defense_stretch = FieldConstantsRoboCup2009::defense_stretch;
-  free_kick_from_defense_dist = FieldConstantsRoboCup2009::free_kick_from_defense_dist;
-  penalty_spot_from_field_line_dist = FieldConstantsRoboCup2009::penalty_spot_from_field_line_dist;
-  penalty_line_from_spot_dist = FieldConstantsRoboCup2009::penalty_line_from_spot_dist;
+  line_width = FieldConstantsRoboCup2012::line_width;
+  field_length = FieldConstantsRoboCup2012::field_length;
+  field_width = FieldConstantsRoboCup2012::field_width;
+  boundary_width = FieldConstantsRoboCup2012::boundary_width;
+  referee_width = FieldConstantsRoboCup2012::referee_width;
+  goal_width = FieldConstantsRoboCup2012::goal_width;
+  goal_depth = FieldConstantsRoboCup2012::goal_depth;
+  goal_wall_width = FieldConstantsRoboCup2012::goal_wall_width;
+  center_circle_radius = FieldConstantsRoboCup2012::center_circle_radius;
+  defense_radius = FieldConstantsRoboCup2012::defense_radius;
+  defense_stretch = FieldConstantsRoboCup2012::defense_stretch;
+  free_kick_from_defense_dist = FieldConstantsRoboCup2012::free_kick_from_defense_dist;
+  penalty_spot_from_field_line_dist = FieldConstantsRoboCup2012::penalty_spot_from_field_line_dist;
+  penalty_line_from_spot_dist = FieldConstantsRoboCup2012::penalty_line_from_spot_dist;
 }
 
 GLSoccerView::GLSoccerView(QWidget* parent) : QGLWidget(QGLFormat ( QGL::DoubleBuffer | QGL::DepthBuffer | QGL::SampleBuffers),parent)

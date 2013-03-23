@@ -119,21 +119,21 @@ public:
   }
   #endif
 
-  void loadDefaultsRoboCup2009() {
-    line_width->setInt(FieldConstantsRoboCup2009::line_width);
-    field_length->setInt(FieldConstantsRoboCup2009::field_length);
-    field_width->setInt(FieldConstantsRoboCup2009::field_width);
-    boundary_width->setInt(FieldConstantsRoboCup2009::boundary_width);
-    referee_width->setInt(FieldConstantsRoboCup2009::referee_width);
-    goal_width->setInt(FieldConstantsRoboCup2009::goal_width);
-    goal_depth->setInt(FieldConstantsRoboCup2009::goal_depth);
-    goal_wall_width->setInt(FieldConstantsRoboCup2009::goal_wall_width);
-    center_circle_radius->setInt(FieldConstantsRoboCup2009::center_circle_radius);
-    defense_radius->setInt(FieldConstantsRoboCup2009::defense_radius);
-    defense_stretch->setInt(FieldConstantsRoboCup2009::defense_stretch);
-    free_kick_from_defense_dist->setInt(FieldConstantsRoboCup2009::free_kick_from_defense_dist);
-    penalty_spot_from_field_line_dist->setInt(FieldConstantsRoboCup2009::penalty_spot_from_field_line_dist);
-    penalty_line_from_spot_dist->setInt(FieldConstantsRoboCup2009::penalty_line_from_spot_dist);
+  void loadDefaultsRoboCup2012() {
+    line_width->setInt(FieldConstantsRoboCup2012::line_width);
+    field_length->setInt(FieldConstantsRoboCup2012::field_length);
+    field_width->setInt(FieldConstantsRoboCup2012::field_width);
+    boundary_width->setInt(FieldConstantsRoboCup2012::boundary_width);
+    referee_width->setInt(FieldConstantsRoboCup2012::referee_width);
+    goal_width->setInt(FieldConstantsRoboCup2012::goal_width);
+    goal_depth->setInt(FieldConstantsRoboCup2012::goal_depth);
+    goal_wall_width->setInt(FieldConstantsRoboCup2012::goal_wall_width);
+    center_circle_radius->setInt(FieldConstantsRoboCup2012::center_circle_radius);
+    defense_radius->setInt(FieldConstantsRoboCup2012::defense_radius);
+    defense_stretch->setInt(FieldConstantsRoboCup2012::defense_stretch);
+    free_kick_from_defense_dist->setInt(FieldConstantsRoboCup2012::free_kick_from_defense_dist);
+    penalty_spot_from_field_line_dist->setInt(FieldConstantsRoboCup2012::penalty_spot_from_field_line_dist);
+    penalty_line_from_spot_dist->setInt(FieldConstantsRoboCup2012::penalty_line_from_spot_dist);
     updateDerivedParameters();
   }
   void updateDerivedParameters() {
@@ -155,7 +155,7 @@ public:
   RoboCupField()
   {
     settings = new VarList("Field Configuration");
-    settings->addChild(restore = new VarTrigger("Reset SSL 2009","Reset SSL 2009"));
+    settings->addChild(restore = new VarTrigger("Reset SSL 2012","Reset SSL 2012"));
     
     connect(restore,SIGNAL(wasEdited(VarType*)),this,SLOT(restoreRoboCup()));
     //regulation-based symmetric field:
@@ -218,7 +218,7 @@ public:
       settings->addChild(derived_params[i]);
     }
     
-    loadDefaultsRoboCup2009();
+    loadDefaultsRoboCup2012();
     emit calibrationChanged();
     //setup the derived parameters to auto-update when the non-derived parameters change.
     
@@ -270,7 +270,7 @@ protected slots:
     calibrationChanged();
   }
   void restoreRoboCup() {
-    loadDefaultsRoboCup2009();
+    loadDefaultsRoboCup2012();
   }
 };
     
