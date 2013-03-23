@@ -408,20 +408,20 @@ int SoccerView::UpdateBalls ( QVector<QPointF> &_balls, int cameraID )
 
 void SoccerView::LoadFieldGeometry()
 {
-  this->line_width = FieldConstantsRoboCup2009::line_width;
-  this->field_length = FieldConstantsRoboCup2009::field_length;
-  this->field_width = FieldConstantsRoboCup2009::field_width;
-  this->boundary_width = FieldConstantsRoboCup2009::boundary_width;
-  this->referee_width = FieldConstantsRoboCup2009::referee_width;
-  this->goal_width = FieldConstantsRoboCup2009::goal_width;
-  this->goal_depth = FieldConstantsRoboCup2009::goal_depth;
-  this->goal_wall_width = FieldConstantsRoboCup2009::goal_wall_width;
-  this->center_circle_radius = FieldConstantsRoboCup2009::center_circle_radius;
-  this->defense_radius = FieldConstantsRoboCup2009::defense_radius;
-  this->defense_stretch = FieldConstantsRoboCup2009::defense_stretch;
-  this->free_kick_from_defense_dist = FieldConstantsRoboCup2009::free_kick_from_defense_dist;
-  this->penalty_spot_from_field_line_dist = FieldConstantsRoboCup2009::penalty_spot_from_field_line_dist;
-  this->penalty_line_from_spot_dist = FieldConstantsRoboCup2009::penalty_line_from_spot_dist;
+  this->line_width = FieldConstantsRoboCup2012::line_width;
+  this->field_length = FieldConstantsRoboCup2012::field_length;
+  this->field_width = FieldConstantsRoboCup2012::field_width;
+  this->boundary_width = FieldConstantsRoboCup2012::boundary_width;
+  this->referee_width = FieldConstantsRoboCup2012::referee_width;
+  this->goal_width = FieldConstantsRoboCup2012::goal_width;
+  this->goal_depth = FieldConstantsRoboCup2012::goal_depth;
+  this->goal_wall_width = FieldConstantsRoboCup2012::goal_wall_width;
+  this->center_circle_radius = FieldConstantsRoboCup2012::center_circle_radius;
+  this->defense_radius = FieldConstantsRoboCup2012::defense_radius;
+  this->defense_stretch = FieldConstantsRoboCup2012::defense_stretch;
+  this->free_kick_from_defense_dist = FieldConstantsRoboCup2012::free_kick_from_defense_dist;
+  this->penalty_spot_from_field_line_dist = FieldConstantsRoboCup2012::penalty_spot_from_field_line_dist;
+  this->penalty_line_from_spot_dist = FieldConstantsRoboCup2012::penalty_line_from_spot_dist;
 }
 
 void SoccerView::LoadFieldGeometry ( SSL_GeometryFieldSize &fieldSize )

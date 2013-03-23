@@ -21,7 +21,8 @@
 
 #ifndef FIELD_DEFAULT_CONSTANTS_H
 #define FIELD_DEFAULT_CONSTANTS_H
-namespace FieldConstantsRoboCup2009 {
+//namespace FieldConstantsRoboCup2009 {
+namespace FieldConstantsRoboCup2012 {
   static const int line_width = 10;
   static const int field_length=6050;
   static const int field_width=4050;
@@ -31,10 +32,10 @@ namespace FieldConstantsRoboCup2009 {
   static const int goal_depth=180;
   static const int goal_wall_width=20;
   static const int center_circle_radius=500;
-  static const int defense_radius=500;
+  static const int defense_radius=800;
   static const int defense_stretch=350;
   static const int free_kick_from_defense_dist=200;
-  static const int penalty_spot_from_field_line_dist=450;
+  static const int penalty_spot_from_field_line_dist=750;
   static const int penalty_line_from_spot_dist=400;
 }
 #endif // FIELD_H
