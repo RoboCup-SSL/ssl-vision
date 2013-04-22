@@ -1,0 +1,13 @@
+Source: sslvision
+Section: robocup/sslvision
+Priority: extra
+Maintainer: SSL-Vision-Group <ssl-vision@googlegroups.com>
+Build-Depends: debhelper (>= 7), libqt4-dev, protobuf-compiler, libprotobuf-dev, libeigen2-dev, libdc1394-22-dev
+Standards-Version: 3.8.0
+Homepage: http://ssl-vision.googlecode.com/
+
+Package: sslvision
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libprotobuf3, libqt4-gui, libdc1394-22, libprotobuf3, libdc1394-22
+Description: A computer vision framework for the RoboCup Small Size League.
+ <insert long description, indented with spaces>

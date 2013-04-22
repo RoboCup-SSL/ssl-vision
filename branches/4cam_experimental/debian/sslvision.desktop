@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=SSLVision
+GenericName=SSL Vision
+Comment=RoboCup Small Size League Vision Framework
+Exec=sslvision
+Terminal=false
+Categories=GTK;GTK;Game;

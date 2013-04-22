@@ -1,0 +1,61 @@
+<ui version="4.0" >
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>744</width>
+    <height>620</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle" >
+   <string>SSL-Vision System, released as GPLv3</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset/>
+  </property>
+  <property name="dockNestingEnabled" >
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QHBoxLayout" >
+    <property name="spacing" >
+     <number>0</number>
+    </property>
+    <property name="leftMargin" >
+     <number>9</number>
+    </property>
+    <property name="topMargin" >
+     <number>9</number>
+    </property>
+    <property name="rightMargin" >
+     <number>9</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>9</number>
+    </property>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>744</width>
+     <height>29</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <resources>
+  <include location="icons/icons_gui.qrc" />
+ </resources>
+ <connections/>
+</ui>
