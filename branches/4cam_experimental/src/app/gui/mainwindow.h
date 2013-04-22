@@ -57,7 +57,7 @@ public:
   QTabWidget * left_tab;
   QTabWidget * right_tab;
   QSplitter * splitter;
-  QSplitter * splitter2;
+  QTabWidget * cam_tabs;
   VarList * settings;
   vector<VarType * > world;
   VarTreeModel * tmodel;
