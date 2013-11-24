@@ -109,6 +109,9 @@ void TeamDetector::init(Team * team)
   _center_marker_uniform=_team->_center_marker_uniform->getDouble();
   _center_marker_duplicate_distance=_team->_center_marker_duplicate_distance->getDouble();
 
+  _other_markers_max_detections=_team->_other_markers_max_detections->getInt();
+  _other_markers_max_query_distance=_team->_other_markers_max_query_distance->getDouble();
+
   filter_team.setWidth(_team->_center_marker_min_width->getInt(),team->_center_marker_max_width->getInt());
   filter_team.setHeight(_team->_center_marker_min_height->getInt(),team->_center_marker_max_height->getInt());
   filter_team.setArea(_team->_center_marker_min_area->getInt(),team->_center_marker_max_area->getInt());
@@ -411,16 +414,16 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
 {
 
   (void)image;
-  const int MaxMarkers = 16;
+  const int MaxDetections = _other_markers_max_detections;
   Marker cen; // center marker
-  Marker markers[MaxMarkers];
-
-  float marker_max_dist = _pattern_max_dist;
+  Marker markers[MaxDetections];
+  const float marker_max_query_dist = _other_markers_max_query_distance;
+  const float marker_max_dist = _pattern_max_dist;
 
   // partially forget old detections
   //decaySeen();
 
-  filter_team.init( colorlist->getRegionList(team_color_id).getInitialElement() );
+  filter_team.init( colorlist->getRegionList(team_color_id).getInitialElement());
   const CMVision::Region * reg=0;
   SSL_DetectionRobot * robot=0;
 
@@ -437,10 +440,10 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
       cen.set(reg,reg_center3d,getRegionArea(reg,_robot_height));
       int num_markers = 0;
 
-      reg_tree.startQuery(*reg,20.0);
+      reg_tree.startQuery(*reg,marker_max_query_dist);
       double sd=0.0;
       CMVision::Region *mreg;
-      while((mreg=reg_tree.getNextNearest(sd))!=0 && num_markers<MaxMarkers) { 
+      while((mreg=reg_tree.getNextNearest(sd))!=0 && num_markers<MaxDetections) {
         //TODO: implement masking:
         // filter_other.check(*mreg) && det.mask.get(mreg->cen_x,mreg->cen_y)>=0.5
 
