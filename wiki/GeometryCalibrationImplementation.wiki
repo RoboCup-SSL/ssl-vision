@@ -1,9 +1,14 @@
 #summary One-sentence summary of this page.
-This page documents how geometry calibration is implemented in ssl-vision.
+This page documents how geometry calibration (estimation of camera parameters including intrinsics and extrinsics) is implemented in ssl-vision.
  
-= Introduction =
+= Flow of Control =
 
-Add your content here.
+The flow of control involved in geometry calibration is as follows:
+# The control points are initialized interactively by dragging their markers in the *CameraCalibrationWidget* .
+# Subsequent steps assume that the camera height, radial distortion, and other parameters have been initialized.
+# For the initial calibration, *CameraParameters::calibrate* is called with cal_type = INITIAL_ESTIMATION. This estimates the camera parameters using only 4 constraints, corresponding to the control points.
+# The user then visually inspects the results and accordingly sets the edge detection margins.
+# When the "Detect Edges" button is clicked, the images are searched for edges in the vicinity of the field markings in *PluginCameraCalibration::detectEdges*.  
 
 
 = Details =
