@@ -12,9 +12,20 @@ The flow of control involved in geometry calibration is as follows:
   # When the "Detect Edges" button is clicked, the images are searched for edges in the vicinity of the field markings in *PluginCameraCalibration::detectEdges*.  
 
 
-= Details =
+= Initial Calibration =
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+== Setting Control Points ==
+
+In the main trunk (2-cam setup), there are currently four control points per camera, which are hard-coded to mean the corners of the field halves. They are contained in the VarXML tree *CameraParameters:::AdditionalCalibrationInformation*, and called:
+  # left_corner_image(_x, _y)
+  # right_corner_image(_x, _y)
+  # left_centerline_image(_x, _y)
+  # left_centerline_image(_x, _y)
+
+These control points can be manually dragged around for initial calibration. The mouse interaction is implemented by calling *mousePressEvent*, *mouseMoveEvent*, and *mouseReleaseEvent* of *PluginCameraCalibration*. Note that the SSL=-Vision stack passes the mouse events to all existing plugins, and it is up to the individual plugins to decide when to hand these events or ignore them. The PluginCameraCalibration plugin is hard-coded to accept these events only if the CameraCalibrationWidget is the currently visible tab widget (see PluginCameraCalibration::mousePressEvent).
+
+When a mouse press event occurs, the PluginCameraCalibration::mousePressEvent event handler selects the appropriate node (drag_x, drag_y) from the VarXML tree corresponding to the control point in question by selects the closest control point within a threshold of the mouse pointer.
+
+When the mouse is dragged around, the drag_x, drag_y node values are updated accordingly.
+
+When the "Do Initial Calibration" button in CameraCalibrationWidget is pressed, the 4 control points are used to perform calibration by calling * CameraParameters::do_calibration* with cal_type = FOUR_POINT_INITIAL .
