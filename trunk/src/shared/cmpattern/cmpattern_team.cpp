@@ -71,6 +71,8 @@ Team::Team(VarList * team_root)
       _other_markers_max_height = _other_markers_filter->findChildOrReplace(new VarInt("Max Height (pixels)",40));
       _other_markers_min_area = _other_markers_filter->findChildOrReplace(new VarInt("Min Area (sq-pixels)",15));
       _other_markers_max_area = _other_markers_filter->findChildOrReplace(new VarInt("Max Area (sq-pixels)",600));
+      _other_markers_max_detections = _other_markers_filter->findChildOrReplace(new VarInt("Max Num Markers To Detect", 16));
+      _other_markers_max_query_distance = _other_markers_filter->findChildOrReplace(new VarDouble("Max Query Distance", 20.0));
 
     _histogram_settings = _settings->findChildOrReplace(new VarList("Histogram Settings"));
       _histogram_enable = _histogram_settings->findChildOrReplace(new VarBool("Enable",true));

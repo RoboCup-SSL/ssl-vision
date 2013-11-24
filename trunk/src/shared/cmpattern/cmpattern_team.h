@@ -79,6 +79,8 @@ protected:
       VarInt * _other_markers_max_height;
       VarInt * _other_markers_min_area;
       VarInt * _other_markers_max_area;
+      VarInt * _other_markers_max_detections;
+      VarDouble * _other_markers_max_query_distance;
 
     VarList * _histogram_settings;
       VarBool * _histogram_enable;
