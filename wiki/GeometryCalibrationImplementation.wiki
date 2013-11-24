@@ -1,6 +1,16 @@
 #summary One-sentence summary of this page.
 This page documents how geometry calibration (estimation of camera parameters including intrinsics and extrinsics) is implemented in ssl-vision.
  
+= Classes Involved =
+
+There are several classes involved in camera calibration:
+  # *PluginCameraCalibration* (src/app/plugins/plugin_cameracalib.h) inherits from VisionPlugin, and is one of the plugins on the ssl-vision processing stack. Its purpose is to perform the edge detection on the image when the "detect_edges" indicator bool in CameraCalibrationWidget is true (set when the "Detect Edges" button is pressed), store the correspondences between the detected edge points and the field markings into CameraParameters::calibrationsegments, and then reset CameraCalibrationWidget::detect_edges.
+  # *PluginVisualize* (src/app/plugins/plugin_visualize.h) inherits from VisionPlugin, and is one of the plugins on the ssl-vision processing stack. Its purpose is to overlay the camera image with visualization primitives, including (among other things) the detected edge points, the expected field markings on the image (based on the latest camera calibration parameters), and the control point handles.
+  # *CameraCalibrationWidget* (src/app/gui/cameracalibwidget.h) is the GUI widget shown on the "Camera Calibration" tab of camera view pane.
+  # *CameraParameters* (src/shared/util/camera_calibration.h) maintains the camera intrinsics and extinsics as pointers to the VarXML tree, provides functions to convert between image and field coordinates, and the actual calibration procedure. It includes as sub-classes:
+    # AdditionalCalibrationInformation, which maintains the control points for initial camera calibration, and other parameters for edge detection and calibration, again maintained as pointers to nodes in the VarXML tree.
+    # CalibrationData, which contains the detected edge points and their corresponding world field markings.
+
 = Flow of Control =
 
 The flow of control involved in geometry calibration is as follows:
