@@ -165,8 +165,8 @@ protected:
   
 public: 
   GLSoccerView(QWidget *parent = 0);
-  void updateDetection ( SSL_DetectionFrame &detection );
-  void updateFieldGeometry ( SSL_GeometryFieldSize &fieldSize );
+  void updateDetection (const SSL_DetectionFrame &detection );
+  void updateFieldGeometry (const SSL_GeometryFieldSize &fieldSize );
   
 public slots:
   void resetView();

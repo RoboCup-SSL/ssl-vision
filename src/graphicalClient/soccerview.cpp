@@ -515,7 +515,7 @@ void GLSoccerView::drawRobots()
   }
 }
 
-void GLSoccerView::updateDetection(SSL_DetectionFrame& detection)
+void GLSoccerView::updateDetection(const SSL_DetectionFrame& detection)
 {
   int numBlueRobots =  detection.robots_blue_size();
   int numYellowRobots =  detection.robots_yellow_size();
