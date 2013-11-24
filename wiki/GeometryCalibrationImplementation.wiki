@@ -14,9 +14,7 @@ The flow of control involved in geometry calibration is as follows:
 
 = Initial Calibration =
 
-== Setting Control Points ==
-
-In the main trunk (2-cam setup), there are currently four control points per camera, which are hard-coded to mean the corners of the field halves. They are contained in the VarXML tree *CameraParameters:::AdditionalCalibrationInformation*, and called:
+In the main trunk (2-cam setup), there are currently four control points per camera, which are hard-coded to mean the corners of the field halves. They are contained in the VarXML tree *CameraParameters:::AdditionalCalibrationInformation*, and are called:
   # left_corner_image(_x, _y)
   # right_corner_image(_x, _y)
   # left_centerline_image(_x, _y)
