@@ -1,5 +1,4 @@
-#summary One-sentence summary of this page.
-This page documents how geometry calibration (estimation of camera parameters including intrinsics and extrinsics) is implemented in ssl-vision.
+#summary This page documents how geometry calibration (estimation of camera parameters including intrinsics and extrinsics) is implemented in ssl-vision.
  
 = Classes Involved =
 
