@@ -47,7 +47,7 @@
 */
 class MainWindow : public QMainWindow, public Ui_MainWindow
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
   AffinityManager * affinity;
@@ -70,7 +70,7 @@ public:
   MainWindow(bool start_capture, bool enforce_affinity);
   virtual ~MainWindow();
   void init();
-
+  void Quit() { emit close(); }
   virtual void closeEvent(QCloseEvent * event );
   virtual void timerEvent(QTimerEvent * e);
 };

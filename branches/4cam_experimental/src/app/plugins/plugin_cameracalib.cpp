@@ -22,29 +22,31 @@
 #include "plugin_cameracalib.h"
 #include "conversions.h"
 #include "sobel.h"
+#include <algorithm>
 #include <QTabWidget>
 #include <QStackedWidget>
 
-PluginCameraCalibration::PluginCameraCalibration(FrameBuffer * _buffer, 
-                                                 CameraParameters& camera_params,
-                                                 RoboCupCalibrationHalfField& _field) 
-  : VisionPlugin(_buffer), camera_parameters(camera_params), field(_field), ccw(0),
-     grey_image(0), rgb_image(0), doing_drag(false), drag_x(0), drag_y(0)
-{
+using std::swap;
+
+PluginCameraCalibration::PluginCameraCalibration(
+    FrameBuffer* _buffer, CameraParameters& camera_params,
+    RoboCupField& _field) :
+    VisionPlugin(_buffer), camera_parameters(camera_params),
+    field(_field),
+    ccw(0), grey_image(0), rgb_image(0), doing_drag(false), drag_x(0),
+    drag_y(0) {
   video_width=video_height=0;
   settings=new VarList("Camera Calibrator");
   settings->addChild(camera_settings = new VarList("Camera Parameters"));
   camera_params.addSettingsToList(*camera_settings);
-  settings->addChild(field_settings = new VarList("Field Half Configuration"));
-  field.addSettingsToList(*field_settings);
-  settings->addChild(calibration_settings = new VarList("Calibration Parameters"));
-  camera_parameters.additional_calibration_information->addSettingsToList(*calibration_settings);
+  settings->addChild(calibration_settings =
+      new VarList("Calibration Parameters"));
+  camera_parameters.additional_calibration_information->addSettingsToList(
+      *calibration_settings);
 }
 
-PluginCameraCalibration::~PluginCameraCalibration()
-{
+PluginCameraCalibration::~PluginCameraCalibration() {
   delete camera_settings;
-  delete field_settings;
   delete calibration_settings;
   if(grey_image)
     delete grey_image;
@@ -52,16 +54,59 @@ PluginCameraCalibration::~PluginCameraCalibration()
     delete rgb_image;
 }
 
-ProcessResult PluginCameraCalibration::process(FrameData * data, RenderOptions * options) 
-{
+void PluginCameraCalibration::detectEdges(FrameData* data) {
+  double point_separation(camera_parameters.additional_calibration_information->
+      pointSeparation->getDouble());
+  // Reset list:
+  camera_parameters.calibrationSegments.clear();
+  // Get a greyscale image:
+  if(grey_image == 0) {
+    grey_image = new greyImage(data->video.getWidth(),data->video.getHeight());
+    rgb_image = new rgbImage(data->video.getWidth(),data->video.getHeight());
+  }
+  if (data->video.getColorFormat()==COLOR_YUV422_UYVY) {
+    Conversions::uyvy2rgb(
+        data->video.getData(),
+        reinterpret_cast<unsigned char*>(rgb_image->getData()),
+        data->video.getWidth(),data->video.getHeight());
+    Images::convert(*rgb_image, *grey_image);
+  } else if (data->video.getColorFormat()==COLOR_RGB8) {
+    Images::convert(data->video, *grey_image);
+  } else {
+    fprintf(stderr, "ColorThresholding needs YUV422 or RGB8 as input image, "
+            "but found: %s\n",
+            Colors::colorFormatToString(data->video.getColorFormat()).c_str());
+    return;
+  }
+
+  for (size_t i = 0; i < field.field_lines.size(); ++i) {
+    const FieldLine& line = *(field.field_lines[i]);
+    const GVector::vector3d<double> p1(
+        line.p1_x->getDouble(), line.p1_y->getDouble(), 0.0);
+    const GVector::vector3d<double> p2(
+        line.p2_x->getDouble(), line.p2_y->getDouble(), 0.0);
+    detectEdgesOnSingleLine(
+        p1, p2, line.thickness->getDouble(), point_separation);
+  }
+
+  for (size_t i = 0; i < field.field_arcs.size(); ++i) {
+    const FieldCircularArc& arc = *(field.field_arcs[i]);
+    const GVector::vector3d<double> center(
+        arc.center_x->getDouble(), arc.center_y->getDouble(), 0.0);
+    detectEdgesOnSingleArc(center, arc.radius->getDouble(), arc.a1->getDouble(),
+        arc.a2->getDouble(), arc.thickness->getDouble(), point_separation);
+  }
+}
+
+ProcessResult PluginCameraCalibration::process(
+    FrameData* data, RenderOptions* options) {
   video_width=data->video.getWidth();
   video_height=data->video.getHeight();
   (void)options;
-  if(ccw)
-  {
-    if(ccw->getDetectEdges())
-    {
+  if(ccw) {
+    if(ccw->getDetectEdges()) {
       detectEdges(data);
+      // detectEdges2(data);
       ccw->resetDetectEdges();
     }
     ccw->set_slider_from_vars();
@@ -69,427 +114,194 @@ ProcessResult PluginCameraCalibration::process(FrameData * data, RenderOptions *
   return ProcessingOk;
 }
 
-VarList * PluginCameraCalibration::getSettings() 
-{
+VarList * PluginCameraCalibration::getSettings() {
   return settings;
 }
 
-string PluginCameraCalibration::getName() 
-{
+string PluginCameraCalibration::getName() {
   return "Camera Calibration";
 }
 
-QWidget * PluginCameraCalibration::getControlWidget() 
-{
-  if (ccw==0) 
+QWidget * PluginCameraCalibration::getControlWidget() {
+  if (ccw==0)
     ccw = new CameraCalibrationWidget(camera_parameters);
 
   return (QWidget *)ccw;
 }
 
-void PluginCameraCalibration::detectEdges(FrameData * data)
-{
-  //std::cout<<"Detect Edges"<<std::endl;
-  // Set config value:
-  int pointsPerLine(camera_parameters.additional_calibration_information->pointsPerLine->getInt());
-  int pointsInsideGoal(camera_parameters.additional_calibration_information->pointsInsideGoal->getInt());
-  int pointsInsideCenterCircle(camera_parameters.additional_calibration_information->pointsInsideCenterCircle->getInt());
-  int pointsOnCenterCircle(camera_parameters.additional_calibration_information->pointsOnCenterCircle->getInt());
-  int pointsOnDefenseAreaArc(camera_parameters.additional_calibration_information->pointsOnDefenseAreaArc->getInt());
-  int pointsOnDefenseStretch(camera_parameters.additional_calibration_information->pointsOnDefenseStretch->getInt());
-  // Reset list:
-  camera_parameters.calibrationSegments.clear();
-  // Get a greyscale image:
-  if(grey_image == 0)
-  {
-    grey_image = new greyImage(data->video.getWidth(),data->video.getHeight());
-    rgb_image = new rgbImage(data->video.getWidth(),data->video.getHeight());
-  }
-  if (data->video.getColorFormat()==COLOR_YUV422_UYVY) 
-  {
-    Conversions::uyvy2rgb(data->video.getData(),(unsigned char*)(rgb_image->getData()),data->video.getWidth(),data->video.getHeight());
-    Images::convert(*rgb_image, *grey_image);
-    //std::cout<<"Hmmm. YUV422."<<std::endl;
-  } 
-  else if (data->video.getColorFormat()==COLOR_RGB8) 
-  {
-    Images::convert(data->video, *grey_image);
-    //std::cout<<"OK. RGB8."<<std::endl;
-  } 
-  else 
-  {
-    fprintf(stderr,"ColorThresholding needs YUV422 or RGB8 as input image, but found: %s\n",Colors::colorFormatToString(data->video.getColorFormat()).c_str());
-    return;
-  }
-  
-  const RoboCupCalibrationHalfField *field = &camera_parameters.field;
-  // Find edges on left field side:
-  GVector::vector3d<double> start;
-  start.x = field->left_corner_x->getDouble();
-  start.y = field->left_corner_y->getDouble();
-  start.z = 0;
-  GVector::vector3d<double> end;
-  end.x = field->left_centerline_x->getDouble();
-  end.y = field->left_centerline_y->getDouble();
-  end.z = 0;
-  detectEdgesOnSingleLine(start,end,pointsPerLine);
-  
-  // Find edges on right field side:
-  start.x = field->right_corner_x->getDouble();
-  start.y = field->right_corner_y->getDouble();
-  end.x = field->right_centerline_x->getDouble();
-  end.y = field->right_centerline_y->getDouble();
-  detectEdgesOnSingleLine(start,end,pointsPerLine);
-  
-  // Find edges along goal line:
-  start.x = field->left_corner_x->getDouble();
-  start.y = field->left_corner_y->getDouble();
-  end.x = field->left_goal_area_x->getDouble();
-  end.y = field->left_goal_area_y->getDouble();
-  detectEdgesOnSingleLine(start,end,(pointsPerLine-pointsInsideGoal)/2);
-  start.x = field->right_goal_area_x->getDouble();
-  start.y = field->right_goal_area_y->getDouble();
-  end.x = field->right_corner_x->getDouble();
-  end.y = field->right_corner_y->getDouble();
-  detectEdgesOnSingleLine(start,end,(pointsPerLine-pointsInsideGoal)/2);
-  if(field->useFeaturesInGoal->getBool()){
-    start.x = field->left_goal_post_x->getDouble();
-    start.y = field->left_goal_post_y->getDouble();
-    end.x = field->right_goal_post_x->getDouble();
-    end.y = field->right_goal_post_y->getDouble();
-    detectEdgesOnSingleLine(start,end,pointsInsideGoal);
-  }
-  
-  // Find edges along center line:
-  start.x = field->left_centerline_x->getDouble();
-  start.y = field->left_centerline_y->getDouble();
-  end.x = field->left_centercircle_x->getDouble();
-  end.y = field->left_centercircle_y->getDouble();
-  detectEdgesOnSingleLine(start,end,(pointsPerLine-pointsInsideCenterCircle)/2, true);
-  start.x = field->right_centercircle_x->getDouble();
-  start.y = field->right_centercircle_y->getDouble();
-  end.x = field->right_centerline_x->getDouble();
-  end.y = field->right_centerline_y->getDouble();
-  detectEdgesOnSingleLine(start,end,(pointsPerLine-pointsInsideCenterCircle)/2, true);
-  start.x = field->left_centercircle_x->getDouble();
-  start.y = field->left_centercircle_y->getDouble();
-  end.x = field->right_centercircle_x->getDouble();
-  end.y = field->right_centercircle_y->getDouble();
-  detectEdgesOnSingleLine(start,end,pointsInsideCenterCircle, true);
-  
-  if(field->useFeaturesOnCenterCircle->getBool()){
-    //Find edges along center circle:
-    GVector::vector3d<double> center(field->centerpoint_x->getDouble(),field->centerpoint_y->getDouble(),0.0);
-    double radius = field->centercircle_radius->getDouble();
-    double theta1 = atan2(field->right_centerline_y->getDouble()-field->centerpoint_y->getDouble(), 
-                          field->right_centerline_x->getDouble()-field->centerpoint_x->getDouble());
-    double theta2 = atan2(field->left_centerline_y->getDouble()-field->centerpoint_y->getDouble(), 
-                          field->left_centerline_x->getDouble()-field->centerpoint_x->getDouble());
-    if(field->right_centerline_y->getDouble()>0.0){
-      theta1+=M_PI;
-      theta2+=M_PI;
-    }
-    detectEdgesOnSingleArc(center,radius,theta1,theta2,pointsOnCenterCircle);
-  }
-  if(field->useFeaturesInDefenseArea->getBool()){
-    //Find edges along border of defense area:
-    GVector::vector3d<double> center;
-    double radius = field->defense_area_radius->getDouble();
-    double theta1, theta2;
-    
-    //Detect edges on the arc on the left side of defense area
-    center.x = 0.5*(field->right_goal_post_x->getDouble() + field->left_goal_post_x->getDouble());
-    center.y = 0.5*(field->right_goal_post_y->getDouble() + field->left_goal_post_y->getDouble()) - 0.5*field->defense_stretch->getDouble();
-    theta1 = 2.0*M_PI + atan2(field->left_goal_area_y->getDouble()-field->left_goal_post_y->getDouble(),
-                   field->left_goal_area_x->getDouble()-field->left_goal_post_x->getDouble());
-    theta2 = 2.0*M_PI;
-    if(field->right_centerline_y->getDouble()<0.0){
-      theta1+=M_PI;
-      theta2+=M_PI;
-    }
-    detectEdgesOnSingleArc(center,radius,theta1,theta2,pointsOnDefenseAreaArc);
-    
-    //Detect edges on the arc on the right side of defense area
-    center.x = 0.5*(field->right_goal_post_x->getDouble() + field->left_goal_post_x->getDouble());
-    center.y = 0.5*(field->right_goal_post_y->getDouble() + field->left_goal_post_y->getDouble()) + 0.5*field->defense_stretch->getDouble();
-    theta1 = 0.0;
-    theta2 = atan2(field->right_goal_area_y->getDouble()-field->right_goal_post_y->getDouble(),
-                   field->right_goal_area_x->getDouble()-field->right_goal_post_x->getDouble());
-    if(field->right_centerline_y->getDouble()<0.0){
-      theta1+=M_PI;
-      theta2+=M_PI;
-    }
-    detectEdgesOnSingleArc(center,radius,theta1,theta2,pointsOnDefenseAreaArc);
-    
-    //Detect edges on Defense Stretch
-    if(field->right_centerline_y->getDouble()<0.0){
-      start.x = 0.5*(field->right_goal_post_x->getDouble() + field->left_goal_post_x->getDouble()) - radius;
-    }else{
-      start.x = 0.5*(field->right_goal_post_x->getDouble() + field->left_goal_post_x->getDouble()) + radius;
-    }
-    start.y = 0.5*(field->right_goal_post_y->getDouble() + field->left_goal_post_y->getDouble()) - 0.5*field->defense_stretch->getDouble();
-    end.x = start.x;
-    end.y = 0.5*(field->right_goal_post_y->getDouble() + field->left_goal_post_y->getDouble()) + 0.5*field->defense_stretch->getDouble();
-    detectEdgesOnSingleLine(start,end,pointsOnDefenseStretch, true);
-  }
-}
-
-
-void PluginCameraCalibration::sanitizeSobel(greyImage * img, GVector::vector2d<double> & val,int sobel_border) {
-  if (val.x < (sobel_border)) val.x=sobel_border;
-  if (val.x > (img->getWidth()-sobel_border)) val.x=(img->getWidth()-sobel_border);
-  if (val.y < (sobel_border)) val.y=sobel_border;
-  if (val.y > (img->getHeight()-sobel_border)) val.y=(img->getHeight()-sobel_border);
-}
-
-void PluginCameraCalibration::detectEdgesOnSingleArc(
-    const GVector::vector3d<double>& center,
-    double radius, double theta1, double theta2,
-    int numPoints)
-{
-  int threshold(20);
-  double distToLine = camera_parameters.additional_calibration_information->line_search_corridor_width->getDouble() / 2.0;
-  CameraParameters::CalibrationData calData;
-  calData.straightLine = false;
-  calData.radius = radius;
-  calData.center = center;
-  calData.theta1 = theta1;
-  calData.theta2 = theta2;
-  
-  for(int i=1;i<=numPoints;i++){
-    double alpha = 1.0 - ((double) i)/((double) numPoints + 1.0);
-    double theta = alpha*theta1+(1.0-alpha)*theta2;
-    GVector::vector3d<double> radiusVector(cos(theta),sin(theta),0.0);
-    GVector::vector3d<double> posInWorld = center+radius*radiusVector;
-    GVector::vector3d<double> worldStart = center+(radius-distToLine)*radiusVector;
-    GVector::vector3d<double> worldEnd = center+(radius+distToLine)*radiusVector;
-    GVector::vector2d<double> imgStart, imgEnd;
-    
-    camera_parameters.field2image(worldStart,imgStart);  
-    camera_parameters.field2image(worldEnd,imgEnd);
-    sanitizeSobel(grey_image,imgStart);
-    sanitizeSobel(grey_image,imgEnd);
-    
-    GVector::vector2d<double> arcPoint;
-    bool centerFound;
-    Sobel::centerOfLine(*grey_image, imgStart.x, imgEnd.x, imgStart.y, imgEnd.y, arcPoint, centerFound, threshold);
-    calData.imgPts.push_back(std::make_pair(arcPoint,centerFound));
-    calData.alphas.push_back(alpha);
-  }
-  camera_parameters.calibrationSegments.push_back(calData);
+void PluginCameraCalibration::sanitizeSobel(
+    greyImage* img, GVector::vector2d<double>& val, int sobel_border) {
+  val.x = bound<double>(val.x, sobel_border, img->getWidth() - sobel_border);
+  val.y = bound<double>(val.y, sobel_border, img->getHeight() - sobel_border);
 }
 
 void PluginCameraCalibration::detectEdgesOnSingleLine(
-    const GVector::vector3d<double>& start,
-    const GVector::vector3d<double>& end,
-    int pointsPerLine, bool detectCenter)
-{
-  int threshold(20);
-  double distToLine = camera_parameters.additional_calibration_information->line_search_corridor_width->getDouble() / 2.0;
-  ImageSide imageSide = getImageSide(start,end);
-  GVector::vector3d<double> offset = (end - start) / ((double)pointsPerLine+1.0);
-  CameraParameters::CalibrationData calData;
-  calData.straightLine = true;
-  calData.p1 = start;
-  calData.p2 = end;
-  for(int i=1; i<=pointsPerLine; ++i)
-  {
-    GVector::vector3d<double> posInWorld = start + (offset*i);
-    GVector::vector3d<double> worldStart(posInWorld), worldEnd(posInWorld);
-    GVector::vector2d<double> imgStart, imgEnd;
-    int x,y;
-    double dummy;
-    switch(imageSide)
-    {
-      case IMG_LEFT:
-        worldStart.y -= distToLine;
-        worldEnd.y += distToLine;
-        camera_parameters.field2image(worldStart,imgStart);  
-        camera_parameters.field2image(worldEnd,imgEnd);
-        sanitizeSobel(grey_image,imgStart);
-        sanitizeSobel(grey_image,imgEnd);
-        y = (imgStart.y + imgEnd.y) / 2;
-        if(imgStart.x > imgEnd.x){
-          dummy = imgEnd.x;
-          imgEnd.x = imgStart.x;
-          imgStart.x = dummy;
-        }
-        if(detectCenter)
-          x = Sobel::centerOfVerticalLine(*grey_image, y, imgStart.x, imgEnd.x, threshold);
-        else
-          x = Sobel::maximumHorizontalEdge(*grey_image, y, imgStart.x, imgEnd.x,
-                                          threshold, Sobel::horizontalBrighter);
-        if(x!=-1){
-          calData.imgPts.push_back(std::make_pair(GVector::vector2d<double>(x,y),true));
-          calData.alphas.push_back(1.0-((double)i)/((double)pointsPerLine+1.0));
-        }else{
-          x = (imgStart.x + imgEnd.x) / 2;
-          calData.imgPts.push_back(std::make_pair(GVector::vector2d<double>(x,y),false));
-          calData.alphas.push_back(1.0-((double)i)/((double)pointsPerLine+1.0));
-        }
-        calData.horizontal = true;
-        break;
-      case IMG_RIGHT:
-        worldStart.y -= distToLine;
-        worldEnd.y += distToLine;
-        camera_parameters.field2image(worldStart,imgStart);  
-        camera_parameters.field2image(worldEnd,imgEnd);
-        sanitizeSobel(grey_image,imgStart);
-        sanitizeSobel(grey_image,imgEnd);
-        y = (imgStart.y + imgEnd.y) / 2;
-        if(imgStart.x > imgEnd.x){
-          dummy = imgEnd.x;
-          imgEnd.x = imgStart.x;
-          imgStart.x = dummy;
-        }
-        
-        if(detectCenter)
-          x = Sobel::centerOfVerticalLine(*grey_image, y, imgStart.x, imgEnd.x, threshold);
-        else
-          x = Sobel::maximumHorizontalEdge(*grey_image, y, imgStart.x, imgEnd.x,
-                                          threshold, Sobel::horizontalDarker);
-        if(x!=-1){
-          calData.imgPts.push_back(std::make_pair(GVector::vector2d<double>(x,y),true));
-          calData.alphas.push_back(1.0-((double)i)/((double)pointsPerLine+1.0));
-        }else{
-          x = (imgStart.x + imgEnd.x) / 2;
-          calData.imgPts.push_back(std::make_pair(GVector::vector2d<double>(x,y),false));
-          calData.alphas.push_back(1.0-((double)i)/((double)pointsPerLine+1.0));
-        }
-        calData.horizontal = true;
-        break;
-      case IMG_TOP:
-        worldStart.x -= distToLine;
-        worldEnd.x += distToLine;
-        camera_parameters.field2image(worldStart,imgStart);  
-        camera_parameters.field2image(worldEnd,imgEnd);
-        sanitizeSobel(grey_image,imgStart);
-        sanitizeSobel(grey_image,imgEnd);
-        x = (imgStart.x + imgEnd.x) / 2;
-        if(imgStart.y > imgEnd.y){
-          dummy = imgEnd.y;
-          imgEnd.y = imgStart.y;
-          imgStart.y = dummy;
-        }
-        if(detectCenter)
-          y = Sobel::centerOfHorizontalLine(*grey_image, x, imgStart.y, imgEnd.y, threshold);
-        else
-          y = Sobel::maximumVerticalEdge(*grey_image, x, imgStart.y, imgEnd.y,
-                                          threshold, Sobel::verticalBrighter);
-        if(y > 0){
-          calData.imgPts.push_back(std::make_pair(GVector::vector2d<double>(x,y),true));
-          calData.alphas.push_back(1.0-((double)i)/((double)pointsPerLine+1.0));
-        }else{
-          y = (imgStart.y + imgEnd.y) / 2;
-          calData.imgPts.push_back(std::make_pair(GVector::vector2d<double>(x,y),false));
-          calData.alphas.push_back(1.0-((double)i)/((double)pointsPerLine+1.0));
-        }
-        calData.horizontal = false;
-        break;
-      case IMG_BOTTOM:
-        worldStart.x -= distToLine;
-        worldEnd.x += distToLine;
-        camera_parameters.field2image(worldStart,imgStart);  
-        camera_parameters.field2image(worldEnd,imgEnd);
-        sanitizeSobel(grey_image,imgStart);
-        sanitizeSobel(grey_image,imgEnd);
-        x = (imgStart.x + imgEnd.x) / 2;
-        if(imgStart.y > imgEnd.y){
-          dummy = imgEnd.y;
-          imgEnd.y = imgStart.y;
-          imgStart.y = dummy;
-        }
-        if(detectCenter)
-          y = Sobel::centerOfHorizontalLine(*grey_image, x, imgStart.y, imgEnd.y, threshold);
-        else
-          y = Sobel::maximumVerticalEdge(*grey_image, x, imgStart.y, imgEnd.y,
-                                          threshold, Sobel::verticalDarker);
-        if(y > 0){
-          calData.imgPts.push_back(std::make_pair(GVector::vector2d<double>(x,y),true));
-          calData.alphas.push_back(1.0-((double)i)/((double)pointsPerLine+1.0));
-        }else{
-          y = (imgStart.y + imgEnd.y) / 2;
-          calData.imgPts.push_back(std::make_pair(GVector::vector2d<double>(x,y),false));
-          calData.alphas.push_back(1.0-((double)i)/((double)pointsPerLine+1.0));
-        }
-        calData.horizontal = false;
-        break;
-    };
-  }
-  camera_parameters.calibrationSegments.push_back(calData);
-}
+    const GVector::vector3d<double>& p1,
+    const GVector::vector3d<double>& p2,
+    double thickness, double point_separation) {
+  static const int kSobelThreshold = 20;
+  const double search_distance =
+      camera_parameters.additional_calibration_information->
+      line_search_corridor_width->getDouble() / 2.0;
+  const double image_boundary =
+      camera_parameters.additional_calibration_information->
+      image_boundary->getDouble();
+  const double max_feature_distance =
+      camera_parameters.additional_calibration_information->
+      max_feature_distance->getDouble();
+  CameraParameters::CalibrationData calibration_data;
+  calibration_data.straightLine = true;
+  calibration_data.p1 = p1;
+  calibration_data.p2 = p2;
+  const double line_length = (p2 - p1).length();
+  const GVector::vector3d<double> line_dir = (p2 - p1) / line_length;
+  const GVector::vector3d<double> line_perp(-line_dir.y, line_dir.x, 0.0);
+  const int num_points = floor(line_length / point_separation - 1.0);
+  for (int i = 1; i <= num_points; ++i) {
+    const double alpha =
+        1.0 - static_cast<double>(i) / (static_cast<double>(num_points) + 1.0);
+    const GVector::vector3d<double> p_world = alpha * p1 + (1.0 - alpha) * p2;
+    GVector::vector2d<double> p_image(0.0, 0.0);
+        camera_parameters.field2image(p_world, p_image);
+    if (p_image.x < image_boundary ||
+        p_image.x > grey_image->getWidth() - image_boundary ||
+        p_image.y < image_boundary ||
+        p_image.y > grey_image->getHeight() - image_boundary) {
+      // This edge feature is outside the image boundary, so ignore it since
+      // the edge detection might not be accurate.
+      continue;
+    }
+    if ((p_world - camera_parameters.getWorldLocation()).length() >
+       max_feature_distance) {
+      // This edge feature too far away from the camera, so ignore it since the
+      // line feature is likely to be too small to detect accurately.
+      continue;
+    }
+    const GVector::vector3d<double> start_world =
+        p_world + line_perp * (0.5 * thickness + search_distance);
+    const GVector::vector3d<double> end_world =
+        p_world - line_perp * (0.5 * thickness + search_distance);
+    GVector::vector2d<double> start_image(0.0, 0.0), end_image(0.0, 0.0);
+    camera_parameters.field2image(start_world, start_image);
+    camera_parameters.field2image(end_world, end_image);
+    sanitizeSobel(grey_image, start_image);
+    sanitizeSobel(grey_image, end_image);
 
-PluginCameraCalibration::ImageSide PluginCameraCalibration::getImageSide(
-    const GVector::vector3d<double>& start,
-    const GVector::vector3d<double>& end)
-{
-  GVector::vector2d<double> imgStart, imgEnd;
-  camera_parameters.field2image(start,imgStart);
-  camera_parameters.field2image(end,imgEnd);
-  const double centerX = camera_parameters.principal_point_x->getDouble();
-  const double centerY = camera_parameters.principal_point_y->getDouble();
-  GVector::vector2d<double> vec(imgEnd-imgStart);
-  if(fabs(vec.x) > fabs(vec.y)) // Horizontal line
-  {
-    if(imgStart.y < centerY)
-      return IMG_TOP;
-    else
-      return IMG_BOTTOM;
+    GVector::vector2d<double> point_image;
+    bool center_found = false;
+    Sobel::centerOfLine(
+        *grey_image, start_image.x, end_image.x, start_image.y,
+        end_image.y, point_image, center_found, kSobelThreshold);
+    calibration_data.imgPts.push_back(std::make_pair(point_image,center_found));
+    calibration_data.alphas.push_back(alpha);
   }
-  else // Vertical line
-  {
-    if(imgStart.x < centerX)
-      return IMG_LEFT;
-    else
-      return IMG_RIGHT;
+  if (calibration_data.imgPts.size() > 2) {
+    // Need at least two points to uniquely define a line segment.
+    camera_parameters.calibrationSegments.push_back(calibration_data);
   }
 }
 
-void PluginCameraCalibration::mouseEvent( QMouseEvent * event, pixelloc loc) 
+void PluginCameraCalibration::detectEdgesOnSingleArc(
+    const GVector::vector3d<double>& center, double radius, double theta1,
+    double theta2, double thickness, double point_separation) {
+  static const int kSobelThreshold = 20;
+  const double search_distance =
+      camera_parameters.additional_calibration_information->
+      line_search_corridor_width->getDouble() / 2.0;
+  const double image_boundary =
+      camera_parameters.additional_calibration_information->
+      image_boundary->getDouble();
+  const double max_feature_distance =
+      camera_parameters.additional_calibration_information->
+      max_feature_distance->getDouble();
+  CameraParameters::CalibrationData calibration_data;
+  calibration_data.straightLine = false;
+  calibration_data.radius = radius;
+  calibration_data.center = center;
+  calibration_data.theta1 = theta1;
+  calibration_data.theta2 = theta2;
+  const int num_points =
+      floor((theta2 - theta1) * radius / point_separation - 1.0);
+  for (int i = 1; i <= num_points; ++i) {
+    const double alpha =
+        1.0 - static_cast<double>(i) / (static_cast<double>(num_points) + 1.0);
+    const double theta = alpha * theta1 + (1.0 - alpha) * theta2;
+    const GVector::vector3d<double> radius_vector(cos(theta), sin(theta), 0.0);
+    const GVector::vector3d<double> p_world = center + radius * radius_vector;
+    GVector::vector2d<double> p_image(0.0, 0.0);
+    camera_parameters.field2image(p_world, p_image);
+    if (p_image.x < image_boundary ||
+        p_image.x > grey_image->getWidth() - image_boundary ||
+        p_image.y < image_boundary ||
+        p_image.y > grey_image->getHeight() - image_boundary) {
+      // This edge feature is outside the image boundary, so ignore it since
+      // the edge detection might not be accurate.
+      continue;
+    }
+    if ((p_world - camera_parameters.getWorldLocation()).length() >
+       max_feature_distance) {
+      // This edge feature too far away from the camera, so ignore it since the
+      // line feature is likely to be too small to detect accurately.
+      continue;
+    }
+    const GVector::vector3d<double> start_world =
+        center + (radius - 0.5 * thickness - search_distance) * radius_vector;
+    const GVector::vector3d<double> end_world =
+        center + (radius + 0.5 * thickness + search_distance) * radius_vector;
+    GVector::vector2d<double> start_image(0.0, 0.0), end_image(0.0, 0.0);
+    camera_parameters.field2image(start_world, start_image);
+    camera_parameters.field2image(end_world, end_image);
+    sanitizeSobel(grey_image, start_image);
+    sanitizeSobel(grey_image, end_image);
+
+    GVector::vector2d<double> point_image;
+    bool center_found = false;
+    Sobel::centerOfLine(
+        *grey_image, start_image.x, end_image.x, start_image.y,
+        end_image.y, point_image, center_found, kSobelThreshold);
+    calibration_data.imgPts.push_back(std::make_pair(point_image,center_found));
+    calibration_data.alphas.push_back(alpha);
+  }
+  if (calibration_data.imgPts.size() > 3) {
+    // Need at least three points to uniquely define a circular arc.
+    camera_parameters.calibrationSegments.push_back(calibration_data);
+  }
+}
+
+void PluginCameraCalibration::mouseEvent( QMouseEvent * event, pixelloc loc)
 {
   (void) event;
   (void) loc;
 }
 
-void PluginCameraCalibration::keyPressEvent ( QKeyEvent * event ) 
+void PluginCameraCalibration::keyPressEvent ( QKeyEvent * event )
 {
   (void) event;
 }
 
-void PluginCameraCalibration::mousePressEvent ( QMouseEvent * event, pixelloc loc ) 
+void PluginCameraCalibration::mousePressEvent ( QMouseEvent * event, pixelloc loc )
 {
   QTabWidget* tabw = (QTabWidget*) ccw->parentWidget()->parentWidget();
   double drag_threshold = 20; //in px
   if (tabw->currentWidget() == ccw && (event->buttons() & Qt::LeftButton)!=0) {
     drag_x = 0;
     drag_y = 0;
-    double x_diff = camera_parameters.additional_calibration_information->left_corner_image_x->getDouble() - loc.x;
-    double y_diff = camera_parameters.additional_calibration_information->left_corner_image_y->getDouble() - loc.y;
-    if (sqrt(x_diff*x_diff + y_diff*y_diff) < drag_threshold)
-    {
-      drag_x = camera_parameters.additional_calibration_information->left_corner_image_x;
-      drag_y = camera_parameters.additional_calibration_information->left_corner_image_y;
-    }
-    x_diff = camera_parameters.additional_calibration_information->right_corner_image_x->getDouble() - loc.x;
-    y_diff = camera_parameters.additional_calibration_information->right_corner_image_y->getDouble() - loc.y;
-    if (sqrt(x_diff*x_diff + y_diff*y_diff) < drag_threshold)
-    {
-      drag_x = camera_parameters.additional_calibration_information->right_corner_image_x;
-      drag_y = camera_parameters.additional_calibration_information->right_corner_image_y;
-    }
-    x_diff = camera_parameters.additional_calibration_information->left_centerline_image_x->getDouble() - loc.x;
-    y_diff = camera_parameters.additional_calibration_information->left_centerline_image_y->getDouble() - loc.y;
-    if (sqrt(x_diff*x_diff + y_diff*y_diff) < drag_threshold)
-    {
-      drag_x = camera_parameters.additional_calibration_information->left_centerline_image_x;
-      drag_y = camera_parameters.additional_calibration_information->left_centerline_image_y;
-    }
-    x_diff = camera_parameters.additional_calibration_information->right_centerline_image_x->getDouble() - loc.x;
-    y_diff = camera_parameters.additional_calibration_information->right_centerline_image_y->getDouble() - loc.y;
-    if (sqrt(x_diff*x_diff + y_diff*y_diff) < drag_threshold)
-    {
-      drag_x = camera_parameters.additional_calibration_information->right_centerline_image_x;
-      drag_y = camera_parameters.additional_calibration_information->right_centerline_image_y;
+    for (int i = 0;
+        i < CameraParameters::AdditionalCalibrationInformation::kNumControlPoints;
+        ++i) {
+      const double x_diff =
+          camera_parameters.additional_calibration_information->
+              control_point_image_xs[i]->getDouble() - loc.x;
+      const double y_diff =
+          camera_parameters.additional_calibration_information->
+              control_point_image_ys[i]->getDouble() - loc.y;
+      if (sqrt(x_diff*x_diff + y_diff*y_diff) < drag_threshold) {
+        drag_x = camera_parameters.additional_calibration_information->
+            control_point_image_xs[i];
+        drag_y = camera_parameters.additional_calibration_information->
+            control_point_image_ys[i];
+        break;
+      }
     }
     if (drag_x != 0 && drag_y != 0)
     {
@@ -504,7 +316,7 @@ void PluginCameraCalibration::mousePressEvent ( QMouseEvent * event, pixelloc lo
 
 }
 
-void PluginCameraCalibration::mouseReleaseEvent ( QMouseEvent * event, pixelloc loc ) 
+void PluginCameraCalibration::mouseReleaseEvent ( QMouseEvent * event, pixelloc loc )
 {
   (void)loc;
   QTabWidget* tabw = (QTabWidget*) ccw->parentWidget()->parentWidget();
@@ -517,10 +329,10 @@ void PluginCameraCalibration::mouseReleaseEvent ( QMouseEvent * event, pixelloc 
     event->ignore();
 }
 
-void PluginCameraCalibration::mouseMoveEvent ( QMouseEvent * event, pixelloc loc ) 
-{ 
+void PluginCameraCalibration::mouseMoveEvent ( QMouseEvent * event, pixelloc loc )
+{
   QTabWidget* tabw = (QTabWidget*) ccw->parentWidget()->parentWidget();
-  if (doing_drag && tabw->currentWidget() == ccw && (event->buttons() & Qt::LeftButton)!=0) 
+  if (doing_drag && tabw->currentWidget() == ccw && (event->buttons() & Qt::LeftButton)!=0)
   {
     if (loc.x < 0) loc.x=0;
     if (loc.y < 0) loc.y=0;

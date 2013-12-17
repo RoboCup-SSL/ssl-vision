@@ -29,8 +29,7 @@ StackRoboCupSSL::StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, int c
     lut_yuv->loadRoboCupChannels(LUTChannelMode_Numeric);
     lut_yuv->addDerivedLUT(new RGBLUT(5,5,5,""));
 
-    calib_field = new RoboCupCalibrationHalfField(global_field, _camera_id);
-    camera_parameters = new CameraParameters(*calib_field);
+    camera_parameters = new CameraParameters(_camera_id);
 
     _global_plugin_publish_geometry->addCameraParameters(camera_parameters);
 
@@ -39,7 +38,7 @@ StackRoboCupSSL::StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, int c
     stack.push_back(new PluginColorCalibration(_fb,lut_yuv, LUTChannelMode_Numeric));
     settings->addChild(lut_yuv->getSettings());
 
-    stack.push_back(new PluginCameraCalibration(_fb,*camera_parameters,*calib_field));
+    stack.push_back(new PluginCameraCalibration(_fb,*camera_parameters, *global_field));
 
     stack.push_back(new PluginColorThreshold(_fb,lut_yuv));
 
@@ -59,7 +58,7 @@ StackRoboCupSSL::StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, int c
 
     stack.push_back(_global_plugin_publish_geometry);
 
-    PluginVisualize * vis=new PluginVisualize(_fb,*camera_parameters,*global_field,*calib_field);
+    PluginVisualize * vis = new PluginVisualize(_fb,*camera_parameters,*global_field);
     vis->setThresholdingLUT(lut_yuv);
     stack.push_back(vis);
 

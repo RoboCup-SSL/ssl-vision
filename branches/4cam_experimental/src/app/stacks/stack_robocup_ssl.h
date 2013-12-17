@@ -58,7 +58,6 @@ class StackRoboCupSSL : public VisionStack {
   PluginDetectBallsSettings * global_ball_settings;
   CMPattern::TeamSelector * global_team_selector_blue;
   CMPattern::TeamSelector * global_team_selector_yellow;
-  RoboCupCalibrationHalfField * calib_field;
   RoboCupSSLServer * _udp_server;
   public:
   StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, int camera_id, RoboCupField * _global_field, PluginDetectBallsSettings * _global_ball_settings, PluginPublishGeometry * _global_plugin_publish_geometry, CMPattern::TeamSelector * _global_team_selector_blue, CMPattern::TeamSelector * _global_team_selector_yellow, RoboCupSSLServer * udp_server, string cam_settings_filename);

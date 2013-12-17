@@ -42,24 +42,25 @@ protected:
 public:
   FieldFilter()
   {
-    half_field_width=0.0;
-    half_field_length=0.0;
-    half_goal_width=0.0;
-    goal_depth=0.0;
-    boundary_width=0.0;
+    half_field_width = 0.0;
+    half_field_length = 0.0;
+    half_goal_width = 0.0;
+    goal_depth = 0.0;
+    boundary_width = 0.0;
   }
 
   void update(const RoboCupField & field) {
-    half_field_width  = (double)(field.half_field_width->getInt());
-    half_field_length = (double)(field.half_field_length->getInt());
-    half_goal_width   = (double)(field.half_goal_width->getInt());
-    goal_depth   = (double)(field.goal_depth->getInt());
-    boundary_width = (double)(field.boundary_width->getInt());
+    half_field_width = 0.5 * field.field_width->getDouble();
+    half_field_length = 0.5 * field.field_length->getDouble();
+    half_goal_width = field.goal_width->getDouble();
+    goal_depth = field.goal_depth->getDouble();
+    boundary_width = field.boundary_width->getDouble();
   }
 
   ///check whether a point is within the legal field or the boundary (but not the referee walking area)
   bool isInFieldOrPlayableBoundary(const vector2d & pos) {
-    return (fabs(pos.x) <= (half_field_length+boundary_width) &&  fabs(pos.y) <= (half_field_width+boundary_width));
+    return (fabs(pos.x) <= (half_field_length+boundary_width) &&
+            fabs(pos.y) <= (half_field_width+boundary_width));
   }
 
   ///check whether a point is within the legal field (excluding all boundary areas) plus some threshold
@@ -78,7 +79,7 @@ public:
     return (fabs(pos.y) < half_goal_width &&
             fabs(pos.x) > half_field_length + (goal_depth/2));
   }
-  
+
 };
 
 

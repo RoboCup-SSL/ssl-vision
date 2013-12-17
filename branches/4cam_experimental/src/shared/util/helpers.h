@@ -13,36 +13,17 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    field_default_constants.h
-  \brief   Definition of field dimensions
-  \author  Stefan Zickler / Tim Laue, (C) 2009
+  \file    helpers.h
+  \brief   Helper utility functions that generally don't fit anywhere else.
+  \author  Joydeep Biswas, (C) 2013
 */
 //========================================================================
 
-#include <vector>
-#include "field.h"
-#include "geometry.h"
+#ifndef __HELPERS_H__
+#define __HELPERS_H__
 
-#ifndef FIELD_DEFAULT_CONSTANTS_H
-#define FIELD_DEFAULT_CONSTANTS_H
+#include <string>
 
-class FieldLine;
-class FieldCircularArc;
+std::string StringPrintf(const char* format, ...);
 
-namespace FieldConstantsRoboCup2014 {
-
-const double kFieldLength = 9000.0;
-const double kFieldWidth = 6000.0;
-const double kGoalWidth = 1200.0;
-const double kGoalDepth = 200.0;
-const double kBoundaryWidth = 250.0;
-
-extern const std::size_t kNumFieldLines;
-extern const FieldLine kFieldLines[];
-
-extern const std::size_t kNumFieldArcs;
-extern const FieldCircularArc kFieldArcs[];
-
-extern const GVector::vector2d<double> kCameraControlPoints[4][4];
-}
-#endif // FIELD_H
+#endif  // __HELPERS_H__

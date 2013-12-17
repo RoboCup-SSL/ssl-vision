@@ -22,6 +22,7 @@
 #ifndef SOBEL_H
 #define SOBEL_H
 
+#include <geometry.h>
 #include <image.h>
 
 /*!
@@ -36,55 +37,55 @@ class Sobel
   //For explanation, refer to wikipedia's enlightening description of the Sobel Operator:
   // http://en.wikipedia.org/w/index.php?title=Sobel_operator&oldid=351797455
   public:
-  
+
   //Gx convolution. see: http://en.wikipedia.org/w/index.php?title=Sobel_operator&oldid=351797455#Formulation
   static int horizontalBrighter(const greyImage& img, int x, int y, int threshold)
   {
-    int sobel = (-1*img.getPixel(x-1,y-1).v) + 
+    int sobel = (-1*img.getPixel(x-1,y-1).v) +
                 (-2*img.getPixel(x-1,y).v) +
                 (-1*img.getPixel(x-1,y+1).v) +
-                ( 1*img.getPixel(x+1,y-1).v) + 
+                ( 1*img.getPixel(x+1,y-1).v) +
                 ( 2*img.getPixel(x+1,y).v) +
                 ( 1*img.getPixel(x+1,y+1).v);
     return sobel > threshold ? sobel : 0;
   }
-  
+
   //-Gx convolution. see: http://en.wikipedia.org/w/index.php?title=Sobel_operator&oldid=351797455#Formulation
   static int horizontalDarker(const greyImage& img, int x, int y, int threshold)
   {
-    int sobel = ( 1*img.getPixel(x-1,y-1).v) + 
+    int sobel = ( 1*img.getPixel(x-1,y-1).v) +
                 ( 2*img.getPixel(x-1,y).v) +
                 ( 1*img.getPixel(x-1,y+1).v) +
-                (-1*img.getPixel(x+1,y-1).v) + 
+                (-1*img.getPixel(x+1,y-1).v) +
                 (-2*img.getPixel(x+1,y).v) +
                 (-1*img.getPixel(x+1,y+1).v);
     return sobel > threshold ? sobel : 0;
   }
-  
+
   //-Gy convolution. see: http://en.wikipedia.org/w/index.php?title=Sobel_operator&oldid=351797455#Formulation
   static int verticalBrighter(const greyImage& img, int x, int y, int threshold)
   {
-    int sobel = (-1*img.getPixel(x-1,y-1).v) + 
+    int sobel = (-1*img.getPixel(x-1,y-1).v) +
                 (-2*img.getPixel(x,y-1).v) +
                 (-1*img.getPixel(x-1,y-1).v) +
-                ( 1*img.getPixel(x-1,y+1).v) + 
+                ( 1*img.getPixel(x-1,y+1).v) +
                 ( 2*img.getPixel(x,y+1).v) +
                 ( 1*img.getPixel(x+1,y+1).v);
     return sobel > threshold ? sobel : 0;
   }
-  
+
   //Gy convolution. see: http://en.wikipedia.org/w/index.php?title=Sobel_operator&oldid=351797455#Formulation
   static int verticalDarker(const greyImage& img, int x, int y, int threshold)
   {
-    int sobel = ( 1*img.getPixel(x-1,y-1).v) + 
+    int sobel = ( 1*img.getPixel(x-1,y-1).v) +
                 ( 2*img.getPixel(x,y-1).v) +
                 ( 1*img.getPixel(x-1,y-1).v) +
-                (-1*img.getPixel(x-1,y+1).v) + 
+                (-1*img.getPixel(x-1,y+1).v) +
                 (-2*img.getPixel(x,y+1).v) +
                 (-1*img.getPixel(x+1,y+1).v);
     return sobel > threshold ? sobel : 0;
   }
-  
+
   //Scans img raster from pixel (xStart,y) to (xEnd,y) and returns the x coordinate which provided the maximum response to the (convolution) function f
   //If no pixel had a response>0, the function returns -1
   static int maximumHorizontalEdge(const greyImage& img, int y, int xStart, int xEnd,
@@ -103,7 +104,7 @@ class Sobel
     }
     return resX;
   }
-  
+
   //Scans img vertical line from pixel (x,yStart) to (x,yEnd) and returns the y coordinate which provided the maximum response to the (convolution) function f
   //If no pixel had a response>0, the function returns -1
   static int maximumVerticalEdge(const greyImage& img, int x, int yStart, int yEnd,
@@ -122,7 +123,7 @@ class Sobel
     }
     return resY;
   }
-  
+
   //Scans img vertical line from pixel (x,yStart) to (x,yEnd) and returns the y coordinate of the center of the horizontal line
   //The line is demarcated by the low-to-high transition maxBrightEdge, and the high-to-low transition maxDarkEdge
   //Note that this function does not care whether the line is light on dark or dark on light.
@@ -150,7 +151,7 @@ class Sobel
     }
     return (maxBrightY + maxDarkY) / 2;
   }
-  
+
   //Scans img raster from pixel (xStart,y) to (xEnd,y) and returns the x coordinate of the center of the vertical line
   static int centerOfVerticalLine(const greyImage& img, int y, int xStart, int xEnd,
                                     int threshold)
@@ -176,7 +177,7 @@ class Sobel
     }
     return (maxBrightX + maxDarkX) / 2;
   }
-  
+
   //Scans img along the line from (xStart,yStart) to (xEnd,yEnd) and returns the point p of the center of the line
   static void centerOfLine(const greyImage& img, int xStart, int xEnd, int yStart, int yEnd, GVector::vector2d<double> &p, bool &centerFound,
                                   int threshold)
@@ -188,7 +189,7 @@ class Sobel
     int numSteps = max(abs(xEnd-xStart),abs(yEnd-yStart));
     double xIncr = ((double) (xEnd-xStart))/((double) numSteps);
     double yIncr = ((double) (yEnd-yStart))/((double) numSteps);
-    
+
     for(int i=0; i<=numSteps; i++)
     {
       int x = floor((double) xStart + ((double) i)*xIncr + 0.5);

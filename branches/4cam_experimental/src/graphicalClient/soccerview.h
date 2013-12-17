@@ -46,42 +46,17 @@ using namespace std;
 
 class GLSoccerView : public QGLWidget{
   Q_OBJECT
-  
+
 public:
   struct FieldDimensions{
-    /// Width of field lines. Check SSL Rules for conventions regarding line widths and areas enclosed.
-    double line_width;
-    /// Length of the field
+    vector<FieldLine> lines;
+    vector<FieldCircularArc> arcs;
     double field_length;
-    /// Width of the field
     double field_width;
-    /// Width of the boundary outside the field for robots to use if necessary
     double boundary_width;
-    /// Width of the boundary outside the field for the referees to use only
-    double referee_width;
-    /// Width of Goal box
-    double goal_width;
-    /// Depth of Goal box (extending outside the field)
-    double goal_depth;
-    /// Width of the walls outlining the goal box
-    double goal_wall_width;
-    /// Radius of the circle at the center of the field
-    double center_circle_radius;
-    /// Radius of the Defense area quarter circles
-    double defense_radius;
-    /// Length of the line joining the quarter circles of the defense area
-    double defense_stretch;
-    /// Minimum clearance robots have to keep from defense area during free kicks
-    double free_kick_from_defense_dist;
-    /// Distance of penalty kick location from the field line (goal line) (Law 14)
-    double penalty_spot_from_field_line_dist;
-    /// Distance from the penalty mark that all other team members have to stay begind during a penalty kick (Law 14)
-    double penalty_line_from_spot_dist;
-    
-    /// Load SSL 2009 Field Dimensions
     FieldDimensions();
   };
-  
+
   struct Robot{
     bool hasAngle;
     vector2d loc;
@@ -91,13 +66,13 @@ public:
     int team;
     int cameraID;
   };
-  
+
   typedef enum{
     teamUnknown = 0,
     teamBlue,
     teamYellow
   }TeamTypes;
-  
+
 private:
   static const double minZValue = -10;
   static const double maxZValue = 10;
@@ -108,12 +83,12 @@ private:
   static const int PreferedHeight = 768;
   static const double MinRedrawInterval = 0.016; ///Minimum time between graphics updates (limits the fps)
   static const int unknownRobotID = -1;
-  
+
   QVector <QVector<Robot> > robots;
   QVector <QVector<vector2d> > balls;
   QMutex graphicsMutex;
   GLText glText;
-  
+
   GLuint fieldLinesList;
   GLuint blueRobotShape;
   GLuint yellowRobotShape;
@@ -121,21 +96,21 @@ private:
   GLuint blueCircleRobotShape;
   GLuint yellowCircleRobotShape;
   GLuint greyCircleRobotShape;
-  
+
   double viewScale; /// Ratio of world space to screen space coordinates
   double viewXOffset;
   double viewYOffset;
-  
+
   bool leftButton;
   bool midButton;
   bool rightButton;
   int mouseStartX;
   int mouseStartY;
-  
+
   double tLastRedraw;
-  
+
   FieldDimensions fieldDim;
-  
+
 private:
   void drawFieldLines(FieldDimensions &dimensions);
   void drawRobots();
@@ -150,7 +125,7 @@ private:
   int UpdateBalls ( QVector<QPointF> &_balls, int cameraID );
   void drawBall(vector2d loc);
   void vectorTextTest();
-  
+
 protected:
   void paintEvent ( QPaintEvent * event );
   void wheelEvent ( QWheelEvent * event );
@@ -161,13 +136,13 @@ protected:
   void resizeEvent ( QResizeEvent * event );
   void initializeGL();
   void resizeGL(int width, int height);
-  QSize sizeHint () const {return QSize(PreferedWidth,PreferedHeight);} 
-  
-public: 
+  QSize sizeHint () const {return QSize(PreferedWidth,PreferedHeight);}
+
+public:
   GLSoccerView(QWidget *parent = 0);
   void updateDetection (const SSL_DetectionFrame &detection );
   void updateFieldGeometry (const SSL_GeometryFieldSize &fieldSize );
-  
+
 public slots:
   void resetView();
 private slots:
