@@ -10,6 +10,11 @@ The field markings are specified as two lists, one of named line segments, and o
 
 https://ssl-vision.googlecode.com/svn/wiki/images/4cam_field_markings.png
 
+
+The image below shows the default 4-camera field markings. Note that these markings are in no way final, and are likely to change in the future. Note the addition of the line that runs down the center of the field, to provide additional features for geometry calibration of the cameras.
+
+https://ssl-vision.googlecode.com/svn/wiki/images/4cam_field.png
+
 = Camera Calibration =
 
 == Initial Calibration ==
