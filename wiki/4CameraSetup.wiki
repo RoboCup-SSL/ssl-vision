@@ -2,12 +2,17 @@
 
 = Introduction =
 
-Add your content here.
+The 4cam_experimental branch uses a different setup for specifying field markings, and for calibrating the cameras.
 
 
-= Details =
+= Field Markings =
+The field markings are specified as two lists, one of named line segments, and one of named circular arcs. To add / remove markings, change the number under the "Number of Line Segments" or "Number of Arcs" text entry. To reset the field markings to their defaults, click on the "Reset" button.
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+https://ssl-vision.googlecode.com/svn/wiki/images/4cam_field_markings.png
+
+= Camera Calibration =
+
+== Initial Calibration ==
+The initial calibration of the cameras is performed by specifying control points in the image and their corresponding coordinates in the world. The default control points in the 4cam_experimental branch are the corners of each quadrant of the field, but the locations of the control point j for camera i may be changed to any other location from the setting "Camera i / Camera Calibrator / Calibration Parameters / Control point j", as shown in the screenshot below. To move the control points around in the image, make sure that the "Calibration" option under visualizations is checked, and that the camera calibration tab on the right is active.
+
+https://ssl-vision.googlecode.com/svn/wiki/images/4cam_control_points.png
