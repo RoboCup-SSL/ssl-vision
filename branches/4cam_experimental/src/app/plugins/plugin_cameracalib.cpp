@@ -79,6 +79,7 @@ void PluginCameraCalibration::detectEdges(FrameData* data) {
     return;
   }
 
+  field.field_markings_mutex.lockForRead();
   for (size_t i = 0; i < field.field_lines.size(); ++i) {
     const FieldLine& line = *(field.field_lines[i]);
     const GVector::vector3d<double> p1(
@@ -96,6 +97,7 @@ void PluginCameraCalibration::detectEdges(FrameData* data) {
     detectEdgesOnSingleArc(center, arc.radius->getDouble(), arc.a1->getDouble(),
         arc.a2->getDouble(), arc.thickness->getDouble(), point_separation);
   }
+  field.field_markings_mutex.unlock();
 }
 
 ProcessResult PluginCameraCalibration::process(

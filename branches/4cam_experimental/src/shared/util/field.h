@@ -26,6 +26,7 @@
 #include "VarTypes.h"
 #include "helpers.h"
 #include <QObject>
+#include <QReadWriteLock>
 
 #include "messages_robocup_ssl_geometry.pb.h"
 
@@ -135,6 +136,7 @@ public:
 
   void loadDefaultsRoboCup2012();
 
+  mutable QReadWriteLock field_markings_mutex;
   VarDouble* field_length;
   VarDouble* field_width;
   VarDouble* goal_width;

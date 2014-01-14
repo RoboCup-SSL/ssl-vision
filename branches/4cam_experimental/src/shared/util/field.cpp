@@ -332,6 +332,7 @@ RoboCupField::~RoboCupField() {
 }
 
 void RoboCupField::toProtoBuffer(SSL_GeometryFieldSize& buffer) const {
+  field_markings_mutex.lockForRead();
   buffer.Clear();
   buffer.set_field_length(field_length->getDouble());
   buffer.set_field_width(field_width->getDouble());
@@ -361,9 +362,11 @@ void RoboCupField::toProtoBuffer(SSL_GeometryFieldSize& buffer) const {
     proto_arc.set_thickness(arc.thickness->getDouble());
     *(buffer.add_field_arcs()) = proto_arc;
   }
+  field_markings_mutex.unlock();
 }
 
 void RoboCupField::loadDefaultsRoboCup2012() {
+  field_markings_mutex.lockForWrite();
   var_num_lines->setInt(kNumFieldLines);
   var_num_arcs->setInt(kNumFieldArcs);
 
@@ -392,9 +395,11 @@ void RoboCupField::loadDefaultsRoboCup2012() {
     field_arcs.push_back(new FieldCircularArc(kFieldArcs[i]));
     field_arcs_list->addChild(field_arcs.back()->list);
   }
+  field_markings_mutex.unlock();
 }
 
 void RoboCupField::ProcessNewFieldArcs() {
+  field_markings_mutex.lockForWrite();
   vector<VarType*> field_arc_entries = field_arcs_list->getChildren();
   for (size_t i = 0; i < field_arc_entries.size(); ++i) {
     VarList* field_arc_list_ptr =
@@ -422,9 +427,11 @@ void RoboCupField::ProcessNewFieldArcs() {
             "%s:%d\n", __FILE__, __LINE__);
   }
   var_num_arcs->setInt(field_arcs.size());
+  field_markings_mutex.unlock();
 }
 
 void RoboCupField::ProcessNewFieldLines() {
+  field_markings_mutex.lockForWrite();
   vector<VarType*> field_line_entries = field_lines_list->getChildren();
   for (size_t i = 0; i < field_line_entries.size(); ++i) {
     VarList* field_line_list_ptr =
@@ -451,16 +458,17 @@ void RoboCupField::ProcessNewFieldLines() {
             "%s:%d\n", __FILE__, __LINE__);
   }
   var_num_lines->setInt(field_lines.size());
+  field_markings_mutex.unlock();
 }
 
 void RoboCupField::ResizeFieldLines() {
+  field_markings_mutex.lockForWrite();
   // Resize the field_lines list.
   const size_t new_num_lines = static_cast<size_t>(var_num_lines->getInt());
   const size_t old_num_lines = field_lines.size();
   if (new_num_lines < old_num_lines) {
     // Remove the last few line segments and their associated VarType objects.
-    const size_t start = (new_num_lines > 0) ? (new_num_lines - 1) : 0;
-    for (size_t i = start; i < old_num_lines; ++i) {
+    for (size_t i = new_num_lines; i < old_num_lines; ++i) {
       field_lines_list->removeChild(field_lines[i]->list);
       delete field_lines[i];
     }
@@ -478,16 +486,17 @@ void RoboCupField::ResizeFieldLines() {
             "field_lines_list->getChildrenCount() != field_lines.size(), @ "
             "%s:%d\n", __FILE__, __LINE__);
   }
+  field_markings_mutex.unlock();
 }
 
 void RoboCupField::ResizeFieldArcs() {
+  field_markings_mutex.lockForWrite();
   // Resize the field_arcs list.
   const size_t new_num_arcs = static_cast<size_t>(var_num_arcs->getInt());
   const size_t old_num_arcs = field_arcs.size();
   if (new_num_arcs < old_num_arcs) {
     // Remove the last few arc segments and their associated VarType objects.
-    const size_t start = (new_num_arcs > 0) ? (new_num_arcs - 1) : 0;
-    for (size_t i = start; i < old_num_arcs; ++i) {
+    for (size_t i = new_num_arcs; i < old_num_arcs; ++i) {
       field_arcs_list->removeChild(field_arcs[i]->list);
       delete field_arcs[i];
     }
@@ -505,4 +514,5 @@ void RoboCupField::ResizeFieldArcs() {
             "field_arcs_list->getChildrenCount() != field_arcs.size(), @ "
             "%s:%d\n", __FILE__, __LINE__);
   }
+  field_markings_mutex.unlock();
 }

@@ -184,6 +184,7 @@ void PluginVisualize::DrawCameraCalibration(
 void PluginVisualize::DrawCalibrationResult(
     FrameData* data, VisualizationFrame* vis_frame) {
   int steps_per_line(20);
+  real_field.field_markings_mutex.lockForRead();
   for (size_t i = 0; i < real_field.field_lines.size(); ++i) {
     const FieldLine& line_segment =
         *(real_field.field_lines[i]);
@@ -200,6 +201,7 @@ void PluginVisualize::DrawCalibrationResult(
     drawFieldArc(center, arc.radius->getDouble(), arc.a1->getDouble(),
                  arc.a2->getDouble(), steps_per_line, vis_frame);
   }
+  real_field.field_markings_mutex.unlock();
 }
 
 void PluginVisualize::DrawSobelImage(
@@ -317,6 +319,7 @@ void PluginVisualize::DrawSearchCorridors(
   const double half_corridor_width = camera_parameters.
       additional_calibration_information->line_search_corridor_width->
       getDouble() * 0.5;
+  real_field.field_markings_mutex.lockForRead();
   for (size_t i = 0; i < real_field.field_lines.size(); ++i) {
     const FieldLine& line_segment =
         *(real_field.field_lines[i]);
@@ -345,6 +348,7 @@ void PluginVisualize::DrawSearchCorridors(
                  arc.a1->getDouble(), arc.a2->getDouble(), steps_per_line,
                  vis_frame, 180, 180, 255);
   }
+  real_field.field_markings_mutex.unlock();
 }
 
 ProcessResult PluginVisualize::process(
