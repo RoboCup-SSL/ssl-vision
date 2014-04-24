@@ -40,7 +40,7 @@ In theory, all !FireWire cameras should work with SSL-Vision. Here is a list of 
 
 {{{*}}} _recommended model_
 
-We recommend using a PCIx dual-OHCI FireWire 800 card like the following:
+We recommend using a PCIx dual-OHCI !FireWire 800 card like the following:
 http://www.alliedvisiontec.com/us/products/accessories/firewire-accessories/view/pci-express-dual-ohci-4-ports-1394b.html
 
 
