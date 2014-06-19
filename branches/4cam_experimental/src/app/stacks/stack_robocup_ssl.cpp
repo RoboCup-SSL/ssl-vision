@@ -20,49 +20,83 @@
 //========================================================================
 #include "stack_robocup_ssl.h"
 
-StackRoboCupSSL::StackRoboCupSSL(RenderOptions * _opts, FrameBuffer * _fb, int camera_id, RoboCupField * _global_field, PluginDetectBallsSettings * _global_ball_settings,PluginPublishGeometry * _global_plugin_publish_geometry, CMPattern::TeamSelector * _global_team_selector_blue, CMPattern::TeamSelector * _global_team_selector_yellow, RoboCupSSLServer * udp_server, string cam_settings_filename) : VisionStack("RoboCup Image Processing",_opts), global_field(_global_field), global_ball_settings(_global_ball_settings), global_team_selector_blue(_global_team_selector_blue), global_team_selector_yellow(_global_team_selector_yellow) {
-    (void)_fb;
-    _camera_id=camera_id;
-    _cam_settings_filename=cam_settings_filename;
-    _udp_server = udp_server;
-    lut_yuv = new YUVLUT(4,6,6,cam_settings_filename + "-lut-yuv.xml");
-    lut_yuv->loadRoboCupChannels(LUTChannelMode_Numeric);
-    lut_yuv->addDerivedLUT(new RGBLUT(5,5,5,""));
+StackRoboCupSSL::StackRoboCupSSL(
+    RenderOptions * _opts, 
+    FrameBuffer * _fb, 
+    int camera_id, 
+    RoboCupField * _global_field, 
+    PluginDetectBallsSettings * _global_ball_settings,
+    PluginPublishGeometry * _global_plugin_publish_geometry, 
+    PluginLegacyPublishGeometry * _legacy_plugin_publish_geometry, 
+    CMPattern::TeamSelector * _global_team_selector_blue, 
+    CMPattern::TeamSelector * _global_team_selector_yellow, 
+    RoboCupSSLServer * ss_udp_server1,
+    RoboCupSSLServer * ds_udp_server_new,
+    RoboCupSSLServer * ss_udp_server2,
+    RoboCupSSLServer * ds_udp_server_old,
+    string cam_settings_filename) : 
+    VisionStack("RoboCup Image Processing",_opts), 
+    _camera_id(camera_id),
+    _cam_settings_filename(cam_settings_filename),
+    global_field(_global_field), 
+    global_ball_settings(_global_ball_settings), 
+    global_team_selector_blue(_global_team_selector_blue), 
+    global_team_selector_yellow(_global_team_selector_yellow),
+    _p_ss_udp_server(ss_udp_server1),
+    _ds_udp_server_new(ds_udp_server_new),
+    _s_ss_udp_server(ss_udp_server2),
+    _ds_udp_server_old(ds_udp_server_old) {
+  (void)_fb;
+  lut_yuv = new YUVLUT(4,6,6,cam_settings_filename + "-lut-yuv.xml");
+  lut_yuv->loadRoboCupChannels(LUTChannelMode_Numeric);
+  lut_yuv->addDerivedLUT(new RGBLUT(5,5,5,""));
 
-    camera_parameters = new CameraParameters(_camera_id);
+  camera_parameters = new CameraParameters(_camera_id);
 
-    _global_plugin_publish_geometry->addCameraParameters(camera_parameters);
+  _global_plugin_publish_geometry->addCameraParameters(camera_parameters);
+  _legacy_plugin_publish_geometry->addCameraParameters(camera_parameters);
 
-    stack.push_back(new PluginDVR(_fb));
+  stack.push_back(new PluginDVR(_fb));
 
-    stack.push_back(new PluginColorCalibration(_fb,lut_yuv, LUTChannelMode_Numeric));
-    settings->addChild(lut_yuv->getSettings());
+  stack.push_back(new PluginColorCalibration(_fb,lut_yuv, LUTChannelMode_Numeric));
+  settings->addChild(lut_yuv->getSettings());
 
-    stack.push_back(new PluginCameraCalibration(_fb,*camera_parameters, *global_field));
+  stack.push_back(new PluginCameraCalibration(_fb,*camera_parameters, *global_field));
 
-    stack.push_back(new PluginColorThreshold(_fb,lut_yuv));
+  stack.push_back(new PluginColorThreshold(_fb,lut_yuv));
 
-    //initialize the runlength encoder...
-    //we don't expect more than 50k runs per image
-    stack.push_back(new PluginRunlengthEncode(_fb,50000));
+  //initialize the runlength encoder...
+  //we don't expect more than 50k runs per image
+  stack.push_back(new PluginRunlengthEncode(_fb,50000));
 
-    //initialize the blob finder
-    //we don't expect more than 10k blobs per image
-    stack.push_back(new PluginFindBlobs(_fb,lut_yuv, 10000));
+  //initialize the blob finder
+  //we don't expect more than 10k blobs per image
+  stack.push_back(new PluginFindBlobs(_fb,lut_yuv, 10000));
 
-    stack.push_back(new PluginDetectRobots(_fb,lut_yuv,*camera_parameters,*global_field,global_team_selector_blue,global_team_selector_yellow));
+  stack.push_back(new PluginDetectRobots(_fb,lut_yuv,*camera_parameters,*global_field,global_team_selector_blue,global_team_selector_yellow));
 
-    stack.push_back(new PluginDetectBalls(_fb,lut_yuv,*camera_parameters,*global_field,global_ball_settings));
+  stack.push_back(new PluginDetectBalls(_fb,lut_yuv,*camera_parameters,*global_field,global_ball_settings));
 
-    stack.push_back(new PluginSSLNetworkOutput(_fb,_udp_server,*camera_parameters,*global_field));
+  stack.push_back(new PluginSSLNetworkOutput(
+      _fb,
+      _ds_udp_server_new,
+      *camera_parameters,
+      *global_field));
 
-    stack.push_back(_global_plugin_publish_geometry);
+  stack.push_back(new PluginLegacySSLNetworkOutput(
+      _fb,
+      _p_ss_udp_server,
+      _s_ss_udp_server,
+      _ds_udp_server_old,
+      *camera_parameters,
+      *global_field));
 
-    PluginVisualize * vis = new PluginVisualize(_fb,*camera_parameters,*global_field);
-    vis->setThresholdingLUT(lut_yuv);
-    stack.push_back(vis);
+  stack.push_back(_global_plugin_publish_geometry);
+  stack.push_back(_legacy_plugin_publish_geometry);
 
-
+  PluginVisualize * vis = new PluginVisualize(_fb,*camera_parameters,*global_field);
+  vis->setThresholdingLUT(lut_yuv);
+  stack.push_back(vis);
 }
 string StackRoboCupSSL::getSettingsFileName() {
   return _cam_settings_filename;

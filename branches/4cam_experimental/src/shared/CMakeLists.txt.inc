@@ -145,6 +145,8 @@ set (PROTO_FILES
 	messages_robocup_ssl_geometry
 	messages_robocup_ssl_wrapper
 	messages_robocup_ssl_refbox_log
+  messages_robocup_ssl_geometry_legacy
+  messages_robocup_ssl_wrapper_legacy
 )
 
 set (CC_PROTO)

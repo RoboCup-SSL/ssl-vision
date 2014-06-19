@@ -49,8 +49,8 @@ class GLSoccerView : public QGLWidget{
 
 public:
   struct FieldDimensions{
-    vector<FieldLine> lines;
-    vector<FieldCircularArc> arcs;
+    vector<FieldLine*> lines;
+    vector<FieldCircularArc*> arcs;
     double field_length;
     double field_width;
     double boundary_width;
@@ -89,7 +89,6 @@ private:
   QMutex graphicsMutex;
   GLText glText;
 
-  GLuint fieldLinesList;
   GLuint blueRobotShape;
   GLuint yellowRobotShape;
   GLuint greyRobotShape;

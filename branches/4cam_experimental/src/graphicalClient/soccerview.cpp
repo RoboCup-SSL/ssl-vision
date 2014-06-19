@@ -30,11 +30,15 @@ using FieldConstantsRoboCup2014::kFieldLines;
 using FieldConstantsRoboCup2014::kFieldArcs;
 
 GLSoccerView::FieldDimensions::FieldDimensions() :
-  lines(&(kFieldLines[0]), &(kFieldLines[kNumFieldLines])),
-  arcs(&(kFieldArcs[0]), &(kFieldArcs[kNumFieldArcs])),
   field_length(FieldConstantsRoboCup2014::kFieldLength),
   field_width(FieldConstantsRoboCup2014::kFieldWidth),
   boundary_width(FieldConstantsRoboCup2014::kBoundaryWidth) {
+  for (size_t i = 0; i < kNumFieldLines; ++i) {
+    lines.push_back(new FieldLine(kFieldLines[i]));
+  }
+  for (size_t i = 0; i < kNumFieldArcs; ++i) {
+    arcs.push_back(new FieldCircularArc(kFieldArcs[i]));
+  }
 }
 
 GLSoccerView::GLSoccerView(QWidget* parent) :
@@ -49,7 +53,6 @@ GLSoccerView::GLSoccerView(QWidget* parent) :
   viewXOffset = viewYOffset = 0.0;
   setAutoFillBackground(false); //Do not let painter auto fill the widget's background: we'll do it manually through openGl
   connect(this, SIGNAL(postRedraw()), this, SLOT(redraw()));
-  fieldLinesList = GL_INVALID_VALUE;
   blueRobotShape = GL_INVALID_VALUE;
   yellowRobotShape = GL_INVALID_VALUE;
   greyRobotShape = GL_INVALID_VALUE;
@@ -185,16 +188,6 @@ void GLSoccerView::resizeGL(int width, int height)
 
 void GLSoccerView::initializeGL()
 {
-  fieldLinesList = glGenLists(1);
-  if(fieldLinesList==GL_INVALID_VALUE){
-    printf("Unable to create display list!\n");
-    exit(1);
-  }
-  glNewList(fieldLinesList, GL_COMPILE);
-  drawFieldLines(fieldDim);
-  glEndList();
-
-
   blueRobotShape = glGenLists(1);
   if(blueRobotShape==GL_INVALID_VALUE){
     printf("Unable to create display list!\n");
@@ -287,7 +280,7 @@ void GLSoccerView::paintEvent(QPaintEvent* event)
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
-  glCallList(fieldLinesList);
+  drawFieldLines(fieldDim);
   drawRobots();
   drawBalls();
   //vectorTextTest();
@@ -452,7 +445,7 @@ void GLSoccerView::drawFieldLines(FieldDimensions& dimensions)
 {
   glColor4f(FIELD_LINES_COLOR);
   for (size_t i = 0; i < fieldDim.lines.size(); ++i) {
-    const FieldLine& line = fieldDim.lines[i];
+    const FieldLine& line = *fieldDim.lines[i];
     const double half_thickness = 0.5 * line.thickness->getDouble();
     const vector2d p1(line.p1_x->getDouble(), line.p1_y->getDouble());
     const vector2d p2(line.p2_x->getDouble(), line.p2_y->getDouble());
@@ -463,7 +456,7 @@ void GLSoccerView::drawFieldLines(FieldDimensions& dimensions)
   }
 
   for (size_t i = 0; i < fieldDim.arcs.size(); ++i) {
-    const FieldCircularArc& arc = fieldDim.arcs[i];
+    const FieldCircularArc& arc = *fieldDim.arcs[i];
     const double half_thickness = 0.5 * arc.thickness->getDouble();
     const double radius = arc.radius->getDouble();
     const vector2d center(arc.center_x->getDouble(), arc.center_y->getDouble());
@@ -562,4 +555,29 @@ void GLSoccerView::updateDetection(const SSL_DetectionFrame& detection)
   }
   graphicsMutex.unlock();
   postRedraw();
+}
+
+void GLSoccerView::updateFieldGeometry(const SSL_GeometryFieldSize& fieldSize) {
+  graphicsMutex.lock();
+  for (size_t i = 0; i < fieldDim.lines.size(); ++i) {
+    delete fieldDim.lines[i];
+  }
+  fieldDim.lines.clear();
+  for (size_t i = 0; i < fieldSize.field_lines_size(); ++i) {
+    const SSL_FieldLineSegment& line = fieldSize.field_lines(i);
+    fieldDim.lines.push_back(new FieldLine(
+        line.name(), line.p1().x(), line.p1().y(), 
+        line.p2().x(), line.p2().y(), line.thickness()));
+  }
+  for (size_t i = 0; i < fieldDim.arcs.size(); ++i) {
+    delete fieldDim.arcs[i];
+  }
+  fieldDim.arcs.clear();
+  for (size_t i = 0; i < fieldSize.field_arcs_size(); ++i) {
+    const SSL_FieldCicularArc& arc = fieldSize.field_arcs(i);
+    fieldDim.arcs.push_back(new FieldCircularArc(
+        arc.name(), arc.center().x(), arc.center().y(),  arc.radius(),
+        arc.a1(), arc.a2(), arc.thickness()));
+  }
+  graphicsMutex.unlock();
 }

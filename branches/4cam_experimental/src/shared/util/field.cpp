@@ -274,7 +274,7 @@ void FieldCircularArc::Rename() {
 
 RoboCupField::RoboCupField() {
   settings = new VarList("Field Configuration");
-  restore = new VarTrigger("Reset SSL 2012","Reset SSL 2012");
+  restore = new VarTrigger("Reset SSL 2014","Reset SSL 2014");
   field_length = new VarDouble(
       "Field Length", FieldConstantsRoboCup2014::kFieldLength);
   field_width = new VarDouble(

@@ -141,6 +141,7 @@ MainWindow::MainWindow(bool start_capture, bool enforce_affinity)
 
   //update network output settings from xml file
   ((MultiStackRoboCupSSL*)multi_stack)->RefreshNetworkOutput();
+  ((MultiStackRoboCupSSL*)multi_stack)->RefreshLegacyNetworkOutput();
   multi_stack->start();
 
   if (start_capture==true) {

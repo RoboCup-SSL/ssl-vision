@@ -355,7 +355,6 @@ void CameraParameters::do_calibration(int cal_type) {
     p_i.push_back(GVector::vector2d<double>(
       aci->control_point_image_xs[i]->getDouble(),
       aci->control_point_image_ys[i]->getDouble()));
-
     p_f.push_back(GVector::vector3d<double>(
       aci->control_point_field_xs[i]->getDouble(),
       aci->control_point_field_ys[i]->getDouble(), 0.0));
