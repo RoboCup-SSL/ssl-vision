@@ -81,7 +81,7 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
           SLOT(RefreshLegacyNetworkOutput()));
 
   p_ss_udp_server = new RoboCupSSLServer(10002, "224.5.23.2");
-  ds_udp_server_new = new RoboCupSSLServer(10003, "224.5.23.2");
+  ds_udp_server_new = new RoboCupSSLServer(10006, "224.5.23.2");
   s_ss_udp_server = new RoboCupSSLServer(10004, "224.5.23.2");
   ds_udp_server_old = new RoboCupSSLServer(10005, "224.5.23.2");
 
