@@ -21,30 +21,26 @@
 #include "stack_robocup_ssl.h"
 
 StackRoboCupSSL::StackRoboCupSSL(
-    RenderOptions * _opts, 
-    FrameBuffer * _fb, 
-    int camera_id, 
-    RoboCupField * _global_field, 
+    RenderOptions * _opts,
+    FrameBuffer * _fb,
+    int camera_id,
+    RoboCupField * _global_field,
     PluginDetectBallsSettings * _global_ball_settings,
-    PluginPublishGeometry * _global_plugin_publish_geometry, 
-    PluginLegacyPublishGeometry * _legacy_plugin_publish_geometry, 
-    CMPattern::TeamSelector * _global_team_selector_blue, 
-    CMPattern::TeamSelector * _global_team_selector_yellow, 
-    RoboCupSSLServer * ss_udp_server1,
+    PluginPublishGeometry * _global_plugin_publish_geometry,
+    PluginLegacyPublishGeometry * _legacy_plugin_publish_geometry,
+    CMPattern::TeamSelector * _global_team_selector_blue,
+    CMPattern::TeamSelector * _global_team_selector_yellow,
     RoboCupSSLServer * ds_udp_server_new,
-    RoboCupSSLServer * ss_udp_server2,
     RoboCupSSLServer * ds_udp_server_old,
-    string cam_settings_filename) : 
-    VisionStack("RoboCup Image Processing",_opts), 
+    string cam_settings_filename) :
+    VisionStack("RoboCup Image Processing",_opts),
     _camera_id(camera_id),
     _cam_settings_filename(cam_settings_filename),
-    global_field(_global_field), 
-    global_ball_settings(_global_ball_settings), 
-    global_team_selector_blue(_global_team_selector_blue), 
+    global_field(_global_field),
+    global_ball_settings(_global_ball_settings),
+    global_team_selector_blue(_global_team_selector_blue),
     global_team_selector_yellow(_global_team_selector_yellow),
-    _p_ss_udp_server(ss_udp_server1),
     _ds_udp_server_new(ds_udp_server_new),
-    _s_ss_udp_server(ss_udp_server2),
     _ds_udp_server_old(ds_udp_server_old) {
   (void)_fb;
   lut_yuv = new YUVLUT(4,6,6,cam_settings_filename + "-lut-yuv.xml");
@@ -85,8 +81,6 @@ StackRoboCupSSL::StackRoboCupSSL(
 
   stack.push_back(new PluginLegacySSLNetworkOutput(
       _fb,
-      _p_ss_udp_server,
-      _s_ss_udp_server,
       _ds_udp_server_old,
       *camera_parameters,
       *global_field));

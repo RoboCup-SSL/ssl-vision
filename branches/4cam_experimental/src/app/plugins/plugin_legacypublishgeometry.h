@@ -28,21 +28,17 @@
 #include "VarTypes.h"
 
 const FieldLine* GetFieldLine(
-    const string& line_name, 
+    const string& line_name,
     const vector<FieldLine*>& field_lines);
 
 const FieldCircularArc* GetFieldCircularArc(
-    const string& arc_name, 
+    const string& arc_name,
     const vector<FieldCircularArc*>& field_arcs);
 
 class PluginLegacyPublishGeometry : public VisionPlugin
 {
 Q_OBJECT
 protected:
-  // UDP Server for Primary Single-Sized field, old protobuf format.
-  RoboCupSSLServer * _p_ss_udp_server;
-  // UDP Server for Secondary Single-Sized field, old protobuf format.
-  RoboCupSSLServer * _s_ss_udp_server;
   // UDP Server for Double-Sized field, old protobuf format.
   RoboCupSSLServer * _ds_udp_server_old;
   const RoboCupField & _field;
@@ -58,11 +54,9 @@ protected:
 protected slots:
   void slotPublishTriggered();
 public:
-  PluginLegacyPublishGeometry(FrameBuffer * fb,
-                              RoboCupSSLServer * p_ss_udp_server,
-                              RoboCupSSLServer * s_ss_udp_server,
-                              RoboCupSSLServer * ds_udp_server_old,
-                              const RoboCupField & field);
+  PluginLegacyPublishGeometry(FrameBuffer* fb,
+                              RoboCupSSLServer* ds_udp_server_old,
+                              const RoboCupField& field);
   void addCameraParameters(CameraParameters * param);
   virtual VarList * getSettings();
   virtual ~PluginLegacyPublishGeometry();
@@ -72,9 +66,6 @@ public:
   float GetFieldCircularArcRadius(const string& arc_name);
   float GetFieldLineLength(const string& line_name);
   float GetFieldLineThickness(const string& line_name);
-  void DoubleToSingleFieldCameraCalib(
-      bool primary_field,
-      SSL_GeometryCameraCalibration* calib);
 };
 
 #endif

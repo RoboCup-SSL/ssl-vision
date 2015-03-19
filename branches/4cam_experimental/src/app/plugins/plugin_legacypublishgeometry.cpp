@@ -21,7 +21,7 @@
 #include "plugin_legacypublishgeometry.h"
 
 const FieldLine* GetFieldLine(
-    const string& line_name, 
+    const string& line_name,
     const vector<FieldLine*>& field_lines) {
   for (size_t i = 0; i < field_lines.size(); ++i) {
     if (line_name.compare(field_lines[i]->name->getString()) == 0) {
@@ -33,7 +33,7 @@ const FieldLine* GetFieldLine(
 }
 
 const FieldCircularArc* GetFieldCircularArc(
-    const string& arc_name, 
+    const string& arc_name,
     const vector<FieldCircularArc*>& field_arcs) {
   for (size_t i = 0; i < field_arcs.size(); ++i) {
     if (arc_name.compare(field_arcs[i]->name->getString()) == 0) {
@@ -45,15 +45,11 @@ const FieldCircularArc* GetFieldCircularArc(
 }
 
 PluginLegacyPublishGeometry::PluginLegacyPublishGeometry(
-    FrameBuffer* fb, 
-    RoboCupSSLServer* p_ss_udp_server, 
-    RoboCupSSLServer* s_ss_udp_server, 
-    RoboCupSSLServer* ds_udp_server_old, 
-    const RoboCupField& field) : 
-    _p_ss_udp_server(p_ss_udp_server),
-    _s_ss_udp_server(s_ss_udp_server),
+    FrameBuffer* fb,
+    RoboCupSSLServer* ds_udp_server_old,
+    const RoboCupField& field) :
     _ds_udp_server_old(ds_udp_server_old),
-    VisionPlugin(fb), 
+    VisionPlugin(fb),
     _field(field) {
   setSharedAmongStacks(true);
   _settings=new VarList("Publish Legacy Geometry");
@@ -95,16 +91,6 @@ void PluginLegacyPublishGeometry::sendGeometry() {
   // Field data for double-sized field in old format.
   RoboCup2014Legacy::Geometry::SSL_GeometryFieldSize ds_field_old;
 
-  // Geometry data for primary single-sized field in old format.
-  RoboCup2014Legacy::Geometry::SSL_GeometryData p_ss_geodata;
-  // Field data for primary single-sized field in old format.
-  RoboCup2014Legacy::Geometry::SSL_GeometryFieldSize p_ss_field;
-
-  // Geometry data for primary single-sized field in old format.
-  RoboCup2014Legacy::Geometry::SSL_GeometryData s_ss_geodata;
-  // Field data for primary single-sized field in old format.
-  RoboCup2014Legacy::Geometry::SSL_GeometryFieldSize s_ss_field;
-
   ds_field_old.set_field_length(field.field_length());
   ds_field_old.set_field_width(field.field_width());
   ds_field_old.set_goal_width(field.goal_width());
@@ -125,89 +111,14 @@ void PluginLegacyPublishGeometry::sendGeometry() {
   ds_field_old.set_penalty_line_from_spot_dist(400);
   *ds_geodata_old.mutable_field() = ds_field_old;
 
-  p_ss_field.set_field_length(field.field_width());
-  p_ss_field.set_field_width(0.5 * field.field_length() + 
-      0.5 * GetFieldLineThickness("HalfwayLine"));
-  p_ss_field.set_boundary_width(field.boundary_width());
-  p_ss_field.set_center_circle_radius(
-      GetFieldCircularArcRadius("PrimarySingleSize_CenterCircle"));
-  p_ss_field.set_defense_radius(
-      GetFieldCircularArcRadius("PrimarySingleSize_LeftFieldLeftPenaltyArc"));
-  p_ss_field.set_defense_stretch(
-      GetFieldLineLength("PrimarySingleSize_LeftPenaltyStretch"));
-  p_ss_field.set_goal_depth(field.goal_depth());
-  // The following fields no longer exist in ssl-vision, and are hard-coded
-  // from the ssl-vision SVN trunk, r233.
-  p_ss_field.set_line_width(10);
-  p_ss_field.set_referee_width(425);
-  p_ss_field.set_goal_width(700);
-  p_ss_field.set_goal_wall_width(20);
-  p_ss_field.set_free_kick_from_defense_dist(200);
-  p_ss_field.set_penalty_spot_from_field_line_dist(750);
-  p_ss_field.set_penalty_line_from_spot_dist(400);
-  *p_ss_geodata.mutable_field() = p_ss_field;
-
-  s_ss_field.set_field_length(field.field_width());
-  s_ss_field.set_field_width(0.5 * field.field_length() +
-      0.5 * GetFieldLineThickness("HalfwayLine"));
-  s_ss_field.set_boundary_width(field.boundary_width());
-  s_ss_field.set_center_circle_radius(
-      GetFieldCircularArcRadius("SecondarySingleSize_CenterCircle"));
-  s_ss_field.set_defense_radius(
-      GetFieldCircularArcRadius("SecondarySingleSize_LeftFieldLeftPenaltyArc"));
-  s_ss_field.set_defense_stretch(
-      GetFieldLineLength("SecondarySingleSize_LeftPenaltyStretch"));
-  s_ss_field.set_goal_depth(field.goal_depth());
-  // The following fields no longer exist in ssl-vision, and are hard-coded
-  // from the ssl-vision SVN trunk, r233.
-  s_ss_field.set_line_width(10);
-  s_ss_field.set_referee_width(425);
-  s_ss_field.set_goal_width(700);
-  s_ss_field.set_goal_wall_width(20);
-  s_ss_field.set_free_kick_from_defense_dist(200);
-  s_ss_field.set_penalty_spot_from_field_line_dist(750);
-  s_ss_field.set_penalty_line_from_spot_dist(400);
-  *s_ss_geodata.mutable_field() = s_ss_field;
 
   // Copy over the camera calibrations.
   for (unsigned int i = 0; i < params.size(); i++) {
     SSL_GeometryCameraCalibration* ds_calib_old = ds_geodata_old.add_calib();
-    SSL_GeometryCameraCalibration* p_ss_calib = p_ss_geodata.add_calib();
-    SSL_GeometryCameraCalibration* s_ss_calib = s_ss_geodata.add_calib();
     params[i]->toProtoBuffer(*ds_calib_old,i);
-    params[i]->toProtoBuffer(*p_ss_calib,i);
-    params[i]->toProtoBuffer(*s_ss_calib,i);
-    DoubleToSingleFieldCameraCalib(true, p_ss_calib);
-    DoubleToSingleFieldCameraCalib(false, s_ss_calib);
   }
 
   _ds_udp_server_old->sendLegacyMessage(ds_geodata_old);
-  _p_ss_udp_server->sendLegacyMessage(p_ss_geodata);
-  _s_ss_udp_server->sendLegacyMessage(s_ss_geodata);
-}
-
-void PluginLegacyPublishGeometry::DoubleToSingleFieldCameraCalib(
-    bool primary_field,
-    SSL_GeometryCameraCalibration* calib) {
-  const float y_offset =
-      (primary_field ? 1 : -1) *
-      (0.25 * _field.field_length->getDouble() -
-          0.5 * GetFieldLineThickness("HalfwayLine"));
-
-  const float qx = calib->q1();
-  const float qy = -calib->q0();
-  calib->set_q0(qx);
-  calib->set_q1(qy);
-
-  const float tx = calib->ty();
-  const float ty = -calib->tx() + y_offset;
-  calib->set_tx(tx);
-  calib->set_ty(ty);
-
-  float derived_tx = calib->derived_camera_world_tx();
-  float derived_ty = calib->derived_camera_world_ty() + y_offset;
-  calib->set_derived_camera_world_tx(derived_tx);
-  calib->set_derived_camera_world_ty(derived_ty);
 }
 
 float PluginLegacyPublishGeometry::GetFieldLineLength(const string& line_name) {
@@ -225,7 +136,7 @@ float PluginLegacyPublishGeometry::GetFieldLineThickness(
 
 float PluginLegacyPublishGeometry::GetFieldCircularArcRadius(
     const string& arc_name) {
-  const FieldCircularArc* arc = 
+  const FieldCircularArc* arc =
       GetFieldCircularArc(arc_name, _field.field_arcs);
   if (arc == NULL) return 0;
   return (arc->radius->getDouble() + 0.5 * arc->thickness->getDouble());

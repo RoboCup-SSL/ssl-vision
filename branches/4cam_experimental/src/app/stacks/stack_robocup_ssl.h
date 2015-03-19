@@ -60,28 +60,22 @@ class StackRoboCupSSL : public VisionStack {
   PluginDetectBallsSettings * global_ball_settings;
   CMPattern::TeamSelector * global_team_selector_blue;
   CMPattern::TeamSelector * global_team_selector_yellow;
-  // UDP Server for Primary Single-Sized field, old protobuf format.
-  RoboCupSSLServer * _p_ss_udp_server;
   // UDP Server for Double-Sized field, new protobuf format.
   RoboCupSSLServer * _ds_udp_server_new;
-  // UDP Server for Secondary Single-Sized field, old protobuf format.
-  RoboCupSSLServer * _s_ss_udp_server;
   // UDP Server for Double-Sized field, old protobuf format.
   RoboCupSSLServer * _ds_udp_server_old;
   public:
-  StackRoboCupSSL(RenderOptions* _opts, 
-                  FrameBuffer* _fb, 
-                  int camera_id, 
-                  RoboCupField* _global_field, 
+  StackRoboCupSSL(RenderOptions* _opts,
+                  FrameBuffer* _fb,
+                  int camera_id,
+                  RoboCupField* _global_field,
                   PluginDetectBallsSettings* _global_ball_settings,
-                  PluginPublishGeometry* _global_plugin_publish_geometry, 
-                  PluginLegacyPublishGeometry* _legacy_plugin_publish_geometry, 
-                  CMPattern::TeamSelector* _global_team_selector_blue, 
-                  CMPattern::TeamSelector* _global_team_selector_yellow, 
-                  RoboCupSSLServer* ss_udp_server1, 
-                  RoboCupSSLServer* ds_udp_server_new, 
-                  RoboCupSSLServer* ss_udp_server2, 
-                  RoboCupSSLServer* ds_udp_server_old, 
+                  PluginPublishGeometry* _global_plugin_publish_geometry,
+                  PluginLegacyPublishGeometry* _legacy_plugin_publish_geometry,
+                  CMPattern::TeamSelector* _global_team_selector_blue,
+                  CMPattern::TeamSelector* _global_team_selector_yellow,
+                  RoboCupSSLServer* ds_udp_server_new,
+                  RoboCupSSLServer* ds_udp_server_old,
                   string cam_settings_filename);
   virtual string getSettingsFileName();
   virtual ~StackRoboCupSSL();

@@ -48,13 +48,9 @@ class MultiStackRoboCupSSL : public QObject, public MultiVisionStack {
   CMPattern::TeamSelector * global_team_selector_yellow;
   PluginSSLNetworkOutputSettings * global_network_output_settings;
   PluginLegacySSLNetworkOutputSettings * legacy_network_output_settings;
-  
-  // UDP Server for Primary Single-Sized field, old protobuf format.
-  RoboCupSSLServer * p_ss_udp_server;
+
   // UDP Server for Double-Sized field, new protobuf format.
   RoboCupSSLServer * ds_udp_server_new;
-  // UDP Server for Secondary Single-Sized field, old protobuf format.
-  RoboCupSSLServer * s_ss_udp_server;
   // UDP Server for Double-Sized field, old protobuf format.
   RoboCupSSLServer * ds_udp_server_old;
   public:

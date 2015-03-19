@@ -20,11 +20,9 @@
 //========================================================================
 #include "multistack_robocup_ssl.h"
 
-MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) : 
-    p_ss_udp_server(NULL),
-    ds_udp_server_new(NULL), 
-    s_ss_udp_server(NULL), 
-    ds_udp_server_old(NULL), 
+MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
+    ds_udp_server_new(NULL),
+    ds_udp_server_old(NULL),
     MultiVisionStack("RoboCup SSL Multi-Cam",_opts) {
   //add global field calibration parameter
   global_field = new RoboCupField();
@@ -57,44 +55,12 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
           this,
           SLOT(RefreshNetworkOutput()));
 
-  legacy_network_output_settings = new PluginLegacySSLNetworkOutputSettings();
-  settings->addChild(legacy_network_output_settings->getSettings());
-  connect(legacy_network_output_settings->p_ss_multicast_port,
-          SIGNAL(wasEdited(VarType *)),
-          this,
-          SLOT(RefreshLegacyNetworkOutput()));
-  connect(legacy_network_output_settings->s_ss_multicast_port,
-          SIGNAL(wasEdited(VarType *)),
-          this,
-          SLOT(RefreshLegacyNetworkOutput()));
-  connect(legacy_network_output_settings->ds_multicast_port_old,
-          SIGNAL(wasEdited(VarType *)),
-          this,
-          SLOT(RefreshLegacyNetworkOutput()));
-  connect(legacy_network_output_settings->multicast_address,
-          SIGNAL(wasEdited(VarType *)),
-          this,
-          SLOT(RefreshLegacyNetworkOutput()));
-  connect(legacy_network_output_settings->multicast_interface,
-          SIGNAL(wasEdited(VarType *)),
-          this,
-          SLOT(RefreshLegacyNetworkOutput()));
-
-  p_ss_udp_server = new RoboCupSSLServer(10002, "224.5.23.2");
   ds_udp_server_new = new RoboCupSSLServer(10006, "224.5.23.2");
-  s_ss_udp_server = new RoboCupSSLServer(10004, "224.5.23.2");
   ds_udp_server_old = new RoboCupSSLServer(10005, "224.5.23.2");
 
   global_plugin_publish_geometry = new  PluginPublishGeometry(
       0,
       ds_udp_server_new,
-      *global_field);
-
-  legacy_plugin_publish_geometry = new PluginLegacyPublishGeometry (
-      0,
-      p_ss_udp_server,
-      s_ss_udp_server,
-      ds_udp_server_old,
       *global_field);
 
   //add parameter for number of cameras
@@ -110,11 +76,9 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
             global_ball_settings,
             global_plugin_publish_geometry,
             legacy_plugin_publish_geometry,
-            global_team_selector_blue, 
+            global_team_selector_blue,
             global_team_selector_yellow,
-            p_ss_udp_server,
             ds_udp_server_new,
-            s_ss_udp_server,
             ds_udp_server_old,
             "robocup-ssl-cam-" + QString::number(i).toStdString()));
   }
@@ -127,9 +91,7 @@ string MultiStackRoboCupSSL::getSettingsFileName() {
 
 MultiStackRoboCupSSL::~MultiStackRoboCupSSL() {
   stop();
-  delete p_ss_udp_server;
   delete ds_udp_server_new;
-  delete s_ss_udp_server;
   delete ds_udp_server_old;
   delete global_plugin_publish_geometry;
   delete global_field;
@@ -156,25 +118,10 @@ void MultiStackRoboCupSSL::UpdateServerSettings(const int port,
 }
 
 void MultiStackRoboCupSSL::RefreshLegacyNetworkOutput() {
-  const string address = 
+  const string address =
       legacy_network_output_settings->multicast_address->getString();
-  const string interface = 
+  const string interface =
       legacy_network_output_settings->multicast_interface->getString();
-
-  UpdateServerSettings(
-      legacy_network_output_settings->p_ss_multicast_port->getInt(),
-      address,
-      interface,
-      "PRIMARY SINGLE-SIZE FIELD",
-      p_ss_udp_server
-  );
-  UpdateServerSettings(
-      legacy_network_output_settings->s_ss_multicast_port->getInt(),
-      address,
-      interface,
-      "SECONDARY SINGLE-SIZE FIELD",
-      s_ss_udp_server
-  );
   UpdateServerSettings(
       legacy_network_output_settings->ds_multicast_port_old->getInt(),
       address,
