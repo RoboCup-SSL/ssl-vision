@@ -1,0 +1,9 @@
+import "messages_robocup_ssl_detection.proto";
+import "messages_robocup_ssl_geometry_legacy.proto";
+
+package RoboCup2014Legacy.Wrapper;
+
+message SSL_WrapperPacket {
+  optional SSL_DetectionFrame detection = 1;
+  optional RoboCup2014Legacy.Geometry.SSL_GeometryData geometry = 2;
+}

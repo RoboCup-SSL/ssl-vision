@@ -1,0 +1,5 @@
+sslvision (0:svn159-1) squeeze; urgency=low
+
+  * Added debian control files.
+
+ -- Armin Burchardt <armin@informatik.uni-bremen.de>  Fri, 12 Jun 2009 12:39:28 +0200

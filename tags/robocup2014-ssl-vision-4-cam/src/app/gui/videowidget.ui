@@ -1,0 +1,199 @@
+<ui version="4.0" >
+ <class>VideoWidget</class>
+ <widget class="QWidget" name="VideoWidget" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>547</width>
+    <height>321</height>
+   </rect>
+  </property>
+  <property name="focusPolicy" >
+   <enum>Qt::StrongFocus</enum>
+  </property>
+  <property name="windowTitle" >
+   <string>Video Display</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="icons/icons_gui.qrc" >:/icons/window-new.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" >
+   <property name="margin" >
+    <number>0</number>
+   </property>
+   <property name="spacing" >
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QFrame" name="bigframe" >
+     <property name="frameShape" >
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" >
+      <property name="margin" >
+       <number>3</number>
+      </property>
+      <property name="spacing" >
+       <number>3</number>
+      </property>
+      <item>
+       <widget class="QFrame" name="videoframe" >
+        <property name="autoFillBackground" >
+         <bool>true</bool>
+        </property>
+        <property name="frameShape" >
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow" >
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="lineWidth" >
+         <number>1</number>
+        </property>
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>5</number>
+         </property>
+         <property name="spacing" >
+          <number>4</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="titleLabel" >
+           <property name="font" >
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="autoFillBackground" >
+            <bool>false</bool>
+           </property>
+           <property name="frameShape" >
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow" >
+            <enum>QFrame::Sunken</enum>
+           </property>
+           <property name="text" >
+            <string>TextLabel</string>
+           </property>
+           <property name="margin" >
+            <number>2</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="statLabel" >
+           <property name="minimumSize" >
+            <size>
+             <width>160</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="autoFillBackground" >
+            <bool>false</bool>
+           </property>
+           <property name="frameShape" >
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow" >
+            <enum>QFrame::Sunken</enum>
+           </property>
+           <property name="text" >
+            <string>no stats</string>
+           </property>
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="indent" >
+            <number>-1</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionWindow" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="icons_gui.qrc" >:/icons/window-new.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Toggle Separate Window</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+W</string>
+   </property>
+   <property name="shortcutContext" >
+    <enum>Qt::WidgetShortcut</enum>
+   </property>
+  </action>
+  <action name="actionFullscreen" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="icons_gui.qrc" >:/icons/view-fullscreen.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Toggle Fullscreen</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+F</string>
+   </property>
+   <property name="shortcutContext" >
+    <enum>Qt::WidgetShortcut</enum>
+   </property>
+  </action>
+  <action name="actionFlipV" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="icons_gui.qrc" >:/icons/delete_table_row.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Flip Vertically</string>
+   </property>
+  </action>
+  <action name="actionFlipH" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="icons_gui.qrc" >:/icons/delete_table_col.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Flip Horizontally</string>
+   </property>
+  </action>
+  <action name="actionOn" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="icons_gui.qrc" >:/icons/application-exit.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Rendering On/Off</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="icons_gui.qrc" />
+ </resources>
+ <connections/>
+</ui>
