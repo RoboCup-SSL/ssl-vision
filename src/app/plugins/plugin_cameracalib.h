@@ -32,42 +32,39 @@
 /**
 *	@author Tim Laue <Tim.Laue@dfki.de>
 */
-class PluginCameraCalibration : public VisionPlugin 
+class PluginCameraCalibration : public VisionPlugin
 {
 protected:
   VarList* settings;
   VarList* camera_settings;
-  VarList* field_settings;
   VarList* calibration_settings;
   CameraParameters& camera_parameters;
-  RoboCupCalibrationHalfField& field;
+  RoboCupField& field;
   CameraCalibrationWidget * ccw;
   greyImage* grey_image;
   rgbImage* rgb_image;
   int video_width;
   int video_height;
   void mouseEvent ( QMouseEvent * event, pixelloc loc );
-  enum ImageSide {IMG_LEFT, IMG_RIGHT, IMG_TOP, IMG_BOTTOM};
 
   bool doing_drag;
   VarDouble* drag_x;
   VarDouble* drag_y;
 
   void sanitizeSobel(greyImage * img, GVector::vector2d<double> & val,int sobel_border=1);
-    
-  ImageSide getImageSide(const GVector::vector3d<double>& start,
-                         const GVector::vector3d<double>& end);
-  
+
   void detectEdges(FrameData * data);
+  void detectEdgesOnSingleLine(const GVector::vector3d<double>& p1,
+                                const GVector::vector3d<double>& p2,
+                                double thickness, double point_separation);
   void detectEdgesOnSingleArc(const GVector::vector3d<double>& center,
                               double radius, double theta1, double theta2,
-                              int numPoints);
-  void detectEdgesOnSingleLine(const GVector::vector3d<double>& start,
-                               const GVector::vector3d<double>& end,
-                               int pointsPerLine, bool detectCenter = false);
+                              double thickness, double point_separation);
 
 public:
-  PluginCameraCalibration(FrameBuffer * _buffer, CameraParameters& camera_params, RoboCupCalibrationHalfField& _field);
+  PluginCameraCalibration(
+      FrameBuffer* _buffer, CameraParameters& camera_params,
+      RoboCupField& _field);
   ~PluginCameraCalibration();
   virtual ProcessResult process(FrameData * data, RenderOptions * options);
   virtual VarList * getSettings();
@@ -78,7 +75,7 @@ public:
   virtual void mousePressEvent ( QMouseEvent * event, pixelloc loc );
   virtual void mouseReleaseEvent ( QMouseEvent * event, pixelloc loc );
   virtual void mouseMoveEvent ( QMouseEvent * event, pixelloc loc );
-  
+
 };
 
 #endif //PLUGIN_CAMERACALIB_H

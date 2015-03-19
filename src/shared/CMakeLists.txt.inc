@@ -94,6 +94,9 @@ set (SHARED_SRCS
 	#${shared_dir}/vartypes/enhanced/TimeLine.cpp
 	#${shared_dir}/vartypes/enhanced/TimeVar.cpp
 
+  ${shared_dir}/util/helpers.cpp
+  ${shared_dir}/util/field.cpp
+  ${shared_dir}/util/field_default_constants.cpp
 )
 
 #only ones that need to be moc'ed
@@ -101,7 +104,7 @@ set (SHARED_HEADERS
 	${shared_dir}/capture/capturedc1394v2.h
 	${shared_dir}/capture/capturefromfile.h
   ${shared_dir}/capture/capture_generator.h
-	
+
 	${shared_dir}/cmpattern/cmpattern_team.h
 	${shared_dir}/cmpattern/cmpattern_teamdetector.h
 
@@ -121,7 +124,7 @@ set (SHARED_HEADERS
 	${shared_dir}/vartypes/primitives/VarString.h
 	${shared_dir}/vartypes/primitives/VarStringEnum.h
 	${shared_dir}/vartypes/primitives/VarTrigger.h
-  #${shared_dir}/vartypes/primitives/VarProtoBuffer.h 
+  #${shared_dir}/vartypes/primitives/VarProtoBuffer.h
 
 	${shared_dir}/vartypes/gui/VarItem.h
 	${shared_dir}/vartypes/gui/VarItemDelegate.h
@@ -142,6 +145,8 @@ set (PROTO_FILES
 	messages_robocup_ssl_geometry
 	messages_robocup_ssl_wrapper
 	messages_robocup_ssl_refbox_log
+  messages_robocup_ssl_geometry_legacy
+  messages_robocup_ssl_wrapper_legacy
 )
 
 set (CC_PROTO)
@@ -151,13 +156,13 @@ foreach (file ${PROTO_FILES})
 	set (cc_file ${file}.pb.cc)
 	set (h_file ${file}.pb.h)
 	set (proto_file ${file}.proto)
-	
+
 	add_custom_command(OUTPUT ${cc_file} ${h_file}
 			COMMAND protoc --cpp_out=${PROJECT_BINARY_DIR} --proto_path=${PROTO_PATH} ${PROTO_PATH}/${proto_file}
 			DEPENDS ${PROTO_PATH}/${proto_file}
 			VERBATIM
 	)
-	
+
 	list (APPEND CC_PROTO ${PROJECT_BINARY_DIR}/${cc_file})
 	list (APPEND H_PROTO ${PROJECT_BINARY_DIR}/${h_file})
 endforeach()

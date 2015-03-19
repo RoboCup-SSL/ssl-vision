@@ -47,8 +47,10 @@ set (SRCS
 	src/app/plugins/plugin_detect_robots.cpp
 	src/app/plugins/plugin_find_blobs.cpp
 	src/app/plugins/plugin_publishgeometry.cpp
+	src/app/plugins/plugin_legacypublishgeometry.cpp
 	src/app/plugins/plugin_runlength_encode.cpp
 	src/app/plugins/plugin_sslnetworkoutput.cpp
+	src/app/plugins/plugin_legacysslnetworkoutput.cpp
 	src/app/plugins/plugin_visualize.cpp
 	src/app/plugins/plugin_dvr.cpp
 	src/app/plugins/visionplugin.cpp
@@ -73,6 +75,7 @@ qt4_wrap_cpp (MOC_SRCS
 	
 	src/app/plugins/plugin_dvr.h
 	src/app/plugins/plugin_publishgeometry.h
+	src/app/plugins/plugin_legacypublishgeometry.h
 	src/app/plugins/visionplugin.h
 	
 	src/app/stacks/multistack_robocup_ssl.h

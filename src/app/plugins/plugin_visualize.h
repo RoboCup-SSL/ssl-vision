@@ -65,20 +65,48 @@ protected:
 
   const CameraParameters& camera_parameters;
   const RoboCupField& real_field;
-  const RoboCupCalibrationHalfField& calib_field;
 
   LUT3D * _threshold_lut;
   greyImage* edge_image;
   greyImage* temp_grey_image;
-  
-  void drawFieldLine(double xStart, double yStart, double xEnd, double yEnd, int steps,
-                     VisualizationFrame * vis_frame, 
-                     unsigned char r=255, unsigned char g=100, unsigned char b=100);
-  
-public:
-    PluginVisualize(FrameBuffer * _buffer, const CameraParameters& camera_params, const RoboCupField& real_field, const RoboCupCalibrationHalfField& calib_field);
 
-    ~PluginVisualize();
+  void drawFieldArc(
+      const GVector::vector3d<double>& center,
+      double radius, double theta1, double theta2, int steps,
+      VisualizationFrame* vis_frame,
+      unsigned char r = 255, unsigned char g = 100, unsigned char b = 100);
+  void drawFieldLine(
+      const GVector::vector3d<double>& start,
+      const GVector::vector3d<double>& end, int steps,
+      VisualizationFrame* vis_frame,
+      unsigned char r = 255, unsigned char g = 100, unsigned char b = 100);
+
+  void DrawCameraImage(FrameData* data, VisualizationFrame* vis_frame);
+
+  void DrawThresholdedImage(FrameData* data, VisualizationFrame* vis_frame);
+
+  void DrawBlobs(FrameData* data, VisualizationFrame* vis_frame);
+
+  void DrawCameraCalibration(FrameData* data, VisualizationFrame* vis_frame);
+
+  void DrawCalibrationResult(FrameData* data, VisualizationFrame* vis_frame);
+
+  void DrawSobelImage(FrameData* data, VisualizationFrame* vis_frame);
+
+  void DrawDetectedEdges(FrameData* data, VisualizationFrame* vis_frame);
+
+  void DrawEdgeTangent(
+      const GVector::vector2d<double>& image_point,
+      const GVector::vector3d<double>& field_point,
+      const GVector::vector3d<double>& field_tangent,
+      VisualizationFrame* vis_frame, rgb edge_draw_color);
+
+  void DrawSearchCorridors(FrameData* data, VisualizationFrame* vis_frame);
+public:
+  PluginVisualize(FrameBuffer* _buffer, const CameraParameters& camera_params,
+                  const RoboCupField& real_field);
+
+  ~PluginVisualize();
 
    void setThresholdingLUT(LUT3D * threshold_lut);
    virtual ProcessResult process(FrameData * data, RenderOptions * options);

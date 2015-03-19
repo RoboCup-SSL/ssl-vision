@@ -13,36 +13,33 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    field_default_constants.h
-  \brief   Definition of field dimensions
-  \author  Stefan Zickler / Tim Laue, (C) 2009
-*/
+ \file    helpers.cpp
+ \brief   Helper utility functions that generally don't fit anywhere else.
+ \author  Joydeep Biswas, (C) 2013
+ */
 //========================================================================
 
-#include <vector>
-#include "field.h"
-#include "geometry.h"
+#include "helpers.h"
 
-#ifndef FIELD_DEFAULT_CONSTANTS_H
-#define FIELD_DEFAULT_CONSTANTS_H
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
 
-class FieldLine;
-class FieldCircularArc;
+std::string StringPrintf(const char* format, ...) {
+  va_list al;
+  int string_length = 0;
+  char* buffer = NULL;
 
-namespace FieldConstantsRoboCup2014 {
+  va_start(al,format);
+  string_length = vsnprintf(buffer,string_length,format,al);
+  va_end(al);
+  if (string_length == 0) return (std::string());
+  buffer = reinterpret_cast<char*>(malloc((string_length + 1) * sizeof(char)));
+  if (buffer == NULL) return (std::string());
 
-const double kFieldLength = 8090.0;
-const double kFieldWidth = 6050.0;
-const double kGoalWidth = 1000.0;
-const double kGoalDepth = 200.0;
-const double kBoundaryWidth = 250.0;
-
-extern const std::size_t kNumFieldLines;
-extern const FieldLine kFieldLines[];
-
-extern const std::size_t kNumFieldArcs;
-extern const FieldCircularArc kFieldArcs[];
-
-extern const GVector::vector2d<double> kCameraControlPoints[4][4];
+  va_start(al,format);
+  string_length = vsnprintf(buffer,string_length + 1,format,al);
+  va_end(al);
+  return (std::string(buffer));
 }
-#endif // FIELD_H
