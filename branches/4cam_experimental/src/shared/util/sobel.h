@@ -38,6 +38,12 @@ class Sobel
   // http://en.wikipedia.org/w/index.php?title=Sobel_operator&oldid=351797455
   public:
 
+  //Returns true iff the (x,y) coordinate is inside a 1-pixel margin of img.
+  static bool validImagePixel(const greyImage& img, const int x, const int y) {
+    return (x > 0 && y > 0 &&
+        x < img.getWidth() - 1 && y < img.getHeight() - 1);
+  }
+
   //Gx convolution. see: http://en.wikipedia.org/w/index.php?title=Sobel_operator&oldid=351797455#Formulation
   static int horizontalBrighter(const greyImage& img, int x, int y, int threshold)
   {
@@ -95,6 +101,7 @@ class Sobel
     int maxEdge(0);
     for(int x=xStart; x<=xEnd; ++x)
     {
+      if (!validImagePixel(img, x, y)) continue;
       int currentEdge = f(img,x,y,threshold);
       if(currentEdge > maxEdge)
       {
@@ -114,6 +121,7 @@ class Sobel
     int maxEdge(0);
     for(int y=yStart; y<=yEnd; ++y)
     {
+      if (!validImagePixel(img, x, y)) continue;
       int currentEdge = f(img,x,y,threshold);
       if(currentEdge > maxEdge)
       {
@@ -136,6 +144,7 @@ class Sobel
     int maxBrightY(0);
     for(int y=yStart; y<=yEnd; ++y)
     {
+      if (!validImagePixel(img, x, y)) continue;
       int currentDarkEdge = Sobel::verticalDarker(img, x, y, threshold);
       int currentBrightEdge = Sobel::verticalBrighter(img, x, y, threshold);
       if(currentDarkEdge > maxDarkEdge)
@@ -162,6 +171,7 @@ class Sobel
     int maxBrightX(0);
     for(int x=xStart; x<=xEnd; ++x)
     {
+      if (!validImagePixel(img, x, y)) continue;
       int currentDarkEdge = Sobel::horizontalDarker(img, x, y, threshold);
       int currentBrightEdge = Sobel::horizontalBrighter(img, x, y, threshold);
       if(currentDarkEdge > maxDarkEdge)
@@ -194,6 +204,7 @@ class Sobel
     {
       int x = floor((double) xStart + ((double) i)*xIncr + 0.5);
       int y = floor((double) yStart + ((double) i)*yIncr + 0.5);
+      if (!validImagePixel(img, x, y)) continue;
       int Dx = Sobel::horizontalDarker(img, x, y, threshold);
       int Dy = Sobel::verticalDarker(img, x, y, threshold);
       int Bx = Sobel::horizontalBrighter(img, x, y, threshold);

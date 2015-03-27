@@ -55,12 +55,32 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
           this,
           SLOT(RefreshNetworkOutput()));
 
+  legacy_network_output_settings = new PluginLegacySSLNetworkOutputSettings();
+  settings->addChild(legacy_network_output_settings->getSettings());
+  connect(legacy_network_output_settings->ds_multicast_port_old,
+          SIGNAL(wasEdited(VarType *)),
+          this,
+          SLOT(RefreshLegacyNetworkOutput()));
+  connect(legacy_network_output_settings->multicast_address,
+          SIGNAL(wasEdited(VarType *)),
+          this,
+          SLOT(RefreshLegacyNetworkOutput()));
+  connect(legacy_network_output_settings->multicast_interface,
+          SIGNAL(wasEdited(VarType *)),
+          this,
+          SLOT(RefreshLegacyNetworkOutput()));
+
   ds_udp_server_new = new RoboCupSSLServer(10006, "224.5.23.2");
   ds_udp_server_old = new RoboCupSSLServer(10005, "224.5.23.2");
 
   global_plugin_publish_geometry = new  PluginPublishGeometry(
       0,
       ds_udp_server_new,
+      *global_field);
+
+  legacy_plugin_publish_geometry = new  PluginLegacyPublishGeometry(
+      0,
+      ds_udp_server_old,
       *global_field);
 
   //add parameter for number of cameras
