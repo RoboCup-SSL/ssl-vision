@@ -4,35 +4,41 @@
 
 == Coordinate System ==
 
-To be written...
+The four cameras and the coordinate system in ssl-vision are set up as shown in the following figure.
+https://ssl-vision.googlecode.com/svn/wiki/images/4cam_setup.png
 
-== Calibration Procedure ==
+== Field Markings ==
+The field markings are specified as two lists, one of named line segments, and one of named circular arcs. To add / remove markings, change the number under the "Number of Line Segments" or "Number of Arcs" text entry. To reset the field markings to their defaults, click on the "Reset" button.
 
-In order to obtain information about the action on the field from
-the camera images, a camera calibration routine has to be performed. 
-The following step-by-step instructions will guide you through the calibration process:
-  
-  # *Set Corner Points* Activate the Camera Calibration tab on the right side of the user interface. Now you are able to drag the four points constraining a half field to the location in the image plane. The four points are called _Left Corner, Right Corner, Left Centerline, Right Centerline_ and have to be placed as someone would look from the field's center to the goal.
-  # *Adjust the height* Adjust the camera height according to your setup. Due to nature of this calibration problem, the algorithm does not know, if the depth in the image is caused by the focal length or the distance between the camera and the object of interest. Therefore, a manual measurement of the camera height from the field has to be made and has to adjusted in the Camera Calibration tab.
-  # *Perfrom initial calibration*  Press the button "Do initial calibration" in the Camera Calibration Tab to perform an initial calibration based on the image position of the four points of the half-field. After the initial calibration finished, you should see a field and a grid  drawn from red lines in the image, which only matches the real field very roughly.
-  # *Adjust distortion*  The initial setup using the four points does not take distortion into account. Therefore, manually adjust the distortion using the slider in the Camera Calibration Tab (values between  0 and 1 worked for us) and, again, press "Do initial calibration". After that, the red field lines and the grid should reflect the distortion.
-  # *Incorporate additional feature points* As you can see, using just these four points does not lead to a very accurate calibration. Based on these calibration results, additional feature points of the field can be extracted and incorporated in the optimization of the calibration routine. Depending on whether or not your field has markings for the center circle and defense areas, you can opt to sample points from their markings. Under Calibration Parameters, you can choose the number of points to sample from each line and arc. From the Field Half Configuration sub-tree, you can disable center circle and defense area sampling if so desired. Adjust the Line Search Corridor slider in the Camera Calibration Tab to your needs. Then, click "Detect additional calibration points"  and small red boxes should appear along the lines indicating the additional feature points. To perform the optimization using these additional points, press "Do full calibration" and the camera geometry should be calibrated. 
-  # *Reset* By pressing "Reset", default values will be assigned to the camera geometry parameters.
+https://ssl-vision.googlecode.com/svn/wiki/images/4cam_field_markings.png
 
-[http://ssl-vision.googlecode.com/svn/wiki/calibration-result.png]
 
-The calibration routine can be tested using the sample image from the 
-"test-data" directory. Unfortunately, this image shows a 2008 SSL-field, 
-therefore, the projected red lines will not exactly match the actual 
-field lines, but it should be sufficient to get the idea how the routine 
-is performed.
+The default field markings are as prescribed in the rules book of RoboCup SSL:
+http://robocupssl.cpe.ku.ac.th/rules:main
 
-== Data-Tree Parameters ==
-You will finde the calibratin parameters as well as several other values related to the calibration process in the Data-Tree under "Camera X->Camera Calibrator" where X stands for the camera number.
+https://raw.githubusercontent.com/joydeep-b/ssl-rules/master/img/double-size-field.png
 
-To be written...
+= Camera Calibration =
 
-== Technical background ==
-Here are a couple of words for the technically interested reader. The camera calibration is based on a least-squares optimization using the four outer points of a half-field and points along the four lines between these four points to optimize the focal length, the principal point, the lens distortion, and the cameras 3D-pose relative to the field parameterized as a quaternion and a three-dimensional vector. Since the coordinates on the half-field of the four points are known, they provide an absolute relationship between the actual points on the field and their projection in the image plane. Of course, four point do not provide a very robust set of parameters. Therefore additional points on the lines of the field, which are not absolutely known, are integrated. The fact that these points lie on the line segment between two known points is exploited, so that for each point on a line segment its relative position is estimated. 
+== Reset Field Markings ==
+First, click on "Reset SSL 20XX" to reset the field markings.
 
-A more detailed explanation of the mathematical terms will be given in near future.
+== Initial Calibration ==
+The initial calibration of the cameras is performed by specifying control points in the image and their corresponding coordinates in the world. The default control points in the 4cam_experimental branch are the corners of each quadrant of the field, but the locations of the control point j for camera i may be changed to any other location from the setting "Camera i / Camera Calibrator / Calibration Parameters / Control point j", as shown in the screenshot below. To move the control points around in the image, make sure that the "Calibration" option under visualizations is checked, and that the camera calibration tab on the right is active.
+
+https://ssl-vision.googlecode.com/svn/wiki/images/4cam_control_points.png
+
+== Complete Step-by-Step Calibration ==
+ # Enable the camera visualization and check the "camera calibration" and "calibration result" options.
+ # Select the camera calibration tab on the right, and click on "Reset".
+https://ssl-vision.googlecode.com/svn/wiki/images/calibration_step1.png
+ # Drag the control points to the locations in the image that correspond to the specified world locations. In the screenshot below, the control points include the center of the field and the intersection of the defense arc and the goal line.
+ # Click on "Do Initial Calibration".
+https://ssl-vision.googlecode.com/svn/wiki/images/calibration_step2.png
+ # Drag the camera height and camera distortion markers till the calibration result roughly approximates the actual field lines. Click on "Do Initial Calibration" again to update the initial calibration guess. Repeat to refine if required.
+https://ssl-vision.googlecode.com/svn/wiki/images/calibration_step3.png
+ # Under the visualizations, turn on "Detected edges" and drag the "Line Search Corridor Width" slider on the calibration tab to increase the search corridors till they include the field markings. Click on "Detect additional points".
+https://ssl-vision.googlecode.com/svn/wiki/images/calibration_step4.png
+ # The detected edges will be displayed. Now click on "Do full calibration" to calibrate using all detected points.
+ # If necessary, repeat the last 2 steps with a smaller corridor width to refine the calibration result. The final result should match will with the image, as shown below.
+https://ssl-vision.googlecode.com/svn/wiki/images/calibration_step5.png
