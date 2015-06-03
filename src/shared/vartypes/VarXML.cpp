@@ -24,7 +24,7 @@
 namespace VarTypes {
   VarXML::VarXML() {};
   VarXML::~VarXML() {};
-  
+
   void VarXML::write(VarType * rootVar, string filename)
   {
     vector<VarType *> v;
@@ -33,15 +33,18 @@ namespace VarTypes {
   }
   void VarXML::write(vector<VarType *> rootVars, string filename)
   {
-  
+
     XMLNode root = XMLNode::openFileHelper(filename.c_str(),"VarXML");
     VarType::deleteAllVarChildren(root);
     for (unsigned int i=0;i<rootVars.size();i++) {
       rootVars[i]->writeXML(root,true);
     }
-    root.writeToFile(filename.c_str());
+    const VarTypes::XMLError error = root.writeToFile(filename.c_str());
+    if (error != VarTypes::eXMLErrorNone) {
+      fprintf(stderr, "Error saving XML: %d\n", error);
+    }
   }
-  
+
   vector<VarType *> VarXML::read(vector<VarType *> existing_nodes, string filename)
   {
     XMLNode root = XMLNode::openFileHelper(filename.c_str(),"VarXML");

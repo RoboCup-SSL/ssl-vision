@@ -20,7 +20,10 @@
 //========================================================================
 #include "multistack_robocup_ssl.h"
 
-MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) : MultiVisionStack("RoboCup SSL Multi-Cam",_opts) {
+MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
+    ds_udp_server_new(NULL),
+    ds_udp_server_old(NULL),
+    MultiVisionStack("RoboCup SSL Multi-Cam",_opts) {
   //add global field calibration parameter
   global_field = new RoboCupField();
   settings->addChild(global_field->getSettings());
@@ -39,22 +42,67 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
 
   global_network_output_settings = new PluginSSLNetworkOutputSettings();
   settings->addChild(global_network_output_settings->getSettings());
-  connect(global_network_output_settings->multicast_port,SIGNAL(wasEdited(VarType *)),this,SLOT(RefreshNetworkOutput()));
-  connect(global_network_output_settings->multicast_address,SIGNAL(wasEdited(VarType *)),this,SLOT(RefreshNetworkOutput()));
-  connect(global_network_output_settings->multicast_interface,SIGNAL(wasEdited(VarType *)),this,SLOT(RefreshNetworkOutput()));
+  connect(global_network_output_settings->multicast_port,
+          SIGNAL(wasEdited(VarType *)),
+          this,
+          SLOT(RefreshNetworkOutput()));
+  connect(global_network_output_settings->multicast_address,
+          SIGNAL(wasEdited(VarType *)),
+          this,
+          SLOT(RefreshNetworkOutput()));
+  connect(global_network_output_settings->multicast_interface,
+          SIGNAL(wasEdited(VarType *)),
+          this,
+          SLOT(RefreshNetworkOutput()));
 
-  udp_server = new RoboCupSSLServer();
+  legacy_network_output_settings = new PluginLegacySSLNetworkOutputSettings();
+  settings->addChild(legacy_network_output_settings->getSettings());
+  connect(legacy_network_output_settings->ds_multicast_port_old,
+          SIGNAL(wasEdited(VarType *)),
+          this,
+          SLOT(RefreshLegacyNetworkOutput()));
+  connect(legacy_network_output_settings->multicast_address,
+          SIGNAL(wasEdited(VarType *)),
+          this,
+          SLOT(RefreshLegacyNetworkOutput()));
+  connect(legacy_network_output_settings->multicast_interface,
+          SIGNAL(wasEdited(VarType *)),
+          this,
+          SLOT(RefreshLegacyNetworkOutput()));
 
-  global_plugin_publish_geometry = new PluginPublishGeometry(0,udp_server,*global_field);
+  ds_udp_server_new = new RoboCupSSLServer(10006, "224.5.23.2");
+  ds_udp_server_old = new RoboCupSSLServer(10005, "224.5.23.2");
+
+  global_plugin_publish_geometry = new  PluginPublishGeometry(
+      0,
+      ds_udp_server_new,
+      *global_field);
+
+  legacy_plugin_publish_geometry = new  PluginLegacyPublishGeometry(
+      0,
+      ds_udp_server_old,
+      *global_field);
 
   //add parameter for number of cameras
   createThreads(cameras);
   unsigned int n = threads.size();
   for (unsigned int i = 0; i < n;i++) {
     threads[i]->setFrameBuffer(new FrameBuffer(5));
-    threads[i]->setStack(new StackRoboCupSSL(_opts,threads[i]->getFrameBuffer(),i,global_field,global_ball_settings,global_plugin_publish_geometry,global_team_selector_blue, global_team_selector_yellow,udp_server,"robocup-ssl-cam-" + QString::number(i).toStdString()));
+    threads[i]->setStack(
+        new StackRoboCupSSL(
+            _opts,threads[i]->getFrameBuffer(),
+            i,
+            global_field,
+            global_ball_settings,
+            global_plugin_publish_geometry,
+            legacy_plugin_publish_geometry,
+            global_team_selector_blue,
+            global_team_selector_yellow,
+            ds_udp_server_new,
+            ds_udp_server_old,
+            "robocup-ssl-cam-" + QString::number(i).toStdString()));
   }
-    //TODO: make LUT widgets aware of each other for easy data-sharing
+  //TODO: make LUT widgets aware of each other for easy data-sharing
 }
 
 string MultiStackRoboCupSSL::getSettingsFileName() {
@@ -63,22 +111,53 @@ string MultiStackRoboCupSSL::getSettingsFileName() {
 
 MultiStackRoboCupSSL::~MultiStackRoboCupSSL() {
   stop();
-  delete udp_server;
+  delete ds_udp_server_new;
+  delete ds_udp_server_old;
   delete global_plugin_publish_geometry;
   delete global_field;
   delete global_ball_settings;
 }
 
-void MultiStackRoboCupSSL::RefreshNetworkOutput()
-{
-  udp_server->mutex.lock();
-  udp_server->close();
-  udp_server->_port = global_network_output_settings->multicast_port->getInt();
-  udp_server->_net_address = global_network_output_settings->multicast_address->getString();
-  udp_server->_net_interface = global_network_output_settings->multicast_interface->getString();
-  if (udp_server->open()==false) {
-    fprintf(stderr,"ERROR WHEN TRYING TO OPEN UDP NETWORK SERVER!\n");
+void MultiStackRoboCupSSL::UpdateServerSettings(const int port,
+                          const string& address,
+                          const string& interface,
+                          const string& server_name,
+                          RoboCupSSLServer* server) {
+  server->mutex.lock();
+  server->close();
+  server->_port = port;
+  server->_net_address = address;
+  server->_net_interface = interface;
+  if (server->open()==false) {
+    fprintf(stderr,
+            "ERROR WHEN TRYING TO OPEN UDP NETWORK SERVER FOR %s!\n",
+            server_name.c_str());
     fflush(stderr);
   }
-  udp_server->mutex.unlock();
+  server->mutex.unlock();
+}
+
+void MultiStackRoboCupSSL::RefreshLegacyNetworkOutput() {
+  const string address =
+      legacy_network_output_settings->multicast_address->getString();
+  const string interface =
+      legacy_network_output_settings->multicast_interface->getString();
+  UpdateServerSettings(
+      legacy_network_output_settings->ds_multicast_port_old->getInt(),
+      address,
+      interface,
+      "DOUBLE-SIZE FIELD (OLD FORMAT)",
+      ds_udp_server_old
+  );
+}
+
+void MultiStackRoboCupSSL::RefreshNetworkOutput()
+{
+  UpdateServerSettings(
+      global_network_output_settings->multicast_port->getInt(),
+      global_network_output_settings->multicast_address->getString(),
+      global_network_output_settings->multicast_interface->getString(),
+      "DOUBLE-SIZE FIELD (NEW FORMAT)",
+      ds_udp_server_new
+  );
 }

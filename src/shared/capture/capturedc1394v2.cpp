@@ -21,6 +21,20 @@
 
 #include "capturedc1394v2.h"
 
+namespace {
+int compareCameraGUID(const void* a, const void* b) {
+  dc1394camera_id_t* cam1 = (dc1394camera_id_t*)a;
+  dc1394camera_id_t* cam2 = (dc1394camera_id_t*)b;
+
+  if(cam1->guid == cam2->guid)
+    return 0;
+
+  if(cam1->guid > cam2->guid)
+    return 1;
+  else
+    return -1;
+}
+}  // namespace
 GlobalCaptureDC1394instanceManager* GlobalCaptureDC1394instanceManager::pinstance = 0;
 
 dc1394_t* GlobalCaptureDC1394instanceManager::obtainInstance() {
@@ -54,16 +68,16 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   #ifndef VDATA_NO_QT
     mutex.lock();
   #endif
-  
+
   settings->addChild(conversion_settings = new VarList("Conversion Settings"));
   settings->addChild(capture_settings = new VarList("Capture Settings"));
   settings->addChild(dcam_parameters  = new VarList("Camera Parameters"));
-  
+
   //=======================CONVERSION SETTINGS=======================
   conversion_settings->addChild(v_colorout=new VarStringEnum("convert to mode",Colors::colorFormatToString(COLOR_YUV422_UYVY)));
   v_colorout->addItem(Colors::colorFormatToString(COLOR_RGB8));
   v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV422_UYVY));
-  
+
   conversion_settings->addChild(v_debayer=new VarBool("de-bayer",false));
   conversion_settings->addChild(v_debayer_pattern=new VarStringEnum("de-bayer pattern",colorFilterToString(DC1394_COLOR_FILTER_MIN)));
   for (int i = DC1394_COLOR_FILTER_MIN; i <= DC1394_COLOR_FILTER_MAX; i++) {
@@ -100,7 +114,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   capture_settings->addChild(v_use1394B         = new VarBool("use 1394B"  ,true));
   capture_settings->addChild(v_use_iso_800      = new VarBool("use ISO800", true));
   capture_settings->addChild(v_buffer_size      = new VarInt("ringbuffer size",4));
-  
+
   //=======================DCAM PARAMETERS===========================
   dcam_parameters->addChild(P_BRIGHTNESS = new VarList("brightness"));
   P_BRIGHTNESS->addChild(new VarBool("enabled"));
@@ -112,7 +126,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   #ifndef VDATA_NO_QT
     mvc_connect(P_BRIGHTNESS);
   #endif
-  
+
   dcam_parameters->addChild(P_EXPOSURE = new VarList("exposure"));
   P_EXPOSURE->addChild(new VarBool("enabled"));
   P_EXPOSURE->addChild(new VarBool("auto"));
@@ -123,7 +137,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   #ifndef VDATA_NO_QT
     mvc_connect(P_EXPOSURE);
   #endif
-  
+
   dcam_parameters->addChild(P_SHARPNESS = new VarList("sharpness"));
   P_SHARPNESS->addChild(new VarBool("enabled"));
   P_SHARPNESS->addChild(new VarBool("auto"));
@@ -146,7 +160,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   #ifndef VDATA_NO_QT
     mvc_connect(P_WHITE_BALANCE);
   #endif
-  
+
   dcam_parameters->addChild(P_HUE = new VarList("hue"));
   P_HUE->addChild(new VarBool("enabled"));
   P_HUE->addChild(new VarBool("auto"));
@@ -157,7 +171,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   #ifndef VDATA_NO_QT
     mvc_connect(P_HUE);
   #endif
-  
+
   dcam_parameters->addChild(P_SATURATION = new VarList("saturation"));
   P_SATURATION->addChild(new VarBool("enabled"));
   P_SATURATION->addChild(new VarBool("auto"));
@@ -168,7 +182,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   #ifndef VDATA_NO_QT
     mvc_connect(P_SATURATION);
   #endif
-  
+
   dcam_parameters->addChild(P_GAMMA = new VarList("gamma"));
   P_GAMMA->addChild(new VarBool("enabled"));
   P_GAMMA->addChild(new VarBool("auto"));
@@ -179,7 +193,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   #ifndef VDATA_NO_QT
     mvc_connect(P_GAMMA);
   #endif
-  
+
   dcam_parameters->addChild(P_SHUTTER = new VarList("shutter"));
   P_SHUTTER->addChild(new VarBool("enabled"));
   P_SHUTTER->addChild(new VarBool("auto"));
@@ -190,7 +204,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   #ifndef VDATA_NO_QT
     mvc_connect(P_SHUTTER);
   #endif
-  
+
   dcam_parameters->addChild(P_GAIN = new VarList("gain"));
   P_GAIN->addChild(new VarBool("enabled"));
   P_GAIN->addChild(new VarBool("auto"));
@@ -201,7 +215,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   #ifndef VDATA_NO_QT
     mvc_connect(P_GAIN);
   #endif
-  
+
   dcam_parameters->addChild(P_IRIS = new VarList("iris"));
   P_IRIS->addChild(new VarBool("enabled"));
   P_IRIS->addChild(new VarBool("auto"));
@@ -212,7 +226,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   #ifndef VDATA_NO_QT
     mvc_connect(P_IRIS);
   #endif
-  
+
   dcam_parameters->addChild(P_FOCUS = new VarList("focus"));
   P_FOCUS->addChild(new VarBool("enabled"));
   P_FOCUS->addChild(new VarBool("auto"));
@@ -223,7 +237,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   #ifndef VDATA_NO_QT
     mvc_connect(P_FOCUS);
   #endif
-  
+
   dcam_parameters->addChild(P_TEMPERATURE = new VarList("temperature"));
   P_TEMPERATURE->addChild(new VarBool("enabled"));
   P_TEMPERATURE->addChild(new VarBool("auto"));
@@ -234,7 +248,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   #ifndef VDATA_NO_QT
     mvc_connect(P_TEMPERATURE);
   #endif
-  
+
   dcam_parameters->addChild(P_TRIGGER = new VarList("trigger"));
   P_TRIGGER->addChild(new VarBool("enabled"));
   P_TRIGGER->addChild(new VarBool("auto"));
@@ -245,7 +259,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   #ifndef VDATA_NO_QT
     mvc_connect(P_TRIGGER);
   #endif
-  
+
   dcam_parameters->addChild(P_TRIGGER_DELAY = new VarList("trigger delay"));
   P_TRIGGER_DELAY->addChild(new VarBool("enabled"));
   P_TRIGGER_DELAY->addChild(new VarBool("auto"));
@@ -256,7 +270,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   #ifndef VDATA_NO_QT
     mvc_connect(P_TRIGGER_DELAY);
   #endif
-  
+
   dcam_parameters->addChild(P_WHITE_SHADING = new VarList("white shading"));
   P_WHITE_SHADING->addChild(new VarBool("enabled"));
   P_WHITE_SHADING->addChild(new VarBool("auto"));
@@ -269,7 +283,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   #ifndef VDATA_NO_QT
     mvc_connect(P_WHITE_SHADING);
   #endif
-  
+
   dcam_parameters->addChild(P_FRAME_RATE = new VarList("frame rate"));
   P_FRAME_RATE->addChild(new VarBool("enabled"));
   P_FRAME_RATE->addChild(new VarBool("auto"));
@@ -282,20 +296,20 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_WHITE_SHADING->addChild(new VarInt("value B"));
   P_WHITE_SHADING->addChild(new VarBool("use absolute"));
   P_WHITE_SHADING->addChild(new VarDouble("absolute value"));*/
-  
+
   vector<VarType *> v=dcam_parameters->getChildren();
   for (unsigned int i=0;i<v.size();i++) {
     if (v[i]->getType()==VARTYPE_ID_LIST) {
        VarBool * temp;
-       ((VarList *)v[i])->addChild(temp = new VarBool("was_read",false)); 
+       ((VarList *)v[i])->addChild(temp = new VarBool("was_read",false));
       temp->addFlags(VARTYPE_FLAG_HIDDEN);
     }
   }
-  
+
   #ifndef VDATA_NO_QT
     mvc_connect(P_FRAME_RATE);
   #endif
-  
+
   #ifndef VDATA_NO_QT
     mutex.unlock();
   #endif
@@ -323,7 +337,7 @@ void CaptureDC1394v2::readAllParameterValues() {
   vector<VarType *> v=dcam_parameters->getChildren();
   for (unsigned int i=0;i<v.size();i++) {
     if (v[i]->getType()==VARTYPE_ID_LIST) {
-      readParameterValues((VarList *)v[i]); 
+      readParameterValues((VarList *)v[i]);
     }
   }
 }
@@ -333,7 +347,7 @@ void CaptureDC1394v2::readAllParameterProperties()
   vector<VarType *> v=dcam_parameters->getChildren();
   for (unsigned int i=0;i<v.size();i++) {
     if (v[i]->getType()==VARTYPE_ID_LIST) {
-      readParameterProperty((VarList *)v[i]); 
+      readParameterProperty((VarList *)v[i]);
     }
   }
 }
@@ -342,7 +356,7 @@ void CaptureDC1394v2::writeAllParameterValues() {
   vector<VarType *> v=dcam_parameters->getChildren();
   for (unsigned int i=0;i<v.size();i++) {
     if (v[i]->getType()==VARTYPE_ID_LIST) {
-      writeParameterValues((VarList *)v[i]); 
+      writeParameterValues((VarList *)v[i]);
     }
   }
 }
@@ -383,13 +397,13 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
     if (children[i]->getType()==VARTYPE_ID_DOUBLE && children[i]->getName()=="absolute value") vabs=(VarDouble *)children[i];
     if (children[i]->getType()==VARTYPE_ID_TRIGGER && children[i]->getName()=="one-push") vtrigger=(VarTrigger *)children[i];
     if (feature==DC1394_FEATURE_WHITE_BALANCE) {
-      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value U") vint=(VarInt *)children[i]; 
-      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value V") vint2=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value U") vint=(VarInt *)children[i];
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value V") vint2=(VarInt *)children[i];
     }
     if (feature==DC1394_FEATURE_WHITE_SHADING) {
-      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value R") vint=(VarInt *)children[i]; 
-      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value G") vint2=(VarInt *)children[i]; 
-      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value B") vint3=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value R") vint=(VarInt *)children[i];
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value G") vint2=(VarInt *)children[i];
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value B") vint3=(VarInt *)children[i];
     }
   }
 
@@ -448,7 +462,7 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
             vauto->setBool(false);
           }
         }
-      
+
 
         //------------ABSOLUTE CONTROL READOUT:
         if (dc1394_feature_has_absolute_control(camera,feature,&dcb) ==DC1394_SUCCESS && dcb==true) {
@@ -457,7 +471,7 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
           if (dc1394_feature_get_absolute_control(camera,feature,&abs_sw) ==DC1394_SUCCESS) {
             vuseabs->setBool( abs_sw==DC1394_ON);
           }
-  
+
           float valf;
           if (dc1394_feature_get_absolute_value(camera,feature,&valf) == DC1394_SUCCESS) {
               vabs->setDouble((double)valf);
@@ -466,7 +480,7 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
           vuseabs->setBool(false);
         }
       }
-    } 
+    }
 
 
 
@@ -527,7 +541,7 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
       vint->addFlags( VARTYPE_FLAG_READONLY );
       if (vint2!=0) vint2->addFlags( VARTYPE_FLAG_READONLY );
       if (vint3!=0) vint3->addFlags( VARTYPE_FLAG_READONLY );
-      
+
       if (vabs!=0) vabs->addFlags( VARTYPE_FLAG_READONLY );
       vuseabs->addFlags( VARTYPE_FLAG_READONLY);
       if (venabled->getBool()) {
@@ -540,12 +554,12 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
         vauto->addFlags( VARTYPE_FLAG_READONLY );
       }
     }
-  
+
   } else {
     fprintf(stderr,"DC1394 ERROR: FAILURE TO READ SETTING: %s\n", item->getName().c_str());
   }
-  
-  
+
+
   #ifndef VDATA_NO_QT
     mutex.unlock();
   #endif
@@ -584,13 +598,13 @@ void CaptureDC1394v2::writeParameterValues(VarList * item) {
     if (children[i]->getType()==VARTYPE_ID_DOUBLE && children[i]->getName()=="absolute value") vabs=(VarDouble *)children[i];
     if (children[i]->getType()==VARTYPE_ID_TRIGGER && children[i]->getName()=="one-push") vtrigger=(VarTrigger *)children[i];
     if (feature==DC1394_FEATURE_WHITE_BALANCE) {
-      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value U") vint=(VarInt *)children[i]; 
-      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value V") vint2=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value U") vint=(VarInt *)children[i];
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value V") vint2=(VarInt *)children[i];
     }
     if (feature==DC1394_FEATURE_WHITE_SHADING) {
-      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value R") vint=(VarInt *)children[i]; 
-      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value G") vint2=(VarInt *)children[i]; 
-      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value B") vint3=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value R") vint=(VarInt *)children[i];
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value G") vint2=(VarInt *)children[i];
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value B") vint3=(VarInt *)children[i];
     }
   }
 
@@ -604,8 +618,8 @@ void CaptureDC1394v2::writeParameterValues(VarList * item) {
         if (dc1394_feature_is_switchable(camera,feature,&dcb) ==DC1394_SUCCESS && dcb==true) {
           dc1394_feature_set_power(camera,feature,(venabled->getBool() ? DC1394_ON : DC1394_OFF));
         }
-  
-  
+
+
         //feature exists
         if (dc1394_feature_is_readable(camera,feature,&dcb) == DC1394_SUCCESS && dcb==true) {
           if (vtrigger!=0 && vtrigger->getCounter() > 0) {
@@ -630,7 +644,7 @@ void CaptureDC1394v2::writeParameterValues(VarList * item) {
               }
             }
           }
-  
+
           //------------ABSOLUTE CONTROL READOUT:
           if (dc1394_feature_has_absolute_control(camera,feature,&dcb) ==DC1394_SUCCESS && dcb==true) {
             dc1394_feature_set_absolute_control(camera,feature,vuseabs->getBool() ? DC1394_ON : DC1394_OFF);
@@ -682,13 +696,13 @@ void CaptureDC1394v2::readParameterProperty(VarList * item) {
     if (children[i]->getType()==VARTYPE_ID_DOUBLE && children[i]->getName()=="absolute value") vabs=(VarDouble *)children[i];
     if (children[i]->getType()==VARTYPE_ID_TRIGGER && children[i]->getName()=="one-push") vtrigger=(VarTrigger *)children[i];
     if (feature==DC1394_FEATURE_WHITE_BALANCE) {
-      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value U") vint=(VarInt *)children[i]; 
-      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value V") vint2=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value U") vint=(VarInt *)children[i];
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value V") vint2=(VarInt *)children[i];
     }
     if (feature==DC1394_FEATURE_WHITE_SHADING) {
-      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value R") vint=(VarInt *)children[i]; 
-      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value G") vint2=(VarInt *)children[i]; 
-      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value B") vint3=(VarInt *)children[i]; 
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value R") vint=(VarInt *)children[i];
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value G") vint2=(VarInt *)children[i];
+      if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value B") vint3=(VarInt *)children[i];
     }
   }
 
@@ -763,9 +777,9 @@ void CaptureDC1394v2::readParameterProperty(VarList * item) {
             vint->setMin(minv);
             vint->setMax(maxv);
           }
-          
 
-        
+
+
       }
     }
   } else {
@@ -822,7 +836,7 @@ bool CaptureDC1394v2::resetBus() {
     #endif
     return false;
   }
-  
+
   for (unsigned int i=0; i < cam_list->num ; i++) {
     camera = dc1394_camera_new(dc1394_instance, cam_list->ids[i].guid);
     dc1394_reset_bus(camera);
@@ -836,8 +850,8 @@ bool CaptureDC1394v2::resetBus() {
   }
 
 
-  /*  
-  
+  /*
+
 
   dc1394camera_t *local_camera, **local_cameras=NULL;
   uint32_t numCameras, i;
@@ -860,7 +874,7 @@ bool CaptureDC1394v2::resetBus() {
     return;
   }
   local_camera=local_cameras[0];
-  
+
   // free the other local_cameras
   for (i=1;i<numCameras;i++)
     dc1394_free_camera(local_cameras[i]);
@@ -1036,6 +1050,8 @@ bool CaptureDC1394v2::startCapture()
     return false;
   }
 
+  qsort(cam_list->ids, cam_list->num, sizeof(dc1394camera_id_t), &compareCameraGUID);
+
   if (cam_list==0) {
     fprintf(stderr,"CaptureDC1394v2 Error: Camera List was a null pointer");
     #ifndef VDATA_NO_QT
@@ -1116,7 +1132,7 @@ bool CaptureDC1394v2::startCapture()
     cleanup();
     return false;
   }
-  
+
   dc1394speed_t iso_speed2;
   if (dc1394_video_get_iso_speed(camera, &iso_speed2) == DC1394_SUCCESS) {
     if (iso_speed!=iso_speed2) {
@@ -1378,9 +1394,9 @@ bool CaptureDC1394v2::startCapture()
       cleanup();
       return false;
     }
-    
-  
-  
+
+
+
     uint32_t unit=0;
     uint32_t maxp=0;
 
@@ -1393,16 +1409,16 @@ bool CaptureDC1394v2::startCapture()
     if (dc1394_format7_get_packet_size(camera, dcformat, &tmpsize) == DC1394_SUCCESS) {
       printf("CaptureDC1394v2 Info: Previous Packet Size: %d\n",tmpsize);
     }
-  
+
     uint32_t recommended_size=0;
     if (dc1394_format7_get_recommended_packet_size(camera, dcformat, &recommended_size) == DC1394_SUCCESS) {
       printf("CaptureDC1394v2 Info: Recommended Packet Size: %d\n",recommended_size);
     }
-  
+
     uint64_t bytes=0;
     dc1394_format7_get_total_bytes(camera, dcformat, &bytes);
     //printf("bytes per frame: %d\n",bytes);
-  
+
     uint32_t target_size=recommended_size;//;
     if (target_size!=0) {
       if (dc1394_format7_set_packet_size(camera, dcformat, recommended_size) != DC1394_SUCCESS) {
@@ -1415,14 +1431,14 @@ bool CaptureDC1394v2::startCapture()
         return false;
       }
     }
-  
+
     tmpsize=0;
     if (dc1394_format7_get_packet_size(camera, dcformat, &tmpsize) == DC1394_SUCCESS) {
       printf("CaptureDC1394v2 Info: Final Packet Size: %d\n",tmpsize);
     }
-  
+
   } else {
-  
+
     dc1394framerates_t sup_framerates;
     if (dc1394_video_get_supported_framerates(camera,dcformat,&sup_framerates)== DC1394_SUCCESS) {
       bool found=false;
@@ -1441,7 +1457,7 @@ bool CaptureDC1394v2::startCapture()
         return false;
       }
     }
-  
+
     if (dc1394_video_set_framerate(camera,dcfps) !=  DC1394_SUCCESS) {
       fprintf(stderr,"CaptureDC1394v2 Error: unable to set framerate!\n");
       #ifndef VDATA_NO_QT
@@ -1452,8 +1468,8 @@ bool CaptureDC1394v2::startCapture()
     }
   }
 
-  
-/*  
+
+/*
   dc1394error_t dc1394_format7_get_packet_size(dc1394camera_t *camera, dc1394video_mode_t video_mode, uint32_t *packet_size);
 
 dc1394error_t dc1394_format7_set_packet_size(dc1394camera_t *camera, dc1394video_mode_t video_mode, uint32_t packet_size);
@@ -1461,7 +1477,7 @@ dc1394error_t dc1394_format7_set_packet_size(dc1394camera_t *camera, dc1394video
 dc1394error_t dc1394_format7_get_recommended_packet_size(dc1394camera_t *camera, dc1394video_mode_t video_mode, uint32_t *packet_size);
 dc1394error_t dc1394_format7_get_packets_per_frame(dc1394camera_t *camera, dc1394video_mode_t video_mode, uint32_t *ppf);
 */
-  
+
   uint32_t bandwidth;
   if (dc1394_video_get_bandwidth_usage(camera, &bandwidth) == DC1394_SUCCESS) {
     if (bandwidth > 4915) {
@@ -1497,7 +1513,7 @@ dc1394error_t dc1394_format7_get_packets_per_frame(dc1394camera_t *camera, dc139
   }
 
   is_capturing=true;
-  
+
   vector<VarType *> tmp = capture_settings->getChildren();
   for (unsigned int i=0; i < tmp.size();i++) {
     tmp[i]->addFlags( VARTYPE_FLAG_READONLY );
@@ -1580,7 +1596,7 @@ bool CaptureDC1394v2::convertFrame(const RawImage & src, RawImage & target, Colo
           return false;
         }
       } else if (debayer==false && output_fmt==COLOR_RGB8) {
-       
+
        dc1394_convert_to_RGB8(src.getData(),target.getData(), width, height, 0,
                        ((src_fmt==COLOR_MONO16) ? DC1394_COLOR_CODING_MONO16 : DC1394_COLOR_CODING_RAW16), y16bits);
         //Conversions::y162rgb (src.getData(), target.getData(), src.getNumPixels(), y16bits);
@@ -1600,7 +1616,7 @@ bool CaptureDC1394v2::convertFrame(const RawImage & src, RawImage & target, Colo
                        DC1394_COLOR_CODING_YUV422, 8);
     } else if (src_fmt==COLOR_YUV422_YUYV && output_fmt==COLOR_RGB8) {
         dc1394_convert_to_RGB8(src.getData(),target.getData(), width, height, DC1394_BYTE_ORDER_YUYV,
-                       DC1394_COLOR_CODING_YUV422, 8);                       
+                       DC1394_COLOR_CODING_YUV422, 8);
       //Conversions::uyvy2rgb (src.getData(), target.getData(), src.getNumPixels());
     } else if (src_fmt==COLOR_YUV444 && output_fmt==COLOR_RGB8) {
       dc1394_convert_to_RGB8(src.getData(),target.getData(), width, height, 0,

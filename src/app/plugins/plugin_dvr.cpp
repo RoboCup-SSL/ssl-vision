@@ -46,11 +46,11 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
   btn_mode_record->setCheckable(true);
   btn_mode_pause->setCheckable(true);
   btn_mode_off->setCheckable(true);
-  
+
   btn_mode_record->setAutoExclusive(true);
   btn_mode_pause->setAutoExclusive(true);
   btn_mode_off->setAutoExclusive(true);
-    
+
   btn_mode_off->setChecked(true);
   btn_mode_record->setIconSize(QSize(mode_icon_size,mode_icon_size));
   btn_mode_pause->setIconSize(QSize(mode_icon_size,mode_icon_size));
@@ -69,7 +69,7 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
   layout_mode->addStretch();
   box_mode = new QGroupBox("Mode Selection");
   box_mode ->setLayout(layout_mode);
-  
+
   btn_rec_rec = new QToolButton();
   btn_rec_rec->setToolTip("Record");
   btn_rec_new = new QToolButton();
@@ -81,21 +81,21 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
 
   btn_rec_rec->setIcon(QIcon(":/icons/media-record.png"));
   btn_rec_rec->setIconSize(QSize(mode_icon_size,mode_icon_size));
-  
+
   btn_rec_new->setIcon(QIcon(":/icons/document-new.png"));
   btn_rec_new->setIconSize(QSize(mode_icon_size,mode_icon_size));
-  
+
   btn_rec_load->setIcon(QIcon(":/icons/document-open.png"));
   btn_rec_load->setIconSize(QSize(mode_icon_size,mode_icon_size));
-  
+
   btn_rec_save->setIcon(QIcon(":/icons/document-save.png"));
   btn_rec_save->setIconSize(QSize(mode_icon_size,mode_icon_size));
-  
+
   connect(btn_rec_new,SIGNAL(clicked(bool)),dvr,SLOT(slotMovieNew()));
   connect(btn_rec_load,SIGNAL(clicked(bool)),dvr,SLOT(slotMovieLoad()));
   connect(btn_rec_save,SIGNAL(clicked(bool)),dvr,SLOT(slotMovieSave()));
 
-  
+
   btn_seek_front = new QToolButton();
   btn_seek_front->setToolTip("Seek to First Frame");
   btn_seek_frame_back = new QToolButton();
@@ -110,42 +110,42 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
   btn_seek_play->setToolTip("Play Recording");
   btn_seek_live = new QToolButton();
   btn_seek_live->setToolTip("Live View");
-  
+
   btn_seek_wrap = new QToolButton();
   btn_seek_wrap->setToolTip("Loop Playback");
-  
+
   int seek_icon_size=24;
   btn_seek_front->setIcon(QIcon(":/icons/go-first-view.png"));
   btn_seek_front->setIconSize(QSize(seek_icon_size,seek_icon_size));
-  
+
   btn_seek_frame_back->setIcon(QIcon(":/icons/go-previous-view.png"));
   btn_seek_frame_back->setIconSize(QSize(seek_icon_size,seek_icon_size));
-  
+
   btn_seek_pause->setIcon(QIcon(":/icons/media-playback-pause.png"));
   btn_seek_pause->setIconSize(QSize(mode_icon_size,mode_icon_size));
-  
+
   btn_seek_frame_forward->setIcon(QIcon(":/icons/go-next-view.png"));
   btn_seek_frame_forward->setIconSize(QSize(seek_icon_size,seek_icon_size));
-  
+
   btn_seek_end->setIcon(QIcon(":/icons/go-last-view.png"));
   btn_seek_end->setIconSize(QSize(seek_icon_size,seek_icon_size));
-  
+
   btn_seek_play->setIcon(QIcon(":/icons/media-playback-start.png"));
   btn_seek_play->setIconSize(QSize(mode_icon_size,mode_icon_size));
-  
+
   btn_seek_live->setIcon(QIcon(":/icons/media-skip-forward.png"));
   btn_seek_live->setIconSize(QSize(mode_icon_size,mode_icon_size));
-  
+
   btn_seek_wrap->setIcon(QIcon(":/icons/object-rotate-right.png"));
   btn_seek_wrap->setIconSize(QSize(16,16));
-  
+
   layout_rec = new QHBoxLayout();
   layout_rec->addWidget(btn_rec_rec);
   layout_rec->addWidget(btn_rec_new);
   layout_rec->addWidget(btn_rec_load);
   layout_rec->addWidget(btn_rec_save);
   layout_rec->addStretch();
-  
+
   QHBoxLayout * layout_subseek_buttons = new QHBoxLayout();
   layout_subseek_buttons->addWidget(btn_seek_front);
   layout_subseek_buttons->addWidget(btn_seek_frame_back);
@@ -153,37 +153,37 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
   layout_subseek_buttons->addWidget(btn_seek_end);
   QWidget * box_subseek_buttons = new QWidget();
   box_subseek_buttons->setLayout(layout_subseek_buttons);
-  
+
   QVBoxLayout * layout_subseek = new QVBoxLayout();
   layout_subseek->addWidget(box_subseek_buttons);
   layout_subseek->addWidget(jog);
   QWidget * box_subseek = new QWidget();
   box_subseek->setLayout(layout_subseek);
-  
+
   btn_rec_rec->setCheckable(true);
-  
+
   btn_seek_pause->setCheckable(true);
   btn_seek_play->setCheckable(true);
   btn_seek_live->setCheckable(true);
-  
+
   btn_seek_pause->setAutoExclusive(true);
   btn_seek_play->setAutoExclusive(true);
   btn_seek_live->setAutoExclusive(true);
-  
+
   btn_seek_wrap->setCheckable(true);
-  
+
     btn_seek_live->setChecked(true);
-  
+
   connect(btn_seek_pause,SIGNAL(toggled(bool)),dvr,SLOT(slotSeekModeToggled()));
   connect(btn_seek_play,SIGNAL(toggled(bool)),dvr,SLOT(slotSeekModeToggled()));
   connect(btn_seek_live,SIGNAL(toggled(bool)),dvr,SLOT(slotSeekModeToggled()));
-  
-  
+
+
   connect(btn_seek_front,SIGNAL(clicked(bool)),dvr,SLOT(slotSeekFrameFirst()));
   connect(btn_seek_end,SIGNAL(clicked(bool)),dvr,SLOT(slotSeekFrameLast()));
   connect(btn_seek_frame_back,SIGNAL(clicked(bool)),dvr,SLOT(slotSeekFrameBack()));
   connect(btn_seek_frame_forward,SIGNAL(clicked(bool)),dvr,SLOT(slotSeekFrameForward()));
-  
+
   layout_seek = new QHBoxLayout();
   layout_seek->addWidget(btn_rec_rec);
   layout_seek->addSpacing(20);
@@ -196,7 +196,7 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
   layout_seek->addStretch();
 
   label_info = new QLabel();
- 
+
   box_rec = new QGroupBox("Manage Recordings");
   box_rec ->setLayout(layout_rec);
 
@@ -235,7 +235,7 @@ void PluginDVR::slotSeekModeToggled() {
 void PluginDVR::slotModeToggled() {
   lock();
   w->btn_pause_refresh->setEnabled(w->btn_mode_pause->isChecked());
-  
+
   DVRModeEnum old_mode = mode;
   if (w->btn_mode_pause->isChecked()) {
     mode=DVRModePause;
@@ -244,9 +244,9 @@ void PluginDVR::slotModeToggled() {
   } else {
     mode=DVRModeOff;
   }
-  
+
   w->box_dvr->setEnabled(mode==DVRModeRecord);
-  
+
   if (mode==DVRModePause && mode!=old_mode) {
     trigger_pause_refresh=true;
   }
@@ -299,9 +299,14 @@ void PluginDVR::slotMovieNew() {
 
 void PluginDVR::slotMovieLoad() {
   lock();
-  QString dirstr = QFileDialog::getExistingDirectory(0,"Select Directory to Load");
+  // Do not use native dialog since some platforms like Windows XP and
+  // Kubuntu 12.04 have very slow directory listing dialogs. The QT version is
+  // pretty responsive.
+  QString dirstr = QFileDialog::getExistingDirectory(
+      0,"Select Directory to Load", "",
+      QFileDialog::DontUseNativeDialog | QFileDialog::ShowDirsOnly);
   if (dirstr!="") {
-    
+
     int fnum=0;
     stream.clear();
     QDir dir(dirstr);
@@ -462,7 +467,7 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
       seek_mode=SeekModePause;
     }
 
-    
+
     if (seek_mode==SeekModePlay) {
       stream.advance(1,w->btn_seek_wrap->isChecked());
     } else if (seek_mode==SeekModePause) {
@@ -478,7 +483,7 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
       if (seek_mode==SeekModePause) {
         stream_info = "Paused Playback at Frame " + QString::number(stream.getCurrentFrameIndex()+1) + "/" + QString::number(stream.getFrameCount()) + " (" + QString::number(percent,'f',2) + "%).";
       } else {
-        stream_info = "Running Playback at Frame " + QString::number(stream.getCurrentFrameIndex()+1) + "/" + QString::number(stream.getFrameCount()) + " (" + QString::number(percent,'f',2) + "%)."; 
+        stream_info = "Running Playback at Frame " + QString::number(stream.getCurrentFrameIndex()+1) + "/" + QString::number(stream.getFrameCount()) + " (" + QString::number(percent,'f',2) + "%).";
       }
     }
   }
@@ -494,7 +499,7 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
       }
     }
   }
-  
+
   //update GUI:
   w->label_info->setText(status + "\n" + stream_info);
 
@@ -510,11 +515,11 @@ bool DVRStream::loadStream(QString file) {
 }
 
 void DVRStream::newRecording(QString directory) {
-  
+
 }
 
 void DVRStream::saveStream(QString directory) {
-  
+
 }
 
 void DVRStream::clear() {

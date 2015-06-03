@@ -114,20 +114,13 @@ int main(int argc, char *argv[])
 
                 const SSL_GeometryFieldSize & field = geom.field();
                 printf("Field Dimensions:\n");
-                printf("  -line_width=%d (mm)\n",field.line_width());
                 printf("  -field_length=%d (mm)\n",field.field_length());
                 printf("  -field_width=%d (mm)\n",field.field_width());
                 printf("  -boundary_width=%d (mm)\n",field.boundary_width());
-                printf("  -referee_width=%d (mm)\n",field.referee_width());
                 printf("  -goal_width=%d (mm)\n",field.goal_width());
                 printf("  -goal_depth=%d (mm)\n",field.goal_depth());
-                printf("  -goal_wall_width=%d (mm)\n",field.goal_wall_width());
-                printf("  -center_circle_radius=%d (mm)\n",field.center_circle_radius());
-                printf("  -defense_radius=%d (mm)\n",field.defense_radius());
-                printf("  -defense_stretch=%d (mm)\n",field.defense_stretch());
-                printf("  -free_kick_from_defense_dist=%d (mm)\n",field.free_kick_from_defense_dist());
-                printf("  -penalty_spot_from_field_line_dist=%d (mm)\n",field.penalty_spot_from_field_line_dist());
-                printf("  -penalty_line_from_spot_dist=%d (mm)\n",field.penalty_line_from_spot_dist());
+                printf("  -field_lines_size=%d\n",field.field_lines_size());
+                printf("  -field_arcs_size=%d\n",field.field_arcs_size());
 
                 int calib_n = geom.calib_size();
                 for (int i=0; i< calib_n; i++) {
