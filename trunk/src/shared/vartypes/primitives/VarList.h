@@ -24,18 +24,18 @@
 #include <vector>
 using namespace std;
 namespace VarTypes {
-  
+
   /*!
     \class  VarList
     \brief  This is the list type of the VarTypes system
     \author Stefan Zickler, (C) 2008
     \see    VarTypes.h
-  
+
     VarList allows the storage of an ordered list of children nodes.
-  
-    If you don't know what VarTypes are, please see \c VarTypes.h 
+
+    If you don't know what VarTypes are, please see \c VarTypes.h
   */
-  
+
   class VarList : public VarType
   {
   #ifndef VDATA_NO_QT
@@ -52,18 +52,18 @@ namespace VarTypes {
     };
     virtual ~VarList() {
     };
-  
 
-    
+
+
     /// this will always return the empty string ""
     virtual string getString() const { return ""; }
-  
+
     /// this will clear the list
     virtual void resetToDefault() {lock(); for (unsigned int i=0;i<list.size();i++) { emit(childRemoved(list[i])); } list.clear();  unlock(); };
-  
+
     /// prints the label and number of elements
     virtual void printdebug() const { printf("VarList named %s containing %zu element(s)\n",getName().c_str(), list.size()); }
-  
+
     /// adds a VarType item to the end of the list.
     int addChild(VarType * child) { lock(); list.push_back(child); emit(childAdded(child)); unlock(); changed(); return (list.size()-1);}
     bool removeChild(VarType * child) {
@@ -79,16 +79,18 @@ namespace VarTypes {
         }
       }
       if (found) {
-        emit(childRemoved(child));
         list=newlist;
-        changed();
       }
       unlock();
+      if (found) {
+        emit(childRemoved(child));
+        changed();
+      }
       return found;
     };
-  
+
     virtual VarTypeId getType() const { return VARTYPE_ID_LIST; } ;
-  
+
     /// returns the number of children of this list
     virtual int getChildrenCount() const
     {
@@ -98,7 +100,7 @@ namespace VarTypes {
       unlock();
       return res;
     }
-  
+
     /// removes all children, by actually deleting them in memory
     /// note that this is recursive.
     /// use it to un-allocate entire hierarchies from memory
@@ -123,7 +125,7 @@ namespace VarTypes {
       unlock();
       return l;
     }
-  
+
     /// Finds a child based on the label of 'other'
     /// If the child is not found then other is returned
     /// However, if the child *is* found then other will be *deleted* and the child will be returned!
@@ -137,11 +139,11 @@ namespace VarTypes {
         return other;
       }
     }
-  
+
     /// Finds a child based on the label of 'other'
     /// If the child is not found then other is returned
     /// However, if the child *is* found then other will be *deleted* and the child will be returned!
-    template <class VCLASS> 
+    template <class VCLASS>
     VCLASS * findChildOrReplace(VCLASS * other) {
       VCLASS * data = (VCLASS *)findChild(other->getName());
       if (data!=0) {
@@ -152,8 +154,8 @@ namespace VarTypes {
         return other;
       }
     }
-  
-  
+
+
   #ifndef VDATA_NO_XML
   protected:
     virtual void readChildren(XMLNode & us)
@@ -171,7 +173,7 @@ namespace VarTypes {
       changed();
     }
   #endif
-  
+
   //Qt model/view gui stuff:
   public:
   virtual QWidget * createEditor(const VarItemDelegate * delegate, QWidget *parent, const QStyleOptionViewItem &option) {

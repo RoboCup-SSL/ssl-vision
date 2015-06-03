@@ -130,23 +130,6 @@ class SoccerView : public QGraphicsView
     QPen *fieldPen, *fieldLinePen, *ballPen;
     QGLWidget* glWidget;
     bool shutdownSoccerView;
-
-    //Field dimensions and geometry
-    double line_width;
-    double field_length;
-    double field_width;
-    double boundary_width;
-    double referee_width;
-    double goal_width;
-    double goal_depth;
-    double goal_wall_width;
-    double center_circle_radius;
-    double defense_radius;
-    double defense_stretch;
-    double free_kick_from_defense_dist;
-    double penalty_spot_from_field_line_dist;
-    double penalty_line_from_spot_dist;
-
 };
 
 #endif //GRAPHICS_PRIMITIVES_H

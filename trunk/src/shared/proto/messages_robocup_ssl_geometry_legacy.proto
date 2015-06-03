@@ -1,0 +1,27 @@
+import "messages_robocup_ssl_geometry.proto";
+package RoboCup2014Legacy.Geometry;
+
+message SSL_GeometryFieldSize {
+  required int32 line_width = 1;
+  required int32 field_length = 2;
+  required int32 field_width = 3;
+  required int32 boundary_width = 4;
+  required int32 referee_width = 5;
+  required int32 goal_width = 6;
+  required int32 goal_depth = 7;
+  required int32 goal_wall_width = 8;
+  required int32 center_circle_radius = 9;
+  required int32 defense_radius = 10;
+  required int32 defense_stretch = 11;
+  required int32 free_kick_from_defense_dist = 12;
+  required int32 penalty_spot_from_field_line_dist = 13;
+  required int32 penalty_line_from_spot_dist = 14;
+}
+
+// SSL_GeometryCameraCalibration is identical to the one defined in
+// messages_robocup_ssl_geometry.proto .
+
+message SSL_GeometryData {
+  required SSL_GeometryFieldSize field = 1;
+  repeated SSL_GeometryCameraCalibration calib = 2;
+}

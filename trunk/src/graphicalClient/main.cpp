@@ -45,6 +45,7 @@ protected:
           view->updateDetection(detection);
         }
         if (packet.has_geometry()) {
+          view->updateFieldGeometry(packet.geometry().field());
         }
       }
       Sleep(minDuration);

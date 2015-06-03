@@ -24,11 +24,24 @@
 #include <QPlastiqueStyle>
 #include <QString>
 #include "mainwindow.h"
+#include <signal.h>
 #include <stdio.h>
 #include "qgetopt.h"
 
+MainWindow* mainWinPtr = NULL;
+
+// Signal handler for breaks (Ctrl-C)
+void HandleStop(int i) {
+  if (mainWinPtr != NULL) {
+    printf("\nExiting.\n");
+    fflush(stdout);
+    mainWinPtr->Quit();
+  }
+}
+
 int main(int argc, char *argv[])
 {
+  signal(SIGINT,HandleStop);
   QApplication app(argc, argv);
 
   GetOpt opts(argc, argv);
@@ -53,7 +66,9 @@ int main(int argc, char *argv[])
     exit(ecode);
   }
 
+
   MainWindow mainWin(start, enforce_affinity);
+  mainWinPtr = &mainWin;
   //if desired, launch a particular style:
   // app.setStyle(new QPlastiqueStyle());
   // app.setStyle(new QCleanlooksStyle());

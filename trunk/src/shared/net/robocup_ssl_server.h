@@ -25,7 +25,9 @@
 #include <QMutex>
 #include "messages_robocup_ssl_detection.pb.h"
 #include "messages_robocup_ssl_geometry.pb.h"
+#include "messages_robocup_ssl_geometry_legacy.pb.h"
 #include "messages_robocup_ssl_wrapper.pb.h"
+#include "messages_robocup_ssl_wrapper_legacy.pb.h"
 using namespace std;
 /**
 	@author Stefan Zickler
@@ -40,16 +42,40 @@ protected:
   string _net_interface;
 
 public:
-    RoboCupSSLServer(int port = 10002,
-                     string net_ref_address="224.5.23.2",
+    RoboCupSSLServer(int port,
+                     string net_ref_address,
                      string net_ref_interface="");
 
     ~RoboCupSSLServer();
     bool open();
     void close();
-    bool send(const SSL_WrapperPacket & packet);
+    template <typename T>
+    bool sendWrapperPacket(const T & packet) {
+      string buffer;
+      packet.SerializeToString(&buffer);
+      Net::Address multiaddr;
+      multiaddr.setHost(_net_address.c_str(),_port);
+      bool result;
+      mutex.lock();
+      result=mc.send(buffer.c_str(),buffer.length(),multiaddr);
+      mutex.unlock();
+      if (result==false) {
+        perror("Sendto Error");
+        fprintf(stderr,
+                "Sending UDP datagram to %s:%d failed (maybe too large?). "
+                "Size was: %zu byte(s)\n",
+                _net_address.c_str(),
+                _port,
+                buffer.length());
+      }
+      return(result);
+    }
+
     bool send(const SSL_DetectionFrame & frame);
     bool send(const SSL_GeometryData & geometry);
+    bool sendLegacyMessage(
+        const RoboCup2014Legacy::Geometry::SSL_GeometryData & geometry);
+    bool sendLegacyMessage(const SSL_DetectionFrame & frame);
 
 };
 

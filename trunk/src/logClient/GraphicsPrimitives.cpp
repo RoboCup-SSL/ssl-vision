@@ -234,45 +234,13 @@ void SoccerView::ConstructField()
   //scene->removeItem(fieldItem);
   field = new QPainterPath();
 
+  printf("TODO(%s:%d) : Draw dynamic field markingsn\n", __FILE__, __LINE__);
+  /*
   field->moveTo ( 0,-field_width/2 );
   field->lineTo ( 0,field_width/2 );
-
   field->addEllipse ( -center_circle_radius,-center_circle_radius,
                       2*center_circle_radius,2*center_circle_radius );
-
-  field->moveTo ( field_length/2,-field_width/2 );
-  field->lineTo ( field_length/2,field_width/2 );
-
-  field->moveTo ( -field_length/2,-field_width/2 );
-  field->lineTo ( -field_length/2,field_width/2 );
-
-  field->moveTo ( -field_length/2,-field_width/2 );
-  field->lineTo ( field_length/2,-field_width/2 );
-
-  field->moveTo ( -field_length/2,field_width/2 );
-  field->lineTo ( field_length/2,field_width/2 );
-
-  field->moveTo ( field_length/2,goal_width/2 );
-  field->lineTo ( ( field_length/2+goal_depth ),goal_width/2 );
-  field->lineTo ( ( field_length/2+goal_depth ),-goal_width/2 );
-  field->lineTo ( field_length/2,-goal_width/2 );
-  field->moveTo ( ( field_length/2-defense_radius ),defense_stretch/2 );
-  field->lineTo ( ( field_length/2-defense_radius ),-defense_stretch/2 );
-  field->moveTo ( ( field_length/2-defense_radius ),defense_stretch/2 );
-  field->arcTo ( ( field_length/2-defense_radius ),- ( defense_radius-defense_stretch/2 ),defense_radius*2,defense_radius*2,180,90 );
-  field->moveTo ( ( field_length/2-defense_radius ),-defense_stretch/2 );
-  field->arcTo ( ( field_length/2-defense_radius ),- ( defense_radius+defense_stretch/2 ),defense_radius*2,defense_radius*2,180,-90 );
-
-  field->moveTo ( -field_length/2,goal_width/2 );
-  field->lineTo ( - ( field_length/2+goal_depth ),goal_width/2 );
-  field->lineTo ( - ( field_length/2+goal_depth ),-goal_width/2 );
-  field->lineTo ( -field_length/2,-goal_width/2 );
-  field->moveTo ( - ( field_length/2-defense_radius ),defense_stretch/2 );
-  field->lineTo ( - ( field_length/2-defense_radius ),-defense_stretch/2 );
-  field->moveTo ( - ( field_length/2-defense_radius ),defense_stretch/2 );
-  field->arcTo ( - ( field_length/2+defense_radius ),- ( defense_radius-defense_stretch/2 ),defense_radius*2,defense_radius*2,0,-90 );
-  field->moveTo ( - ( field_length/2-defense_radius ),-defense_stretch/2 );
-  field->arcTo ( - ( field_length/2+defense_radius ),- ( defense_radius+defense_stretch/2 ),defense_radius*2,defense_radius*2,0,90 );
+  */
 }
 
 void SoccerView::scaleView ( qreal scaleFactor )
@@ -408,38 +376,14 @@ int SoccerView::UpdateBalls ( QVector<QPointF> &_balls, int cameraID )
 
 void SoccerView::LoadFieldGeometry()
 {
-  this->line_width = FieldConstantsRoboCup2012::line_width;
-  this->field_length = FieldConstantsRoboCup2012::field_length;
-  this->field_width = FieldConstantsRoboCup2012::field_width;
-  this->boundary_width = FieldConstantsRoboCup2012::boundary_width;
-  this->referee_width = FieldConstantsRoboCup2012::referee_width;
-  this->goal_width = FieldConstantsRoboCup2012::goal_width;
-  this->goal_depth = FieldConstantsRoboCup2012::goal_depth;
-  this->goal_wall_width = FieldConstantsRoboCup2012::goal_wall_width;
-  this->center_circle_radius = FieldConstantsRoboCup2012::center_circle_radius;
-  this->defense_radius = FieldConstantsRoboCup2012::defense_radius;
-  this->defense_stretch = FieldConstantsRoboCup2012::defense_stretch;
-  this->free_kick_from_defense_dist = FieldConstantsRoboCup2012::free_kick_from_defense_dist;
-  this->penalty_spot_from_field_line_dist = FieldConstantsRoboCup2012::penalty_spot_from_field_line_dist;
-  this->penalty_line_from_spot_dist = FieldConstantsRoboCup2012::penalty_line_from_spot_dist;
+  printf("TODO(%s:%d) : Load list of field markings from "
+         "FieldConstantsRoboCup2012\n", __FILE__, __LINE__);
 }
 
-void SoccerView::LoadFieldGeometry ( SSL_GeometryFieldSize &fieldSize )
+void SoccerView::LoadFieldGeometry (SSL_GeometryFieldSize &fieldSize )
 {
-  this->line_width = fieldSize.line_width();
-  this->field_length = fieldSize.field_length();
-  this->field_width = fieldSize.field_width();
-  this->boundary_width = fieldSize.boundary_width();
-  this->referee_width = fieldSize.referee_width();
-  this->goal_width = fieldSize.goal_width();
-  this->goal_depth = fieldSize.goal_depth();
-  this->goal_wall_width = fieldSize.goal_wall_width();
-  this->center_circle_radius = fieldSize.center_circle_radius();
-  this->defense_radius = fieldSize.defense_radius();
-  this->defense_stretch = fieldSize.defense_stretch();
-  this->free_kick_from_defense_dist = fieldSize.free_kick_from_defense_dist();
-  this->penalty_spot_from_field_line_dist = fieldSize.penalty_spot_from_field_line_dist();
-  this->penalty_line_from_spot_dist = fieldSize.penalty_line_from_spot_dist();
+  printf("TODO(%s:%d) : Load dynamic list of field markings\n",
+         __FILE__, __LINE__);
 
   scene->removeItem ( fieldItem );
   ConstructField();

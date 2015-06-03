@@ -19,7 +19,7 @@
 */
 //========================================================================
 
-/* 
+/*
    MT19937, with initialization improved 2002/2/10.
    Coded by Takuji Nishimura and Makoto Matsumoto.
    This is a faster version by taking Shawn Cokus's optimization,
@@ -30,7 +30,7 @@
    or array version seed(init_key, key_length).
 
    Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
-   All rights reserved.                          
+   All rights reserved.
 
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions
@@ -69,6 +69,8 @@
    since the original authors aren't responsible for this C++ conversion.
 */
 
+#include <cstdlib>
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -84,6 +86,7 @@
 #define MIXBITS(u,v) ( ((u) & UMASK) | ((v) & LMASK) )
 #define TWIST(u,v) ((MIXBITS(u,v) >> 1) ^ ((v)&1UL ? MATRIX_A : 0UL))
 
+using std::size_t;
 
 void Random::randomize()
 {
@@ -93,15 +96,19 @@ void Random::randomize()
 
   fd = open("/dev/urandom",O_RDONLY);
   if(fd >= 0){
-    read(fd,state,sizeof(uint32_t)*N);
+    const size_t num_bytes = sizeof(uint32_t)*N;
+    if (read(fd,state,num_bytes) != num_bytes) {
+      fprintf(stderr, "WARNING: Unable to read sufficient seed bytes from "
+              "/dev/urandom");
+    }
     close(fd);
 
     left = 1;
   }else{
-  	#if WIN32
-  	//FIXME.
-  	seed(43);
-  	#else
+    #if WIN32
+    //FIXME.
+    seed(43);
+    #else
     gettimeofday(&tv,NULL);
     a[0] = tv.tv_sec;
     a[1] = tv.tv_usec;
@@ -116,7 +123,7 @@ void Random::seed(uint32_t s)
 
   state[0]= s;
   for(j=1; j<N; j++){
-    state[j] = (1812433253UL * (state[j-1] ^ (state[j-1] >> 30)) + j); 
+    state[j] = (1812433253UL * (state[j-1] ^ (state[j-1] >> 30)) + j);
     /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
     /* In the previous versions, MSBs of the seed affect   */
     /* only MSBs of the array state[].                     */
@@ -151,7 +158,7 @@ void Random::seed(const uint32_t *init_key,int key_length)
     if(i>=N){ state[0] = state[N-1]; i=1; }
   }
 
-  state[0] = 0x80000000UL; /* MSB is 1; assuring non-zero initial array */ 
+  state[0] = 0x80000000UL; /* MSB is 1; assuring non-zero initial array */
   left = 1;
 }
 
@@ -166,7 +173,7 @@ void Random::next_state()
 
   left = N;
   next = state;
-    
+
   for(j=N-M+1; --j; p++){
     *p = p[M] ^ TWIST(p[0], p[1]);
   }
