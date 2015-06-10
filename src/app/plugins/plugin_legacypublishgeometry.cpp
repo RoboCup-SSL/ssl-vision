@@ -124,7 +124,8 @@ void PluginLegacyPublishGeometry::sendGeometry() {
 float PluginLegacyPublishGeometry::GetFieldLineLength(const string& line_name) {
   const FieldLine* line = GetFieldLine(line_name, _field.field_lines);
   if (line == NULL) return 0;
-  return (sqrt(sq(line->p1_x - line->p2_x) + sq(line->p1_y - line->p2_y)));
+  return (sqrt(sq(line->p1_x->getDouble() - line->p2_x->getDouble())
+  		+ sq(line->p1_y->getDouble() - line->p2_y->getDouble())));
 }
 
 float PluginLegacyPublishGeometry::GetFieldLineThickness(
