@@ -64,6 +64,7 @@ public:
   vector<RealTimeDisplayWidget *> display_widgets;
   vector<QSplitter *> stack_widgets;
   RenderOptions * opts;
+  VarTrigger * save_settings_trigger;
 
   MultiVisionStack * multi_stack;
 
@@ -73,6 +74,9 @@ public:
   void Quit() { emit close(); }
   virtual void closeEvent(QCloseEvent * event );
   virtual void timerEvent(QTimerEvent * e);
+
+public slots:
+  void slotSaveSettings();
 };
 
 

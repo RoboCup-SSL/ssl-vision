@@ -17,7 +17,7 @@ clean:
 	$(MAKE) -C $(buildDir) clean
 	
 cleanup_cache:
-	cd $(buildDir) && rm -rf *
+	rm -rf $(buildDir) && mkdir $(buildDir)
 	
 run: all
 	./bin/vision

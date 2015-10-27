@@ -38,6 +38,9 @@ MainWindow::MainWindow(bool start_capture, bool enforce_affinity)
 
   root=new VarList("Vision System");
 
+  save_settings_trigger = new VarTrigger("Save Settings", "Save Settings!");
+  root->addChild(save_settings_trigger);
+
   opts=new RenderOptions();
   right_tab=0;
 
@@ -169,6 +172,10 @@ MainWindow::MainWindow(bool start_capture, bool enforce_affinity)
 
   startTimer(10);
 
+  // connection must be queued as the data tree is locked
+  // by a mutex when the signal is triggered
+  connect(save_settings_trigger, SIGNAL(signalTriggered()),
+          this, SLOT(slotSaveSettings()), Qt::QueuedConnection);
 }
 
 void MainWindow::timerEvent( QTimerEvent * e) {
@@ -190,6 +197,11 @@ void MainWindow::timerEvent( QTimerEvent * e) {
     }
     w->displayLoopEvent(frame_changed,opts);
   }
+}
+
+void MainWindow::slotSaveSettings()
+{
+    VarXML::write(world,"settings.xml");
 }
 
 void MainWindow::init() {
