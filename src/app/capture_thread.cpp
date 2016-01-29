@@ -36,9 +36,11 @@ CaptureThread::CaptureThread(int cam_id)
   control->addChild( (VarType*) (captureModule= new VarStringEnum("Capture Module","DC 1394")));
   captureModule->addFlags(VARTYPE_FLAG_NOLOAD_ENUM_CHILDREN);
   captureModule->addItem("DC 1394");
+  captureModule->addItem("V4L (USB)");
   captureModule->addItem("Read from files");
   captureModule->addItem("Generator");
   settings->addChild( (VarType*) (dc1394 = new VarList("DC1394")));
+  settings->addChild( (VarType*) (v4l = new VarList("V4L")));
   settings->addChild( (VarType*) (fromfile = new VarList("Read from files")));
   settings->addChild( (VarType*) (generator = new VarList("Generator")));
   settings->addFlags( VARTYPE_FLAG_AUTO_EXPAND_TREE );
@@ -55,6 +57,7 @@ CaptureThread::CaptureThread(int cam_id)
   captureDC1394 = new CaptureDC1394v2(dc1394,camId);
   captureFiles = new CaptureFromFile(fromfile);
   captureGenerator = new CaptureGenerator(generator);
+  captureV4L = new CaptureV4L(v4l,camId);
   selectCaptureMethod();
   _kill =false;
   rb=0;
@@ -77,6 +80,7 @@ VarList * CaptureThread::getSettings() {
 CaptureThread::~CaptureThread()
 {
   delete captureDC1394;
+  delete captureV4L;
   delete captureFiles;
   delete captureGenerator;
   delete counter;
@@ -102,8 +106,10 @@ void CaptureThread::selectCaptureMethod() {
     new_capture = captureFiles;
   } else if(captureModule->getString() == "Generator") {
     new_capture = captureGenerator;
+  } else if(captureModule->getString() == "DC1394") {
+      new_capture = captureDC1394;
   } else {
-    new_capture = captureDC1394;
+    new_capture = captureV4L;
   }
 
   if (old_capture!=0 && new_capture!=old_capture && old_capture->isCapturing()) {
