@@ -30,6 +30,24 @@
  */
 //========================================================================
 
+//==================================================================
+// A note about the capture format.... (from Eric)
+// - There appears to be a different method of byte packing in the V4L
+//   library versus standard YUYV and UYUV packing used in ssl-vision
+//   http://linuxtv.org/downloads/v4l-dvb-apis/V4L2-PIX-FMT-YUYV.html
+// - Additional some, very basic cameras only support YUYV and not UYVY,
+//   which is the expected 4:2:2 format within ssl-vision for the YUV lookup.
+// - Thus, we make the extra hop into the common RGB space immediately
+//   at capture instead of deferring this to a convsersion later.
+//   Committs earlier in the life of this code indicate other attempts,
+//   which may be helpful to future developers.
+// - One ramification is a slower copy/decode process.  On a desktop or
+//   laptop, this doesn't seem to influce frame rate.
+// - This is not ideal, but the problem is left to future developers
+//   to ferret out proper settings for the video format (see v4l2_format)
+//   and colorspaces within ssl-vision and V4L.  Until then, it works.
+//==================================================================
+
 
 #include "capturev4l.h"
 #include "conversions.h"
@@ -42,10 +60,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>      //open
 #include <unistd.h>     //close
-
-#define VIDEO_STANDARD              "NTSC"
-#define V4L_DEFAULT_VIDEO_FORMAT    V4L2_PIX_FMT_UYVY // in hopes of using faster resampler //V4L2_PIX_FMT_YUYV
-
 
 //======================= Singleton Manager =======================
 
@@ -190,11 +204,45 @@ int GlobalV4Linstance::xioctl(int fd,int request,void *data,
     return(ret);
 }
 
+bool GlobalV4Linstance::captureFrame(RawImage *pImage, int iMaxSpin)
+{
+    const image_t *_img = captureFrame(iMaxSpin);       //low-level fetch
+    if (!_img) return false;
+
+    if (pImage) {                                       //allow null to stoke the capture
+        unsigned char *pDest = pImage->getData();
+        if (!pDest) {                                   //we don't want low-level to reallocate!
+            fprintf(stderr,"GlobalV4Linstance: RawImage not pre-allocated in captureFrame in device '%s'\n",
+                    szDevice);
+        }
+        if (!getImageRgb(reinterpret_cast<GlobalV4Linstance::yuyv *>(_img->data),
+                         pImage->getWidth(), pImage->getHeight(),
+                         reinterpret_cast<GlobalV4Linstance::rgb **>(&pDest)) )
+            return false;                                   //mid-level copy to RGB
+
+        // just copy timestamp from v4l buffer
+        // http://www.linuxtv.org/downloads/v4l-dvb-apis/buffer.html
+        // http://linux.die.net/man/2/gettimeofday
+        /*
+        timeval tv;
+        pImage->setTime(0.0);
+        //TODO: we could copy the timestamp from the tempbuf/image itself
+        gettimeofday(&tv,NULL);
+        pImage->setTime((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
+        */
+        pImage->setTime((double)_img->timestamp.tv_sec + _img->timestamp.tv_usec*(1.0E-6));
+    }
+    if (!releaseFrame(_img))                            //maybe we shouldn't return an error?
+        return false;
+    
+    return true;
+}
+
 
 const GlobalV4Linstance::image_t *GlobalV4Linstance::captureFrame(int iMaxSpin)
 {
     if(!waitForFrame(300)) {
-        fprintf(stderr,"GlobalV4Linstance: error waiting for frame\n");
+        fprintf(stderr,"GlobalV4Linstance: error waiting for frame '%s'\n", szDevice);
         return(NULL);
     }
     
@@ -249,19 +297,16 @@ bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, int iInputIdx)
 {
     struct v4l2_requestbuffers req;
     
-    // Set defaults if not given
-    int iFormat = V4L_DEFAULT_VIDEO_FORMAT;
-
     // Set video format
     v4l2_format fmt;
     mzero(fmt);
     fmt.fmt.pix.width       = iWidth_;
     fmt.fmt.pix.height      = iHeight_;
-    fmt.fmt.pix.pixelformat = iFormat;
-    fmt.fmt.pix.field       = V4L2_FIELD_INTERLACED; //V4L2_FIELD_ALTERNATE;
+    fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;        //see note at top of file
+    fmt.fmt.pix.field       = V4L2_FIELD_ALTERNATE;
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if (!xioctl(VIDIOC_S_FMT, &fmt, "SetFormat")) {
-        printf("Could not set format\n");
+        printf("Could not set format, '%s'\n", szDevice);
         return(false);
     }
     
@@ -302,7 +347,7 @@ bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, int iInputIdx)
     for(unsigned i=0; i<req.count; i++){
         tempbuf.index = i;
         if(!xioctl(VIDIOC_QUERYBUF, &tempbuf, "Allocate query buffer")) {
-            printf("QUERYBUF returned error\n");
+            printf("QUERYBUF returned error, '%s'\n", szDevice);
             return(false);
         }
         img[i].index = i;
@@ -321,7 +366,7 @@ bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, int iInputIdx)
     for(unsigned i=0; i<req.count; i++){
         tempbuf.index = i;
         if(!enqueueBuffer(tempbuf)){
-            printf("Error queueing initial buffers\n");
+            printf("Error queueing initial buffers, '%s'\n", szDevice);
             return(false);
         }
     }
@@ -408,6 +453,70 @@ bool GlobalV4Linstance::setControl(int ctrl_id, long s)
     }
 }
 
+//======================= Low level utility functions ====================
+bool GlobalV4Linstance::writeYuyvPPM(GlobalV4Linstance::yuyv *pSrc, int width, int height, const char *filename)
+{
+    GlobalV4Linstance::rgb *bufrgb = NULL;
+    if (!getImageRgb(pSrc, width,height,&bufrgb)) return false;
+    int wrote;
+    wrote = writeRgbPPM(bufrgb,width,height,filename);
+    delete[](bufrgb);
+    
+    return(wrote > 0);
+}
+
+bool GlobalV4Linstance::writeRgbPPM(GlobalV4Linstance::rgb *imgbuf, int width, int height, const char *filename)
+{
+    // open output file
+    FILE *out = fopen(filename,"wb");
+    if(!out) return(false);
+    
+    // write the image
+    fprintf(out,"P6\n%d %d\n%d\n",width,height,255);
+    int result=fwrite(imgbuf,3,width*height,out);
+    (void)result; //get the compiler to shut up.
+    
+    return(fclose(out) == 0);
+}
+
+bool GlobalV4Linstance::getImageRgb(GlobalV4Linstance::yuyv *pSrc, int width, int height, GlobalV4Linstance::rgb **rgbbuf)
+{
+    if (!rgbbuf) return false;
+    if ((*rgbbuf)==NULL)
+        (*rgbbuf) = new rgb[width * height];
+    
+    int size = width*height;
+    GlobalV4Linstance::rgb *pDest = (*rgbbuf);
+    GlobalV4Linstance::yuv pxCopy;
+    for (int iP=0; iP<size; iP++) {
+        pxCopy.y = (iP&1)? pSrc->y2 : pSrc->y1;
+        pxCopy.u = pSrc->u;
+        pxCopy.v = pSrc->v;
+        (*pDest) = yuv2rgb(pxCopy);
+        pDest++;                //advance destination always
+        if (iP&1) pSrc++;       //avoid odd field advancement
+    }
+    return true;
+}
+
+GlobalV4Linstance::rgb GlobalV4Linstance::yuv2rgb(GlobalV4Linstance::yuv p)
+{
+    GlobalV4Linstance::rgb r;
+    int y,u,v;
+    
+    y = p.y;
+    u = p.v*2 - 255;
+    v = p.u*2 - 255;
+    
+    r.red   = bound(y + u                     ,0,255);
+    r.green = bound((int)(y - 0.51*u - 0.19*v),0,255);
+    r.blue  = bound(y + v                     ,0,255);
+    
+    return(r);
+}
+
+
+
 //======================= GUI & API Definitions =======================
 
 #ifndef VDATA_NO_QT
@@ -432,7 +541,15 @@ CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id) : CaptureInter
     //=======================CONVERSION SETTINGS=======================
     conversion_settings->addChild(v_colorout=new VarStringEnum("convert to mode",Colors::colorFormatToString(COLOR_YUV422_UYVY)));
     v_colorout->addItem(Colors::colorFormatToString(COLOR_RGB8));
+//    v_colorout->addItem(Colors::colorFormatToString(COLOR_RGB16));
+//    v_colorout->addItem(Colors::colorFormatToString(COLOR_RAW8));
+//    v_colorout->addItem(Colors::colorFormatToString(COLOR_RAW16));
+//    v_colorout->addItem(Colors::colorFormatToString(COLOR_MONO8));
+//    v_colorout->addItem(Colors::colorFormatToString(COLOR_MONO16));
+//    v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV411));
     v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV422_UYVY));
+    v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV422_YUYV));
+//    v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV444));
     
     dcam_parameters->addFlags( VARTYPE_FLAG_HIDE_CHILDREN );
     
@@ -443,15 +560,15 @@ CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id) : CaptureInter
     capture_settings->addChild(v_height           = new VarInt("height",480));
     capture_settings->addChild(v_left            = new VarInt("left",0));
     capture_settings->addChild(v_top           = new VarInt("top",0));
-    capture_settings->addChild(v_colormode        = new VarStringEnum("capture mode",Colors::colorFormatToString(COLOR_YUV422_UYVY)));
-//    v_colormode->addItem(Colors::colorFormatToString(COLOR_RGB8));
+    capture_settings->addChild(v_colormode        = new VarStringEnum("capture mode",Colors::colorFormatToString(COLOR_RGB8)));
+    v_colormode->addItem(Colors::colorFormatToString(COLOR_RGB8));
 //    v_colormode->addItem(Colors::colorFormatToString(COLOR_RGB16));
 //    v_colormode->addItem(Colors::colorFormatToString(COLOR_RAW8));
 //    v_colormode->addItem(Colors::colorFormatToString(COLOR_RAW16));
 //    v_colormode->addItem(Colors::colorFormatToString(COLOR_MONO8));
 //    v_colormode->addItem(Colors::colorFormatToString(COLOR_MONO16));
 //    v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV411));
-    v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV422_UYVY));
+//    v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV422_UYVY));
 //    v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV422_YUYV));
 //    v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV444));
 //    capture_settings->addChild(v_format           = new VarStringEnum("capture format",captureModeToString(CAPTURE_MODE_MIN)));
@@ -826,7 +943,7 @@ void CaptureV4L::readParameterProperty(VarList * item) {
 CaptureV4L::~CaptureV4L()
 {
     GlobalV4LinstanceManager::removeInstance();
-    //FIXME: delete all of dcam_parameters children
+    rawFrame.clear();           //release memory from local image
 }
 
 bool CaptureV4L::resetBus() {
@@ -1234,14 +1351,10 @@ bool CaptureV4L::startCapture()
 #endif
     //because there is some delay before camera actually starts, spin
     // here for the first frame to come out
-    do {
-        _img = camera_instance->captureFrame();
-    }
-    while (!_img);
+    while (!camera_instance->captureFrame(static_cast<RawImage*>(NULL))) { };
 #ifndef VDATA_NO_QT
     mutex.unlock();
 #endif
-    releaseFrame();
 
     return true;
 }
@@ -1278,7 +1391,7 @@ bool CaptureV4L::convertFrame(const RawImage & src, RawImage & target, ColorForm
         memcpy(target.getData(),src.getData(),src.getNumBytes());
     } else {
         //do some more fancy conversion
-        if ((src_fmt==COLOR_MONO8 || src_fmt==COLOR_RAW8) && output_fmt==COLOR_RGB8) {
+        /*if ((src_fmt==COLOR_MONO8 || src_fmt==COLOR_RAW8) && output_fmt==COLOR_RGB8) {
             Conversions::y2rgb (src.getData(), target.getData(), width, height);
         } else if ((src_fmt==COLOR_MONO16 || src_fmt==COLOR_RAW16)) {
             if (output_fmt==COLOR_RGB8) {
@@ -1293,16 +1406,10 @@ bool CaptureV4L::convertFrame(const RawImage & src, RawImage & target, ColorForm
 #endif
                 return false;
             }
-        } else if (output_fmt==COLOR_RGB8) {
-            Conversions::y162rgb (src.getData(), target.getData(), width, height, y16bits);
-        } else if (src_fmt==COLOR_YUV411 && output_fmt==COLOR_RGB8) {
-            Conversions::uyyvyy2rgb (src.getData(), target.getData(), width, height);
-        } else if (src_fmt==COLOR_YUV422_UYVY && output_fmt==COLOR_RGB8) {
-            Conversions::uyvy2rgb (src.getData(), target.getData(), width, height);
-    //    } else if (src_fmt==COLOR_YUV422_YUYV && output_fmt==COLOR_RGB8) {
-    //        Conversions:::yuyv2rgb (src.getData(), target.getData(), src.getNumPixels());
-        } else if (src_fmt==COLOR_YUV444 && output_fmt==COLOR_RGB8) {
-            Conversions::uyv2rgb (src.getData(), target.getData(), width, height);
+        } else */ if (src_fmt==COLOR_RGB8 && output_fmt==COLOR_YUV422_UYVY) {
+            Conversions::rgb2uyvy (src.getData(), target.getData(), width, height);
+        } else if (src_fmt==COLOR_RGB8 && output_fmt==COLOR_YUV422_YUYV) {
+            Conversions::rgb2yuyv (src.getData(), target.getData(), width, height);
         } else {
             fprintf(stderr,"Cannot copy and convert frame...unknown conversion selected from: %s to %s\n",
                     Colors::colorFormatToString(src_fmt).c_str(),
@@ -1321,37 +1428,35 @@ bool CaptureV4L::convertFrame(const RawImage & src, RawImage & target, ColorForm
 
 RawImage CaptureV4L::getFrame()
 {
-    RawImage result;
-    result.setColorFormat(COLOR_UNDEFINED);
-
-    // capture a frame and write it
-    _img = camera_instance->captureFrame();
-    if (!_img) {
-        fprintf (stderr, "CaptureV4L Warning: Frame not ready, failed to enqueue frame\n");
-        return result;
-    }
-
 #ifndef VDATA_NO_QT
     mutex.lock();
 #endif
-    
-    result.setColorFormat(capture_format);
-    result.setWidth(width);
-    result.setHeight(height);
-    //result.size= RawImage::computeImageSize(format, width*height);
-    timeval tv;
-    result.setTime(0.0);
-    //TODO: we could copy the timestamp from the tempbuf/image itself
-    gettimeofday(&tv,NULL);
-    result.setTime((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
-    result.setData(_img->data);
+    // capture a frame and write it
+    rawFrame.ensure_allocation(capture_format, width, height);
+    if (!camera_instance->captureFrame(&rawFrame)) {
+        fprintf (stderr, "CaptureV4L Warning: Frame not ready, camera %d\n", cam_id);
+#ifndef VDATA_NO_QT
+        mutex.unlock();
+#endif
+        RawImage badImage;
+        return badImage;
+    }
+
+#ifndef NDEBUG
+    //strictly for debugging
+    const char *szOutput = NULL;
+    if (szOutput) {
+        GlobalV4Linstance::writeRgbPPM(reinterpret_cast<GlobalV4Linstance::rgb*>(rawFrame.getData()),
+                                       width, height, szOutput);
+    }
+#endif
     
     /*printf("B: %d w: %d h: %d bytes: %d pad: %d pos: %d %d depth: %d bpp %d coding: %d  behind %d id %d\n",frame->data_in_padding ? 1 : 0, frame->size[0],frame->size[1],frame->image_bytes,frame->padding_bytes, frame->position[0],frame->position[1],frame->data_depth,frame->packets_per_frame,frame->color_coding,frame->frames_behind,frame->id);*/
 
 #ifndef VDATA_NO_QT
     mutex.unlock();
 #endif
-    return result;
+    return rawFrame;
 }
 
 void CaptureV4L::releaseFrame() {
@@ -1359,9 +1464,7 @@ void CaptureV4L::releaseFrame() {
     mutex.lock();
 #endif
     
-    if (!camera_instance->releaseFrame(_img)) {
-        fprintf (stderr, "CaptureV4L Error: Failed to release frame from camera %d\n", cam_id);
-    }
+    //frame management done at low-level now...
 #ifndef VDATA_NO_QT
     mutex.unlock();
 #endif
