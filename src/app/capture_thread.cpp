@@ -190,39 +190,40 @@ void CaptureThread::run() {
         if ((capture != 0) && (capture->isCapturing())) {
           RawImage pic_raw=capture->getFrame();
           d->time=pic_raw.getTime();
-          capture->copyAndConvertFrame( pic_raw,d->video);
+          bool bSuccess = capture->copyAndConvertFrame( pic_raw,d->video);
           capture_mutex.unlock();
 
-          counter->count();
-          stats->total=d->number=counter->getTotal();
-          d->cam_id=camId;
-          stats->fps_capture=counter->getFPS(changed);
+          if (bSuccess) {           //only on a good frame read do we proceed
+              counter->count();
+              stats->total=d->number=counter->getTotal();
+              d->cam_id=camId;
+              stats->fps_capture=counter->getFPS(changed);
 
-          stack_mutex.lock();
-          if (stack!=0) {
-            stack->process(d);
-            stack->postProcess(d);
-          }
-          stack_mutex.unlock();
-          rb->nextWrite(true);
+              stack_mutex.lock();
+              if (stack!=0) {
+                stack->process(d);
+                stack->postProcess(d);
+              }
+              stack_mutex.unlock();
+              rb->nextWrite(true);
 
 
-          if (changed) {
-            if (c_auto_refresh->getBool()==true) {
+              if (changed) {
+                if (c_auto_refresh->getBool()==true) {
+                  capture_mutex.lock();
+                  if ((capture != 0) && (capture->isCapturing())) capture->readAllParameterValues();
+                  capture_mutex.unlock();
+                }
+                stack_mutex.lock();
+                stack->updateTimingStatistics();
+                stack_mutex.unlock();
+              }
               capture_mutex.lock();
-              if ((capture != 0) && (capture->isCapturing())) capture->readAllParameterValues();
+              if ((capture != 0) && (capture->isCapturing())) {
+                capture->releaseFrame();
+              }
               capture_mutex.unlock();
-            }
-            stack_mutex.lock();
-            stack->updateTimingStatistics();
-            stack_mutex.unlock();
           }
-          capture_mutex.lock();
-          if ((capture != 0) && (capture->isCapturing())) {
-            capture->releaseFrame();
-          }
-          capture_mutex.unlock();
-
         } else {
           stats->total=d->number=counter->getTotal();
           stats->fps_capture=counter->getFPS(changed);

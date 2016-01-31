@@ -44,8 +44,6 @@
 #include <unistd.h>     //close
 
 #define VIDEO_STANDARD              "NTSC"
-#define DEFAULT_IMAGE_WIDTH         640
-#define DEFAULT_IMAGE_HEIGHT        240
 #define V4L_DEFAULT_VIDEO_FORMAT    V4L2_PIX_FMT_UYVY // in hopes of using faster resampler //V4L2_PIX_FMT_YUYV
 
 
@@ -82,6 +80,8 @@ bool GlobalV4Linstance::obtainInstance(char *szDevice_)
 {
     lock();
     bool bSuccess = (pollset.fd > -1);
+    //fprintf(stderr,"WARNING: obtainInstance ENTER : counter : %d!\n", counter);
+
     if (counter == 0) {
         if (pollset.fd < 0) {
             counter = 1;
@@ -121,7 +121,6 @@ bool GlobalV4Linstance::obtainInstance(char *szDevice_)
         if (!bSuccess ) {
             if(pollset.fd > -1) close(pollset.fd);
             pollset.fd = -1;
-            bSuccess = false;
         }
         else {
             strncpy(szDevice, szDevice_, 128);
@@ -129,6 +128,7 @@ bool GlobalV4Linstance::obtainInstance(char *szDevice_)
     }
     if (bSuccess)
         counter++;
+    //fprintf(stderr,"WARNING: obtainInstance EXIT : counter : %d!\n", counter);
     
     unlock();
     return bSuccess;
@@ -193,7 +193,7 @@ int GlobalV4Linstance::xioctl(int fd,int request,void *data,
 
 const GlobalV4Linstance::image_t *GlobalV4Linstance::captureFrame(int iMaxSpin)
 {
-    if(!waitForFrame()) {
+    if(!waitForFrame(300)) {
         fprintf(stderr,"GlobalV4Linstance: error waiting for frame\n");
         return(NULL);
     }
@@ -214,7 +214,6 @@ const GlobalV4Linstance::image_t *GlobalV4Linstance::captureFrame(int iMaxSpin)
     int i = tempbuf.index;
     img[i].timestamp = tempbuf.timestamp;
     img[i].field = (tempbuf.field == V4L2_FIELD_BOTTOM);
-    
     return(&(img[i]));
 }
 
@@ -227,6 +226,8 @@ bool GlobalV4Linstance::releaseFrame(const GlobalV4Linstance::image_t *_img)
 
 int GlobalV4Linstance::enumerateCameras(int *id_list, int max_id)
 {
+    while (counter) removeInstance();       //if iterating, release control first
+    
     int iFoundDevices = 0;
     for (int cam_id=0; cam_id < max_id; cam_id++) {
         if (obtainInstance(cam_id)) {
@@ -250,14 +251,6 @@ bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, int iInputIdx)
     
     // Set defaults if not given
     int iFormat = V4L_DEFAULT_VIDEO_FORMAT;
-    if(!iWidth_ || !iHeight_){
-        iWidth_  = DEFAULT_IMAGE_WIDTH;
-        iHeight_ = DEFAULT_IMAGE_HEIGHT;
-    }
-    else if (iFormat==V4L_DEFAULT_VIDEO_FORMAT)
-    {
-        iHeight_ /= 2;          //for a 4:2:2 pull
-    }
 
     // Set video format
     v4l2_format fmt;
@@ -265,7 +258,7 @@ bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, int iInputIdx)
     fmt.fmt.pix.width       = iWidth_;
     fmt.fmt.pix.height      = iHeight_;
     fmt.fmt.pix.pixelformat = iFormat;
-    fmt.fmt.pix.field       = V4L2_FIELD_ALTERNATE;
+    fmt.fmt.pix.field       = V4L2_FIELD_INTERLACED; //V4L2_FIELD_ALTERNATE;
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if (!xioctl(VIDIOC_S_FMT, &fmt, "SetFormat")) {
         printf("Could not set format\n");
@@ -278,6 +271,17 @@ bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, int iInputIdx)
     // vid.setInput(1); // Component video
     // vid.setInput(2); // S-video
     xioctl(VIDIOC_S_INPUT,&iInputIdx,"SetInput");
+    /*
+    v4l2_std_id id = V4L2_STD_NTSC_M;               //TODO: modify/detect for other cameras
+    xioctl(VIDIOC_S_STD,&id,"SetStandard");
+    
+    long lControlVal = static_cast<long>(0.5f*(1 << 16));
+    setControl(V4L2_CID_BRIGHTNESS, lControlVal);
+    setControl(V4L2_CID_HUE, lControlVal);
+    setControl(V4L2_CID_CONTRAST, lControlVal);
+    lControlVal = static_cast<long>(0.9f*(1 << 16));
+    setControl(V4L2_CID_SATURATION, lControlVal);
+     */
 
     // Request mmap-able capture buffers
     mzero(req);
@@ -434,7 +438,7 @@ CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id) : CaptureInter
     
     //=======================CAPTURE SETTINGS==========================
     capture_settings->addChild(v_cam_bus          = new VarInt("cam idx",default_camera_id));
-    capture_settings->addChild(v_fps              = new VarInt("framerate",20));
+    capture_settings->addChild(v_fps              = new VarInt("framerate",30));
     capture_settings->addChild(v_width            = new VarInt("width",640));
     capture_settings->addChild(v_height           = new VarInt("height",480));
     capture_settings->addChild(v_left            = new VarInt("left",0));
@@ -448,6 +452,7 @@ CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id) : CaptureInter
 //    v_colormode->addItem(Colors::colorFormatToString(COLOR_MONO16));
 //    v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV411));
     v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV422_UYVY));
+//    v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV422_YUYV));
 //    v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV444));
 //    capture_settings->addChild(v_format           = new VarStringEnum("capture format",captureModeToString(CAPTURE_MODE_MIN)));
 //    for (int i = CAPTURE_MODE_MIN; i <= CAPTURE_MODE_MAX; i++) {
@@ -655,34 +660,37 @@ void CaptureV4L::readParameterValues(VarList * item) {
     }
     
     long lValue;
-    if (feature > GlobalV4Linstance::V4L2_FEATURE_PRIVATE) {       //custom/private features
-        printf("UNIMPLEMENTED FEATURE (readParameterValues): %s\n",item->getName().c_str());
-    }
-    else {
-        if (!camera_instance->getControl(feature,lValue)) {
-            //feature doesn't exist
-            printf("NON-READ FEATURE (readParameterValues): %s\n",item->getName().c_str());
-            if (vwasread!=0) vwasread->setBool(false);
-        } else {
-            //check for switchability:
-            if (vwasread!=0) vwasread->setBool(true);
-            if (camera_instance->checkControl(feature)) {
-                venabled->setBool(true);
+    if (vwasread!=0 && vwasread->getBool()==true) {             //only proceed if no failure in past
+        if (feature > GlobalV4Linstance::V4L2_FEATURE_PRIVATE) {       //custom/private features
+            printf("UNIMPLEMENTED FEATURE (readParameterValues): %s\n",item->getName().c_str());
+        }
+        else {
+            if (!camera_instance->getControl(feature,lValue)) {
+                //feature doesn't exist
+                printf("NON-READ FEATURE (readParameterValues): %s\n",item->getName().c_str());
+                if (vwasread!=0) vwasread->setBool(false);
             } else {
-                venabled->setBool(false);
+                //check for switchability:
+                if (vwasread!=0) vwasread->setBool(true);
+                if (camera_instance->checkControl(feature)) {
+                    venabled->setBool(true);
+                } else {
+                    venabled->setBool(false);
+                }
+                vint->setInt(lValue);
             }
-            vint->setInt(lValue);
+
+            //update render flags:
+            if (vint) {
+                if (venabled->getBool() ) {
+                    vint->removeFlags( VARTYPE_FLAG_READONLY );
+                } else {
+                    vint->addFlags( VARTYPE_FLAG_READONLY );
+                }
+            }
         }
     }
     
-    //update render flags:
-    if (vint) {
-        if (venabled->getBool() ) {
-            vint->removeFlags( VARTYPE_FLAG_READONLY );
-        } else {
-            vint->addFlags( VARTYPE_FLAG_READONLY );
-        }
-    }
     
 #ifndef VDATA_NO_QT
     mutex.unlock();
@@ -723,6 +731,7 @@ void CaptureV4L::writeParameterValues(VarList * item) {
     }
     else {
         if (vwasread!=0 && vwasread->getBool()==true) {
+            printf("ATTEMPTING TO SET (writeParameterValues): %s\n",item->getName().c_str());
             if (vint!=0) {
                 if (vdefault && vdefault->getBool())
                     vint->resetToDefault();
@@ -843,6 +852,7 @@ bool CaptureV4L::resetBus() {
 
 bool CaptureV4L::stopCapture()
 {
+    fprintf (stderr, "CaptureV4L ENTER STOPCAP %d\n", cam_id);
     if (isCapturing()) {
         readAllParameterValues();
     }
@@ -853,6 +863,7 @@ bool CaptureV4L::stopCapture()
         tmp[i]->removeFlags( VARTYPE_FLAG_READONLY );
     }
     dcam_parameters->addFlags( VARTYPE_FLAG_HIDE_CHILDREN );
+    fprintf (stderr, "CaptureV4L EXIT STOPCAP %d\n", cam_id);
     return true;
 }
 
@@ -870,7 +881,9 @@ void CaptureV4L::cleanup()
 //    }
 //    camera=0;
     //TODO: cleanup/free any memory buffers.
-    
+    if (!camera_instance->stopStreaming()) {
+        fprintf(stderr,"CaptureV4L Error: Unable to stop streaming, was camera started?\n");
+    }
     is_capturing=false;
 #ifndef VDATA_NO_QT
     mutex.unlock();
@@ -936,6 +949,7 @@ VarList * CaptureV4L::getVariablePointer(v4lfeature_t val)
 
 bool CaptureV4L::startCapture()
 {
+    //fprintf (stderr, "CaptureV4L ENTER CAPTURE START %d\n", cam_id);
 #ifndef VDATA_NO_QT
     mutex.lock();
 #endif
@@ -1207,10 +1221,28 @@ bool CaptureV4L::startCapture()
 #ifndef VDATA_NO_QT
     mutex.unlock();
 #endif
+    //fprintf (stderr, "CaptureV4L EXIT CAPTURE START %d\n", cam_id);
+
     readAllParameterProperties();
     printf("CaptureV4L Info: Restoring Previously Saved Camera Parameters\n");
     writeAllParameterValues();
     readAllParameterValues();
+    
+
+#ifndef VDATA_NO_QT
+    mutex.lock();
+#endif
+    //because there is some delay before camera actually starts, spin
+    // here for the first frame to come out
+    do {
+        _img = camera_instance->captureFrame();
+    }
+    while (!_img);
+#ifndef VDATA_NO_QT
+    mutex.unlock();
+#endif
+    releaseFrame();
+
     return true;
 }
 
@@ -1281,16 +1313,21 @@ bool CaptureV4L::convertFrame(const RawImage & src, RawImage & target, ColorForm
             return false;
         }
     }
+#ifndef VDATA_NO_QT
+    mutex.unlock();
+#endif
+    return true;
 }
 
 RawImage CaptureV4L::getFrame()
 {
     RawImage result;
+    result.setColorFormat(COLOR_UNDEFINED);
 
     // capture a frame and write it
     _img = camera_instance->captureFrame();
     if (!_img) {
-        fprintf (stderr, "CaptureV4L Warning: Frame not ready, failed to enqueue dropped frame\n");
+        fprintf (stderr, "CaptureV4L Warning: Frame not ready, failed to enqueue frame\n");
         return result;
     }
 
@@ -1298,7 +1335,7 @@ RawImage CaptureV4L::getFrame()
     mutex.lock();
 #endif
     
-    result.setColorFormat(COLOR_YUV422_UYVY); //COLOR_YUV422_YUYV);
+    result.setColorFormat(capture_format);
     result.setWidth(width);
     result.setHeight(height);
     //result.size= RawImage::computeImageSize(format, width*height);
@@ -1322,16 +1359,13 @@ void CaptureV4L::releaseFrame() {
     mutex.lock();
 #endif
     
-    
-    if (camera_instance->releaseFrame(_img)) {
+    if (!camera_instance->releaseFrame(_img)) {
         fprintf (stderr, "CaptureV4L Error: Failed to release frame from camera %d\n", cam_id);
     }
 #ifndef VDATA_NO_QT
     mutex.unlock();
 #endif
 }
-
-
 
 string CaptureV4L::getCaptureMethodName() const {
     return "V4L";
