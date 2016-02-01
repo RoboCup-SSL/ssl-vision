@@ -539,7 +539,7 @@ CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id) : CaptureInter
     settings->addChild(dcam_parameters  = new VarList("Camera Parameters"));
     
     //=======================CONVERSION SETTINGS=======================
-    conversion_settings->addChild(v_colorout=new VarStringEnum("convert to mode",Colors::colorFormatToString(COLOR_YUV422_UYVY)));
+    conversion_settings->addChild(v_colorout=new VarStringEnum("convert to mode",Colors::colorFormatToString(COLOR_RGB8)));
     v_colorout->addItem(Colors::colorFormatToString(COLOR_RGB8));
 //    v_colorout->addItem(Colors::colorFormatToString(COLOR_RGB16));
 //    v_colorout->addItem(Colors::colorFormatToString(COLOR_RAW8));
@@ -547,8 +547,8 @@ CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id) : CaptureInter
 //    v_colorout->addItem(Colors::colorFormatToString(COLOR_MONO8));
 //    v_colorout->addItem(Colors::colorFormatToString(COLOR_MONO16));
 //    v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV411));
-    v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV422_UYVY));
-    v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV422_YUYV));
+//    v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV422_UYVY));
+//    v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV422_YUYV));
 //    v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV444));
     
     dcam_parameters->addFlags( VARTYPE_FLAG_HIDE_CHILDREN );
