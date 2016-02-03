@@ -207,7 +207,7 @@ int GlobalV4Linstance::xioctl(int fd,int request,void *data,
 bool GlobalV4Linstance::captureFrame(RawImage *pImage, int iMaxSpin)
 {
     const image_t *_img = captureFrame(iMaxSpin);       //low-level fetch
-    if (!_img) return false;
+    if (!_img || _img->data==NULL) return false;
 
     if (pImage) {                                       //allow null to stoke the capture
         unsigned char *pDest = pImage->getData();
@@ -232,7 +232,7 @@ bool GlobalV4Linstance::captureFrame(RawImage *pImage, int iMaxSpin)
         */
         pImage->setTime((double)_img->timestamp.tv_sec + _img->timestamp.tv_usec*(1.0E-6));
     }
-    if (!releaseFrame(_img))                            //maybe we shouldn't return an error?
+    if (_img->data && !releaseFrame(_img))                            //maybe we shouldn't return an error?
         return false;
     
     return true;
@@ -270,6 +270,18 @@ bool GlobalV4Linstance::releaseFrame(const GlobalV4Linstance::image_t *_img)
     if(!_img) return(false);
     tempbuf.index = _img->index;
     return(enqueueBuffer(tempbuf));
+}
+
+//because there is some delay before camera actually starts, spin
+// here for the first frame to come out
+void GlobalV4Linstance::captureWarm(int iMaxSpin)
+{
+    const GlobalV4Linstance::image_t *_img = NULL;
+    while (!_img) {
+        _img = captureFrame(iMaxSpin);
+    }
+    if (_img->data)
+        releaseFrame(_img);
 }
 
 int GlobalV4Linstance::enumerateCameras(int *id_list, int max_id)
@@ -1327,8 +1339,6 @@ bool CaptureV4L::startCapture()
         l[i]->addFlags(VARTYPE_FLAG_READONLY);
     }
     
-    is_capturing=true;
-    
     vector<VarType *> tmp = capture_settings->getChildren();
     for (unsigned int i=0; i < tmp.size();i++) {
         tmp[i]->addFlags( VARTYPE_FLAG_READONLY );
@@ -1349,9 +1359,11 @@ bool CaptureV4L::startCapture()
 #ifndef VDATA_NO_QT
     mutex.lock();
 #endif
-    //because there is some delay before camera actually starts, spin
-    // here for the first frame to come out
-    while (!camera_instance->captureFrame(static_cast<RawImage*>(NULL))) { };
+    camera_instance->captureWarm();
+    
+    //now we can allow upstream/external to capture
+    is_capturing=true;
+
 #ifndef VDATA_NO_QT
     mutex.unlock();
 #endif
@@ -1433,7 +1445,7 @@ RawImage CaptureV4L::getFrame()
 #endif
     // capture a frame and write it
     rawFrame.ensure_allocation(capture_format, width, height);
-    if (!camera_instance->captureFrame(&rawFrame)) {
+    if (!is_capturing || !camera_instance->captureFrame(&rawFrame)) {
         fprintf (stderr, "CaptureV4L Warning: Frame not ready, camera %d\n", cam_id);
 #ifndef VDATA_NO_QT
         mutex.unlock();

@@ -34,6 +34,7 @@
 #ifndef CAPTUREV4l_H
 #define CAPTUREV4l_H
 #include "captureinterface.h"
+#include "util.h"
 #include <sys/time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -85,6 +86,7 @@ public:
 #endif
         counter=0;
         pollset.fd=-1;
+        mzero(img, V4L_STREAMBUFS);
         memset(szDevice, 0, sizeof(char)*128);
     }
     ~GlobalV4Linstance() {
@@ -125,6 +127,7 @@ public:
     bool startStreaming(int iWidth_, int iHeight_, int iInput=0);
     bool stopStreaming();
     
+    void captureWarm(int iMaxSpin=1);
     bool captureFrame(RawImage *pImage, int iMaxSpin=1);
     const image_t *captureFrame(int iMaxSpin=1);
     bool releaseFrame(const image_t *_img);
