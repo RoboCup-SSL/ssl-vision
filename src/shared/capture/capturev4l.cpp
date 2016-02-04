@@ -65,21 +65,55 @@
 
 GlobalV4LinstanceManager* GlobalV4LinstanceManager::pinstance = NULL;
 
-GlobalV4Linstance* GlobalV4LinstanceManager::obtainInstance() {
-    if (pinstance==NULL) pinstance=new GlobalV4LinstanceManager();
-    return &pinstance->instance; //pinstance->instance.obtainInstance(iDevice);
+GlobalV4Linstance* GlobalV4LinstanceManager::obtainInstance(int iDevice) {
+    if (!pinstance) pinstance=new GlobalV4LinstanceManager();
+    if (pinstance->map_instance.find(iDevice)==pinstance->map_instance.end()) {
+        pinstance->map_instance[iDevice] = new GlobalV4Linstance();
+    }
+    if (!pinstance->map_instance[iDevice]->obtainInstance(iDevice)) return NULL;
+    return pinstance->map_instance[iDevice];
 }
-bool GlobalV4LinstanceManager::removeInstance() {
-    if (pinstance==NULL) pinstance=new GlobalV4LinstanceManager();
-    return pinstance->instance.removeInstance();
+bool GlobalV4LinstanceManager::removeInstance(GlobalV4Linstance *pDevice) {
+    for (t_map_v4l::iterator it=pinstance->map_instance.begin();
+         it!=pinstance->map_instance.end(); it++) {
+        if (it->second == pDevice) {
+            if (pDevice->removeInstance()) {
+                delete pDevice;
+            }
+            pinstance->map_instance.erase(it);
+            return true;
+        }
+    }
+    return false;       // didn't find it
+}
+bool GlobalV4LinstanceManager::removeInstance(int iDevice) {
+    if (pinstance->map_instance.find(iDevice)!=pinstance->map_instance.end()) return false;
+    return removeInstance(pinstance->map_instance[iDevice]);
 }
 GlobalV4LinstanceManager::GlobalV4LinstanceManager() {
     //instance=new GlobalV4Linstance();
 }
 GlobalV4LinstanceManager::~GlobalV4LinstanceManager() {
-    //if (instance!=NULL) delete instance;
-    //instance=NULL;
+    for (t_map_v4l::iterator it=pinstance->map_instance.begin();
+         it!=pinstance->map_instance.end(); it++) {
+        delete it->second;
+    }
+    map_instance.clear();
 }
+
+int GlobalV4LinstanceManager::enumerateInstances(int *id_list, int max_id)
+{
+    int iFoundDevices = 0;
+    for (int cam_id=0; cam_id < max_id; cam_id++) {
+        GlobalV4Linstance *pDevice = GlobalV4LinstanceManager::obtainInstance(cam_id);
+        if (pDevice) {
+            id_list[iFoundDevices++] = cam_id;
+            GlobalV4LinstanceManager::removeInstance(pDevice);
+        }
+    }
+    return iFoundDevices;
+}
+
 
 //======================= Actual V4L device interface =======================
 
@@ -208,34 +242,43 @@ bool GlobalV4Linstance::captureFrame(RawImage *pImage, int iMaxSpin)
 {
     const image_t *_img = captureFrame(iMaxSpin);       //low-level fetch
     if (!_img || _img->data==NULL) return false;
+    bool bSuccess = false;
 
-    if (pImage) {                                       //allow null to stoke the capture
-        unsigned char *pDest = pImage->getData();
-        if (!pDest) {                                   //we don't want low-level to reallocate!
-            fprintf(stderr,"GlobalV4Linstance: RawImage not pre-allocated in captureFrame in device '%s'\n",
-                    szDevice);
+    if (_img) {
+        if (pImage) {                                       //allow null to stoke the capture
+            unsigned char *pDest = pImage->getData();
+            if (!pDest) {                                   //we don't want low-level to reallocate!
+                fprintf(stderr,"GlobalV4Linstance: RawImage not pre-allocated in captureFrame in device '%s'\n",
+                        szDevice);
+            }
+            lock();
+            
+            //mid-level copy to RGB
+            if (_img->data &&
+                    getImageRgb(reinterpret_cast<GlobalV4Linstance::yuyv *>(_img->data),
+                             pImage->getWidth(), pImage->getHeight(),
+                             reinterpret_cast<GlobalV4Linstance::rgb **>(&pDest)) )
+            {
+                // just copy timestamp from v4l buffer
+                // http://www.linuxtv.org/downloads/v4l-dvb-apis/buffer.html
+                // http://linux.die.net/man/2/gettimeofday
+                /*
+                timeval tv;
+                pImage->setTime(0.0);
+                //TODO: we could copy the timestamp from the tempbuf/image itself
+                gettimeofday(&tv,NULL);
+                pImage->setTime((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
+                */
+                pImage->setTime((double)_img->timestamp.tv_sec + _img->timestamp.tv_usec*(1.0E-6));
+                bSuccess = true;
+            }
+            unlock();
         }
-        if (!getImageRgb(reinterpret_cast<GlobalV4Linstance::yuyv *>(_img->data),
-                         pImage->getWidth(), pImage->getHeight(),
-                         reinterpret_cast<GlobalV4Linstance::rgb **>(&pDest)) )
-            return false;                                   //mid-level copy to RGB
-
-        // just copy timestamp from v4l buffer
-        // http://www.linuxtv.org/downloads/v4l-dvb-apis/buffer.html
-        // http://linux.die.net/man/2/gettimeofday
-        /*
-        timeval tv;
-        pImage->setTime(0.0);
-        //TODO: we could copy the timestamp from the tempbuf/image itself
-        gettimeofday(&tv,NULL);
-        pImage->setTime((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
-        */
-        pImage->setTime((double)_img->timestamp.tv_sec + _img->timestamp.tv_usec*(1.0E-6));
+        if ( !releaseFrame(_img))                            //maybe we shouldn't return an error?
+            return false;
     }
-    if (_img->data && !releaseFrame(_img))                            //maybe we shouldn't return an error?
-        return false;
     
-    return true;
+    return bSuccess;
 }
 
 
@@ -284,20 +327,6 @@ void GlobalV4Linstance::captureWarm(int iMaxSpin)
         releaseFrame(_img);
 }
 
-int GlobalV4Linstance::enumerateCameras(int *id_list, int max_id)
-{
-    while (counter) removeInstance();       //if iterating, release control first
-    
-    int iFoundDevices = 0;
-    for (int cam_id=0; cam_id < max_id; cam_id++) {
-        if (obtainInstance(cam_id)) {
-            id_list[iFoundDevices++] = cam_id;
-            removeInstance();
-        }
-    }
-    return iFoundDevices;
-}
-
 bool GlobalV4Linstance::waitForFrame(int max_msec)
 {
     if (pollset.fd==-1) return false;
@@ -318,8 +347,8 @@ bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, int iInputIdx)
     fmt.fmt.pix.field       = V4L2_FIELD_ALTERNATE;
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if (!xioctl(VIDIOC_S_FMT, &fmt, "SetFormat")) {
-        printf("Could not set format, '%s'\n", szDevice);
-        return(false);
+        printf("Warning: Could not set format, '%s'; was device previously started?\n", szDevice);
+ //       return(false);
     }
     
     // Set Input and Controls (for more advanced v4l as well)
@@ -539,12 +568,27 @@ CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id) : CaptureInter
 {
     mzero(cam_list, MAX_CAM_SCAN);
     cam_count = 0;
-    camera_instance=GlobalV4LinstanceManager::obtainInstance();
     cam_id=default_camera_id;
     is_capturing=false;
+
 #ifndef VDATA_NO_QT
     mutex.lock();
 #endif
+    
+    cam_count = GlobalV4LinstanceManager::enumerateInstances(cam_list, MAX_CAM_SCAN);
+    if (cam_count==0) {
+        fprintf(stderr,"CaptureV4L Error: can't find cameras");
+    }
+    
+    if (cam_id > cam_list[cam_count-1]) {
+        fprintf(stderr,"CaptureV4L Error: no camera found with index %d. Max index is: %d\n",cam_id,cam_list[cam_count-1]);
+    }
+    else {
+        camera_instance = GlobalV4LinstanceManager::obtainInstance(cam_id);
+        if (!camera_instance) {
+            fprintf(stderr,"CaptureV4L: unable to obtain instance of camera id %d!\n", cam_id);
+        }
+    }
     
     settings->addChild(conversion_settings = new VarList("Conversion Settings"));
     settings->addChild(capture_settings = new VarList("Capture Settings"));
@@ -567,6 +611,7 @@ CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id) : CaptureInter
     
     //=======================CAPTURE SETTINGS==========================
     capture_settings->addChild(v_cam_bus          = new VarInt("cam idx",default_camera_id));
+    v_cam_bus->addFlags(VARTYPE_FLAG_READONLY);
     capture_settings->addChild(v_fps              = new VarInt("framerate",30));
     capture_settings->addChild(v_width            = new VarInt("width",640));
     capture_settings->addChild(v_height           = new VarInt("height",480));
@@ -758,6 +803,7 @@ void CaptureV4L::writeAllParameterValues() {
 }
 
 void CaptureV4L::readParameterValues(VarList * item) {
+    if (!camera_instance) return;
 #ifndef VDATA_NO_QT
     mutex.lock();
 #endif
@@ -880,6 +926,7 @@ void CaptureV4L::writeParameterValues(VarList * item) {
 
 
 void CaptureV4L::readParameterProperty(VarList * item) {
+    if (!camera_instance) return;
 #ifndef VDATA_NO_QT
     mutex.lock();
 #endif
@@ -954,7 +1001,7 @@ void CaptureV4L::readParameterProperty(VarList * item) {
 
 CaptureV4L::~CaptureV4L()
 {
-    GlobalV4LinstanceManager::removeInstance();
+    GlobalV4LinstanceManager::removeInstance(camera_instance);
     rawFrame.clear();           //release memory from local image
 }
 
@@ -963,7 +1010,7 @@ bool CaptureV4L::resetBus() {
     mutex.lock();
 #endif
 
-    cam_count = camera_instance->enumerateCameras(cam_list, MAX_CAM_SCAN);
+    cam_count = GlobalV4LinstanceManager::enumerateInstances(cam_list, MAX_CAM_SCAN);
     if (cam_count==0) {
         fprintf(stderr,"CaptureV4L Error: can't find cameras");
 #ifndef VDATA_NO_QT
@@ -1010,7 +1057,7 @@ void CaptureV4L::cleanup()
 //    }
 //    camera=0;
     //TODO: cleanup/free any memory buffers.
-    if (!camera_instance->stopStreaming()) {
+    if (camera_instance && !camera_instance->stopStreaming()) {
         fprintf(stderr,"CaptureV4L Error: Unable to stop streaming, was camera started?\n");
     }
     is_capturing=false;
@@ -1078,12 +1125,13 @@ VarList * CaptureV4L::getVariablePointer(v4lfeature_t val)
 
 bool CaptureV4L::startCapture()
 {
+    if (!camera_instance) return false;
+    
     //fprintf (stderr, "CaptureV4L ENTER CAPTURE START %d\n", cam_id);
 #ifndef VDATA_NO_QT
     mutex.lock();
 #endif
     //grab current parameters:
-    cam_id=v_cam_bus->getInt();
     width=v_width->getInt();
     height=v_height->getInt();
     left=v_left->getInt();
@@ -1102,29 +1150,9 @@ bool CaptureV4L::startCapture()
         return false;
     }
     
-    cam_count = camera_instance->enumerateCameras(cam_list, MAX_CAM_SCAN);
-    if (cam_count==0) {
-        fprintf(stderr,"CaptureV4L Error: can't find cameras");
-#ifndef VDATA_NO_QT
-        mutex.unlock();
-#endif
-        return false;
-    }
-
-    if (cam_id > cam_list[cam_count-1]) {
-        fprintf(stderr,"CaptureV4L Error: no camera found with index %d. Max index is: %d\n",cam_id,cam_list[cam_count-1]);
-#ifndef VDATA_NO_QT
-        mutex.unlock();
-#endif
-        return false;
-    }
-    
-    if (!camera_instance->obtainInstance(cam_id)) {
-        fprintf(stderr,"CaptureV4L: unable to obtain instance of camera id %d!\n", cam_id);
-    }
-    
     //disable any previous activity on that camera:
-    camera_instance->stopStreaming();
+    if (is_capturing)
+        camera_instance->stopStreaming();
     
     /* ---- TODO: adapt to do checking based on available USB mode?
      
@@ -1445,7 +1473,7 @@ RawImage CaptureV4L::getFrame()
 #endif
     // capture a frame and write it
     rawFrame.ensure_allocation(capture_format, width, height);
-    if (!is_capturing || !camera_instance->captureFrame(&rawFrame)) {
+    if (!camera_instance || !is_capturing || !camera_instance->captureFrame(&rawFrame)) {
         fprintf (stderr, "CaptureV4L Warning: Frame not ready, camera %d\n", cam_id);
 #ifndef VDATA_NO_QT
         mutex.unlock();

@@ -43,6 +43,8 @@
 #include <linux/videodev2.h>
 #include <sys/poll.h>
 
+#include <map>
+
 //#include "conversions.h"
 #ifndef VDATA_NO_QT
 #include <QMutex>
@@ -59,6 +61,9 @@ typedef long v4lfeature_t;
 // number of usb devices to scan as potential camera sources
 #define MAX_CAM_SCAN                4
 
+// place-holder for friend relationship
+class GlobalV4LinstanceManager;
+
 /*!
  \class GlobalV4Linstance
  \brief A singleton provider of a v4l lib context used for capturing with multiple threads
@@ -66,6 +71,7 @@ typedef long v4lfeature_t;
  */
 class GlobalV4Linstance
 {
+friend GlobalV4LinstanceManager;
 public:
     struct image_t {
         unsigned char *data;
@@ -78,7 +84,7 @@ public:
         V4L2_FEATURE_PRIVATE = V4L2_CID_PRIVATE_BASE,
         V4L2_FEATURE_FRAME_RATE
     };
-public:
+protected:
     GlobalV4Linstance() {
 #ifndef VDATA_NO_QT
 #else
@@ -90,7 +96,7 @@ public:
         memset(szDevice, 0, sizeof(char)*128);
     }
     ~GlobalV4Linstance() {
-        removeInstance();
+        while (counter) removeInstance();       //if iterating, release control first
 #ifndef VDATA_NO_QT
 #else
         pthread_mutex_destroy (&mutex);
@@ -101,7 +107,7 @@ public:
 #else
     pthread_mutex_t mutex;
 #endif
-protected:
+private:
     pollfd pollset;
     char counter;
     char szDevice[128];
@@ -111,15 +117,15 @@ protected:
     bool enqueueBuffer(v4l2_buffer &buf);
     bool dequeueBuffer(v4l2_buffer &buf);
     bool waitForFrame(int max_msec=500);
-    
-public:
+
     bool obtainInstance(int iDevice);
     bool obtainInstance(char *szDevice);
     bool removeInstance(bool bRelock=true);
     
-    bool xioctl(int request,void *data, const char *error_str);
     static int xioctl(int fd,int request,void *data, const char *error_str);
-    
+    bool xioctl(int request,void *data, const char *error_str);
+
+public:
     bool getControl(int ctrl_id,long &s);
     bool setControl(int ctrl_id,long s);
     bool checkControl(int ctrl_id, bool *bEnabled=NULL, bool *bReadOnly=NULL,
@@ -131,8 +137,6 @@ public:
     bool captureFrame(RawImage *pImage, int iMaxSpin=1);
     const image_t *captureFrame(int iMaxSpin=1);
     bool releaseFrame(const image_t *_img);
-    
-    int enumerateCameras(int *id_list, int max_id=4);
     
 private:
     void lock() {
@@ -173,13 +177,15 @@ private:
 /*!
  \class GlobalV4LinstanceManager
  \brief A static instance manager to provide global singleton access to GlobalV4Linstance
- \author  Stefan Zickler, (C) 2008
+ \author  Eric Zavesky, (C) 2016
  */
 class GlobalV4LinstanceManager
 {
 public:
-    static GlobalV4Linstance* obtainInstance();
-    static bool removeInstance();
+    static GlobalV4Linstance* obtainInstance(int iDevice);
+    static int enumerateInstances(int *id_list, int max_id=4);
+    static bool removeInstance(GlobalV4Linstance *pDevice);
+    static bool removeInstance(int iDevice);
 protected:
     GlobalV4LinstanceManager();
     ~GlobalV4LinstanceManager();
@@ -187,7 +193,8 @@ protected:
     GlobalV4LinstanceManager& operator= (const GlobalV4LinstanceManager&);
 private:
     static GlobalV4LinstanceManager* pinstance;
-    GlobalV4Linstance instance;
+    typedef std::map<int, GlobalV4Linstance*> t_map_v4l;
+    t_map_v4l map_instance;
 };
 
 
@@ -267,7 +274,6 @@ protected:
     RawImage rawFrame;
     
     GlobalV4Linstance * camera_instance;
-    const GlobalV4Linstance::image_t *_img;
     
     VarList * dcam_parameters;
     VarList * capture_settings;
