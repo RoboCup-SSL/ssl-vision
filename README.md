@@ -1,3 +1,4 @@
+```
 ========================================================================
   This software is free: you can redistribute it and/or modify
   it under the terms of the GNU General Public License Version 3,
@@ -16,9 +17,9 @@
  RoboCup Small Size League Shared Vision System 
  http://code.google.com/p/ssl-vision/
 ========================================================================
- 
-Online Documentation
-========================
+```
+
+## Online Documentation
 
   To find more in-depth and up-to-date information about SSL-Vision
   (including installation and configuration), please visit the Wiki
@@ -26,8 +27,7 @@ Online Documentation
 
   http://code.google.com/p/ssl-vision/wiki/Manual
  
-Software Requirements
-========================
+## Software Requirements
  * g++
  * QT >= 4.3 with opengl and networking support
  * cmake
@@ -44,21 +44,18 @@ To get all of these packages in (k)ubuntu, run:
 sudo apt-get install g++ libqt4-dev libeigen3-dev protobuf-compiler libprotobuf-dev libdc1394-22 libdc1394-22-dev cmake libv4l-0
 
 
-Hardware Requirements
-========================
+## Hardware Requirements
  * The system supports 1394B / Firewire 800, but it's also backward compatible with 1394A.
  * The system also supports basic usb cameras via the [http://linuxtv.org/downloads/v4l-dvb-apis/](Video for Linux (V4L)) drivers. This implementation has only been tested on linux.
 
-Compilation
-===============
+## Compilation
  build the code by running:
 
     make
 
  The project *should* build without errors or warnings.
 
- Running
-===============
+## Running
   1. depending on your OS, you might need to ensure that you
      have full access to the firewire devices /dev/fw*
      This *might* require logging in as root.
@@ -70,8 +67,7 @@ Compilation
 
     ./bin/vision
 
-Starting to Capture and Setting Parameters
-============================================
+### Starting to Capture and Setting Parameters
    Once the software is running, you should see two empty capture frames
    on the right, and a data-tree structure on the left.
 
@@ -88,8 +84,7 @@ Starting to Capture and Setting Parameters
    "Image Capture/Capture Control/Start"
    in the data-tree.
 
- DC1394 Parameters
-===================
+#### DC1394 Parameters
    If you expand the tree then the capture parameters are in
    "Image Capture/DC1394/Capture Settings"
    
@@ -131,12 +126,11 @@ Starting to Capture and Setting Parameters
    to false, so the bus is not being flooded with too much control
    data and has full bandwidth available for the video streaming.
 
- Storage of Settings and Parameters 
-====================================
+#### Storage of Settings and Parameters 
 
-   When you quit the application normally (by closing the window
-   not thru Ctrl-C) then all settings and parameters will
-   automatically be written to a set of xml files.
+   When you quit the application normally *parameters will not be 
+   automatically saved*.  Insetad, you need to click on the `Save Settings`
+   button immediately under the main `Vision System` node.
 
    All settings should be automatically restored during the next
    program start.
