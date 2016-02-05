@@ -55,6 +55,10 @@ class CaptureGenerator : public CaptureInterface
 protected:
   bool is_capturing;
   RawImage result;
+    
+  std::string state_prior;
+  rgbImage img_prior;
+
   FrameLimiter limit;
   //processing variables:
   VarStringEnum * v_colorout;
@@ -65,7 +69,8 @@ protected:
   VarInt * v_width;
   VarInt * v_height;
   VarDouble * v_framerate;
-  VarBool * v_test_image;
+  VarStringEnum * v_test_image;
+  std::vector<std::string> vectImages;
   
 public:
 #ifndef VDATA_NO_QT
@@ -79,7 +84,8 @@ public:
   virtual bool startCapture();
   virtual bool stopCapture();
   virtual bool isCapturing() { return is_capturing; };
-  
+  virtual bool resetBus();
+
   virtual RawImage getFrame();
   virtual void releaseFrame();
    
