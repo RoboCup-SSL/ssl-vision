@@ -73,6 +73,8 @@ void CaptureGenerator::cleanup()
   mutex.lock();
 #endif
   is_capturing=false;
+  iForcedFrames = 0;
+  state_prior.clear();
 #ifndef VDATA_NO_QT
   mutex.unlock();
 #endif
@@ -84,8 +86,9 @@ bool CaptureGenerator::startCapture()
   mutex.lock();
 #endif
   limit.init ( v_framerate->getDouble() );
+  state_prior.clear();
   is_capturing=true;
-
+  iForcedFrames = static_cast<int>(v_framerate->getDouble());
 
 #ifndef VDATA_NO_QT
   mutex.unlock();
@@ -100,6 +103,7 @@ bool CaptureGenerator::resetBus()
     
     std::vector<VarType *> vectRelatives = settings->findRelatives("Teams", true);  //find Teams node
     if (vectRelatives.size() < 1) return false;
+    state_prior.clear();
 
     VarType *pTeams = vectRelatives[0];    //jump to head
     std::vector<VarType *> vectTeamNodes = pTeams->getChildren();
@@ -167,10 +171,12 @@ RawImage CaptureGenerator::getFrame()
     img.fromRawImage(result);
     
     std::string sTestImage = v_test_image->getString();
-    if (state_prior == sTestImage) {      //don't waste time reloading/drawing
+    if (iForcedFrames==0 && state_prior==sTestImage) {      //don't waste time reloading/drawing
         img.copy(img_prior);
     }
     else {
+        if (iForcedFrames-- <= 0)
+            iForcedFrames = static_cast<int>(v_framerate->getDouble());
         if (sTestImage=="test image") {
             int w = result.getWidth();
             int h = result.getHeight();
@@ -211,23 +217,23 @@ RawImage CaptureGenerator::getFrame()
             int iIdx = v_test_image->getIndex()-3;
             std::string sPath = sTestImage;
             size_t cutPos = sTestImage.find_last_of(TEAM_IMAGE_GLUE);
+            img.fillBlack();
             if (cutPos != string::npos) {
                 std::string sPath = sTestImage.substr(cutPos+strlen(TEAM_IMAGE_GLUE)-1);
-                fprintf ( stderr,"CaptureGenerator: Attempting to load image '%s' for team '%s'...\n",
-                         sPath.c_str(), sTestImage.substr(0,cutPos-+strlen(TEAM_IMAGE_GLUE)+1).c_str());
-                
                 rgbImage img_load;
-                if (!img_load.load(sPath))
-                    img.fillBlack();
+                if (!img_load.load(sPath)) {
+                    fprintf ( stderr,"CaptureGenerator: Failed to load image '%s' for team '%s'...\n",
+                             sPath.c_str(), sTestImage.substr(0,cutPos-+strlen(TEAM_IMAGE_GLUE)+1).c_str());
+                }
                 else {
-                    img.fillBlack();
                     int w = (result.getWidth() > img_load.getWidth()) ? img_load.getWidth() : result.getWidth();
                     int h = (result.getHeight() > img_load.getHeight()) ? img_load.getHeight() : result.getHeight();
                     img.copyFromRectArea(img_load, 0, 0, w, h, true);
                 }
             }
         }
-        img_prior.copy(img);                        //save for next round
+        //fprintf(stderr, "EXIT new '%s', %d\n", sTestImage.c_str(), iForcedFrames);
+        img_prior.copy(img, true);                  //save for next round
         state_prior = v_test_image->getString();    //update new state
     }
     

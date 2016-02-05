@@ -55,6 +55,7 @@ class CaptureGenerator : public CaptureInterface
 protected:
   bool is_capturing;
   RawImage result;
+  int iForcedFrames;
     
   std::string state_prior;
   rgbImage img_prior;
