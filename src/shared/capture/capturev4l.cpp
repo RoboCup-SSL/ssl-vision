@@ -226,13 +226,9 @@ int GlobalV4Linstance::xioctl(int fd,int request,void *data,
     }
     
     // report error
-    if(ret != 0){
-        if(!error_str) error_str = "";
-        //        AnsiColor::SetFgColor(stderr,AnsiColor::Red);
-        //        AnsiColor::Bold(stderr);
+    if(ret != 0 && error_str) {
         fprintf(stderr,"GlobalV4Linstance: %s returned %d (%s)\n",
                 error_str,ret,strerror(errno));
-        //        AnsiColor::Reset(stderr);
     }
     
     return(ret);
@@ -422,7 +418,7 @@ bool GlobalV4Linstance::stopStreaming()
     bool bSuccess = false;
     if(pollset.fd != -1){
         v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        bSuccess = xioctl(VIDIOC_STREAMOFF, &type, "StreamOff");
+        bSuccess = xioctl(VIDIOC_STREAMOFF, &type, NULL);
         
         for(int i=0; i<V4L_STREAMBUFS; i++){
             if(img[i].data){
@@ -581,7 +577,11 @@ CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id) : CaptureInter
     }
     
     if (cam_id > cam_list[cam_count-1]) {
-        fprintf(stderr,"CaptureV4L Error: no camera found with index %d. Max index is: %d\n",cam_id,cam_list[cam_count-1]);
+        static bool bMaxWarningShown = false;
+        if (!bMaxWarningShown) {
+            fprintf(stderr,"CaptureV4L Error: no camera found with index %d. Max index is: %d\n",cam_id,cam_list[cam_count-1]);
+            bMaxWarningShown = true;
+        }
     }
     else {
         camera_instance = GlobalV4LinstanceManager::obtainInstance(cam_id);
@@ -1028,18 +1028,17 @@ bool CaptureV4L::resetBus() {
 
 bool CaptureV4L::stopCapture()
 {
-    fprintf (stderr, "CaptureV4L ENTER STOPCAP %d\n", cam_id);
     if (isCapturing()) {
         readAllParameterValues();
+
+        vector<VarType *> tmp = capture_settings->getChildren();
+        for (unsigned int i=0; i < tmp.size();i++) {
+            tmp[i]->removeFlags( VARTYPE_FLAG_READONLY );
+        }
+        dcam_parameters->addFlags( VARTYPE_FLAG_HIDE_CHILDREN );
     }
     cleanup();
     
-    vector<VarType *> tmp = capture_settings->getChildren();
-    for (unsigned int i=0; i < tmp.size();i++) {
-        tmp[i]->removeFlags( VARTYPE_FLAG_READONLY );
-    }
-    dcam_parameters->addFlags( VARTYPE_FLAG_HIDE_CHILDREN );
-    fprintf (stderr, "CaptureV4L EXIT STOPCAP %d\n", cam_id);
     return true;
 }
 
@@ -1050,16 +1049,9 @@ void CaptureV4L::cleanup()
     mutex.lock();
 #endif
     
-//    if (camera_instance!=0) {
-//        dc1394_capture_stop(camera);
-//        dc1394_video_set_transmission(camera,DC1394_OFF);
-//        dc1394_camera_free(camera);
-//    }
-//    camera=0;
     //TODO: cleanup/free any memory buffers.
-    if (camera_instance && !camera_instance->stopStreaming()) {
-        fprintf(stderr,"CaptureV4L Error: Unable to stop streaming, was camera started?\n");
-    }
+    if (camera_instance && is_capturing)
+        camera_instance->stopStreaming();
     is_capturing=false;
 #ifndef VDATA_NO_QT
     mutex.unlock();
@@ -1127,7 +1119,6 @@ bool CaptureV4L::startCapture()
 {
     if (!camera_instance) return false;
     
-    //fprintf (stderr, "CaptureV4L ENTER CAPTURE START %d\n", cam_id);
 #ifndef VDATA_NO_QT
     mutex.lock();
 #endif
@@ -1376,14 +1367,12 @@ bool CaptureV4L::startCapture()
 #ifndef VDATA_NO_QT
     mutex.unlock();
 #endif
-    //fprintf (stderr, "CaptureV4L EXIT CAPTURE START %d\n", cam_id);
 
     readAllParameterProperties();
     printf("CaptureV4L Info: Restoring Previously Saved Camera Parameters\n");
     writeAllParameterValues();
     readAllParameterValues();
     
-
 #ifndef VDATA_NO_QT
     mutex.lock();
 #endif
