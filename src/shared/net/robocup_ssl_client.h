@@ -22,6 +22,7 @@
 #define ROBOCUP_SSL_CLIENT_H
 #include "netraw.h"
 #include <string>
+
 #include <QMutex>
 #include "messages_robocup_ssl_detection.pb.h"
 #include "messages_robocup_ssl_geometry.pb.h"

@@ -51,7 +51,7 @@ QWidget * PluginColorCalibration::getControlWidget() {
   return (QWidget *)lutw;
 }
 
-void PluginColorCalibration::mouseEvent( QMouseEvent * event, pixelloc loc) {
+void PluginColorCalibration::mouseEvent( QMouseEvent * event, pixelloc loc) {    
   QTabWidget* tabw = (QTabWidget*) lutw->parentWidget()->parentWidget();  
   if (tabw->currentWidget() == lutw) {
     if (event->buttons()==Qt::LeftButton) {
@@ -91,10 +91,12 @@ void PluginColorCalibration::mouseEvent( QMouseEvent * event, pixelloc loc) {
             //img.setPixel(loc.x,loc.y,rgb(255,0,0));
 
             if (event->modifiers()!=Qt::NoModifier) {
-              if(event->modifiers() & Qt::ShiftModifier) 
-                lutw->add_del_Pixel(color, false, continuing_undo);
-              else if(event->modifiers() & Qt::ControlModifier) 
-                lutw->add_del_Pixel(color, true, continuing_undo);
+              if(event->modifiers() & Qt::ShiftModifier) {          //modified 2/1/16, 'control' alone consumed
+                if(event->modifiers() & Qt::ControlModifier)        // by QT framework to move a window
+                  lutw->add_del_Pixel(color, true, continuing_undo);
+                else
+                  lutw->add_del_Pixel(color, false, continuing_undo);
+              }
               continuing_undo = true;
             }
           }

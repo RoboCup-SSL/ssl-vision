@@ -238,6 +238,7 @@ void GLLUTWidget::drawSinglePixel(int x, int y, QMouseEvent * event) {
       }
     }
 
+
     _lut->set_preshrunk(state.slice_idx,x,y,mask);
 
     if (_mode==LUTChannelMode_Numeric) {
@@ -321,6 +322,7 @@ void GLLUTWidget::add_del_Pixel(yuv color, bool add, bool continuing_undo)
 
   if(!continuing_undo)
     editStore();
+
   Qt::KeyboardModifiers mod = add ? Qt::NoModifier : Qt::ShiftModifier;
   drawSinglePixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),
                   new QMouseEvent(QEvent::None,QPoint(),Qt::NoButton,Qt::NoButton,mod));
@@ -781,7 +783,8 @@ void GLLUTWidget::glDrawSlice(Slice * s) {
     }
     glEnable(GL_COLOR_LOGIC_OP);
     //glLogicOp(GL_COPY_INVERTED);
-    glLogicOp(GL_XOR);
+    //glLogicOp(GL_XOR);
+    glLogicOp(GL_EQUIV);                //fix drawing inverted color (2/2/16)
     if (s->sampler->bind()) {
       glBegin(GL_QUADS);
         glTexCoord2f(0.0,0.0);
@@ -1018,6 +1021,7 @@ void GLLUTWidget::keyPressEvent ( QKeyEvent * event )
 void GLLUTWidget::samplePixel(const yuv & color) {
   //compute slice it sits on:
   int i=_lut->norm2lutX(color.y);
+
   if (i >= 0 && i < (int)slices.size()) {
     //old:
     //slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
@@ -1067,7 +1071,7 @@ void GLLUTWidget::sampleImage(const RawImage & img) {
         }
         color_rgb++;
       }
-    } else if (source_format==COLOR_YUV444) {    
+    } else if (source_format==COLOR_YUV444) {
       yuvImage yuv_img(img);
       yuv * color_yuv=yuv_img.getPixelData();
       for (int j=0;j<n;j++) {
