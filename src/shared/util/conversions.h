@@ -97,7 +97,10 @@ inline static yuv rgb2yuv(rgb const &in)
 
 //DC1394 accelerated:
 static void uyvy2rgb (unsigned char *src, unsigned char *dest, int width, int height);
-
+static void yuyv2rgb ( unsigned char *src, unsigned char *dest, int width, int height);
+static void rgb2uyvy (unsigned char *src, unsigned char *dest, int width, int height);
+static void rgb2yuyv ( unsigned char *src, unsigned char *dest, int width, int height);
+    
 //others (non-accelerated):
 static void uyyvyy2rgb (unsigned char *src, unsigned char *dest, int width, int height);
 static void y2rgb (unsigned char *src, unsigned char *dest, int width, int height);

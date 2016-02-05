@@ -12,8 +12,10 @@ set (QT_USE_QTNETWORK true)
 set (QT_USE_QTOPENGL true)
 
 find_package ( Qt4 REQUIRED )
-
 include_directories(${PROJECT_BINARY_DIR})
+
+find_package( Eigen3 REQUIRED )
+include_directories(${EIGEN3_INCLUDE_DIR})
 
 include ( ${QT_USE_FILE} )
 
@@ -138,11 +140,13 @@ message (STATUS "Custom CC Flags: ${cc_flags}")
 
 add_definitions(${cc_flags})
 
+set (libs ${QT_LIBRARIES} ${EIGEN3_LIBRARIES} dc1394 jpeg png protobuf pthread GL GLU )
+
 ## build the common code
 add_library(sslvision ${SHARED_MOC_SRCS} ${SHARED_RC_SRCS} ${CC_PROTO} ${SHARED_SRCS})
-add_dependencies(sslvision GenerateProto)
-
-set (libs ${QT_LIBRARIES} dc1394 jpeg png protobuf pthread GL GLU sslvision)
+add_dependencies(sslvision GenerateProto )
+target_link_libraries(sslvision ${libs})
+set (libs ${libs} sslvision)
 
 ## build the main app
 set (target vision)

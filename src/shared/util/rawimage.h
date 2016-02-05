@@ -38,7 +38,7 @@
 */
 class RawImage : public ImageInterface
 {
-  protected:
+protected:
   /// pointer to capture buffer
   unsigned char * data;
 
@@ -54,7 +54,7 @@ class RawImage : public ImageInterface
   /// capture timestamp of the image
   double   time;
 
-  public:
+public:
   RawImage();
 
   ~RawImage();
