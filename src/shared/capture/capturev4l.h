@@ -45,7 +45,6 @@
 
 #include <map>
 
-//#include "conversions.h"
 #ifndef VDATA_NO_QT
 #include <QMutex>
 #else

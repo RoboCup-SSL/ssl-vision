@@ -12,8 +12,6 @@ include_directories(${shared_dir}/vartypes/enhanced)
 include_directories(${shared_dir}/vartypes/gui)
 include_directories(${shared_dir}/vartypes/xml)
 
-# include_directories("/usr/include/eigen2")  # update for eigen3 at toplevel 01/16
-
 set (SHARED_SRCS
 	${shared_dir}/capture/capturedc1394v2.cpp
 	${shared_dir}/capture/capturev4l.cpp

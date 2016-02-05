@@ -36,11 +36,11 @@ CaptureThread::CaptureThread(int cam_id)
   control->addChild( (VarType*) (captureModule= new VarStringEnum("Capture Module","DC 1394")));
   captureModule->addFlags(VARTYPE_FLAG_NOLOAD_ENUM_CHILDREN);
   captureModule->addItem("DC 1394");
-  captureModule->addItem("V4L (USB)");
+  captureModule->addItem("Video 4 Linux");
   captureModule->addItem("Read from files");
   captureModule->addItem("Generator");
   settings->addChild( (VarType*) (dc1394 = new VarList("DC1394")));
-  settings->addChild( (VarType*) (v4l = new VarList("V4L")));
+  settings->addChild( (VarType*) (v4l = new VarList("Video 4 Linux")));
   settings->addChild( (VarType*) (fromfile = new VarList("Read from files")));
   settings->addChild( (VarType*) (generator = new VarList("Generator")));
   settings->addFlags( VARTYPE_FLAG_AUTO_EXPAND_TREE );
