@@ -577,8 +577,11 @@ CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id) : CaptureInter
     }
     
     if (cam_id > cam_list[cam_count-1]) {
-        //fprintf(stderr,"CaptureV4L Error: no camera found with index %d. Max index is: %d\n",cam_id,cam_list[cam_count-1]);   /// 2/5/16 --- shh, please be quiet
-        ;
+        static bool bMaxWarningShown = false;
+        if (!bMaxWarningShown) {
+            fprintf(stderr,"CaptureV4L Error: no camera found with index %d. Max index is: %d\n",cam_id,cam_list[cam_count-1]);
+            bMaxWarningShown = true;
+        }
     }
     else {
         camera_instance = GlobalV4LinstanceManager::obtainInstance(cam_id);
