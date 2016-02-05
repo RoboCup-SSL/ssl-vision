@@ -27,6 +27,7 @@
 #include "cmpattern_teamdetector.h"
 
 #define TEAM_IMAGE_PLACEHOLDER      "(team images - reset bus to populate)"
+#define TEAM_IMAGE_GLUE             "; "
 
 #ifndef VDATA_NO_QT
 CaptureGenerator::CaptureGenerator ( VarList * _settings, QObject * parent ) : QObject ( parent ), CaptureInterface ( _settings )
@@ -96,7 +97,6 @@ bool CaptureGenerator::resetBus()
 {
     v_test_image->setSize(3);       //trim off prior settings
     v_test_image->selectIndex(0);   //force selection off of prior
-    vectImages.clear();
     
     std::vector<VarType *> vectRelatives = settings->findRelatives("Teams", true);  //find Teams node
     if (vectRelatives.size() < 1) return false;
@@ -107,9 +107,11 @@ bool CaptureGenerator::resetBus()
         VarType *pTeam = vectTeamNodes[iTeam];
         std::vector<VarType *> vectImageNodes = pTeam->findRelatives("Marker Image File");  //find image node
         if (vectImageNodes.size()==1) {
-            VarString *pString = reinterpret_cast<VarString*>(vectImageNodes[0]);
-            vectImages.push_back(pString->getString());             // add filename
-            v_test_image->addItem(pTeam->getName());                    // add team name
+            VarString *pPath = reinterpret_cast<VarString*>(vectImageNodes[0]);
+            if (pPath->getString().size()) {                    //no empty or unknown paths, please
+                std::string sMerged = pTeam->getName() + TEAM_IMAGE_GLUE + pPath->getString();     //concatenate
+                v_test_image->addItem(sMerged);
+            }
         }
     }
     return true;
@@ -207,10 +209,12 @@ RawImage CaptureGenerator::getFrame()
             img.fillBlack();
         } else {                                    //otherwise, we have a team image...
             int iIdx = v_test_image->getIndex()-3;
-            if (vectImages.size() < iIdx) {
-                std::string sPath = vectImages[iIdx];    //copy filepath from second list
+            std::string sPath = sTestImage;
+            size_t cutPos = sTestImage.find_last_of(TEAM_IMAGE_GLUE);
+            if (cutPos != string::npos) {
+                std::string sPath = sTestImage.substr(cutPos+strlen(TEAM_IMAGE_GLUE)-1);
                 fprintf ( stderr,"CaptureGenerator: Attempting to load image '%s' for team '%s'...\n",
-                         sPath.c_str(), sTestImage.c_str());
+                         sPath.c_str(), sTestImage.substr(0,cutPos-+strlen(TEAM_IMAGE_GLUE)+1).c_str());
                 
                 rgbImage img_load;
                 if (!img_load.load(sPath))

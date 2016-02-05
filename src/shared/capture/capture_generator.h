@@ -70,7 +70,6 @@ protected:
   VarInt * v_height;
   VarDouble * v_framerate;
   VarStringEnum * v_test_image;
-  std::vector<std::string> vectImages;
   
 public:
 #ifndef VDATA_NO_QT
