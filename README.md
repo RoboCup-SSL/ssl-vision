@@ -25,8 +25,7 @@
   (including installation and configuration), please visit the Wiki
   Documentation Page:
 
-  https://github.com/RoboCup-SSL/ssl-vision/blob/wiki/Manual.md
-  (or the legacy page at http://code.google.com/p/ssl-vision/wiki/Manual)
+  https://github.com/RoboCup-SSL/ssl-vision/wiki
  
 ## Software Requirements
  * g++
