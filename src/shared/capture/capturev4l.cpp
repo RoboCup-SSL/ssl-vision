@@ -1047,10 +1047,8 @@ void CaptureV4L::cleanup()
 #endif
     
     //TODO: cleanup/free any memory buffers.
-    /*if (camera_instance && !camera_instance->stopStreaming()) {
-        fprintf(stderr,"CaptureV4L Error: Unable to stop streaming, was camera started?\n");
-    }
-    */
+    if (camera_instance && is_capturing)
+        camera_instance->stopStreaming();
     is_capturing=false;
 #ifndef VDATA_NO_QT
     mutex.unlock();
