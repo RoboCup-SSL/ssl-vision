@@ -134,6 +134,7 @@ qt4_wrap_cpp (MOC_SRCS
 	src/app/plugins/plugin_publishgeometry.h
 	src/app/plugins/plugin_legacypublishgeometry.h
 	src/app/plugins/visionplugin.h
+	src/app/plugins/plugin_colorcalib.h
 
 	src/app/stacks/multistack_robocup_ssl.h
 

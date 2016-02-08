@@ -34,7 +34,7 @@
     { sp->xl = XL; sp->xr = XR; sp->y = Y; sp->dy = DY; ++sp; }
 #define LUTFILL_POP(XL, XR, Y, DY) \
     { --sp; XL = sp->xl; XR = sp->xr; Y = sp->y+(DY = sp->dy); }
-    
+
 
 /// We allow 32 distinct channels (bitwise)
 typedef uint8_t lut_mask_t;
@@ -139,6 +139,24 @@ class LUT3D : public QObject {
       reset();
     };
 
+    bool copyLUT(void *pDataLUT, int size_copy, int color_index=-1) {   //memory copy of other camera LUT
+        if (color_index!=-1) {
+            fprintf(stderr, "LUT3D: Color-specific copy currently unavailable.\n");
+            return false;
+        }
+        
+        int size_allocated = LUT ? sizeof(lut_mask_t)*LUT_SIZE : 0;
+        if (size_copy!=size_allocated) {
+            fprintf(stderr, "LUT3D: Size mismatch for LUT nodes (current: %d vs source: %d), aborting copy.\n",
+                    size_allocated, size_copy);
+            return false;
+        }
+        lock();                             //step 1: copy LUT from blob
+        memcpy(LUT, pDataLUT, sizeof(lut_mask_t)*LUT_SIZE);
+        unlock();
+        updateDerivedLUTs();                //step 2: rederive from self
+    }
+    
     void lock() {
       mutex.lock();
     }

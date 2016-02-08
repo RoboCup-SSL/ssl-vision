@@ -897,6 +897,15 @@ void GLLUTWidget::setLUT(LUT3D * lut) {
   m.unlock();
 }
 
+bool GLLUTWidget::copyLUT(void *pDataLUT, int size_copy, int color_index) {
+    editStore();                            //edit snapshot
+    m.lock();
+    bool bSuccess = _lut->copyLUT(pDataLUT, size_copy, color_index);  //perform actual copy
+    m.unlock();
+    if (bSuccess) rebuildAndRedraw();
+    return bSuccess;
+}
+
 void GLLUTWidget::init() {
   if (_lut!=0) {
     int z=_lut->getSizeX();

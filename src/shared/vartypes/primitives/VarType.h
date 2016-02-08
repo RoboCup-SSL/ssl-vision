@@ -204,6 +204,9 @@ namespace VarTypes {
   
     /// Utility function for lists and the like to inform their progeny
     inline void setParent(VarType *parent) { _parent = parent; };
+
+    /// Utility function for any node to get its parent
+    inline VarType * getParent() const { return _parent; };
       
     /// TODO: implement this function. It might be useful for some purposes.
     /// VarType * merge(VarType * structure, VarType * data);
