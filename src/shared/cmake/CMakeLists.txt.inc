@@ -1,4 +1,6 @@
+# find file sets within the tree
 get_filename_component(shared_dir ${CMAKE_CURRENT_LIST_FILE} PATH)
+set(shared_dir ${shared_dir}/..)
 
 include_directories(${shared_dir}/capture)
 include_directories(${shared_dir}/cmvision)
