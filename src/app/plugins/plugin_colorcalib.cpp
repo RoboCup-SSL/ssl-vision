@@ -31,7 +31,7 @@ PluginColorCalibration::PluginColorCalibration(FrameBuffer * _buffer, YUVLUT * _
     settings=new VarList("YUV Calibrator");
     continuing_undo = false;
     
-    copy_LUT_trigger = new VarTrigger("Copy LUT", "Copy LUT!");
+    copy_LUT_trigger = new VarTrigger("Copy LUT", "Copy LUT");
     settings->addChild(copy_LUT_trigger);
     connect(copy_LUT_trigger,SIGNAL(signalTriggered()),this,SLOT(slotCopyLUT()));
     settings->addChild( v_lut_sources = new VarStringEnum("LUT Source", LUT_COPY_PLACEHOLDER));
@@ -187,7 +187,7 @@ void PluginColorCalibration::copyLUT() {            //perform memory copy of oth
         int color_index = -1;       //default -1 is ALL colors; TODO be from var 'v_lut_colors'
         std::vector<VarType *> vectTarget = settings->findRelatives(v_lut_sources->getString(), true);
         if (vectTarget.size()!=1) {
-            fprintf(stderr, "LUT3D: Found too many cameara nodes (%d) for camera '%s', aborting copy.\n",
+            fprintf(stderr, "LUT3D: Found too many camera nodes (%d) for camera '%s', aborting copy.\n",
                     static_cast<int>(vectTarget.size()), v_lut_sources->getString().c_str());
             bSuccess = false;
         }
