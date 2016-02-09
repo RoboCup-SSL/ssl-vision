@@ -15,7 +15,7 @@
 ========================================================================
  ssl-vision
  RoboCup Small Size League Shared Vision System 
- http://code.google.com/p/ssl-vision/
+ https://github.com/RoboCup-SSL/ssl-vision
 ========================================================================
 ```
 

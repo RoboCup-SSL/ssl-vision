@@ -577,8 +577,11 @@ CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id) : CaptureInter
     }
     
     if (cam_id > cam_list[cam_count-1]) {
-        //fprintf(stderr,"CaptureV4L Error: no camera found with index %d. Max index is: %d\n",cam_id,cam_list[cam_count-1]);   /// 2/5/16 --- shh, please be quiet
-        ;
+        static bool bMaxWarningShown = false;
+        if (!bMaxWarningShown) {
+            fprintf(stderr,"CaptureV4L Error: no camera found with index %d. Max index is: %d\n",cam_id,cam_list[cam_count-1]);
+            bMaxWarningShown = true;
+        }
     }
     else {
         camera_instance = GlobalV4LinstanceManager::obtainInstance(cam_id);
@@ -608,7 +611,6 @@ CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id) : CaptureInter
     
     //=======================CAPTURE SETTINGS==========================
     capture_settings->addChild(v_cam_bus          = new VarInt("cam idx",default_camera_id));
-    v_cam_bus->addFlags(VARTYPE_FLAG_READONLY);
     capture_settings->addChild(v_fps              = new VarInt("framerate",30));
     capture_settings->addChild(v_width            = new VarInt("width",640));
     capture_settings->addChild(v_height           = new VarInt("height",480));
@@ -1114,11 +1116,38 @@ VarList * CaptureV4L::getVariablePointer(v4lfeature_t val)
 
 bool CaptureV4L::startCapture()
 {
-    if (!camera_instance) return false;
-    
+    if (!v_cam_bus) return false;
 #ifndef VDATA_NO_QT
     mutex.lock();
 #endif
+    //disable any previous activity on that camera:
+    if (is_capturing)
+        camera_instance->stopStreaming();
+    
+    //dynamically fetch the camera ID and reconnect now
+    int new_cam_id = v_cam_bus->getInt();
+    if (cam_id != new_cam_id) {
+        cam_id = new_cam_id;
+        GlobalV4LinstanceManager::removeInstance(camera_instance);
+        camera_instance = NULL;
+        if (cam_id > cam_list[cam_count-1]) {
+            static bool bMaxWarningShown = false;
+            if (!bMaxWarningShown) {
+                fprintf(stderr,"CaptureV4L Error: no camera found with index %d. Max index is: %d\n",cam_id,cam_list[cam_count-1]);
+                bMaxWarningShown = true;
+            }
+        }
+        else {
+            camera_instance = GlobalV4LinstanceManager::obtainInstance(cam_id);
+        }
+    }
+    if (!camera_instance) {
+        fprintf(stderr,"CaptureV4L: unable to obtain instance of camera id %d in startCapture!\n", cam_id);
+#ifndef VDATA_NO_QT
+        mutex.unlock();
+#endif
+    }
+    
     //grab current parameters:
     width=v_width->getInt();
     height=v_height->getInt();
@@ -1138,9 +1167,6 @@ bool CaptureV4L::startCapture()
         return false;
     }
     
-    //disable any previous activity on that camera:
-    if (is_capturing)
-        camera_instance->stopStreaming();
     
     /* ---- TODO: adapt to do checking based on available USB mode?
      
