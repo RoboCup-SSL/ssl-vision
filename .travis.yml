@@ -1,7 +1,5 @@
 language: cpp
 os: linux
-sudo: required
-env: BUILD_TYPE=Release
 
 compiler:
   - gcc
@@ -17,6 +15,10 @@ before_script:
 
 matrix:
   include:
-    - dist:trusty
-    - dist:precise
+    - sudo: required
+      dist: trusty
+      env: BUILD_TYPE=Release
+    - sudo: required
+      dist: precise
+      env: BUILD_TYPE=Release
 script: make
