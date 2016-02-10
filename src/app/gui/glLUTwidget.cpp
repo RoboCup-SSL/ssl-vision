@@ -329,6 +329,7 @@ void GLLUTWidget::add_del_Pixel(yuv color, bool add, bool continuing_undo)
 
   slices[state.slice_idx]->selection_update_pending=true;
   _lut->unlock();
+  _lut->updateDerivedLUTs();
 
   this->redraw();
 }
