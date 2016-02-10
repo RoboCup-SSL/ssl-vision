@@ -97,7 +97,7 @@ CentralWindow::CentralWindow()
     log_frameNumber = new QLCDNumber(logControlWidget);
     log_frameNumber->setObjectName(QString::fromUtf8("log_frameNumber"));
     log_frameNumber->setGeometry(QRect(160, 90, 150, 25));
-    log_frameNumber->setNumDigits(7);
+    log_frameNumber->setDigitCount(7);
     log_frameNumber->setSegmentStyle(QLCDNumber::Flat);
     log_frameNumber->setProperty("intValue", QVariant(0));
     log_frame_forward = new QPushButton(logControlWidget);
@@ -108,21 +108,21 @@ CentralWindow::CentralWindow()
     log_totalFrames->setGeometry(QRect(480, 90, 150, 25));
     log_totalFrames->setAutoFillBackground(false);
     log_totalFrames->setSmallDecimalPoint(false);
-    log_totalFrames->setNumDigits(7);
+    log_totalFrames->setDigitCount(7);
     log_totalFrames->setSegmentStyle(QLCDNumber::Flat);
     logControl->setWidget(logControlWidget);
     this->addDockWidget(static_cast<Qt::DockWidgetArea>(8), logControl);
 
-    logControl->setWindowTitle(QApplication::translate("GuiControls", "LogControl", 0, QApplication::UnicodeUTF8));
-    log_backward->setText(QApplication::translate("GuiControls", "backward", 0, QApplication::UnicodeUTF8));
-    log_pause->setText(QApplication::translate("GuiControls", "pause", 0, QApplication::UnicodeUTF8));
-    log_forward->setText(QApplication::translate("GuiControls", "forward", 0, QApplication::UnicodeUTF8));
-    log_play->setText(QApplication::translate("GuiControls", "play", 0, QApplication::UnicodeUTF8));
-    log_slower->setText(QApplication::translate("GuiControls", "slower", 0, QApplication::UnicodeUTF8));
-    log_speed->setText(QApplication::translate("GuiControls", "Speed", 0, QApplication::UnicodeUTF8));
-    log_faster->setText(QApplication::translate("GuiControls", "faster", 0, QApplication::UnicodeUTF8));
-    log_frame_back->setText(QApplication::translate("GuiControls", "frame--", 0, QApplication::UnicodeUTF8));
-    log_frame_forward->setText(QApplication::translate("GuiControls", "frame++", 0, QApplication::UnicodeUTF8));
+    logControl->setWindowTitle(QApplication::translate("GuiControls", "LogControl", 0));
+    log_backward->setText(QApplication::translate("GuiControls", "backward", 0));
+    log_pause->setText(QApplication::translate("GuiControls", "pause", 0));
+    log_forward->setText(QApplication::translate("GuiControls", "forward", 0));
+    log_play->setText(QApplication::translate("GuiControls", "play", 0));
+    log_slower->setText(QApplication::translate("GuiControls", "slower", 0));
+    log_speed->setText(QApplication::translate("GuiControls", "Speed", 0));
+    log_faster->setText(QApplication::translate("GuiControls", "faster", 0));
+    log_frame_back->setText(QApplication::translate("GuiControls", "frame--", 0));
+    log_frame_forward->setText(QApplication::translate("GuiControls", "frame++", 0));
 
     logControl->hide();
     thread = new ViewUpdateThread(soccerView, drawMutex);

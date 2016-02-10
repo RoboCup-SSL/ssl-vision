@@ -20,8 +20,6 @@
 //========================================================================
 
 #include <QApplication>
-#include <QCleanlooksStyle>
-#include <QPlastiqueStyle>
 #include <QString>
 #include "mainwindow.h"
 #include <signal.h>
@@ -112,9 +110,6 @@ int main(int argc, char *argv[])
 
   MainWindow mainWin(start, enforce_affinity);
   mainWinPtr = &mainWin;
-  //if desired, launch a particular style:
-  // app.setStyle(new QPlastiqueStyle());
-  // app.setStyle(new QCleanlooksStyle());
   mainWin.show();
   mainWin.init();
 

@@ -179,7 +179,7 @@ int ViewUpdateThread::start_play_record()
         int last_slash = 0;
         for(int i = 0; i < fileName.length(); i++)
         {
-            if(fileName.at(i).toAscii() == (QChar('/')))
+            if(fileName.at(i).toLatin1() == (QChar('/')))
                 last_slash = i;
         }
         fileName.remove(last_slash, fileName.length()-last_slash);
@@ -187,13 +187,13 @@ int ViewUpdateThread::start_play_record()
 
     //What data shall I read?
     fileName = QFileDialog::getOpenFileName((QWidget*)this->parent(), tr("Open Logfile"), fileName, tr("Log Files (*.log)"));
-    std::cout << "fileName: " << fileName.toAscii().constData() << std::endl;
+    std::cout << "fileName: " << fileName.toLatin1().constData() << std::endl;
 
     // Read the existing log.
-    std::fstream input(fileName.toAscii().constData(), std::ios::in | std::ios::binary);
+    std::fstream input(fileName.toLatin1().constData(), std::ios::in | std::ios::binary);
     if (!input)
     {
-        std::cout << fileName.toAscii().constData() << ": File not found." << std::endl;
+        std::cout << fileName.toLatin1().constData() << ": File not found." << std::endl;
         return -1;
     }
     else if (!logs.ParseFromIstream(&input))
