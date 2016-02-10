@@ -311,6 +311,8 @@ RoboCupField::RoboCupField() {
           this, SLOT(ProcessNewFieldLines()));
   connect(field_arcs_list, SIGNAL(XMLwasRead(VarType*)),
           this, SLOT(ProcessNewFieldArcs()));
+  connect(settings,SIGNAL(XMLwasRead(VarType*)),
+          this, SLOT(InjectDefaults()));
 
   emit calibrationChanged();
 }
@@ -515,4 +517,14 @@ void RoboCupField::ResizeFieldArcs() {
             "%s:%d\n", __FILE__, __LINE__);
   }
   field_markings_mutex.unlock();
+}
+
+void RoboCupField::InjectDefaults() {
+  field_markings_mutex.lockForWrite();
+  const size_t num_lines = static_cast<size_t>(var_num_lines->getInt());
+  const size_t num_arcs = static_cast<size_t>(var_num_arcs->getInt());
+  field_markings_mutex.unlock();
+  if (num_lines == 0 && num_arcs == 0) {
+    loadDefaultsRoboCup2012();
+  }
 }
