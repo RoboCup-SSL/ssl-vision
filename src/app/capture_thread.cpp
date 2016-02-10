@@ -106,8 +106,8 @@ void CaptureThread::selectCaptureMethod() {
     new_capture = captureFiles;
   } else if(captureModule->getString() == "Generator") {
     new_capture = captureGenerator;
-  } else if(captureModule->getString() == "DC1394") {
-      new_capture = captureDC1394;
+  } else if(captureModule->getString() == "DC 1394") {
+    new_capture = captureDC1394;
   } else {
     new_capture = captureV4L;
   }
