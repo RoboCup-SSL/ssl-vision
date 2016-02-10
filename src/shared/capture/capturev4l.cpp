@@ -1146,6 +1146,7 @@ bool CaptureV4L::startCapture()
 #ifndef VDATA_NO_QT
         mutex.unlock();
 #endif
+        return false;
     }
     
     //grab current parameters:
