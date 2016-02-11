@@ -203,7 +203,7 @@ public:
       num sinAngle;
       angle *= 0.5f;
       GVector::vector3d<num> vn(v);
-      vn.norm();
+      vn.normalize();
 
       sinAngle = sin(angle);
 

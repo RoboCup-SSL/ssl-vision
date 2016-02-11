@@ -212,9 +212,9 @@ vector3d<num> cross(const vector3d<num> a,const vector3d<num> b)
   template <class num> \
   vector3d<num> &vector3d<num>::operator opr (const vector3d<num> p) \
   {                  \
-    x = x opr p.x;   \
-    y = y opr p.y;   \
-    z = z opr p.z;   \
+    x opr p.x;   \
+    y opr p.y;   \
+    z opr p.z;   \
     return(*this);   \
   }
 
@@ -257,9 +257,9 @@ VECTOR3D_SCALAR_OPERATOR(/)
   template <class num> \
   vector3d<num> &vector3d<num>::operator opr (num f) \
   {                \
-    x = x opr f;   \
-    y = y opr f;   \
-    z = z opr f;   \
+    x opr f;   \
+    y opr f;   \
+    z opr f;   \
     return(*this); \
   }
 
@@ -795,8 +795,8 @@ vector2d<num> vector2d<num>::project_out(const vector2d<num> p) const
   template <class num> \
   vector2d<num> &vector2d<num>::operator opr (const vector2d<num> p) \
   {                  \
-    x = x opr p.x;   \
-    y = y opr p.y;   \
+    x opr p.x;       \
+    y opr p.y;       \
     return(*this);   \
   }
 
@@ -837,8 +837,8 @@ VECTOR2D_SCALAR_OPERATOR(/)
   template <class num> \
   vector2d<num> &vector2d<num>::operator opr (num f) \
   {                \
-    x = x opr f;   \
-    y = y opr f;   \
+    x opr f;   \
+    y opr f;   \
     return(*this); \
   }
 

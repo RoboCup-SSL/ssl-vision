@@ -730,13 +730,11 @@ void CaptureDC1394v2::readParameterProperty(VarList * item) {
       if (dc1394_feature_is_readable(camera,feature,&dcb) == DC1394_SUCCESS && dcb==true) {
         //get feature modes:
         bool has_manual_mode=false;
-        bool has_auto_mode=false;
         bool has_one_push=false;
         dc1394feature_modes_t all_modes;
         if (dc1394_feature_get_modes(camera, feature, &all_modes) == DC1394_SUCCESS) {
           for (unsigned int i = 0; i < all_modes.num ; i++) {
             if (all_modes.modes[i]==DC1394_FEATURE_MODE_MANUAL) has_manual_mode=true;
-            if (all_modes.modes[i]==DC1394_FEATURE_MODE_AUTO) has_auto_mode=true;
             if (all_modes.modes[i]==DC1394_FEATURE_MODE_ONE_PUSH_AUTO) has_one_push=true;
           }
         }

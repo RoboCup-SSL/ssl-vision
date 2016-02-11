@@ -295,6 +295,7 @@ const char* GLText::getPrimitiveType(GLenum type)
       return "GL_POLYGON";
       break;
   }
+  return "UNKNOWN";
 }
 
 void GLText::tessBeginCB(GLenum which)

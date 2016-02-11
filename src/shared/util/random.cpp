@@ -167,9 +167,9 @@ void Random::next_state()
   uint32_t *p=state;
   int j;
 
-  /* if init_genrand() has not been called, */
+  /* if seed() or randomize() has not been called, */
   /* a default initial seed is used         */
-  if(!left < 0) seed(5489UL);
+  if(left < 0) seed(5489UL);
 
   left = N;
   next = state;

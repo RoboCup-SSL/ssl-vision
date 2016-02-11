@@ -40,14 +40,6 @@
 using namespace std;
 namespace CMPattern {
 
-class TeamDetectorInterface {
-public:
-  virtual VarList * getSettings() { return 0; };
-  virtual void update(::google::protobuf::RepeatedPtrField< ::SSL_DetectionRobot >* robots) { (void)robots; };
-  virtual ~TeamDetectorInterface() {};
-};
-
-
 class TeamDetector;
 class TeamSelector;
 
@@ -155,7 +147,7 @@ public:
 
 
 
-class TeamDetector : public TeamDetectorInterface {
+class TeamDetector {
 protected:
 
   //TeamDetectorSettings * _detector_settings;
