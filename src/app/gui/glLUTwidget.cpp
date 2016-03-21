@@ -782,11 +782,12 @@ void GLLUTWidget::glDrawSlice(Slice * s) {
         glVertex3f(1.0 ,0.0  ,z+z_offset);
       glEnd();
     }
-    glEnable(GL_COLOR_LOGIC_OP);
-    //glLogicOp(GL_COPY_INVERTED);
-    //glLogicOp(GL_XOR);
-    glLogicOp(GL_EQUIV);                //fix drawing inverted color (2/2/16)
     if (s->sampler->bind()) {
+      glEnable(GL_COLOR_LOGIC_OP);
+      // invert color+alpha below the sampling marks to ensure visibility
+      // testing this operation should be done when only a single slice is displayed
+      // the other views seem to always draw the sample marks due to scaling artifacts
+      glLogicOp(GL_XOR);
       glBegin(GL_QUADS);
         glTexCoord2f(0.0,0.0);
         glVertex3f(0.0  ,0.0,z+z_offset*2);
@@ -800,9 +801,8 @@ void GLLUTWidget::glDrawSlice(Slice * s) {
         glTexCoord2f(1.0,0.0);
         glVertex3f(1.0 ,0.0  ,z+z_offset*2);
       glEnd();
+      glDisable(GL_COLOR_LOGIC_OP);
     }
-    glDisable(GL_COLOR_LOGIC_OP);
-
   }
   glPopMatrix();
 }
