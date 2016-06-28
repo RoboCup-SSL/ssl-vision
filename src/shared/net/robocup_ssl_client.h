@@ -22,7 +22,6 @@
 #define ROBOCUP_SSL_CLIENT_H
 #include "netraw.h"
 #include <string>
-#include <QMutex>
 #include "messages_robocup_ssl_detection.pb.h"
 #include "messages_robocup_ssl_geometry.pb.h"
 #include "messages_robocup_ssl_wrapper.pb.h"
@@ -37,7 +36,6 @@ protected:
   static const int MaxDataGramSize = 65536;
   char * in_buffer;
   Net::UDP mc; // multicast client
-  QMutex mutex;
   int _port;
   string _net_address;
   string _net_interface;

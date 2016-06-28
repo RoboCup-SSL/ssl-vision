@@ -25,7 +25,6 @@
 //#include "mainwindow.h"
 
 #include <stdio.h>
-#include <QThread>
 #include "robocup_ssl_client.h"
 #include "timer.h"
 
