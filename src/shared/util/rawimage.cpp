@@ -150,20 +150,13 @@ void RawImage::clear()
 int RawImage::computeImageSize(ColorFormat fmt, int pixelCount)
 {
   switch (fmt) {
-    case COLOR_RGB8:
-    return pixelCount*3;
-    case COLOR_RGBA8:
-    return pixelCount*4;
-    case COLOR_YUV444:
-    return pixelCount*3;
-    case COLOR_YUV422_UYVY:
-    return pixelCount*2;
-    case COLOR_YUV411:
-    return pixelCount*3/2;
-    case COLOR_MONO8:
-    return pixelCount;
-    case COLOR_MONO16:
-    return pixelCount*2;
+    case COLOR_RGB8: return pixelCount*3;
+    case COLOR_RGBA8: return pixelCount*4;
+    case COLOR_YUV444: return pixelCount*3;
+    case COLOR_YUV422_UYVY: return pixelCount*2;
+    case COLOR_YUV411: return pixelCount*3/2;
+    case COLOR_MONO8: return pixelCount;
+    case COLOR_MONO16: return pixelCount*2;
     default:
     return 0;
   }

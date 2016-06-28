@@ -575,7 +575,10 @@ void CameraParameters::calibrate(
     // Due to an API change we need to check for
     // the right call at compile time
 #ifdef EIGEN_WORLD_VERSION
-    alpha.llt().solve(-beta, &new_p);
+    // alpha.llt().solve(-beta, &new_p); -- modify 1/15/16
+    //  -- move to Eigen3 structure - 
+    //  -- http://eigen.tuxfamily.org/dox/Eigen2ToEigen3.html
+    new_p = alpha.llt().solve(-beta);
 #else
     Eigen::Cholesky<Eigen::MatrixXd> c(alpha);
     new_p = c.solve(-beta);

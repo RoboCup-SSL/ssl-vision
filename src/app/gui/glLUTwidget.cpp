@@ -238,6 +238,7 @@ void GLLUTWidget::drawSinglePixel(int x, int y, QMouseEvent * event) {
       }
     }
 
+
     _lut->set_preshrunk(state.slice_idx,x,y,mask);
 
     if (_mode==LUTChannelMode_Numeric) {
@@ -321,12 +322,14 @@ void GLLUTWidget::add_del_Pixel(yuv color, bool add, bool continuing_undo)
 
   if(!continuing_undo)
     editStore();
+
   Qt::KeyboardModifiers mod = add ? Qt::NoModifier : Qt::ShiftModifier;
   drawSinglePixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),
                   new QMouseEvent(QEvent::None,QPoint(),Qt::NoButton,Qt::NoButton,mod));
 
   slices[state.slice_idx]->selection_update_pending=true;
   _lut->unlock();
+  _lut->updateDerivedLUTs();
 
   this->redraw();
 }
@@ -779,10 +782,12 @@ void GLLUTWidget::glDrawSlice(Slice * s) {
         glVertex3f(1.0 ,0.0  ,z+z_offset);
       glEnd();
     }
-    glEnable(GL_COLOR_LOGIC_OP);
-    //glLogicOp(GL_COPY_INVERTED);
-    glLogicOp(GL_XOR);
     if (s->sampler->bind()) {
+      glEnable(GL_COLOR_LOGIC_OP);
+      // invert color+alpha below the sampling marks to ensure visibility
+      // testing this operation should be done when only a single slice is displayed
+      // the other views seem to always draw the sample marks due to scaling artifacts
+      glLogicOp(GL_XOR);
       glBegin(GL_QUADS);
         glTexCoord2f(0.0,0.0);
         glVertex3f(0.0  ,0.0,z+z_offset*2);
@@ -796,9 +801,8 @@ void GLLUTWidget::glDrawSlice(Slice * s) {
         glTexCoord2f(1.0,0.0);
         glVertex3f(1.0 ,0.0  ,z+z_offset*2);
       glEnd();
+      glDisable(GL_COLOR_LOGIC_OP);
     }
-    glDisable(GL_COLOR_LOGIC_OP);
-
   }
   glPopMatrix();
 }
@@ -1018,6 +1022,7 @@ void GLLUTWidget::keyPressEvent ( QKeyEvent * event )
 void GLLUTWidget::samplePixel(const yuv & color) {
   //compute slice it sits on:
   int i=_lut->norm2lutX(color.y);
+
   if (i >= 0 && i < (int)slices.size()) {
     //old:
     //slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
@@ -1067,7 +1072,7 @@ void GLLUTWidget::sampleImage(const RawImage & img) {
         }
         color_rgb++;
       }
-    } else if (source_format==COLOR_YUV444) {    
+    } else if (source_format==COLOR_YUV444) {
       yuvImage yuv_img(img);
       yuv * color_yuv=yuv_img.getPixelData();
       for (int j=0;j<n;j++) {

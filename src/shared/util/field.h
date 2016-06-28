@@ -161,6 +161,7 @@ protected slots:
   void ProcessNewFieldArcs();
   void ResizeFieldLines();
   void ResizeFieldArcs();
+  void InjectDefaults();
   void changed() {
     calibrationChanged();
   }
