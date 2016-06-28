@@ -24,15 +24,15 @@
 #include "field.h"
 #include "field_default_constants.h"
 
-using FieldConstantsRoboCup2014::kNumFieldLines;
-using FieldConstantsRoboCup2014::kNumFieldArcs;
-using FieldConstantsRoboCup2014::kFieldLines;
-using FieldConstantsRoboCup2014::kFieldArcs;
+using FieldConstantsRoboCup2016::kNumFieldLines;
+using FieldConstantsRoboCup2016::kNumFieldArcs;
+using FieldConstantsRoboCup2016::kFieldLines;
+using FieldConstantsRoboCup2016::kFieldArcs;
 
 GLSoccerView::FieldDimensions::FieldDimensions() :
-  field_length(FieldConstantsRoboCup2014::kFieldLength),
-  field_width(FieldConstantsRoboCup2014::kFieldWidth),
-  boundary_width(FieldConstantsRoboCup2014::kBoundaryWidth) {
+  field_length(FieldConstantsRoboCup2016::kFieldLength),
+  field_width(FieldConstantsRoboCup2016::kFieldWidth),
+  boundary_width(FieldConstantsRoboCup2016::kBoundaryWidth) {
   for (size_t i = 0; i < kNumFieldLines; ++i) {
     lines.push_back(new FieldLine(kFieldLines[i]));
   }
@@ -566,7 +566,7 @@ void GLSoccerView::updateFieldGeometry(const SSL_GeometryFieldSize& fieldSize) {
   for (size_t i = 0; i < fieldSize.field_lines_size(); ++i) {
     const SSL_FieldLineSegment& line = fieldSize.field_lines(i);
     fieldDim.lines.push_back(new FieldLine(
-        line.name(), line.p1().x(), line.p1().y(), 
+        line.name(), line.p1().x(), line.p1().y(),
         line.p2().x(), line.p2().y(), line.thickness()));
   }
   for (size_t i = 0; i < fieldDim.arcs.size(); ++i) {

@@ -24,35 +24,72 @@
 #include <math.h>
 #include "field.h"
 
-namespace FieldConstantsRoboCup2014 {
+namespace FieldConstantsRoboCup2016 {
 
-const std::size_t kNumFieldLines = 8;
+const std::size_t kNumFieldLines = 12;
 const FieldLine kFieldLines[kNumFieldLines] = {
-  FieldLine("TopTouchLine", -4490, 2995, 4490, 2995, 10),
-  FieldLine("BottomTouchLine", -4490, -2995, 4490, -2995, 10),
-  FieldLine("LeftGoalLine", -4490, -2995, -4490, 2995, 10),
-  FieldLine("RightGoalLine", 4490, -2995, 4490, 2995, 10),
-  FieldLine("HalfwayLine", 0, -2995, 0, 2995, 10),
-  FieldLine("CenterLine", -4490, 0, 4490, 0, 10),
-  FieldLine("LeftPenaltyStretch", -3500, -250, -3500, 250, 10),
-  FieldLine("RightPenaltyStretch", 3500, -250, 3500, 250, 10),
+  FieldLine("TopTouchLine",       -6710,  4495,  6710,  4495, 10),
+  FieldLine("BottomTouchLine",    -6710, -4495,  6710, -4495, 10),
+  FieldLine("LeftGoalLine",       -6705, -4490, -6705,  4490, 10),
+  FieldLine("RightGoalLine",       6705, -4490,  6705,  4490, 10),
+  FieldLine("HalfwayLine",            0, -4490,     0,  4490, 10),
+  FieldLine("CenterLine",         -6710,     0,  6710,     0, 10),
+  FieldLine("LeftPenaltyStretch", -5715,  -250, -5715,   250, 10),
+  FieldLine("RightPenaltyStretch", 5715,  -250,  5715,   250, 10),
+
+  FieldLine("LeftQuarterLine",    -3710, -4490, -3710,  4490, 10),
+  FieldLine("RightQuarterLine",    3710, -4490,  3710,  4490, 10),
+  FieldLine("LeftNearHalfLine",    -715, -4490,  -715,  4490, 10),
+  FieldLine("RightNearHalfLine",    715, -4490,   715,  4490, 10),
 };
 
-const std::size_t kNumFieldArcs = 5;
+const std::size_t kNumFieldArcs = 7;
 const FieldCircularArc kFieldArcs[kNumFieldArcs] = {
   FieldCircularArc("LeftFieldLeftPenaltyArc",
-                   -4495, 250, 995, 0, 0.5 * M_PI, 10),
+                   -6710, 250, 995, 0, 0.5 * M_PI, 10),
   FieldCircularArc("LeftFieldRightPenaltyArc",
-                   -4495, -250, 995, 1.5 * M_PI, 2.0 * M_PI, 10),
+                   -6710, -250, 995, 1.5 * M_PI, 2.0 * M_PI, 10),
   FieldCircularArc("RightFieldLeftPenaltyArc",
-                   4495, -250, 995, M_PI, 1.5 * M_PI, 10),
+                   6710, -250, 995, M_PI, 1.5 * M_PI, 10),
   FieldCircularArc("RightFieldRightPenaltyArc",
-                   4495, 250, 995, 0.5 * M_PI, M_PI, 10),
+                   6710, 250, 995, 0.5 * M_PI, M_PI, 10),
   FieldCircularArc("CenterCircle",
                    0, 0, 495, 0, 2.0 * M_PI, 10),
+  FieldCircularArc("LeftCircle",
+                   -3710, 0, 495, 0, 2.0 * M_PI, 10),
+  FieldCircularArc("RightCircle",
+                   3710, 0, 495, 0, 2.0 * M_PI, 10),
 };
 
-const GVector::vector2d<double> kCameraControlPoints[4][4] = {
+const GVector::vector2d<double> kCameraControlPoints[8][4] = {
+  {
+    GVector::vector2d<double>(0.0, 0.0),
+    GVector::vector2d<double>(0.0, 4495.0),
+    GVector::vector2d<double>(4495.0, 0.0),
+    GVector::vector2d<double>(0.0, 0.0),
+  },
+
+  {
+    GVector::vector2d<double>(-4495.0, 0.0),
+    GVector::vector2d<double>(0.0, 0.0),
+    GVector::vector2d<double>(0.0, 3025.0),
+    GVector::vector2d<double>(-4495.0, 3025.0),
+  },
+
+  {
+    GVector::vector2d<double>(-4495.0, -3025.0),
+    GVector::vector2d<double>(0.0, -3025.0),
+    GVector::vector2d<double>(0.0, 0.0),
+    GVector::vector2d<double>(-4495.0, 0.0),
+  },
+
+  {
+    GVector::vector2d<double>(0.0, -3025.0),
+    GVector::vector2d<double>(4495.0, -3025.0),
+    GVector::vector2d<double>(4495.0, 0.0),
+    GVector::vector2d<double>(0.0, 0.0),
+  },
+
   {
     GVector::vector2d<double>(0.0, 0.0),
     GVector::vector2d<double>(0.0, 4495.0),
@@ -82,4 +119,4 @@ const GVector::vector2d<double> kCameraControlPoints[4][4] = {
   }
 };
 
-}  // namespace FieldConstantsRoboCup2012
+}  // namespace FieldConstantsRoboCup2016

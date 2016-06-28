@@ -22,10 +22,10 @@
 #include "field.h"
 #include "field_default_constants.h"
 
-using FieldConstantsRoboCup2014::kFieldArcs;
-using FieldConstantsRoboCup2014::kFieldLines;
-using FieldConstantsRoboCup2014::kNumFieldArcs;
-using FieldConstantsRoboCup2014::kNumFieldLines;
+using FieldConstantsRoboCup2016::kFieldArcs;
+using FieldConstantsRoboCup2016::kFieldLines;
+using FieldConstantsRoboCup2016::kNumFieldArcs;
+using FieldConstantsRoboCup2016::kNumFieldLines;
 
 FieldLine* FieldLine::FromVarList(VarList* list) {
   vector<VarType*> list_entries = list->getChildren();
@@ -276,15 +276,15 @@ RoboCupField::RoboCupField() {
   settings = new VarList("Field Configuration");
   restore = new VarTrigger("Reset SSL 2014","Reset SSL 2014");
   field_length = new VarDouble(
-      "Field Length", FieldConstantsRoboCup2014::kFieldLength);
+      "Field Length", FieldConstantsRoboCup2016::kFieldLength);
   field_width = new VarDouble(
-      "Field Width", FieldConstantsRoboCup2014::kFieldWidth);
+      "Field Width", FieldConstantsRoboCup2016::kFieldWidth);
   goal_width = new VarDouble(
-      "Goal Width", FieldConstantsRoboCup2014::kGoalWidth);
+      "Goal Width", FieldConstantsRoboCup2016::kGoalWidth);
   goal_depth = new VarDouble(
-      "Goal Depth", FieldConstantsRoboCup2014::kGoalDepth);
+      "Goal Depth", FieldConstantsRoboCup2016::kGoalDepth);
   boundary_width = new VarDouble(
-      "Boundary Width", FieldConstantsRoboCup2014::kBoundaryWidth);
+      "Boundary Width", FieldConstantsRoboCup2016::kBoundaryWidth);
   var_num_lines = new VarInt("Number of Line Segments", kNumFieldLines);
   var_num_arcs = new VarInt("Number of Arcs", kNumFieldArcs);
   field_lines_list = new VarList("Field Lines");

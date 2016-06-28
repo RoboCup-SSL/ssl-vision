@@ -576,7 +576,7 @@ void CameraParameters::calibrate(
     // the right call at compile time
 #ifdef EIGEN_WORLD_VERSION
     // alpha.llt().solve(-beta, &new_p); -- modify 1/15/16
-    //  -- move to Eigen3 structure - 
+    //  -- move to Eigen3 structure -
     //  -- http://eigen.tuxfamily.org/dox/Eigen2ToEigen3.html
     new_p = alpha.llt().solve(-beta);
 #else
@@ -752,11 +752,11 @@ CameraParameters::AdditionalCalibrationInformation::
     control_point_set[i]->addChild(control_point_image_ys[i]);
     control_point_field_xs[i] = new VarDouble(
         "Control point " + i_str + " field x",
-        FieldConstantsRoboCup2014::kCameraControlPoints[camera_index][i].x);
+        FieldConstantsRoboCup2016::kCameraControlPoints[camera_index][i].x);
     control_point_set[i]->addChild(control_point_field_xs[i]);
     control_point_field_ys[i] = new VarDouble(
         "Control point " + i_str + " field y",
-        FieldConstantsRoboCup2014::kCameraControlPoints[camera_index][i].y);
+        FieldConstantsRoboCup2016::kCameraControlPoints[camera_index][i].y);
     control_point_set[i]->addChild(control_point_field_ys[i]);
   }
 
