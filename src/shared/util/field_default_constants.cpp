@@ -63,59 +63,59 @@ const FieldCircularArc kFieldArcs[kNumFieldArcs] = {
 
 const GVector::vector2d<double> kCameraControlPoints[8][4] = {
   {
-    GVector::vector2d<double>(0.0, 0.0),
-    GVector::vector2d<double>(0.0, 4495.0),
-    GVector::vector2d<double>(4495.0, 0.0),
-    GVector::vector2d<double>(0.0, 0.0),
+    GVector::vector2d<double>(-6705, 4485),
+    GVector::vector2d<double>(-6705, 0),
+    GVector::vector2d<double>(-3710, 0),
+    GVector::vector2d<double>(-3710, 4485),
   },
 
   {
-    GVector::vector2d<double>(-4495.0, 0.0),
-    GVector::vector2d<double>(0.0, 0.0),
-    GVector::vector2d<double>(0.0, 3025.0),
-    GVector::vector2d<double>(-4495.0, 3025.0),
+    GVector::vector2d<double>(-6705, 0),
+    GVector::vector2d<double>(-6705, -4485),
+    GVector::vector2d<double>(-3710, -4485),
+    GVector::vector2d<double>(-3710, 0),
   },
 
   {
-    GVector::vector2d<double>(-4495.0, -3025.0),
-    GVector::vector2d<double>(0.0, -3025.0),
-    GVector::vector2d<double>(0.0, 0.0),
-    GVector::vector2d<double>(-4495.0, 0.0),
+    GVector::vector2d<double>(-3710, 0),
+    GVector::vector2d<double>(-3710, -4485),
+    GVector::vector2d<double>(0, -4485),
+    GVector::vector2d<double>(0, 0),
   },
 
   {
-    GVector::vector2d<double>(0.0, -3025.0),
-    GVector::vector2d<double>(4495.0, -3025.0),
-    GVector::vector2d<double>(4495.0, 0.0),
-    GVector::vector2d<double>(0.0, 0.0),
+    GVector::vector2d<double>(-3710, 4485),
+    GVector::vector2d<double>(-3710, 0),
+    GVector::vector2d<double>(0, 0),
+    GVector::vector2d<double>(0, 4485),
   },
 
   {
-    GVector::vector2d<double>(0.0, 0.0),
-    GVector::vector2d<double>(0.0, 4495.0),
-    GVector::vector2d<double>(4495.0, 0.0),
-    GVector::vector2d<double>(0.0, 0.0),
+    GVector::vector2d<double>(0, 4485),
+    GVector::vector2d<double>(0, 0),
+    GVector::vector2d<double>(3710, 0),
+    GVector::vector2d<double>(3710, 4485),
   },
 
   {
-    GVector::vector2d<double>(-4495.0, 0.0),
-    GVector::vector2d<double>(0.0, 0.0),
-    GVector::vector2d<double>(0.0, 3025.0),
-    GVector::vector2d<double>(-4495.0, 3025.0),
+    GVector::vector2d<double>(0, 0),
+    GVector::vector2d<double>(0, -4485),
+    GVector::vector2d<double>(3710, -4485),
+    GVector::vector2d<double>(3710, 0),
   },
 
   {
-    GVector::vector2d<double>(-4495.0, -3025.0),
-    GVector::vector2d<double>(0.0, -3025.0),
-    GVector::vector2d<double>(0.0, 0.0),
-    GVector::vector2d<double>(-4495.0, 0.0),
+    GVector::vector2d<double>(3710, 0),
+    GVector::vector2d<double>(3710, -4485),
+    GVector::vector2d<double>(6705, -4485),
+    GVector::vector2d<double>(6705, 0),
   },
 
   {
-    GVector::vector2d<double>(0.0, -3025.0),
-    GVector::vector2d<double>(4495.0, -3025.0),
-    GVector::vector2d<double>(4495.0, 0.0),
-    GVector::vector2d<double>(0.0, 0.0),
+    GVector::vector2d<double>(3710, 4485),
+    GVector::vector2d<double>(3710, 0),
+    GVector::vector2d<double>(6705, 0),
+    GVector::vector2d<double>(6705, 4485),
   }
 };
 
