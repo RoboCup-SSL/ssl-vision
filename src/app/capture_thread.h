@@ -24,6 +24,7 @@
 #include "capturedc1394v2.h"
 #include "capturefromfile.h"
 #include "capturev4l.h"
+#include "capture_bluefox2.h"
 #include "capture_generator.h"
 #include <QThread>
 #include "ringbuffer.h"
@@ -49,6 +50,7 @@ protected:
   CaptureInterface * capture;
   CaptureInterface * captureDC1394;
   CaptureInterface * captureV4L;
+  CaptureInterface * captureBlueFox2;
   CaptureInterface * captureFiles;
   CaptureInterface * captureGenerator;
   AffinityManager * affinity;
@@ -58,6 +60,7 @@ protected:
   VarList * settings;
   VarList * dc1394;
   VarList * v4l;
+  VarList * bluefox2;
   VarList * generator;
   VarList * fromfile;
   VarList * control;

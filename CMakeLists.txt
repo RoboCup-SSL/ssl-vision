@@ -6,6 +6,8 @@ add_definitions(-D UNIX)
 add_definitions(-D LINUX)
 add_definitions(-D _GNU_SOURCE)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
+
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 set (QT_USE_QTNETWORK true)
@@ -18,6 +20,9 @@ find_package( Eigen3 REQUIRED )
 include_directories(${EIGEN3_INCLUDE_DIR})
 
 include ( ${QT_USE_FILE} )
+
+find_package(mvIMPACT REQUIRED)
+include_directories(${mvIMPACT_INCLUDE_DIRS})
 
 include(src/shared/CMakeLists.txt.inc)
 
@@ -140,7 +145,7 @@ message (STATUS "Custom CC Flags: ${cc_flags}")
 
 add_definitions(${cc_flags})
 
-set (libs ${QT_LIBRARIES} ${EIGEN3_LIBRARIES} dc1394 jpeg png protobuf pthread GL GLU )
+set (libs ${QT_LIBRARIES} ${EIGEN3_LIBRARIES} ${mvIMPACT_LIBRARIES} dc1394 jpeg png protobuf pthread GL GLU )
 
 ## build the common code
 add_library(sslvision ${SHARED_MOC_SRCS} ${SHARED_RC_SRCS} ${CC_PROTO} ${SHARED_SRCS})
@@ -177,5 +182,3 @@ add_executable(${gclient} ${GCLIENT_MOC_SRCS}
   src/graphicalClient/gltext.cpp
 )
 target_link_libraries(${gclient} ${libs})
-
-

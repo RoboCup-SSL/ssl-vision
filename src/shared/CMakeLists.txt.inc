@@ -15,6 +15,7 @@ include_directories(${shared_dir}/vartypes/xml)
 set (SHARED_SRCS
 	${shared_dir}/capture/capturedc1394v2.cpp
 	${shared_dir}/capture/capturev4l.cpp
+	${shared_dir}/capture/capture_bluefox2.cpp
 	${shared_dir}/capture/capturefromfile.cpp
   ${shared_dir}/capture/capture_generator.cpp
 	${shared_dir}/capture/captureinterface.cpp
@@ -102,6 +103,7 @@ set (SHARED_SRCS
 set (SHARED_HEADERS
 	${shared_dir}/capture/capturedc1394v2.h
 	${shared_dir}/capture/capturev4l.h
+	${shared_dir}/capture/capture_bluefox2.h
 	${shared_dir}/capture/capturefromfile.h
   ${shared_dir}/capture/capture_generator.h
 
