@@ -41,12 +41,14 @@
  * video for linux 2 (v4l)
 
 To get all of these packages in (k)ubuntu, run:
-sudo apt-get install g++ libqt4-dev libeigen3-dev protobuf-compiler libprotobuf-dev libdc1394-22 libdc1394-22-dev cmake libv4l-0
-
+```
+    sudo apt-get install g++ libqt4-dev libeigen3-dev protobuf-compiler libprotobuf-dev libdc1394-22 libdc1394-22-dev cmake libv4l-0
+```
 
 ## Hardware Requirements
  * The system supports 1394B / Firewire 800, but it's also backward compatible with 1394A.
  * The system also supports basic usb cameras via the [http://linuxtv.org/downloads/v4l-dvb-apis/](Video for Linux (V4L)) drivers. This implementation has only been tested on linux.
+ * Matrix-Vision [http://www.matrix-vision.com/USB2.0-single-board-camera-mvbluefox-mlc.html](BlueFox2) cameras are supported via the mvIMPACT_acquire library. Tested with a mvBlueFOX-MLC200wC. To enable support for this camera please use the [http://www.matrix-vision.com/USB2.0-single-board-camera-mvbluefox-mlc.html?file=tl_files/mv11/support/mvIMPACT_Acquire/01/install_mvBlueFOX.sh](install_mvBlueFox.sh) script. The driver installation will be detected automatically during the build process.
 
 ## Compilation
  build the code by running:
