@@ -58,8 +58,10 @@ macro(mvIMPACT_REPORT_NOT_FOUND REASON_MSG)
     else()
         # Neither QUIETLY nor REQUIRED, use no priority which emits a message
         # but continues configuration and allows generation.
-        message("-- Failed to find mvimpact - " ${REASON_MSG} ${ARGN})
+#        message("-- Failed to find mvimpact - " ${REASON_MSG} ${ARGN})
     endif()
+    
+    return()
 endmacro(mvIMPACT_REPORT_NOT_FOUND)
 
 # Search user-installed locations first, so that we prefer user installs
@@ -94,7 +96,7 @@ if(NOT mvIMPACT_INCLUDE_DIR OR NOT EXISTS ${mvIMPACT_INCLUDE_DIR})
         "path to mvimpact include directory,"
         "e.g. /opt/mvIMPACT_acquire.")
 else()
-    message(STATUS "mvimpact include dir found: " ${mvIMPACT_INCLUDE_DIR})
+#    message(STATUS "mvimpact include dir found: " ${mvIMPACT_INCLUDE_DIR})
 endif()
 
 # Find library directory for mvimpact
@@ -110,7 +112,7 @@ if(NOT mvIMPACT_LIBRARY OR NOT EXISTS ${mvIMPACT_LIBRARY})
 else()
     # TODO: need to fix this hacky solution for getting mvIMPACT_LIBRARY_DIR
     string(REGEX MATCH ".*/" mvIMPACT_LIBRARY_DIR ${mvIMPACT_LIBRARY})
-    message(STATUS "mvimpact library dir found: " ${mvIMPACT_LIBRARY_DIR})
+#    message(STATUS "mvimpact library dir found: " ${mvIMPACT_LIBRARY_DIR})
 endif()
 
 # Mark internally as found, then verify. mvIMPACT_REPORT_NOT_FOUND() unsets if

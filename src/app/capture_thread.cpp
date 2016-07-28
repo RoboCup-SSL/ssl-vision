@@ -37,12 +37,10 @@ CaptureThread::CaptureThread(int cam_id)
   captureModule->addFlags(VARTYPE_FLAG_NOLOAD_ENUM_CHILDREN);
   captureModule->addItem("DC 1394");
   captureModule->addItem("Video 4 Linux");
-  captureModule->addItem("BlueFox2");
   captureModule->addItem("Read from files");
   captureModule->addItem("Generator");
   settings->addChild( (VarType*) (dc1394 = new VarList("DC1394")));
   settings->addChild( (VarType*) (v4l = new VarList("Video 4 Linux")));
-  settings->addChild( (VarType*) (bluefox2 = new VarList("BlueFox2")));
   settings->addChild( (VarType*) (fromfile = new VarList("Read from files")));
   settings->addChild( (VarType*) (generator = new VarList("Generator")));
   settings->addFlags( VARTYPE_FLAG_AUTO_EXPAND_TREE );
@@ -60,7 +58,13 @@ CaptureThread::CaptureThread(int cam_id)
   captureFiles = new CaptureFromFile(fromfile);
   captureGenerator = new CaptureGenerator(generator);
   captureV4L = new CaptureV4L(v4l,camId);
+  
+#ifdef MVIMPACT
+  captureModule->addItem("BlueFox2");
+  settings->addChild( (VarType*) (bluefox2 = new VarList("BlueFox2")));
   captureBlueFox2 = new CaptureBlueFox2(bluefox2,camId);
+#endif
+  
   selectCaptureMethod();
   _kill =false;
   rb=0;
@@ -84,10 +88,13 @@ CaptureThread::~CaptureThread()
 {
   delete captureDC1394;
   delete captureV4L;
-  delete captureBlueFox2;
   delete captureFiles;
   delete captureGenerator;
   delete counter;
+  
+#ifdef MVIMPACT
+  delete captureBlueFox2;
+#endif
 }
 
 void CaptureThread::setFrameBuffer(FrameBuffer * _rb) {
@@ -110,12 +117,14 @@ void CaptureThread::selectCaptureMethod() {
     new_capture = captureFiles;
   } else if(captureModule->getString() == "Generator") {
     new_capture = captureGenerator;
-  } else if(captureModule->getString() == "DC 1394") {
-    new_capture = captureDC1394;
+#ifdef MVIMPACT
+  } else if(captureModule->getString() == "BlueFox2") {
+    new_capture = captureBlueFox2;
+#endif
   } else if(captureModule->getString() == "Video 4 Linux") {
     new_capture = captureV4L;
   } else {
-    new_capture = captureBlueFox2;
+    new_capture = captureDC1394;
   }
 
   if (old_capture!=0 && new_capture!=old_capture && old_capture->isCapturing()) {

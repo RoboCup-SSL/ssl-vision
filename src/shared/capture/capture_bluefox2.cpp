@@ -47,7 +47,7 @@ CaptureBlueFox2::CaptureBlueFox2(VarList * _settings,int default_camera_id) : Ca
   dcam_parameters->addFlags( VARTYPE_FLAG_HIDE_CHILDREN );
 
   v_expose_us = new VarInt("Expose [us]", 2000, 10, 100000);
-  v_expose_overlapped = new VarBool("Expose Overlapped", false);
+  v_expose_overlapped = new VarBool("Expose Overlapped", true);
   v_gain_db = new VarDouble("Gain [dB]", 0.0, 0.0, 12.0);
   
   v_hdr_mode = new VarStringEnum("HDR Mode", hdrModeToString(HDR_MODE_OFF));
@@ -265,7 +265,8 @@ void CaptureBlueFox2::writeParameterValues(VarList * item)
 
 CaptureBlueFox2::~CaptureBlueFox2()
 {
-  //FIXME: delete all of dcam_parameters children
+  capture_settings->deleteAllChildren();
+  dcam_parameters->deleteAllChildren();
 }
 
 bool CaptureBlueFox2::resetBus()
@@ -286,6 +287,10 @@ bool CaptureBlueFox2::stopCapture()
   if (isCapturing())
   {
     readAllParameterValues();
+    
+    delete pFI;
+    delete pSettings;
+    delete pImageProc;
     
     pDevice->close();
     
@@ -347,12 +352,6 @@ bool CaptureBlueFox2::startCapture()
   
   ImageDestination id( pDevice );
   id.restoreDefault();
-  unsigned int pixelFormats = id.pixelFormat.dictSize();
-    // display all available pixel formats and there numerical representation.
-  for( unsigned int i = 0; i < pixelFormats; i++ )
-  {
-      fprintf(stderr, "[%d]: %s\n", id.pixelFormat.getTranslationDictValue( i ), id.pixelFormat.getTranslationDictString( i ).c_str());
-  }
   
   ColorFormat out_color = Colors::stringToColorFormat(v_colorout->getSelection().c_str());
   if(out_color == COLOR_RGB8)
