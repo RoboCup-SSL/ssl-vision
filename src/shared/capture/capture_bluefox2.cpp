@@ -80,10 +80,22 @@ CaptureBlueFox2::CaptureBlueFox2(VarList * _settings,int default_camera_id) : Ca
   v_aoi_left = new VarInt("AOI left", 0, 0, 752);
   v_aoi_top = new VarInt("AOI top", 0, 0, 480);
   
+  v_pixel_clock = new VarStringEnum("Pixel Clock", pixelClockToString(cpc40000KHz));
+  v_pixel_clock->addItem(pixelClockToString(cpc6000KHz));
+  v_pixel_clock->addItem(pixelClockToString(cpc8000KHz));
+  v_pixel_clock->addItem(pixelClockToString(cpc10000KHz));
+  v_pixel_clock->addItem(pixelClockToString(cpc12000KHz));
+  v_pixel_clock->addItem(pixelClockToString(cpc20000KHz));
+  v_pixel_clock->addItem(pixelClockToString(cpc24000KHz));
+  v_pixel_clock->addItem(pixelClockToString(cpc27000KHz));
+  v_pixel_clock->addItem(pixelClockToString(cpc32000KHz));
+  v_pixel_clock->addItem(pixelClockToString(cpc40000KHz));
+  
   dcam_parameters->addChild(v_aoi_width);
   dcam_parameters->addChild(v_aoi_height);
   dcam_parameters->addChild(v_aoi_left);
   dcam_parameters->addChild(v_aoi_top);
+  dcam_parameters->addChild(v_pixel_clock);
   dcam_parameters->addChild(v_expose_us);
   dcam_parameters->addChild(v_expose_overlapped);
   dcam_parameters->addChild(v_gain_db);
@@ -159,7 +171,9 @@ void CaptureBlueFox2::writeParameterValues(VarList * item)
   #ifndef VDATA_NO_QT
     mutex.lock();
   #endif
-  
+    
+  pSettings->pixelClock_KHz.write(stringToPixelClock(v_pixel_clock->getString().c_str()));
+
   pSettings->expose_us.write(v_expose_us->getInt());
   
   if(v_expose_overlapped->getBool())
@@ -365,7 +379,6 @@ bool CaptureBlueFox2::startCapture()
   
   pSettings = new CameraSettingsBlueFOX(pDevice);
   pSettings->restoreDefault();
-  pSettings->pixelClock_KHz.write(cpc40000KHz);
   
   pImageProc = new ImageProcessing(pDevice);
   pImageProc->restoreDefault();

@@ -36,6 +36,11 @@
   #include <pthread.h>
 #endif
 
+namespace mvIMPACT {
+namespace acquire {
+enum TCameraPixelClock;}
+}
+
 using namespace mvIMPACT::acquire;
 
 /*!
@@ -160,6 +165,45 @@ class CaptureBlueFox2 : public CaptureInterface
       case COLOR_TWIST_MODE_SRGB_D65: return "sRGB_D65";
     }
   }
+  
+  static TCameraPixelClock stringToPixelClock(const char* s)
+  {
+    if (strcmp(s,"8MHz")==0) {
+      return cpc8000KHz;
+    } else if (strcmp(s,"10MHz")==0) {
+      return cpc10000KHz;
+    } else if (strcmp(s,"12MHz")==0) {
+      return cpc12000KHz;
+    } else if (strcmp(s,"20MHz")==0) {
+      return cpc20000KHz;
+    } else if (strcmp(s,"24MHz")==0) {
+      return cpc24000KHz;
+    } else if (strcmp(s,"27MHz")==0) {
+      return cpc27000KHz;
+    } else if (strcmp(s,"32MHz")==0) {
+      return cpc32000KHz;
+    } else if (strcmp(s,"40MHz")==0) {
+      return cpc40000KHz;
+    } else {
+      return cpc6000KHz;
+    }
+  }
+
+  static string pixelClockToString(TCameraPixelClock pxc)
+  {
+    switch(pxc)
+    {
+      case cpc8000KHz: return "8MHz";
+      case cpc10000KHz: return "10MHz";
+      case cpc12000KHz: return "12MHz";
+      case cpc20000KHz: return "20MHz";
+      case cpc24000KHz: return "24MHz";
+      case cpc27000KHz: return "27MHz";
+      case cpc32000KHz: return "32MHz";
+      case cpc40000KHz: return "40MHz";
+      default: return "6MHz";
+    }
+  }
 
 
 protected:
@@ -182,6 +226,7 @@ protected:
   VarInt    * v_aoi_height;
   VarInt    * v_aoi_left;
   VarInt    * v_aoi_top;
+  VarStringEnum* v_pixel_clock;
   
   //capture variables:
   VarInt    * v_cam_bus;
