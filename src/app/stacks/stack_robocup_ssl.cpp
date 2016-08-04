@@ -55,6 +55,7 @@ StackRoboCupSSL::StackRoboCupSSL(
   stack.push_back(new PluginDVR(_fb));
 
   stack.push_back(new PluginColorCalibration(_fb,lut_yuv, LUTChannelMode_Numeric));
+  stack.push_back(new PluginNeuralColorCalib(_fb,lut_yuv, LUTChannelMode_Numeric));
   settings->addChild(lut_yuv->getSettings());
 
   stack.push_back(new PluginCameraCalibration(_fb,*camera_parameters, *global_field));

@@ -12,6 +12,8 @@ set (QT_USE_QTNETWORK true)
 set (QT_USE_QTOPENGL true)
 
 find_package ( Qt4 REQUIRED )
+find_package( OpenCV REQUIRED )
+
 include_directories(${PROJECT_BINARY_DIR})
 
 find_package( Eigen3 REQUIRED )
@@ -41,6 +43,7 @@ set (SRCS
 	src/app/gui/renderoptions.cpp
 	src/app/gui/videowidget.cpp
 	src/app/gui/jog_dial.cpp
+	src/app/gui/neurowidget.cpp
 
 	src/app/plugins/plugin_cameracalib.cpp
 	src/app/plugins/plugin_colorcalib.cpp
@@ -55,6 +58,7 @@ set (SRCS
 	src/app/plugins/plugin_legacysslnetworkoutput.cpp
 	src/app/plugins/plugin_visualize.cpp
 	src/app/plugins/plugin_dvr.cpp
+	src/app/plugins/plugin_neuralcolorcalib.cpp
 	src/app/plugins/visionplugin.cpp
 
 	src/app/stacks/multistack_robocup_ssl.cpp
@@ -73,6 +77,7 @@ qt4_wrap_cpp (MOC_SRCS
 	src/app/gui/mainwindow.h
 	src/app/gui/videowidget.h
 	src/app/gui/jog_dial.h
+        src/app/gui/neurowidget.h
 	src/shared/util/lut3d.h
 	
 	src/app/plugins/plugin_dvr.h
@@ -86,6 +91,7 @@ qt4_wrap_cpp (MOC_SRCS
 qt4_wrap_ui (UI_SRCS
 	src/app/gui/mainwindow.ui
 	src/app/gui/videowidget.ui
+    src/app/gui/neurowidget.ui
 )
 
 qt4_add_resources(RC_SRCS 
@@ -140,7 +146,7 @@ message (STATUS "Custom CC Flags: ${cc_flags}")
 
 add_definitions(${cc_flags})
 
-set (libs ${QT_LIBRARIES} ${EIGEN3_LIBRARIES} dc1394 jpeg png protobuf pthread GL GLU )
+set (libs ${QT_LIBRARIES} ${OpenCV_LIBS} ${EIGEN3_LIBRARIES} dc1394 jpeg png protobuf pthread GL GLU )
 
 ## build the common code
 add_library(sslvision ${SHARED_MOC_SRCS} ${SHARED_RC_SRCS} ${CC_PROTO} ${SHARED_SRCS})
