@@ -16,7 +16,7 @@ set (SHARED_SRCS
 	${shared_dir}/capture/capturedc1394v2.cpp
 	${shared_dir}/capture/capturev4l.cpp
 	${shared_dir}/capture/capturefromfile.cpp
-  ${shared_dir}/capture/capture_generator.cpp
+        ${shared_dir}/capture/capture_generator.cpp
 	${shared_dir}/capture/captureinterface.cpp
 
 	${shared_dir}/cmpattern/cmpattern_pattern.cpp
@@ -46,37 +46,37 @@ set (SHARED_SRCS
 	${shared_dir}/util/rawimage.cpp
 	${shared_dir}/util/ringbuffer.cpp
 	${shared_dir}/util/texture.cpp
-  ${shared_dir}/util/framelimiter.cpp
+        ${shared_dir}/util/framelimiter.cpp
 
 	${shared_dir}/vartypes/VarBase64.cpp
 	${shared_dir}/vartypes/VarNotifier.cpp
 	${shared_dir}/vartypes/VarTypes.cpp
 	${shared_dir}/vartypes/VarXML.cpp
-  ${shared_dir}/vartypes/VarTypesInstance.cpp
-  ${shared_dir}/vartypes/VarTypesFactory.cpp
+        ${shared_dir}/vartypes/VarTypesInstance.cpp
+        ${shared_dir}/vartypes/VarTypesFactory.cpp
 	${shared_dir}/vartypes/xml/xmlParser.cpp
 
-  ${shared_dir}/vartypes/primitives/VarStringVal.cpp
-  ${shared_dir}/vartypes/primitives/VarBoolVal.cpp
-  ${shared_dir}/vartypes/primitives/VarVal.cpp
-  ${shared_dir}/vartypes/primitives/VarIntVal.cpp
-  ${shared_dir}/vartypes/primitives/VarDoubleVal.cpp
+        ${shared_dir}/vartypes/primitives/VarStringVal.cpp
+        ${shared_dir}/vartypes/primitives/VarBoolVal.cpp
+        ${shared_dir}/vartypes/primitives/VarVal.cpp
+        ${shared_dir}/vartypes/primitives/VarIntVal.cpp
+        ${shared_dir}/vartypes/primitives/VarDoubleVal.cpp
 
-  ${shared_dir}/vartypes/primitives/VarType.cpp
-  ${shared_dir}/vartypes/primitives/VarBlob.cpp
-  ${shared_dir}/vartypes/primitives/VarBool.cpp
-  ${shared_dir}/vartypes/primitives/VarDouble.cpp
-  ${shared_dir}/vartypes/primitives/VarExternal.cpp
-  ${shared_dir}/vartypes/primitives/VarInt.cpp
-  ${shared_dir}/vartypes/primitives/VarList.cpp
-  ${shared_dir}/vartypes/primitives/VarQWidget.cpp
-  ${shared_dir}/vartypes/primitives/VarSelection.cpp
-  ${shared_dir}/vartypes/primitives/VarString.cpp
-  ${shared_dir}/vartypes/primitives/VarStringEnum.cpp
-  ${shared_dir}/vartypes/primitives/VarTrigger.cpp
+        ${shared_dir}/vartypes/primitives/VarType.cpp
+        ${shared_dir}/vartypes/primitives/VarBlob.cpp
+        ${shared_dir}/vartypes/primitives/VarBool.cpp
+        ${shared_dir}/vartypes/primitives/VarDouble.cpp
+        ${shared_dir}/vartypes/primitives/VarExternal.cpp
+        ${shared_dir}/vartypes/primitives/VarInt.cpp
+        ${shared_dir}/vartypes/primitives/VarList.cpp
+        ${shared_dir}/vartypes/primitives/VarQWidget.cpp
+        ${shared_dir}/vartypes/primitives/VarSelection.cpp
+        ${shared_dir}/vartypes/primitives/VarString.cpp
+        ${shared_dir}/vartypes/primitives/VarStringEnum.cpp
+        ${shared_dir}/vartypes/primitives/VarTrigger.cpp
 
-  #${shared_dir}/vartypes/primitives/VarProtoBufferVal.cpp
-  #${shared_dir}/vartypes/primitives/VarProtoBuffer.cpp
+        #${shared_dir}/vartypes/primitives/VarProtoBufferVal.cpp
+        #${shared_dir}/vartypes/primitives/VarProtoBuffer.cpp
 
 	${shared_dir}/vartypes/gui/VarItem.cpp
 	${shared_dir}/vartypes/gui/VarItemDelegate.cpp
@@ -93,9 +93,9 @@ set (SHARED_SRCS
 	#${shared_dir}/vartypes/enhanced/TimeLine.cpp
 	#${shared_dir}/vartypes/enhanced/TimeVar.cpp
 
-  ${shared_dir}/util/helpers.cpp
-  ${shared_dir}/util/field.cpp
-  ${shared_dir}/util/field_default_constants.cpp
+        ${shared_dir}/util/helpers.cpp
+        ${shared_dir}/util/field.cpp
+        ${shared_dir}/util/field_default_constants.cpp
 )
 
 #only ones that need to be moc'ed
@@ -103,7 +103,7 @@ set (SHARED_HEADERS
 	${shared_dir}/capture/capturedc1394v2.h
 	${shared_dir}/capture/capturev4l.h
 	${shared_dir}/capture/capturefromfile.h
-  ${shared_dir}/capture/capture_generator.h
+  	${shared_dir}/capture/capture_generator.h
 
 	${shared_dir}/cmpattern/cmpattern_team.h
 	${shared_dir}/cmpattern/cmpattern_teamdetector.h

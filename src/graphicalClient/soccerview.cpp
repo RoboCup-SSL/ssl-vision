@@ -170,6 +170,8 @@ void GLSoccerView::resizeEvent(QResizeEvent* event)
 {
   QGLWidget::resizeEvent(event);
   redraw();
+
+  resetView(); 
 }
 
 void GLSoccerView::recomputeProjection()
@@ -493,6 +495,17 @@ void GLSoccerView::drawRobots()
       drawRobot(r.loc,r.angle,r.conf,r.id,r.team,r.hasAngle);
     }
   }
+}
+
+void GLSoccerView::clearDetectionView() {
+    graphicsMutex.lock();
+    for(int i=0; i<robots.size(); i++) {
+        robots[i].clear();
+        balls[i].clear();
+    }
+    graphicsMutex.unlock();
+
+    postRedraw();
 }
 
 void GLSoccerView::updateDetection(const SSL_DetectionFrame& detection)
