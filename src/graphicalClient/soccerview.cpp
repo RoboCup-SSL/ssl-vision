@@ -29,6 +29,16 @@ using FieldConstantsRoboCup2014::kNumFieldArcs;
 using FieldConstantsRoboCup2014::kFieldLines;
 using FieldConstantsRoboCup2014::kFieldArcs;
 
+const double GLSoccerView::minZValue = -10;
+const double GLSoccerView::maxZValue = 10;
+const double GLSoccerView::FieldZ = 1.0;
+const double GLSoccerView::RobotZ = 2.0;
+const double GLSoccerView::BallZ = 3.0;
+const int GLSoccerView::PreferedWidth = 1024;
+const int GLSoccerView::PreferedHeight = 768;
+const double GLSoccerView::MinRedrawInterval = 0.016; ///Minimum time between graphics updates (limits the fps)
+const int GLSoccerView::unknownRobotID = -1;
+
 GLSoccerView::FieldDimensions::FieldDimensions() :
   field_length(FieldConstantsRoboCup2014::kFieldLength),
   field_width(FieldConstantsRoboCup2014::kFieldWidth),
