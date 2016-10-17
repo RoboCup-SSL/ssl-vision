@@ -123,10 +123,10 @@ message (STATUS "Arch: ${arch}")
 
 if (${arch} MATCHES "x86_64")
 	#set compiler flags here for x86_64
-        set (cc_flags "-ansi")
+	set (cc_flags "")
 elseif (${arch} MATCHES "x86")
 	#set compiler flags here for x86
-        set (cc_flags "-ansi")
+	set (cc_flags "")
 endif()
 
 #flags to set in debug mode
@@ -135,7 +135,7 @@ set (CMAKE_CXX_FLAGS_DEBUG "-g -Wl,--no-as-needed")
 #flags to set in release mode
 set (CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 -march=native -Wl,--no-as-needed")
 
-message (STATUS "CC Flags: ${CMAKE_CXX_FLAGS_RELEASE}")
+message( STATUS "CC Flags: ${CMAKE_CXX_FLAGS_RELEASE}")
 message (STATUS "Custom CC Flags: ${cc_flags}")
 
 add_definitions(${cc_flags})

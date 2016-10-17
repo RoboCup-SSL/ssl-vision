@@ -142,8 +142,6 @@ public:
   void updateDetection (const SSL_DetectionFrame &detection );
   void updateFieldGeometry (const SSL_GeometryFieldSize &fieldSize );
 
-  void clearDetectionView();
-
 public slots:
   void resetView();
 private slots:
