@@ -506,7 +506,7 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
     robots->RemoveLast();
   }
 
-  delete markers;
+  delete[] markers;
 }
 
 
