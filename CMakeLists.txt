@@ -129,6 +129,9 @@ elseif (${arch} MATCHES "x86")
 	set (cc_flags "")
 endif()
 
+# make sure to use C++98
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ansi")
+
 #flags to set in debug mode
 set (CMAKE_CXX_FLAGS_DEBUG "-g -Wl,--no-as-needed")
 
