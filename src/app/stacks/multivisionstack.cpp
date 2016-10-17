@@ -27,9 +27,8 @@ MultiVisionStack::MultiVisionStack(string _name, RenderOptions * _opts) {
 }
 
 MultiVisionStack::~MultiVisionStack() {
+  stop();
   for (int i=0;i<threads.size();i++) {
-	threads.at(i)->stop();
-	threads.at(i)->wait();
     delete threads.at(i);
   }
   delete settings;
