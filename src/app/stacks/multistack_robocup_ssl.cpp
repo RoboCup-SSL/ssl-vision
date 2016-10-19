@@ -21,9 +21,9 @@
 #include "multistack_robocup_ssl.h"
 
 MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
+    MultiVisionStack("RoboCup SSL Multi-Cam",_opts),
     ds_udp_server_new(NULL),
-    ds_udp_server_old(NULL),
-    MultiVisionStack("RoboCup SSL Multi-Cam",_opts) {
+    ds_udp_server_old(NULL) {
   //add global field calibration parameter
   global_field = new RoboCupField();
   settings->addChild(global_field->getSettings());

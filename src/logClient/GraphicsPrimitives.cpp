@@ -33,7 +33,7 @@ Robot::Robot()
   Robot ( 0,0,0,teamUnknown,0,0,0 );
 }
 
-Robot::Robot ( double _x, double _y, double _orientation, int _teamID, int _id, int _key, double _conf )
+Robot::Robot ( double _x, double _y, double _orientation, int _teamID, int _id, unsigned int _key, double _conf )
 {
   conf = _conf;
   key = _key;
@@ -195,7 +195,6 @@ void SoccerView::initView()
 
 void SoccerView::updateView()
 {
-  static float lastScale = 0;
   if ( shutdownSoccerView )
   {
     return;
@@ -291,7 +290,7 @@ void SoccerView::UpdateRobots ( SSL_DetectionFrame &detection )
     }
 
     double x,y,orientation,conf =robot.confidence();
-    int id=NA, n=0;
+    int id=NA;
     if ( robot.has_robot_id() )
       id = robot.robot_id();
     else
