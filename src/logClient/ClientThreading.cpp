@@ -53,8 +53,6 @@ void ViewUpdateThread::run()
 
 int ViewUpdateThread::execute()
 {
-    int c = 0;
-    int n=0;
     Log_Frame* log_frame;
     SSL_DetectionFrame detection;
     if ( client.receive ( packet ) && !play)

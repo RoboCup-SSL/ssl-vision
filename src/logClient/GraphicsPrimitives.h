@@ -51,7 +51,7 @@ class Robot : public QGraphicsPathItem
     int id;                 //ID of the robot in its team
     double x,y;
     double conf;
-    int key;
+    unsigned int key;
     QString robotLabel;
 
   private:
@@ -69,7 +69,7 @@ class Robot : public QGraphicsPathItem
     void update ( const QRectF & rect = QRectF() ) {return;}
 
     Robot();
-    Robot ( double _x, double _y, double _orientation, int _teamID, int _id, int _key, double _conf );
+    Robot ( double _x, double _y, double _orientation, int _teamID, int _id, unsigned int _key, double _conf );
     void SetPose ( double _x, double _y, double _orientation, double _conf );
     ~Robot();
 };

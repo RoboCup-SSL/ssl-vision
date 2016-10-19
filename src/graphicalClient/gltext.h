@@ -45,7 +45,7 @@ class GLText{
   QVector<Glyph> glyphs;
   
   double characterSpacing;
-  static const bool debugTesselation = false;
+  static const bool debugTesselation;
   QFont font;
   
 public:
@@ -84,7 +84,7 @@ private:
   static void tessEndCB();
   static void tessVertexCB(const GLvoid *data);
   static void tessErrorCB(GLenum errorCode);
-  static const double FontRenderSize = 1000.0;
+  static const double FontRenderSize;
 };
 
 #endif //GL_TEXT_H

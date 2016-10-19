@@ -24,6 +24,7 @@
 #include "GL/gl.h"
 #include "globject.h"
 #include "geometry.h"
+#include <cmath>
 #ifndef NO_QT
   #include <QWheelEvent>
   #include <QKeyEvent>
@@ -141,7 +142,7 @@ public:
     vector3d d_forward = target.forward - forward;
     vector3d d_pos     = target.pos - pos;
     double   d_angle   = GVector::shortest_angle(rot.getZvector(),target.rot.getZvector());
-    if (isnan(d_angle)) d_angle=0.0;
+    if (std::isnan(d_angle)) d_angle=0.0;
     //compute spring forces:
 
     vector3d f_forward = d_forward * k_acc - v_forward * k_damp;
@@ -173,7 +174,7 @@ public:
     //perform angular blending:
     double blend_n=delta_angle / d_angle;
 
-    if (blend_n==0.0 || d_angle==0.0 || delta_angle==0.0 || isnan(blend_n)) {
+    if (blend_n==0.0 || d_angle==0.0 || delta_angle==0.0 || std::isnan(blend_n)) {
       //don't rotate!
     } else {
       rot.blend(blend_n,target.rot);

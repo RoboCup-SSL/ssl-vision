@@ -70,7 +70,7 @@ class GlobalV4LinstanceManager;
  */
 class GlobalV4Linstance
 {
-friend GlobalV4LinstanceManager;
+friend class GlobalV4LinstanceManager;
 public:
     struct image_t {
         unsigned char *data;
@@ -261,7 +261,7 @@ protected:
     VarStringEnum * v_format;
     VarInt    * v_buffer_size;
     
-    unsigned int cam_id;
+    int cam_id;
     int width;
     int height;
     int top;

@@ -806,7 +806,6 @@ void CaptureV4L::readParameterValues(VarList * item) {
 #ifndef VDATA_NO_QT
     mutex.lock();
 #endif
-    float fValue = 0.0;
     bool valid=true;
     v4lfeature_t feature=getV4LfeatureEnum(item,valid);
     if (valid==false) {
@@ -818,18 +817,12 @@ void CaptureV4L::readParameterValues(VarList * item) {
     }
     VarInt * vint=0;
     VarBool * venabled=0;
-    VarBool * vauto=0;
-    VarBool * vdefault=0;
     VarBool * vwasread=0;
-    
-    bool has_abs=false;
     
     vector<VarType *> children=item->getChildren();
     for (unsigned int i=0;i<children.size();i++) {
         if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="was_read") vwasread=(VarBool *)children[i];
         if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="enabled") venabled=(VarBool *)children[i];
-        if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="default") vdefault=(VarBool *)children[i];
-        if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="auto") vauto=(VarBool *)children[i];
         if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value") vint=(VarInt *)children[i];
     }
     
@@ -884,9 +877,7 @@ void CaptureV4L::writeParameterValues(VarList * item) {
         return;
     }
     VarInt * vint=0;
-    VarBool * vuseabs=0;
     VarBool * venabled=0;
-    VarBool * vauto=0;
     VarBool * vwasread=0;
     VarBool * vdefault=0;
     
@@ -894,8 +885,7 @@ void CaptureV4L::writeParameterValues(VarList * item) {
     for (unsigned int i=0;i<children.size();i++) {
         if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="was_read") vwasread=(VarBool *)children[i];
         if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="enabled") venabled=(VarBool *)children[i];
-        if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="auto") vauto=(VarBool *)children[i];
-        if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="default") vauto=(VarBool *)children[i];
+        if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="default") vdefault=(VarBool *)children[i];
         if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value") vint=(VarInt *)children[i];
     }
     
@@ -939,23 +929,13 @@ void CaptureV4L::readParameterProperty(VarList * item) {
 #endif
         return;
     }
-    VarDouble * vabs=0;
     VarInt * vint=0;
-    VarBool * vuseabs=0;
     VarBool * venabled=0;
-    VarBool * vauto=0;
-    VarInt * vint2=0;
-    VarInt * vint3=0;
-    VarTrigger * vtrigger=0;
     
     vector<VarType *> children=item->getChildren();
     for (unsigned int i=0;i<children.size();i++) {
         if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="enabled") venabled=(VarBool *)children[i];
-        if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="auto") vauto=(VarBool *)children[i];
-        if (children[i]->getType()==VARTYPE_ID_BOOL && children[i]->getName()=="use absolute") vuseabs=(VarBool *)children[i];
         if (children[i]->getType()==VARTYPE_ID_INT && children[i]->getName()=="value") vint=(VarInt *)children[i];
-        if (children[i]->getType()==VARTYPE_ID_DOUBLE && children[i]->getName()=="absolute value") vabs=(VarDouble *)children[i];
-        if (children[i]->getType()==VARTYPE_ID_TRIGGER && children[i]->getName()=="one-push") vtrigger=(VarTrigger *)children[i];
     }
     
     long lDefault = 0;

@@ -32,6 +32,7 @@
 */
 
 #include <iostream>
+#include <cmath>
 #include "gvector.h"
 #ifndef QUATERNION_H
 #define QUATERNION_H
@@ -203,7 +204,7 @@ public:
       num sinAngle;
       angle *= 0.5f;
       GVector::vector3d<num> vn(v);
-      vn.norm();
+      vn.normalize();
 
       sinAngle = sin(angle);
 
@@ -362,7 +363,7 @@ static Quaternion<num> shortestArc( const GVector::vector3d<num> & from, const G
 
   cross /= dot ; //Get the x, y, z components
 
-  if (isnan(cross.x) || isnan(cross.y) || isnan(cross.z) || isnan(-dot/2)) {
+  if (std::isnan(cross.x) || std::isnan(cross.y) || std::isnan(cross.z) || std::isnan(-dot/2)) {
     printf("ERROR x: %f   y:%f   z: %f   w: %f\n",cross.x,cross.y,cross.z,-dot/2);
     fflush(stdout);
     exit(0);

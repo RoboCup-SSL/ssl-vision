@@ -48,8 +48,8 @@ PluginLegacyPublishGeometry::PluginLegacyPublishGeometry(
     FrameBuffer* fb,
     RoboCupSSLServer* ds_udp_server_old,
     const RoboCupField& field) :
-    _ds_udp_server_old(ds_udp_server_old),
     VisionPlugin(fb),
+    _ds_udp_server_old(ds_udp_server_old),
     _field(field) {
   setSharedAmongStacks(true);
   _settings=new VarList("Publish Legacy Geometry");

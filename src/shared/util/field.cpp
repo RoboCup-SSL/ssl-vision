@@ -423,7 +423,7 @@ void RoboCupField::ProcessNewFieldArcs() {
       }
     }
   }
-  if (field_arcs_list->getChildrenCount() != field_arcs.size()) {
+  if (static_cast<size_t>(field_arcs_list->getChildrenCount()) != field_arcs.size()) {
     fprintf(stderr, "Bug discovered, please report to the developers: "
             "field_arcs_list->getChildrenCount() != field_arcs.size(), @ "
             "%s:%d\n", __FILE__, __LINE__);
@@ -454,7 +454,7 @@ void RoboCupField::ProcessNewFieldLines() {
       }
     }
   }
-  if (field_lines_list->getChildrenCount() != field_lines.size()) {
+  if (static_cast<size_t>(field_lines_list->getChildrenCount()) != field_lines.size()) {
     fprintf(stderr, "Bug discovered, please report to the developers: "
             "field_lines_list->getChildrenCount() != field_lines.size(), @ "
             "%s:%d\n", __FILE__, __LINE__);
@@ -483,7 +483,7 @@ void RoboCupField::ResizeFieldLines() {
       field_lines_list->addChild(field_lines[i]->list);
     }
   }
-  if (field_lines_list->getChildrenCount() != field_lines.size()) {
+  if (static_cast<size_t>(field_lines_list->getChildrenCount()) != field_lines.size()) {
     fprintf(stderr, "Bug discovered, please report to the developers: "
             "field_lines_list->getChildrenCount() != field_lines.size(), @ "
             "%s:%d\n", __FILE__, __LINE__);
@@ -511,7 +511,7 @@ void RoboCupField::ResizeFieldArcs() {
       field_arcs_list->addChild(field_arcs[i]->list);
     }
   }
-  if (field_arcs_list->getChildrenCount() != field_arcs.size()) {
+  if (static_cast<size_t>(field_arcs_list->getChildrenCount()) != field_arcs.size()) {
     fprintf(stderr, "Bug discovered, please report to the developers: "
             "field_arcs_list->getChildrenCount() != field_arcs.size(), @ "
             "%s:%d\n", __FILE__, __LINE__);

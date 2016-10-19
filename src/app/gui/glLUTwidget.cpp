@@ -28,7 +28,7 @@ void GLLUTWidget::editUndo() {
     UndoState * s=undoStack.back();
     UndoState * r=new UndoState(_lut);
     s->restore(_lut);
-    for(int i=0; i<slices.size(); i++)
+    for(size_t i=0; i<slices.size(); i++)
       drawSlice(slices[i],_lut, i, false,true,false);
     undoStack.pop_back();
     delete s;
@@ -46,7 +46,7 @@ void GLLUTWidget::editRedo() {
     UndoState * s=redoStack.back();
     UndoState * r=new UndoState(_lut);
     s->restore(_lut);
-    for(int i=0; i<slices.size(); i++)
+    for(size_t i=0; i<slices.size(); i++)
       drawSlice(slices[i],_lut, i, false,true,false);
     redoStack.pop_back();
     delete s;
