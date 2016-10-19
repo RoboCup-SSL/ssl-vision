@@ -114,13 +114,13 @@ class CaptureBlueFox2 : public CaptureInterface
   {
     switch(mode)
     {
-      case HDR_MODE_OFF: return "Off";
       case HDR_MODE_FIXED0: return "Fixed0";
       case HDR_MODE_FIXED1: return "Fixed1";
       case HDR_MODE_FIXED2: return "Fixed2";
       case HDR_MODE_FIXED3: return "Fixed3";
       case HDR_MODE_FIXED4: return "Fixed4";
       case HDR_MODE_FIXED5: return "Fixed5";
+      default: return "Off";
     }
   }
   
@@ -157,12 +157,12 @@ class CaptureBlueFox2 : public CaptureInterface
   {
     switch(mode)
     {
-      case COLOR_TWIST_MODE_OFF: return "Off";
       case COLOR_TWIST_MODE_ADOBERGB_D50: return "AdobeRGB_D50";
       case COLOR_TWIST_MODE_SRGB_D50: return "sRGB_D50";
       case COLOR_TWIST_MODE_WIDE_GAMUT_RGB_D50: return "WideGamutRGB_D50";
       case COLOR_TWIST_MODE_ADOBERGB_D65: return "AdobeRGB_D65";
       case COLOR_TWIST_MODE_SRGB_D65: return "sRGB_D65";
+      default: return "Off";
     }
   }
   

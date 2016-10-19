@@ -399,6 +399,8 @@ bool CaptureBlueFox2::startCapture()
   printf("BlueFox2 Info: Restoring Previously Saved Camera Parameters\n");
   writeAllParameterValues();
   readAllParameterValues();
+  
+  return true;
 }
 
 bool CaptureBlueFox2::copyAndConvertFrame(const RawImage & src, RawImage & target)
@@ -426,7 +428,7 @@ bool CaptureBlueFox2::copyAndConvertFrame(const RawImage & src, RawImage & targe
   }
   else
   {
-    for(unsigned int i = 0; i < src.getNumBytes(); i += 2)
+    for(int i = 0; i < src.getNumBytes(); i += 2)
     {
       target.getData()[i+1] = src.getData()[i];
       target.getData()[i] = src.getData()[i+1];
