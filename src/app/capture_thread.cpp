@@ -123,7 +123,7 @@ void CaptureThread::selectCaptureMethod() {
 #endif
   } else if(captureModule->getString() == "Video 4 Linux") {
     new_capture = captureV4L;
-  } else {
+  } else if(captureModule->getString() == "DC 1394") {
     new_capture = captureDC1394;
   }
 

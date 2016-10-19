@@ -48,7 +48,7 @@ To get all of these packages in (k)ubuntu, run:
 ## Hardware Requirements
  * The system supports 1394B / Firewire 800, but it's also backward compatible with 1394A.
  * The system also supports basic usb cameras via the [http://linuxtv.org/downloads/v4l-dvb-apis/](Video for Linux (V4L)) drivers. This implementation has only been tested on linux.
- * Matrix-Vision [BlueFox2](http://www.matrix-vision.com/USB2.0-single-board-camera-mvbluefox-mlc.html) cameras are supported via the mvIMPACT_acquire library. Tested with a mvBlueFOX-MLC200wC. To enable support for this camera please use the [install_mvBlueFox.sh](http://www.matrix-vision.com/USB2.0-single-board-camera-mvbluefox-mlc.html?file=tl_files/mv11/support/mvIMPACT_Acquire/01/install_mvBlueFOX.sh) script. The driver installation will be detected automatically during the build process.
+ * (Optional) Matrix-Vision [BlueFox2](http://www.matrix-vision.com/USB2.0-single-board-camera-mvbluefox-mlc.html) cameras are supported via the mvIMPACT_acquire library. Tested with a mvBlueFOX-MLC200wC. To enable support for this camera please use the [install_mvBlueFox.sh](http://www.matrix-vision.com/USB2.0-single-board-camera-mvbluefox-mlc.html?file=tl_files/mv11/support/mvIMPACT_Acquire/01/install_mvBlueFOX.sh) script. The library installation will be detected automatically during the build process. Support for this camera will be disabled silently if the library is not found.
 
 ## Compilation
  build the code by running:
