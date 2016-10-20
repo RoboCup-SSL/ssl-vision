@@ -5,12 +5,12 @@ buildDir=build
 buildType=Release
 #buildType=Debug
 
-all: build
+all: build_cmake
 
 cmake: CMakeLists.txt
 	cd $(buildDir) && cmake -DCMAKE_BUILD_TYPE=$(buildType) ..
 
-build: cmake
+build_cmake: cmake
 	$(MAKE) -C $(buildDir)
 
 clean:
