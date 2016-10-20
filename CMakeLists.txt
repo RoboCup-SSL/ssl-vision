@@ -6,6 +6,8 @@ add_definitions(-D UNIX)
 add_definitions(-D LINUX)
 add_definitions(-D _GNU_SOURCE)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
+
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 # Find third-party libraries
@@ -32,7 +34,19 @@ include_directories(
 
 include ( ${QT_USE_FILE} )
 
+find_package(mvIMPACT QUIET)
+
 include(src/shared/CMakeLists.txt.inc)
+
+if(${mvIMPACT_FOUND} MATCHES "TRUE")
+  include_directories(${mvIMPACT_INCLUDE_DIRS})
+  add_definitions(-D MVIMPACT)
+  set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capture_bluefox2.cpp)
+  set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capture_bluefox2.h)
+  message(STATUS "mvIMPACT found => BlueFox2 support enabled")
+else()
+  message(STATUS "mvIMPACT NOT found => BlueFox2 support disabled")
+endif()
 
 include_directories(${PROJECT_SOURCE_DIR}/src/app)
 include_directories(${PROJECT_SOURCE_DIR}/src/app/gui)
@@ -168,6 +182,7 @@ set (libs ${QT_LIBRARIES}
 	${OPENGL_glu_LIBRARY}
 	${PROTOBUF_LIBRARIES}
 	${DC1394_LIBRARIES}
+	${mvIMPACT_LIBRARIES}
 	sslvision
 )
 
@@ -200,5 +215,3 @@ add_executable(${gclient} ${GCLIENT_MOC_SRCS}
   src/graphicalClient/gltext.cpp
 )
 target_link_libraries(${gclient} ${libs})
-
-

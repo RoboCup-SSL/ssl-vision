@@ -16,7 +16,7 @@ set (SHARED_SRCS
 	${shared_dir}/capture/capturedc1394v2.cpp
 	${shared_dir}/capture/capturev4l.cpp
 	${shared_dir}/capture/capturefromfile.cpp
-  ${shared_dir}/capture/capture_generator.cpp
+	${shared_dir}/capture/capture_generator.cpp
 	${shared_dir}/capture/captureinterface.cpp
 
 	${shared_dir}/cmpattern/cmpattern_pattern.cpp

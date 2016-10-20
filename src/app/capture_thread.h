@@ -33,6 +33,10 @@
 #include "capturestats.h"
 #include "affinity_manager.h"
 
+#ifdef MVIMPACT
+#include "capture_bluefox2.h"
+#endif
+
 /*!
   \class   CaptureThread
   \brief   A thread for capturing and processing video data
@@ -49,6 +53,7 @@ protected:
   CaptureInterface * capture;
   CaptureInterface * captureDC1394;
   CaptureInterface * captureV4L;
+  CaptureInterface * captureBlueFox2;
   CaptureInterface * captureFiles;
   CaptureInterface * captureGenerator;
   AffinityManager * affinity;
@@ -58,6 +63,7 @@ protected:
   VarList * settings;
   VarList * dc1394;
   VarList * v4l;
+  VarList * bluefox2;
   VarList * generator;
   VarList * fromfile;
   VarList * control;
