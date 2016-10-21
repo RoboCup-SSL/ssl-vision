@@ -386,10 +386,11 @@ bool ImageIO::writeRGB(rgb *imgbuf, int width, int height, const char *filename)
   QImageWriter writer;
   QString qfilename(filename);
   writer.setFileName(qfilename);
-  const char *ext = strrchr(filename,'.');
   return writer.write(img);
 
-/*  if(strcmp(ext,".ppm") == 0) return(ImageIO::writePPM (imgbuf,width,height,filename));
+/*
+  const char *ext = strrchr(filename,'.');
+  if(strcmp(ext,".ppm") == 0) return(ImageIO::writePPM (imgbuf,width,height,filename));
   if(strcmp(ext,".jpg") == 0) return(ImageIO::writeJPEG(imgbuf,width,height,filename,90));
   if(strcmp(ext,".png") == 0) return(ImageIO::WritePNG(imgbuf,width,height,filename));
 

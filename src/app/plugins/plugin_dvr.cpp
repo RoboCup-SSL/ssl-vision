@@ -364,7 +364,6 @@ void PluginDVR::slotMovieSave() {
         if (output.getNumBytes() > 0) {
           //write file:
           QString num = QString::number(i);
-          int n = max(5,num.length());
           num = "00000" + num;
           num = num.right(5);
           QString filename = dir + "/" + num + ".png";

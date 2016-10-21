@@ -29,6 +29,16 @@ using FieldConstantsRoboCup2014::kNumFieldArcs;
 using FieldConstantsRoboCup2014::kFieldLines;
 using FieldConstantsRoboCup2014::kFieldArcs;
 
+const double GLSoccerView::minZValue = -10;
+const double GLSoccerView::maxZValue = 10;
+const double GLSoccerView::FieldZ = 1.0;
+const double GLSoccerView::RobotZ = 2.0;
+const double GLSoccerView::BallZ = 3.0;
+const int GLSoccerView::PreferedWidth = 1024;
+const int GLSoccerView::PreferedHeight = 768;
+const double GLSoccerView::MinRedrawInterval = 0.016; ///Minimum time between graphics updates (limits the fps)
+const int GLSoccerView::unknownRobotID = -1;
+
 GLSoccerView::FieldDimensions::FieldDimensions() :
   field_length(FieldConstantsRoboCup2014::kFieldLength),
   field_width(FieldConstantsRoboCup2014::kFieldWidth),
@@ -82,8 +92,6 @@ void GLSoccerView::mousePressEvent(QMouseEvent* event)
   leftButton = event->buttons().testFlag(Qt::LeftButton);
   midButton = event->buttons().testFlag(Qt::MidButton);
   rightButton = event->buttons().testFlag(Qt::RightButton);
-  bool shiftKey = event->modifiers().testFlag(Qt::ShiftModifier);
-  bool ctrlKey = event->modifiers().testFlag(Qt::ControlModifier);
 
   if(leftButton)
     setCursor(Qt::ClosedHandCursor);
@@ -99,8 +107,6 @@ void GLSoccerView::mousePressEvent(QMouseEvent* event)
 
 void GLSoccerView::mouseReleaseEvent(QMouseEvent* event)
 {
-  bool shiftKey = event->modifiers().testFlag(Qt::ShiftModifier);
-  bool ctrlKey = event->modifiers().testFlag(Qt::ControlModifier);
   setCursor(Qt::ArrowCursor);
 }
 
@@ -124,7 +130,6 @@ void GLSoccerView::mouseMoveEvent(QMouseEvent* event)
   }else if(midButton){
     //Zoom
     double zoomRatio = double(event->y() - mouseStartY)/500.0;
-    double oldScale = viewScale;
     viewScale = viewScale*(1.0+zoomRatio);
     recomputeProjection();
     mouseStartX = event->x();
@@ -137,7 +142,6 @@ void GLSoccerView::wheelEvent(QWheelEvent* event)
 {
   static const bool debug = false;
   double zoomRatio = -double(event->delta())/1000.0;
-  double oldScale = viewScale;
   viewScale = viewScale*(1.0+zoomRatio);
   recomputeProjection();
   if(debug) printf("Zoom: %5.3f\n",viewScale);
@@ -563,7 +567,7 @@ void GLSoccerView::updateFieldGeometry(const SSL_GeometryFieldSize& fieldSize) {
     delete fieldDim.lines[i];
   }
   fieldDim.lines.clear();
-  for (size_t i = 0; i < fieldSize.field_lines_size(); ++i) {
+  for (int i = 0; i < fieldSize.field_lines_size(); ++i) {
     const SSL_FieldLineSegment& line = fieldSize.field_lines(i);
     fieldDim.lines.push_back(new FieldLine(
         line.name(), line.p1().x(), line.p1().y(), 
@@ -573,7 +577,7 @@ void GLSoccerView::updateFieldGeometry(const SSL_GeometryFieldSize& fieldSize) {
     delete fieldDim.arcs[i];
   }
   fieldDim.arcs.clear();
-  for (size_t i = 0; i < fieldSize.field_arcs_size(); ++i) {
+  for (int i = 0; i < fieldSize.field_arcs_size(); ++i) {
     const SSL_FieldCicularArc& arc = fieldSize.field_arcs(i);
     fieldDim.arcs.push_back(new FieldCircularArc(
         arc.name(), arc.center().x(), arc.center().y(),  arc.radius(),

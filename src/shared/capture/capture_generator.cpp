@@ -138,7 +138,6 @@ RawImage CaptureGenerator::getFrame()
     int slice_width = w/n_colors;
     rgb color=RGB::Black;
     rgb color2;
-    int gradient=h/256;
     for (int x = 0 ; x < w; x++) {
       int c_idx= x/slice_width;
       if (c_idx==0) {

@@ -227,5 +227,6 @@ MainWindow::~MainWindow() {
 
   // Stop stack:
   multi_stack->stop();
+  delete multi_stack;
   exit(0);
 }

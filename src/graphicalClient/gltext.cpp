@@ -21,6 +21,9 @@
 
 #include "gltext.h"
 
+const bool GLText::debugTesselation = false;
+const double GLText::FontRenderSize = 1000.0;
+
 GLText::GLText(QFont _font)
 {
   glyphs.clear();
@@ -295,6 +298,7 @@ const char* GLText::getPrimitiveType(GLenum type)
       return "GL_POLYGON";
       break;
   }
+  return "UNKNOWN";
 }
 
 void GLText::tessBeginCB(GLenum which)
