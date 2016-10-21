@@ -38,10 +38,13 @@
 #include "plugin_publishgeometry.h"
 #include "plugin_legacysslnetworkoutput.h"
 #include "plugin_legacypublishgeometry.h"
-#include "plugin_neuralcolorcalib.h"
 #include "plugin_dvr.h"
 #include "cmpattern_teamdetector.h"
 #include "robocup_ssl_server.h"
+
+#ifdef OPENCV
+#include "plugin_neuralcolorcalib.h"
+#endif
 
 using namespace std;
 
