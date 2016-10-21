@@ -45,10 +45,10 @@ int PluginNeuralColorCalib::TrainNeuralopenCV() {
     term_crit.type = CV_TERMCRIT_ITER + CV_TERMCRIT_EPS; //indicates training stops either when performance or max. epochs is reached
     netparams=CvANN_MLP_TrainParams(term_crit, CvANN_MLP_TrainParams::BACKPROP,0.1,0.1); //specifies learning algorithm, learning rate and momentum
 
-    for (int n=0; n<neuro_trainingset->size(); n++){
+    for (unsigned int n=0; n<neuro_trainingset->size(); n++){
         training[n] = neuro_trainingset->at(n);
     }
-    for (int n=0; n<neuro_targset->size(); n++){
+    for (unsigned int n=0; n<neuro_targset->size(); n++){
         target[n] = neuro_targset->at(n);
     }
 
@@ -62,9 +62,7 @@ int PluginNeuralColorCalib::TrainNeuralopenCV() {
 }
 
 int PluginNeuralColorCalib::RunNeuralopenCV(double *input) {
-    double threshold =0.7;
     double tmpout=0,maxout=0;
-    int output[sizeOutLayer];
     int noutput=0;
 
     if (isNetSet){ //if network is not trained do nothing
@@ -72,15 +70,12 @@ int PluginNeuralColorCalib::RunNeuralopenCV(double *input) {
             neuronet->predict (realinput,netout); //call prediction (ask the output) of the object for a given input.
 
             for (int j=0; j<sizeOutLayer; j++){ //inserts the output in an output array
-                output[j]=0; //zeroes the output values. it is inside this loop just to take advantage of a loop that runs the correct boundaries
                 tmpout=CV_MAT_ELEM(*netout,double,0,j);
                 if  (tmpout > maxout){
                     noutput=j;
                     maxout=tmpout;
                 }
             }
-            if (maxout >= threshold)
-                output[noutput]=1;
 
             return noutput;
     }
