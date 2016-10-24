@@ -7,10 +7,11 @@ buildType=Release
 
 all: build_cmake
 
-cmake: CMakeLists.txt
-	cd $(buildDir) && cmake -DCMAKE_BUILD_TYPE=$(buildType) ..
+$(buildDir)/CMakeLists.txt.copy: CMakeLists.txt
+	cd $(buildDir) && cmake -DCMAKE_BUILD_TYPE=$(buildType) .. && \
+		cp ../CMakeLists.txt ./CMakeLists.txt.copy
 
-build_cmake: cmake
+build_cmake: $(buildDir)/CMakeLists.txt.copy
 	$(MAKE) -C $(buildDir)
 
 clean:
