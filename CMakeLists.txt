@@ -48,6 +48,18 @@ else()
   message(STATUS "mvIMPACT NOT found => BlueFox2 support disabled")
 endif()
 
+find_package( OpenCV QUIET )
+if(OpenCV_FOUND)
+  include_directories(${OpenCV_INCLUDE_DIRS})
+  add_definitions(-D OPENCV)
+  set (OPTIONAL_SRCS ${OPTIONAL_SRCS} src/app/gui/neurowidget.cpp src/app/plugins/plugin_neuralcolorcalib.cpp)
+  set (OPTIONAL_HEADERS ${OPTIONAL_HEADERS} src/app/gui/neurowidget.h)
+  set (OPTIONAL_UI_SRCS ${OPTIONAL_UI_SRCS} src/app/gui/neurowidget.ui)
+  message(STATUS "OpenCV found")
+else()
+  message(WARNING "OpenCV NOT found => Neural Calibration not available")
+endif()
+
 include_directories(${PROJECT_SOURCE_DIR}/src/app)
 include_directories(${PROJECT_SOURCE_DIR}/src/app/gui)
 include_directories(${PROJECT_SOURCE_DIR}/src/app/plugins)
@@ -88,6 +100,8 @@ set (SRCS
 	src/app/stacks/multivisionstack.cpp
 	src/app/stacks/stack_robocup_ssl.cpp
 	src/app/stacks/visionstack.cpp
+
+	${OPTIONAL_SRCS}
 )
 
 qt4_wrap_cpp (MOC_SRCS
@@ -108,11 +122,14 @@ qt4_wrap_cpp (MOC_SRCS
 	src/app/plugins/visionplugin.h
 	
 	src/app/stacks/multistack_robocup_ssl.h
+
+	${OPTIONAL_HEADERS}
 )
 
 qt4_wrap_ui (UI_SRCS
 	src/app/gui/mainwindow.ui
 	src/app/gui/videowidget.ui
+	${OPTIONAL_UI_SRCS}
 )
 
 qt4_add_resources(RC_SRCS 
@@ -183,6 +200,7 @@ set (libs ${QT_LIBRARIES}
 	${PROTOBUF_LIBRARIES}
 	${DC1394_LIBRARIES}
 	${mvIMPACT_LIBRARIES}
+	${OpenCV_LIBS}
 	sslvision
 )
 
