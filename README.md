@@ -46,7 +46,7 @@ To get all of these packages in (k)ubuntu, run:
 ```
 Or in archlunux, run:
 ```
-$ pacman -S -Sy gcc qt4 eigen protobuf libdc1394 cmake v4l-utils jsoncpp
+$ pacman -Sy gcc qt4 eigen protobuf libdc1394 cmake v4l-utils jsoncpp
 ```
 
 ## Hardware Requirements
