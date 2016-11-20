@@ -44,7 +44,7 @@ To get all of these packages in (k)ubuntu, run:
 ```
     sudo apt-get install g++ libqt4-dev libeigen3-dev protobuf-compiler libprotobuf-dev libdc1394-22 libdc1394-22-dev cmake libv4l-0
 ```
-Or in archlunux, run:
+Or in archlinux, run:
 ```
 $ pacman -Sy gcc qt4 eigen protobuf libdc1394 cmake v4l-utils jsoncpp
 ```
