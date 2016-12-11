@@ -33,6 +33,8 @@
 #include <sys/time.h>
 #include <time.h>
 
+#include <ratio>
+#include <chrono>
 
 /*!
   \class Timer
@@ -161,9 +163,12 @@ inline double GetTimeSec()
   GetSystemTime(&time);
   return((double)time.seconds + time.useconds*(1.0E-6));
 #else
-  timeval tv;
-  gettimeofday(&tv,NULL);
-  return((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
+  std::chrono::high_resolution_clock::time_point tStart;
+  return std::chrono::duration_cast<std::chrono::nanoseconds>
+   	  (std::chrono::high_resolution_clock::now() - tStart).count() / 1e9;
+//  timeval tv;
+//  gettimeofday(&tv,NULL);
+//  return((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
 #endif
 }
 
