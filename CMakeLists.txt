@@ -48,6 +48,20 @@ else()
   message(STATUS "mvIMPACT NOT found => BlueFox2 support disabled")
 endif()
 
+set(FLYCAP_HINTS "/usr/include/flycapture")
+find_package(flycapture)
+if(${FLYCAP_FOUND} MATCHES "TRUE")
+  message("Flycap dirs " ${FLYCAP_INCLUDE_DIRS})
+  include_directories(${FLYCAP_INCLUDE_DIRS})
+  add_definitions(-D FLYCAP)
+  set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capture_flycap.cpp)
+  set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capture_flycap.h)
+  set (FLYCAP_LIBS flycapture)
+  message(STATUS "Flycapture found => Flycap support enabled")
+else()
+  message(STATUS "Flycapture NOT found => Flycap support disabled")
+endif()
+
 find_package( OpenCV 2 QUIET )
 if(OpenCV_FOUND)
   include_directories(${OpenCV_INCLUDE_DIRS})
@@ -115,12 +129,12 @@ qt4_wrap_cpp (MOC_SRCS
 	src/app/gui/videowidget.h
 	src/app/gui/jog_dial.h
 	src/shared/util/lut3d.h
-	
+
 	src/app/plugins/plugin_dvr.h
 	src/app/plugins/plugin_publishgeometry.h
 	src/app/plugins/plugin_legacypublishgeometry.h
 	src/app/plugins/visionplugin.h
-	
+
 	src/app/stacks/multistack_robocup_ssl.h
 
 	${OPTIONAL_HEADERS}
@@ -132,7 +146,7 @@ qt4_wrap_ui (UI_SRCS
 	${OPTIONAL_UI_SRCS}
 )
 
-qt4_add_resources(RC_SRCS 
+qt4_add_resources(RC_SRCS
 	src/app/gui/icons/icons_gui.qrc
 	${SHARED_RC}
 )
@@ -156,7 +170,7 @@ qt4_wrap_cpp (SHARED_MOC_SRCS
 	${SHARED_HEADERS}
 )
 
-qt4_add_resources(SHARED_RC_SRCS 
+qt4_add_resources(SHARED_RC_SRCS
 	${SHARED_RC}
 )
 
@@ -201,6 +215,7 @@ set (libs ${QT_LIBRARIES}
 	${DC1394_LIBRARIES}
 	${mvIMPACT_LIBRARIES}
 	${OpenCV_LIBS}
+	${FLYCAP_LIBS}
 	sslvision
 )
 
@@ -217,7 +232,7 @@ target_link_libraries(${client} ${libs})
 ##build logging client
 set (lclient logClient)
 add_executable(${lclient} ${LCLIENT_MOC_SRCS}
-	src/logClient/main.cpp 
+	src/logClient/main.cpp
 	src/logClient/CentralWindow.cpp
 	src/logClient/ClientThreading.cpp
 	src/logClient/GraphicsPrimitives.cpp

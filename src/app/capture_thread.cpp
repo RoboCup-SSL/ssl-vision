@@ -58,13 +58,19 @@ CaptureThread::CaptureThread(int cam_id)
   captureFiles = new CaptureFromFile(fromfile);
   captureGenerator = new CaptureGenerator(generator);
   captureV4L = new CaptureV4L(v4l,camId);
-  
+
+#ifdef FLYCAP
+  captureModule->addItem("Flycapture");
+  settings->addChild( (VarType*) (flycap = new VarList("Flycapture")));
+  captureFlycap = new CaptureFlycap(flycap, camId);
+#endif
+
 #ifdef MVIMPACT
   captureModule->addItem("BlueFox2");
   settings->addChild( (VarType*) (bluefox2 = new VarList("BlueFox2")));
   captureBlueFox2 = new CaptureBlueFox2(bluefox2,camId);
 #endif
-  
+
   selectCaptureMethod();
   _kill =false;
   rb=0;
@@ -91,7 +97,11 @@ CaptureThread::~CaptureThread()
   delete captureFiles;
   delete captureGenerator;
   delete counter;
-  
+
+#ifdef FLYCAP
+  delete captureFlycap;
+#endif
+
 #ifdef MVIMPACT
   delete captureBlueFox2;
 #endif
@@ -125,6 +135,10 @@ void CaptureThread::selectCaptureMethod() {
     new_capture = captureV4L;
   } else if(captureModule->getString() == "DC 1394") {
     new_capture = captureDC1394;
+#ifdef FLYCAP
+  } else if(captureModule->getString() == "Flycapture") {
+    new_capture = captureFlycap;
+#endif
   }
 
   if (old_capture!=0 && new_capture!=old_capture && old_capture->isCapturing()) {
@@ -140,7 +154,7 @@ void CaptureThread::selectCaptureMethod() {
 }
 
 void CaptureThread::kill() {
- _kill=true; 
+ _kill=true;
   while(isRunning()) {
     usleep(100);
   }
