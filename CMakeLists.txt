@@ -35,6 +35,7 @@ include_directories(
 include ( ${QT_USE_FILE} )
 
 find_package(mvIMPACT QUIET)
+find_package(Pylon5 REQUIRED)
 
 include(src/shared/CMakeLists.txt.inc)
 
@@ -60,6 +61,15 @@ else()
   message(WARNING "OpenCV NOT found => Neural Calibration not available")
 endif()
 
+if(PYLON5_FOUND)
+  include_directories(${PYLON5_INCLUDE_DIRS})
+  add_definitions(-D PYLON5)
+  message(STATUS "Pylon5 found")
+  set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capture_basler.cpp)
+  set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capture_basler.h)
+else()
+  message(STATUS "Pylon5 not found")
+endif()
 include_directories(${PROJECT_SOURCE_DIR}/src/app)
 include_directories(${PROJECT_SOURCE_DIR}/src/app/gui)
 include_directories(${PROJECT_SOURCE_DIR}/src/app/plugins)
@@ -176,13 +186,13 @@ endif()
 # make sure to use C++98 and enable warnings
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ansi")
 # enable warnings
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g")
 
 #flags to set in debug mode
-set (CMAKE_CXX_FLAGS_DEBUG "-g -Wl,--no-as-needed")
+set (CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wl,--no-as-needed")
 
 #flags to set in release mode
-set (CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 -march=native -Wl,--no-as-needed")
+set (CMAKE_CXX_FLAGS_RELEASE "-g -O0 -march=native -Wl,--no-as-needed")
 
 message( STATUS "CC Flags: ${CMAKE_CXX_FLAGS_RELEASE}")
 message (STATUS "Custom CC Flags: ${cc_flags}")
@@ -200,6 +210,7 @@ set (libs ${QT_LIBRARIES}
 	${PROTOBUF_LIBRARIES}
 	${DC1394_LIBRARIES}
 	${mvIMPACT_LIBRARIES}
+	${PYLON5_LIBRARIES}
 	${OpenCV_LIBS}
 	sslvision
 )
@@ -233,3 +244,12 @@ add_executable(${gclient} ${GCLIENT_MOC_SRCS}
   src/graphicalClient/gltext.cpp
 )
 target_link_libraries(${gclient} ${libs})
+
+add_executable(baslerGrab src/basler-test/Grab.cpp)
+target_link_libraries(baslerGrab ${libs})
+
+add_executable(params src/basler-test/Params.cpp)
+target_link_libraries(params ${libs})
+
+add_executable(barebones src/basler-test/Barebones.cpp)
+target_link_libraries(barebones ${libs})

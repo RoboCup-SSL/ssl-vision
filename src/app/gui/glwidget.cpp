@@ -21,6 +21,10 @@
 
 #include "glwidget.h"
 
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/core/core.hpp"
+
 void GLWidget::mouseAction ( QMouseEvent * event, pixelloc loc ) {
   (void)loc;
   if ( ( event->buttons() & Qt::RightButton ) !=0 ) {
@@ -239,6 +243,8 @@ void GLWidget::mainDraw() {
 void GLWidget::myGLdraw() {
   glPushAttrib ( GL_ALL_ATTRIB_BITS );
   glMatrixMode ( GL_PROJECTION );
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
   glLoadIdentity();
   glPushMatrix();
     
@@ -263,6 +269,10 @@ void GLWidget::myGLdraw() {
             glRasterPos2i ( 0,0 );
             glBitmap ( 0,0,0,0,orig.x,-orig.y,0 );
             glPixelZoom ( zoom.getZoom() * zoom.getFlipXval(),zoom.getZoom() * zoom.getFlipYval() * -1.0 );
+            //std::vector<int> params;
+            //params.push_back(CV_IMWRITE_PNG_COMPRESSION);
+            //params.push_back(9);
+            //cv::Mat cv_img = cv::Mat(img.getHeight(), img.getWidth(), CV_8UC3, img.getData());
             glDrawPixels ( img.getWidth(), img.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, img.getData() );
             glPopMatrix();
     

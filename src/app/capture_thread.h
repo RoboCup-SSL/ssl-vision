@@ -25,6 +25,7 @@
 #include "capturefromfile.h"
 #include "capturev4l.h"
 #include "capture_generator.h"
+#include "capture_basler.h"
 #include <QThread>
 #include "ringbuffer.h"
 #include "framedata.h"
@@ -56,6 +57,7 @@ protected:
   CaptureInterface * captureBlueFox2;
   CaptureInterface * captureFiles;
   CaptureInterface * captureGenerator;
+  CaptureInterface * captureBasler;
   AffinityManager * affinity;
   FrameBuffer * rb;
   bool _kill;
@@ -66,6 +68,7 @@ protected:
   VarList * bluefox2;
   VarList * generator;
   VarList * fromfile;
+  VarList * basler;
   VarList * control;
   VarTrigger * c_start;
   VarTrigger * c_stop;
