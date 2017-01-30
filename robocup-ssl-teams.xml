@@ -11,7 +11,7 @@
 			true
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			125.000000
+			125,000000
 		</Var>
 		<Var name="Marker Image" type="list">
 			<Var name="Load Image File" type="bool">
@@ -67,13 +67,13 @@
 		</Var>
 		<Var name="Center Marker Settings" type="list">
 			<Var name="Expected Area Mean (sq-mm)" type="double" minval="" maxval="">
-				2500.000000
+				100,000000
 			</Var>
 			<Var name="Expected StdDev (sq-mm)" type="double" minval="" maxval="">
-				900.000000
+				20,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Min Width (pixels)" type="int" minval="" maxval="">
 				4
@@ -120,7 +120,7 @@
 				16
 			</Var>
 			<Var name="Max Query Distance" type="double" minval="" maxval="">
-				20.000000
+				20,000000
 			</Var>
 		</Var>
 		<Var name="Histogram Settings" type="list">
@@ -131,48 +131,48 @@
 				16
 			</Var>
 			<Var name="Min Markeryness" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 			<Var name="Max Markeryness" type="double" minval="" maxval="">
-				12.000000
+				12,000000
 			</Var>
-			<Var name="Min Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
-			<Var name="Min Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				80.000000
+				80,000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
-				0.100000
+				0,000000
 			</Var>
 			<Var name="Weight Center-Dist" type="double" minval="" maxval="">
-				0.500000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Dist" type="double" minval="" maxval="">
-				2.000000
+				2,000000
 			</Var>
 			<Var name="Max Error" type="double" minval="" maxval="">
-				4.000000
+				4,000000
 			</Var>
 			<Var name="Expected StdDev" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
-				0.800000
+				0,000000
 			</Var>
 		</Var>
 		<Var name="Use Heights from Marker Image" type="bool">
@@ -190,7 +190,7 @@
 			false
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			140.000000
+			140,000000
 		</Var>
 		<Var name="Marker Image" type="list">
 			<Var name="Load Image File" type="bool">
@@ -245,13 +245,13 @@
 		</Var>
 		<Var name="Center Marker Settings" type="list">
 			<Var name="Expected Area Mean (sq-mm)" type="double" minval="" maxval="">
-				2500.000000
+				2500,000000
 			</Var>
 			<Var name="Expected StdDev (sq-mm)" type="double" minval="" maxval="">
-				900.000000
+				900,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Min Width (pixels)" type="int" minval="" maxval="">
 				4
@@ -298,7 +298,7 @@
 				16
 			</Var>
 			<Var name="Max Query Distance" type="double" minval="" maxval="">
-				20.000000
+				20,000000
 			</Var>
 		</Var>
 		<Var name="Histogram Settings" type="list">
@@ -309,48 +309,48 @@
 				16
 			</Var>
 			<Var name="Min Markeryness" type="double" minval="" maxval="">
-				0.300000
+				0,000000
 			</Var>
 			<Var name="Max Markeryness" type="double" minval="" maxval="">
-				12.000000
+				12,000000
 			</Var>
-			<Var name="Min Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
-			<Var name="Min Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				90.000000
+				90,000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
-				0.001000
+				0,000000
 			</Var>
 			<Var name="Weight Center-Dist" type="double" minval="" maxval="">
-				0.100000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Dist" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 			<Var name="Max Error" type="double" minval="" maxval="">
-				40.000000
+				40,000000
 			</Var>
 			<Var name="Expected StdDev" type="double" minval="" maxval="">
-				9.000000
+				9,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.020000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
-				0.000000
+				0,000000
 			</Var>
 		</Var>
 		<Var name="Use Heights from Marker Image" type="bool">
@@ -368,7 +368,7 @@
 			true
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			140.000000
+			140,000000
 		</Var>
 		<Var name="Marker Image" type="list">
 			<Var name="Load Image File" type="bool">
@@ -424,13 +424,13 @@
 		</Var>
 		<Var name="Center Marker Settings" type="list">
 			<Var name="Expected Area Mean (sq-mm)" type="double" minval="" maxval="">
-				2500.000000
+				2500,000000
 			</Var>
 			<Var name="Expected StdDev (sq-mm)" type="double" minval="" maxval="">
-				900.000000
+				900,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Min Width (pixels)" type="int" minval="" maxval="">
 				4
@@ -477,7 +477,7 @@
 				16
 			</Var>
 			<Var name="Max Query Distance" type="double" minval="" maxval="">
-				20.000000
+				20,000000
 			</Var>
 		</Var>
 		<Var name="Histogram Settings" type="list">
@@ -488,48 +488,48 @@
 				16
 			</Var>
 			<Var name="Min Markeryness" type="double" minval="" maxval="">
-				0.300000
+				0,000000
 			</Var>
 			<Var name="Max Markeryness" type="double" minval="" maxval="">
-				12.000000
+				12,000000
 			</Var>
-			<Var name="Min Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
-			<Var name="Min Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				80.000000
+				80,000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
-				0.100000
+				0,000000
 			</Var>
 			<Var name="Weight Center-Dist" type="double" minval="" maxval="">
-				0.500000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Dist" type="double" minval="" maxval="">
-				2.000000
+				2,000000
 			</Var>
 			<Var name="Max Error" type="double" minval="" maxval="">
-				4.000000
+				4,000000
 			</Var>
 			<Var name="Expected StdDev" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
-				0.800000
+				0,000000
 			</Var>
 		</Var>
 		<Var name="Use Heights from Marker Image" type="bool">
@@ -547,7 +547,7 @@
 			true
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			55.000000
+			55,000000
 		</Var>
 		<Var name="Marker Image" type="list">
 			<Var name="Load Image File" type="bool">
@@ -603,13 +603,13 @@
 		</Var>
 		<Var name="Center Marker Settings" type="list">
 			<Var name="Expected Area Mean (sq-mm)" type="double" minval="" maxval="">
-				2500.000000
+				2500,000000
 			</Var>
 			<Var name="Expected StdDev (sq-mm)" type="double" minval="" maxval="">
-				900.000000
+				900,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Min Width (pixels)" type="int" minval="" maxval="">
 				4
@@ -656,7 +656,7 @@
 				16
 			</Var>
 			<Var name="Max Query Distance" type="double" minval="" maxval="">
-				20.000000
+				20,000000
 			</Var>
 		</Var>
 		<Var name="Histogram Settings" type="list">
@@ -667,48 +667,48 @@
 				16
 			</Var>
 			<Var name="Min Markeryness" type="double" minval="" maxval="">
-				0.300000
+				0,000000
 			</Var>
 			<Var name="Max Markeryness" type="double" minval="" maxval="">
-				12.000000
+				12,000000
 			</Var>
-			<Var name="Min Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
-			<Var name="Min Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				80.000000
+				80,000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
-				0.100000
+				0,000000
 			</Var>
 			<Var name="Weight Center-Dist" type="double" minval="" maxval="">
-				0.500000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Dist" type="double" minval="" maxval="">
-				2.000000
+				2,000000
 			</Var>
 			<Var name="Max Error" type="double" minval="" maxval="">
-				4.000000
+				4,000000
 			</Var>
 			<Var name="Expected StdDev" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
-				0.800000
+				0,000000
 			</Var>
 		</Var>
 		<Var name="Use Heights from Marker Image" type="bool">
@@ -726,7 +726,7 @@
 			true
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			140.000000
+			140,000000
 		</Var>
 		<Var name="Marker Image" type="list">
 			<Var name="Load Image File" type="bool">
@@ -782,13 +782,13 @@
 		</Var>
 		<Var name="Center Marker Settings" type="list">
 			<Var name="Expected Area Mean (sq-mm)" type="double" minval="" maxval="">
-				2500.000000
+				2500,000000
 			</Var>
 			<Var name="Expected StdDev (sq-mm)" type="double" minval="" maxval="">
-				900.000000
+				900,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Min Width (pixels)" type="int" minval="" maxval="">
 				4
@@ -835,7 +835,7 @@
 				16
 			</Var>
 			<Var name="Max Query Distance" type="double" minval="" maxval="">
-				20.000000
+				20,000000
 			</Var>
 		</Var>
 		<Var name="Histogram Settings" type="list">
@@ -846,48 +846,48 @@
 				16
 			</Var>
 			<Var name="Min Markeryness" type="double" minval="" maxval="">
-				0.300000
+				0,000000
 			</Var>
 			<Var name="Max Markeryness" type="double" minval="" maxval="">
-				12.000000
+				12,000000
 			</Var>
-			<Var name="Min Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
-			<Var name="Min Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				80.000000
+				80,000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
-				0.100000
+				0,000000
 			</Var>
 			<Var name="Weight Center-Dist" type="double" minval="" maxval="">
-				0.500000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Dist" type="double" minval="" maxval="">
-				2.000000
+				2,000000
 			</Var>
 			<Var name="Max Error" type="double" minval="" maxval="">
-				4.000000
+				4,000000
 			</Var>
 			<Var name="Expected StdDev" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
-				0.800000
+				0,000000
 			</Var>
 		</Var>
 		<Var name="Use Heights from Marker Image" type="bool">
@@ -905,7 +905,7 @@
 			true
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			140.000000
+			140,000000
 		</Var>
 		<Var name="Marker Image" type="list">
 			<Var name="Load Image File" type="bool">
@@ -961,13 +961,13 @@
 		</Var>
 		<Var name="Center Marker Settings" type="list">
 			<Var name="Expected Area Mean (sq-mm)" type="double" minval="" maxval="">
-				2500.000000
+				2500,000000
 			</Var>
 			<Var name="Expected StdDev (sq-mm)" type="double" minval="" maxval="">
-				900.000000
+				900,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Min Width (pixels)" type="int" minval="" maxval="">
 				4
@@ -1014,7 +1014,7 @@
 				16
 			</Var>
 			<Var name="Max Query Distance" type="double" minval="" maxval="">
-				20.000000
+				20,000000
 			</Var>
 		</Var>
 		<Var name="Histogram Settings" type="list">
@@ -1025,48 +1025,48 @@
 				16
 			</Var>
 			<Var name="Min Markeryness" type="double" minval="" maxval="">
-				0.300000
+				0,000000
 			</Var>
 			<Var name="Max Markeryness" type="double" minval="" maxval="">
-				12.000000
+				12,000000
 			</Var>
-			<Var name="Min Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
-			<Var name="Min Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				75.000000
+				75,000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
-				0.001000
+				0,000000
 			</Var>
 			<Var name="Weight Center-Dist" type="double" minval="" maxval="">
-				0.100000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Dist" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 			<Var name="Max Error" type="double" minval="" maxval="">
-				0.300000
+				0,000000
 			</Var>
 			<Var name="Expected StdDev" type="double" minval="" maxval="">
-				0.500000
+				0,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.020000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
-				0.100000
+				0,000000
 			</Var>
 		</Var>
 		<Var name="Use Heights from Marker Image" type="bool">
@@ -1084,7 +1084,7 @@
 			true
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			140.000000
+			140,000000
 		</Var>
 		<Var name="Marker Image" type="list">
 			<Var name="Load Image File" type="bool">
@@ -1140,13 +1140,13 @@
 		</Var>
 		<Var name="Center Marker Settings" type="list">
 			<Var name="Expected Area Mean (sq-mm)" type="double" minval="" maxval="">
-				2500.000000
+				2500,000000
 			</Var>
 			<Var name="Expected StdDev (sq-mm)" type="double" minval="" maxval="">
-				900.000000
+				900,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Min Width (pixels)" type="int" minval="" maxval="">
 				4
@@ -1193,7 +1193,7 @@
 				16
 			</Var>
 			<Var name="Max Query Distance" type="double" minval="" maxval="">
-				20.000000
+				20,000000
 			</Var>
 		</Var>
 		<Var name="Histogram Settings" type="list">
@@ -1204,48 +1204,48 @@
 				16
 			</Var>
 			<Var name="Min Markeryness" type="double" minval="" maxval="">
-				0.300000
+				0,000000
 			</Var>
 			<Var name="Max Markeryness" type="double" minval="" maxval="">
-				12.000000
+				12,000000
 			</Var>
-			<Var name="Min Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
-			<Var name="Min Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				100.000000
+				100,000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
-				0.001000
+				0,000000
 			</Var>
 			<Var name="Weight Center-Dist" type="double" minval="" maxval="">
-				0.100000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Dist" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 			<Var name="Max Error" type="double" minval="" maxval="">
-				40.000000
+				40,000000
 			</Var>
 			<Var name="Expected StdDev" type="double" minval="" maxval="">
-				9.000000
+				9,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.020000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
-				0.000000
+				0,000000
 			</Var>
 		</Var>
 		<Var name="Use Heights from Marker Image" type="bool">
@@ -1263,7 +1263,7 @@
 			true
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			140.000000
+			140,000000
 		</Var>
 		<Var name="Marker Image" type="list">
 			<Var name="Load Image File" type="bool">
@@ -1319,13 +1319,13 @@
 		</Var>
 		<Var name="Center Marker Settings" type="list">
 			<Var name="Expected Area Mean (sq-mm)" type="double" minval="" maxval="">
-				2500.000000
+				2500,000000
 			</Var>
 			<Var name="Expected StdDev (sq-mm)" type="double" minval="" maxval="">
-				900.000000
+				900,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Min Width (pixels)" type="int" minval="" maxval="">
 				4
@@ -1372,7 +1372,7 @@
 				16
 			</Var>
 			<Var name="Max Query Distance" type="double" minval="" maxval="">
-				20.000000
+				20,000000
 			</Var>
 		</Var>
 		<Var name="Histogram Settings" type="list">
@@ -1383,48 +1383,48 @@
 				16
 			</Var>
 			<Var name="Min Markeryness" type="double" minval="" maxval="">
-				0.300000
+				0,000000
 			</Var>
 			<Var name="Max Markeryness" type="double" minval="" maxval="">
-				12.000000
+				12,000000
 			</Var>
-			<Var name="Min Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
-			<Var name="Min Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				100.000000
+				100,000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
-				0.001000
+				0,000000
 			</Var>
 			<Var name="Weight Center-Dist" type="double" minval="" maxval="">
-				0.100000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Dist" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 			<Var name="Max Error" type="double" minval="" maxval="">
-				40.000000
+				40,000000
 			</Var>
 			<Var name="Expected StdDev" type="double" minval="" maxval="">
-				9.000000
+				9,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.020000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
-				0.000000
+				0,000000
 			</Var>
 		</Var>
 		<Var name="Use Heights from Marker Image" type="bool">
@@ -1442,7 +1442,7 @@
 			true
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			140.000000
+			140,000000
 		</Var>
 		<Var name="Marker Image" type="list">
 			<Var name="Load Image File" type="bool">
@@ -1498,13 +1498,13 @@
 		</Var>
 		<Var name="Center Marker Settings" type="list">
 			<Var name="Expected Area Mean (sq-mm)" type="double" minval="" maxval="">
-				2500.000000
+				2500,000000
 			</Var>
 			<Var name="Expected StdDev (sq-mm)" type="double" minval="" maxval="">
-				900.000000
+				900,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Min Width (pixels)" type="int" minval="" maxval="">
 				4
@@ -1551,7 +1551,7 @@
 				16
 			</Var>
 			<Var name="Max Query Distance" type="double" minval="" maxval="">
-				20.000000
+				20,000000
 			</Var>
 		</Var>
 		<Var name="Histogram Settings" type="list">
@@ -1562,48 +1562,48 @@
 				16
 			</Var>
 			<Var name="Min Markeryness" type="double" minval="" maxval="">
-				0.300000
+				0,000000
 			</Var>
 			<Var name="Max Markeryness" type="double" minval="" maxval="">
-				12.000000
+				12,000000
 			</Var>
-			<Var name="Min Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
-			<Var name="Min Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				100.000000
+				100,000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
-				0.001000
+				0,000000
 			</Var>
 			<Var name="Weight Center-Dist" type="double" minval="" maxval="">
-				0.100000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Dist" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 			<Var name="Max Error" type="double" minval="" maxval="">
-				4.000000
+				4,000000
 			</Var>
 			<Var name="Expected StdDev" type="double" minval="" maxval="">
-				0.500000
+				0,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 		</Var>
 		<Var name="Use Heights from Marker Image" type="bool">
@@ -1621,7 +1621,7 @@
 			true
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			140.000000
+			140,000000
 		</Var>
 		<Var name="Marker Image" type="list">
 			<Var name="Load Image File" type="bool">
@@ -1677,13 +1677,13 @@
 		</Var>
 		<Var name="Center Marker Settings" type="list">
 			<Var name="Expected Area Mean (sq-mm)" type="double" minval="" maxval="">
-				2500.000000
+				2500,000000
 			</Var>
 			<Var name="Expected StdDev (sq-mm)" type="double" minval="" maxval="">
-				900.000000
+				900,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Min Width (pixels)" type="int" minval="" maxval="">
 				4
@@ -1730,7 +1730,7 @@
 				16
 			</Var>
 			<Var name="Max Query Distance" type="double" minval="" maxval="">
-				20.000000
+				20,000000
 			</Var>
 		</Var>
 		<Var name="Histogram Settings" type="list">
@@ -1741,48 +1741,48 @@
 				16
 			</Var>
 			<Var name="Min Markeryness" type="double" minval="" maxval="">
-				0.300000
+				0,000000
 			</Var>
 			<Var name="Max Markeryness" type="double" minval="" maxval="">
-				12.000000
+				12,000000
 			</Var>
-			<Var name="Min Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
-			<Var name="Min Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				100.000000
+				100,000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
-				0.001000
+				0,000000
 			</Var>
 			<Var name="Weight Center-Dist" type="double" minval="" maxval="">
-				0.100000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Dist" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 			<Var name="Max Error" type="double" minval="" maxval="">
-				40.000000
+				40,000000
 			</Var>
 			<Var name="Expected StdDev" type="double" minval="" maxval="">
-				9.000000
+				9,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.020000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
-				0.000000
+				0,000000
 			</Var>
 		</Var>
 		<Var name="Use Heights from Marker Image" type="bool">
@@ -1800,7 +1800,7 @@
 			true
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			140.000000
+			140,000000
 		</Var>
 		<Var name="Marker Image" type="list">
 			<Var name="Load Image File" type="bool">
@@ -1856,13 +1856,13 @@
 		</Var>
 		<Var name="Center Marker Settings" type="list">
 			<Var name="Expected Area Mean (sq-mm)" type="double" minval="" maxval="">
-				2500.000000
+				2500,000000
 			</Var>
 			<Var name="Expected StdDev (sq-mm)" type="double" minval="" maxval="">
-				900.000000
+				900,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Min Width (pixels)" type="int" minval="" maxval="">
 				4
@@ -1909,7 +1909,7 @@
 				16
 			</Var>
 			<Var name="Max Query Distance" type="double" minval="" maxval="">
-				20.000000
+				20,000000
 			</Var>
 		</Var>
 		<Var name="Histogram Settings" type="list">
@@ -1920,48 +1920,48 @@
 				16
 			</Var>
 			<Var name="Min Markeryness" type="double" minval="" maxval="">
-				0.300000
+				0,000000
 			</Var>
 			<Var name="Max Markeryness" type="double" minval="" maxval="">
-				12.000000
+				12,000000
 			</Var>
-			<Var name="Min Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
-			<Var name="Min Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				80.000000
+				80,000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
-				2.000000
+				2,000000
 			</Var>
 			<Var name="Weight Center-Dist" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 			<Var name="Weight Next-Dist" type="double" minval="" maxval="">
-				0.200000
+				0,000000
 			</Var>
 			<Var name="Max Error" type="double" minval="" maxval="">
-				2.000000
+				2,000000
 			</Var>
 			<Var name="Expected StdDev" type="double" minval="" maxval="">
-				0.500000
+				0,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
-				2.000000
+				2,000000
 			</Var>
 		</Var>
 		<Var name="Use Heights from Marker Image" type="bool">
@@ -1979,7 +1979,7 @@
 			true
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			140.000000
+			140,000000
 		</Var>
 		<Var name="Marker Image" type="list">
 			<Var name="Load Image File" type="bool">
@@ -2035,13 +2035,13 @@
 		</Var>
 		<Var name="Center Marker Settings" type="list">
 			<Var name="Expected Area Mean (sq-mm)" type="double" minval="" maxval="">
-				2500.000000
+				2500,000000
 			</Var>
 			<Var name="Expected StdDev (sq-mm)" type="double" minval="" maxval="">
-				900.000000
+				900,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Min Width (pixels)" type="int" minval="" maxval="">
 				4
@@ -2088,7 +2088,7 @@
 				16
 			</Var>
 			<Var name="Max Query Distance" type="double" minval="" maxval="">
-				20.000000
+				20,000000
 			</Var>
 		</Var>
 		<Var name="Histogram Settings" type="list">
@@ -2099,48 +2099,48 @@
 				16
 			</Var>
 			<Var name="Min Markeryness" type="double" minval="" maxval="">
-				0.300000
+				0,000000
 			</Var>
 			<Var name="Max Markeryness" type="double" minval="" maxval="">
-				12.000000
+				12,000000
 			</Var>
-			<Var name="Min Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
-			<Var name="Min Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				100.000000
+				100,000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
-				0.100000
+				0,000000
 			</Var>
 			<Var name="Weight Center-Dist" type="double" minval="" maxval="">
-				0.200000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Dist" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
-				0.500000
+				0,000000
 			</Var>
 			<Var name="Max Error" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 			<Var name="Expected StdDev" type="double" minval="" maxval="">
-				0.500000
+				0,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 		</Var>
 		<Var name="Use Heights from Marker Image" type="bool">
@@ -2158,7 +2158,7 @@
 			true
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			140.000000
+			140,000000
 		</Var>
 		<Var name="Marker Image" type="list">
 			<Var name="Load Image File" type="bool">
@@ -2214,13 +2214,13 @@
 		</Var>
 		<Var name="Center Marker Settings" type="list">
 			<Var name="Expected Area Mean (sq-mm)" type="double" minval="" maxval="">
-				2500.000000
+				2500,000000
 			</Var>
 			<Var name="Expected StdDev (sq-mm)" type="double" minval="" maxval="">
-				900.000000
+				900,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Min Width (pixels)" type="int" minval="" maxval="">
 				4
@@ -2267,7 +2267,7 @@
 				16
 			</Var>
 			<Var name="Max Query Distance" type="double" minval="" maxval="">
-				20.000000
+				20,000000
 			</Var>
 		</Var>
 		<Var name="Histogram Settings" type="list">
@@ -2278,48 +2278,48 @@
 				16
 			</Var>
 			<Var name="Min Markeryness" type="double" minval="" maxval="">
-				0.300000
+				0,000000
 			</Var>
 			<Var name="Max Markeryness" type="double" minval="" maxval="">
-				12.000000
+				12,000000
 			</Var>
-			<Var name="Min Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
-			<Var name="Min Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				100.000000
+				100,000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
-				0.100000
+				0,000000
 			</Var>
 			<Var name="Weight Center-Dist" type="double" minval="" maxval="">
-				0.200000
+				0,000000
 			</Var>
 			<Var name="Weight Next-Dist" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
-				0.500000
+				0,000000
 			</Var>
 			<Var name="Max Error" type="double" minval="" maxval="">
-				1.000000
+				1,000000
 			</Var>
 			<Var name="Expected StdDev" type="double" minval="" maxval="">
-				0.500000
+				0,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 		</Var>
 		<Var name="Use Heights from Marker Image" type="bool">
@@ -2337,7 +2337,7 @@
 			true
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			140.000000
+			140,000000
 		</Var>
 		<Var name="Marker Image" type="list">
 			<Var name="Load Image File" type="bool">
@@ -2393,13 +2393,13 @@
 		</Var>
 		<Var name="Center Marker Settings" type="list">
 			<Var name="Expected Area Mean (sq-mm)" type="double" minval="" maxval="">
-				2500.000000
+				2500,000000
 			</Var>
 			<Var name="Expected StdDev (sq-mm)" type="double" minval="" maxval="">
-				900.000000
+				900,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 			<Var name="Min Width (pixels)" type="int" minval="" maxval="">
 				4
@@ -2446,7 +2446,7 @@
 				16
 			</Var>
 			<Var name="Max Query Distance" type="double" minval="" maxval="">
-				20.000000
+				20,000000
 			</Var>
 		</Var>
 		<Var name="Histogram Settings" type="list">
@@ -2457,48 +2457,48 @@
 				16
 			</Var>
 			<Var name="Min Markeryness" type="double" minval="" maxval="">
-				0.300000
+				0,000000
 			</Var>
 			<Var name="Max Markeryness" type="double" minval="" maxval="">
-				12.000000
+				12,000000
 			</Var>
-			<Var name="Min Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Field-Greenness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Field-Greenness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
-			<Var name="Min Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				0.000000
+			<Var name="Min Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				0,000000
 			</Var>
-			<Var name="Max Black/Whiteness" type="double" minval="0.000000" maxval="1.000000">
-				1.000000
+			<Var name="Max Black/Whiteness" type="double" minval="0,000000" maxval="1,000000">
+				1,000000
 			</Var>
 		</Var>
 		<Var name="Pattern Fitting" type="list">
 			<Var name="Max Marker Center Dist (mm)" type="double" minval="" maxval="">
-				120.000000
+				120,000000
 			</Var>
 			<Var name="Weight Area" type="double" minval="" maxval="">
-				0.100000
+				0,000000
 			</Var>
 			<Var name="Weight Center-Dist" type="double" minval="" maxval="">
-				2.000000
+				2,000000
 			</Var>
 			<Var name="Weight Next-Dist" type="double" minval="" maxval="">
-				4.000000
+				4,000000
 			</Var>
 			<Var name="Weight Next-Angle-Dist" type="double" minval="" maxval="">
-				0.500000
+				0,000000
 			</Var>
 			<Var name="Max Error" type="double" minval="" maxval="">
-				2.000000
+				2,000000
 			</Var>
 			<Var name="Expected StdDev" type="double" minval="" maxval="">
-				0.500000
+				0,000000
 			</Var>
 			<Var name="Uniform" type="double" minval="" maxval="">
-				0.050000
+				0,000000
 			</Var>
 		</Var>
 		<Var name="Use Heights from Marker Image" type="bool">

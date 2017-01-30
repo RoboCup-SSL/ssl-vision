@@ -62,7 +62,7 @@ else()
 endif()
 
 if(PYLON5_FOUND)
-  include_directories(${PYLON5_INCLUDE_DIRS})
+  include_directories(SYSTEM ${PYLON5_INCLUDE_DIRS})
   add_definitions(-D PYLON5)
   message(STATUS "Pylon5 found")
   set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capture_basler.cpp)
@@ -192,7 +192,8 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g")
 set (CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wl,--no-as-needed")
 
 #flags to set in release mode
-set (CMAKE_CXX_FLAGS_RELEASE "-g -O0 -march=native -Wl,--no-as-needed")
+# set (CMAKE_CXX_FLAGS_RELEASE "-g -O0 -march=native -Wl,--no-as-needed")
+set (CMAKE_CXX_FLAGS_RELEASE "-O0 -march=native -Wl,--no-as-needed")
 
 message( STATUS "CC Flags: ${CMAKE_CXX_FLAGS_RELEASE}")
 message (STATUS "Custom CC Flags: ${cc_flags}")

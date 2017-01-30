@@ -43,7 +43,7 @@ CaptureBasler::CaptureBasler(VarList* _settings, QObject* parent) :
 	CaptureBasler::CaptureBasler(VarList* _settings) : CaptureInterface(_settings) {
 #endif
 	is_capturing = false;
-	camera = 0;
+	camera = NULL;
 	ignore_capture_failure = false;
 	converter.OutputPixelFormat = Pylon::PixelType_RGB8packed;
 	//camera.PixelFormat.SetValue(Basler_GigECamera::PixelFormat_YUV422Packed, true);
@@ -107,14 +107,18 @@ bool CaptureBasler::_buildCamera() {
 	BaslerInitManager::register_capture();
 	Pylon::DeviceInfoList devices;
 	int amt = Pylon::CTlFactory::GetInstance().EnumerateDevices(devices);
-	current_id = 1;
+	current_id = v_camera_id->get();
+    printf("Current camera id: %d\n", current_id);
 	if (amt > current_id) {
 		Pylon::CDeviceInfo info = devices[current_id];
 
 		camera = new Pylon::CBaslerGigEInstantCamera(
 				Pylon::CTlFactory::GetInstance().CreateDevice(info));
+        printf("Opening camera %d...\n", current_id);
 		camera->Open();
+        printf("Setting interpacket delay...\n");
 		camera->GevSCPD.SetValue(600);
+        printf("Done!\n");
 		is_capturing = true;
 		return true;
 	}
@@ -124,11 +128,22 @@ bool CaptureBasler::_buildCamera() {
 bool CaptureBasler::startCapture() {
 	MUTEX_LOCK;
 	try {
-		if (camera == 0) {
-			_buildCamera();
+		if (camera == NULL) {
+			if (!_buildCamera()) {
+                // Did not make a camera!
+                return false;
+            }
 		}
 		camera->StartGrabbing(Pylon::GrabStrategy_LatestImageOnly);
+	} catch (Pylon::GenericException& e) {
+        printf("Pylon exception: %s", e.what());
+        delete camera;
+        camera = NULL;
+        current_id = -1;
+		MUTEX_UNLOCK;
+        return false;
 	} catch (...) {
+        printf("Uncaught exception at line 132\n");
 		MUTEX_UNLOCK;
 		throw;
 	}
@@ -242,7 +257,9 @@ RawImage CaptureBasler::getFrame() {
 		img.setData(buf);
 
 #ifdef OPENCV
-		gaussianBlur(img);
+		// gaussianBlur(img);
+        // contrast(img, 1.6);
+        // sharpen(img);
 #endif
 
 		last_buf = buf;
@@ -255,6 +272,7 @@ RawImage CaptureBasler::getFrame() {
 		throw;
 	} catch (...) {
 		// Make sure the mutex is unlocked before propagating
+        printf("Uncaught exception!\n");
 		MUTEX_UNLOCK;
 		throw;
 	}
@@ -340,45 +358,48 @@ void CaptureBasler::writeParameterValues(VarList* vars) {
 	MUTEX_LOCK;
 	try {
 		current_id = v_camera_id->get();
+
 		MUTEX_UNLOCK;
 		resetCamera(v_camera_id->get()); // locks itself
 		MUTEX_LOCK;
-		camera->Open();
 
-		camera->BalanceRatioSelector.SetValue(
-				Basler_GigECamera::BalanceRatioSelector_Red);
-		camera->BalanceRatioRaw.SetValue(v_balance_ratio_red->get());
-		camera->BalanceRatioSelector.SetValue(
-				Basler_GigECamera::BalanceRatioSelector_Green);
-		camera->BalanceRatioRaw.SetValue(v_balance_ratio_green->get());
-		camera->BalanceRatioSelector.SetValue(
-				Basler_GigECamera::BalanceRatioSelector_Blue);
-		camera->BalanceRatioRaw.SetValue(v_balance_ratio_blue->get());
-		camera->BalanceWhiteAuto.SetValue(
-				Basler_GigECamera::BalanceWhiteAuto_Once);
+        if (camera != NULL) {
+            camera->Open();
 
-		if (v_auto_gain->getBool()) {
-			camera->GainAuto.SetValue(Basler_GigECamera::GainAuto_Continuous);
-		} else {
-			camera->GainAuto.SetValue(Basler_GigECamera::GainAuto_Off);
-			camera->GainRaw.SetValue(v_gain->getInt());
-		}
+            camera->BalanceRatioSelector.SetValue(
+                    Basler_GigECamera::BalanceRatioSelector_Red);
+            camera->BalanceRatioRaw.SetValue(v_balance_ratio_red->get());
+            camera->BalanceRatioSelector.SetValue(
+                    Basler_GigECamera::BalanceRatioSelector_Green);
+            camera->BalanceRatioRaw.SetValue(v_balance_ratio_green->get());
+            camera->BalanceRatioSelector.SetValue(
+                    Basler_GigECamera::BalanceRatioSelector_Blue);
+            camera->BalanceRatioRaw.SetValue(v_balance_ratio_blue->get());
+            camera->BalanceWhiteAuto.SetValue(
+                    Basler_GigECamera::BalanceWhiteAuto_Once);
 
-		if (v_gamma_enable->getBool()) {
-			camera->GammaEnable.SetValue(true);
-			camera->Gamma.SetValue(v_gamma->getDouble());
-		} else {
-			camera->GammaEnable.SetValue(false);
-		}
+            if (v_auto_gain->getBool()) {
+                camera->GainAuto.SetValue(Basler_GigECamera::GainAuto_Continuous);
+            } else {
+                camera->GainAuto.SetValue(Basler_GigECamera::GainAuto_Off);
+                camera->GainRaw.SetValue(v_gain->getInt());
+            }
 
-		if (v_auto_exposure->getBool()) {
-			camera->ExposureAuto.SetValue(
-					Basler_GigECamera::ExposureAuto_Continuous);
-		} else {
-			camera->ExposureAuto.SetValue(Basler_GigECamera::ExposureAuto_Off);
-			camera->ExposureTimeAbs.SetValue(v_manual_exposure->getDouble());
-		}
+            if (v_gamma_enable->getBool()) {
+                camera->GammaEnable.SetValue(true);
+                camera->Gamma.SetValue(v_gamma->getDouble());
+            } else {
+                camera->GammaEnable.SetValue(false);
+            }
 
+            if (v_auto_exposure->getBool()) {
+                camera->ExposureAuto.SetValue(
+                        Basler_GigECamera::ExposureAuto_Continuous);
+            } else {
+                camera->ExposureAuto.SetValue(Basler_GigECamera::ExposureAuto_Off);
+                camera->ExposureTimeAbs.SetValue(v_manual_exposure->getDouble());
+            }
+        }
 	} catch (const Pylon::GenericException& e) {
 		MUTEX_UNLOCK;
 		fprintf(stderr, "Error writing parameter values: %s\n", e.what());
@@ -397,6 +418,27 @@ void CaptureBasler::writeParameterValues(VarList* vars) {
 inline void CaptureBasler::gaussianBlur(RawImage& img) {
 	cv::Mat cv_img(img.getHeight(), img.getWidth(), CV_8UC3, img.getData());
 	cv::GaussianBlur(cv_img, cv_img, cv::Size(), blur_sigma);
+}
+
+void CaptureBasler::contrast(RawImage& img, double factor) {
+	cv::Mat cv_img(img.getHeight(), img.getWidth(), CV_8UC3, img.getData());
+    for (int y = 0; y < cv_img.rows; ++y) {
+        for (int x = 0; x < cv_img.cols; ++x) {
+            for (int i = 0; i < 3; ++i) {
+                uint8_t channel = cv_img.at<cv::Vec3b>(y, x)[i];
+                int newChannel = channel * factor;
+                if (newChannel > 255) newChannel = 255;
+                cv_img.at<cv::Vec3b>(y, x)[i] = newChannel;
+            }
+        }
+    }
+}
+
+void CaptureBasler::sharpen(RawImage& img) {
+	cv::Mat cv_img(img.getHeight(), img.getWidth(), CV_8UC3, img.getData());
+	cv::Mat cv_img_copy = cv_img.clone();
+	cv::GaussianBlur(cv_img_copy, cv_img_copy, cv::Size(), 3);
+    cv::addWeighted(cv_img, 2.5, cv_img_copy, -1.5, 0, cv_img);
 }
 #endif
 
