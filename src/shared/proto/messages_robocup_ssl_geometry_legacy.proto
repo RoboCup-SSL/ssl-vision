@@ -1,3 +1,4 @@
+syntax = "proto2";
 import "messages_robocup_ssl_geometry.proto";
 package RoboCup2014Legacy.Geometry;
 
