@@ -57,7 +57,7 @@ void printPathWarning() {
   std::string binaryPath = std::string(binaryPathRaw, count);
 
   // Get the offset to check
-  unsigned int offset = binaryPath.size() - (binaryPath.size() - currentWorkingDir.size());
+  unsigned int offset = currentWorkingDir.size();
   if (offset == 0 || offset >= binaryPath.size()){
     return;
   }
