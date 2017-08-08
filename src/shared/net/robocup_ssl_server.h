@@ -56,9 +56,7 @@ public:
       Net::Address multiaddr;
       multiaddr.setHost(_net_address.c_str(),_port);
       bool result;
-      mutex.lock();
       result=mc.send(buffer.c_str(),buffer.length(),multiaddr);
-      mutex.unlock();
       if (result==false) {
         perror("Sendto Error");
         fprintf(stderr,
