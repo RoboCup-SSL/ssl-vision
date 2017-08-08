@@ -26,6 +26,8 @@
 #include "mainwindow.h"
 #include <signal.h>
 #include <stdio.h>
+#include <iostream>
+#include <unistd.h>
 #include "qgetopt.h"
 
 MainWindow* mainWinPtr = NULL;
@@ -36,6 +38,46 @@ void HandleStop(int i) {
     printf("\nExiting.\n");
     fflush(stdout);
     mainWinPtr->Quit();
+  }
+}
+
+// Print a path warning if the running directory is NOT one level above the binary directory
+void printPathWarning() {
+  char cwd[PATH_MAX];
+  char* result = getcwd(cwd, PATH_MAX);
+  if (!result) {
+    // We failed getting the cwd, abort
+    return;
+  }
+
+  std::string currentWorkingDir = cwd;
+
+  char binaryPathRaw[PATH_MAX];
+  int count = readlink("/proc/self/exe", binaryPathRaw, PATH_MAX);
+
+  if (count == -1) {
+    // We failed getting the binary path, quit
+    return;
+  }
+  std::string binaryPath = std::string(binaryPathRaw, count);
+
+  // Get the offset to check
+  unsigned int offset = currentWorkingDir.size();
+  if (offset == 0 || offset >= binaryPath.size()){
+    return;
+  }
+
+  if (binaryPath.substr(offset, string::npos) != "/bin/vision") {
+    std::string warningMsg = "[WARNING] You are running vision from a non-standard directory.\n"
+      "Please run ssl-vision from the root of the git repo unless you know what you are doing.\n"
+      "(run with: ./bin/vision)\n";
+
+    std::cout << std::endl << warningMsg << std::endl;
+
+    // display a message box
+    QMessageBox msgBox;
+    msgBox.setText(QString::fromUtf8(warningMsg.c_str()));
+    msgBox.exec();
   }
 }
 
@@ -66,6 +108,7 @@ int main(int argc, char *argv[])
     exit(ecode);
   }
 
+  printPathWarning();
 
   MainWindow mainWin(start, enforce_affinity);
   mainWinPtr = &mainWin;
