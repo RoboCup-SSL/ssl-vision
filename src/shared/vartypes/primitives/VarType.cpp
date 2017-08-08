@@ -29,11 +29,11 @@ namespace VarTypes {
     _mutex=new QMutex();
     #endif
     lock();
+    _parent = NULL;
     _name=name;
     _flags=VARTYPE_FLAG_NONE;
     unlock();
     changed();
-  
   }
   
   VarType::~VarType()
@@ -329,7 +329,28 @@ namespace VarTypes {
     return 0;
   }
   
-  
+
+    /// Finds all relatives (parent/children) based on its label (warning, can be costly)
+    /// Returns empty if not found
+    std::vector<VarType *> VarType::findRelatives(string label, bool bSearchAncestors) const {
+        std::vector<VarType *> vectRelative;
+        const VarType *pSearch = this;
+        if (bSearchAncestors)                                       //already recursed?
+            while (pSearch->_parent!=NULL) pSearch = pSearch->_parent;       //find top-level
+        
+        vector<VarType *> children = pSearch->getChildren();
+        unsigned int s = children.size();
+        for (unsigned int i=0;i<s;i++) {
+            if (children[i]->getName().compare(label)==0)           //find a match, don't recurse
+                vectRelative.push_back(children[i]);
+            else {                                                  //no match, search its children
+                std::vector<VarType *> vectChildren = children[i]->findRelatives(label, false);
+                vectRelative.insert(vectRelative.end(), vectChildren.begin(), vectChildren.end());
+            }
+        }
+        return vectRelative;
+    }
+
   //------------MODEL VIEW GUI STUFF:
   void VarType::paint (const VarItemDelegate * delegate, QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const {
     //let the QT default delegate do the painting:
