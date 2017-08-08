@@ -44,7 +44,12 @@ void HandleStop(int i) {
 // Print a path warning if the running directory is NOT one level above the binary directory
 void printPathWarning() {
   char cwd[PATH_MAX];
-  getcwd(cwd, PATH_MAX);
+  char* result = getcwd(cwd, PATH_MAX);
+  if (!result) {
+    // We failed getting the cwd, abort
+    return;
+  }
+
   std::string currentWorkingDir = cwd;
 
   char binaryPathRaw[PATH_MAX];
