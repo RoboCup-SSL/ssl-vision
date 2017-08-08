@@ -68,9 +68,16 @@ void printPathWarning() {
   }
 
   if (binaryPath.substr(offset, string::npos) != "/bin/vision") {
-    std::cout << std::endl << "[WARNING] You are running vision from the wrong directory." << std::endl;
-    std::cout << "Please run ssl-vision from the root of the git repo unless you know what you are doing." << std::endl;
-    std::cout << "(run with: ./bin/vision)" << std::endl << std::endl;
+    std::string warningMsg = "[WARNING] You are running vision from a non-standard directory.\n"
+      "Please run ssl-vision from the root of the git repo unless you know what you are doing.\n"
+      "(run with: ./bin/vision)\n";
+
+    std::cout << std::endl << warningMsg << std::endl;
+
+    // display a message box
+    QMessageBox msgBox;
+    msgBox.setText(QString::fromUtf8(warningMsg.c_str()));
+    msgBox.exec();
   }
 }
 
