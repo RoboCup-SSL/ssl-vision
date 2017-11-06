@@ -25,7 +25,6 @@
 #include "capturefromfile.h"
 #include "capturev4l.h"
 #include "capture_generator.h"
-#include "capture_flycap.h"
 #include <QThread>
 #include "ringbuffer.h"
 #include "framedata.h"
@@ -37,6 +36,11 @@
 #ifdef MVIMPACT
 #include "capture_bluefox2.h"
 #endif
+
+#ifdef FLYCAP
+#include "capture_flycap.h"
+#endif
+
 
 /*!
   \class   CaptureThread
