@@ -42,8 +42,8 @@ void RoboCupSSLServer::close() {
 
 bool RoboCupSSLServer::open() {
   close();
-  if(!mc.open(_port,true,true)) {
-    fprintf(stderr,"Unable to open UDP network port: %d\n",_port);
+  if(!mc.open(0,true,true)) {
+    fprintf(stderr,"Unable to open UDP network\n");
     fflush(stderr);
     return(false);
   }
