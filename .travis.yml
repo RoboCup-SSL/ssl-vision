@@ -1,0 +1,15 @@
+language: cpp
+os: linux
+compiler:
+  - gcc
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq g++ libqt4-dev libeigen3-dev protobuf-compiler libprotobuf-dev libdc1394-22 libdc1394-22-dev cmake libv4l-0
+
+matrix:
+  include:
+    - sudo: required
+      dist: trusty
+
+script: make
