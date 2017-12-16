@@ -142,3 +142,10 @@ chmod +x install_mvBlueFOX.sh
    (this should normally never occur) then simply delete all
    XML files and restart. The program should restore its default
    settings.
+   
+#### Others Clients
+
+A basic `C++` client is provided in this repository, but you might find clients for other languages as well:
+
+- [Node.js](https://github.com/ivanseidel/node-ssl-vision)
+- _Yours maybe?_
