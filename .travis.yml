@@ -1,0 +1,15 @@
+language: cpp
+os: linux
+compiler:
+  - gcc
+
+before_install:
+  - sudo apt-get update -qq
+  - ./InstallPackagesUbuntu.sh
+
+matrix:
+  include:
+    - sudo: required
+      dist: trusty
+
+script: make
