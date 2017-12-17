@@ -8,6 +8,9 @@ if(USE_QT5)
 	if(POLICY CMP0043) # compatibility with CMake 3.0.1
 	    cmake_policy(SET CMP0043 OLD)
 	endif()
+	if(POLICY CMP0071) # compatibility with CMake 3.10.0
+	    cmake_policy(SET CMP0071 OLD)
+	endif()
 else()
 	cmake_minimum_required(VERSION 2.6)
 endif()
