@@ -897,7 +897,7 @@ void GLLUTWidget::setLUT(LUT3D * lut) {
   m.unlock();
 }
 
-bool GLLUTWidget::copyLUT(void *pDataLUT, int size_copy, int color_index) {
+bool GLLUTWidget::copyLUT(lut_mask_t *pDataLUT, int size_copy, int color_index) {
     //edit snapshot
     editStore();                            
     m.lock();

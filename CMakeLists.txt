@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 2.6)
 add_definitions(-D UNIX)
 add_definitions(-D LINUX)
 add_definitions(-D _GNU_SOURCE)
+add_definitions(-std=c++11)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 

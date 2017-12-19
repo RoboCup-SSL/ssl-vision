@@ -139,12 +139,7 @@ class LUT3D : public QObject {
       reset();
     };
 
-    bool copyLUT(void *pDataLUT, int size_copy, int color_index=-1) {   //memory copy of other camera LUT
-        if (color_index!=-1) {
-            fprintf(stderr, "LUT3D: Color-specific copy currently unavailable.\n");
-            return false;
-        }
-        
+    bool copyLUT(lut_mask_t *pDataLUT, int size_copy, int color_index=-1) {   //memory copy of other camera LUT
         int size_allocated = LUT ? sizeof(lut_mask_t)*LUT_SIZE : 0;
         if (size_copy!=size_allocated) {
             fprintf(stderr, "LUT3D: Size mismatch for LUT nodes (current: %d vs source: %d), aborting copy.\n",
@@ -152,9 +147,17 @@ class LUT3D : public QObject {
             return false;
         }
         lock();                             //step 1: copy LUT from blob
-        memcpy(LUT, pDataLUT, sizeof(lut_mask_t)*LUT_SIZE);
+        if(color_index == -1) {
+            memcpy(LUT, pDataLUT, sizeof(lut_mask_t)*LUT_SIZE);
+        } else {
+            for(uint i=0;i<LUT_SIZE;i++) {
+                if(pDataLUT[i] == color_index) LUT[i] = pDataLUT[i];
+                else if(LUT[i] == color_index) LUT[i] = 0;
+            }
+        }
         unlock();
         updateDerivedLUTs();                //step 2: rederive from self
+        return true;
     }
     
     void lock() {

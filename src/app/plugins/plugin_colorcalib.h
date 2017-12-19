@@ -58,7 +58,8 @@ public:
     virtual void mouseReleaseEvent ( QMouseEvent * event, pixelloc loc );
     virtual void mouseMoveEvent ( QMouseEvent * event, pixelloc loc );
 
-
+private:
+    void updateColorList();
 };
 
 #endif
