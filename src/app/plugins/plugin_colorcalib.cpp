@@ -27,7 +27,7 @@ PluginColorCalibration::PluginColorCalibration(FrameBuffer * _buffer, YUVLUT * _
 {
     mode=_mode;
     lut=_lut;
-    lutw=0;
+    lutw=NULL;
     settings=new VarList("YUV Calibrator");
     continuing_undo = false;
     
@@ -155,27 +155,28 @@ void PluginColorCalibration::mouseMoveEvent ( QMouseEvent * event, pixelloc loc 
 }
 
 void PluginColorCalibration::slotCopyLUT() {
-    copyLUT();            //perform memory copy of other camera LUT
+    copyLUT();
 }
 
-void PluginColorCalibration::copyLUT() {            //perform memory copy of other camera LUT
+void PluginColorCalibration::copyLUT() {
     //TODO: replace with a method that can fetch known colors
     // use: v_lut_colors->addItem("all");
+    VarString *pSelf = reinterpret_cast<VarString*>(settings->getParent());
     if (v_lut_sources->getCount()==1 && v_lut_sources->getString()==LUT_COPY_PLACEHOLDER) {
-        VarString *pSelf = reinterpret_cast<VarString*>(settings->getParent());
-        std::vector<VarType *> vectRelatives = settings->findRelatives("LUT 3D", true);  //find LUT3D nodes node
+        std::vector<VarType *> vectRelatives = settings->findRelatives("LUT 3D", true);
         if (vectRelatives.size() < 1) {     //nothing like LUTs? abort
             fprintf(stderr, "LUT3D: Could not find any LUT3D nodes for sources, aborting copy.\n");
         }
         else {
             v_lut_sources->setSize(0);          //truncate/clear former list
-            for (int iCam=0; iCam<vectRelatives.size(); iCam++) {
+            for (uint iCam=0; iCam<vectRelatives.size(); iCam++) {
                 VarString *pCamera = reinterpret_cast<VarString*>(vectRelatives[iCam]->getParent()->getParent());
                 if (pCamera != pSelf)
                     v_lut_sources->addItem(pCamera->getName());
             }
-            if (!vectRelatives.empty())
+            if (!vectRelatives.empty()) {
                 v_lut_sources->selectIndex(0);
+            }
             v_lut_colors->setSize(0);          //truncate/clear former list
             v_lut_colors->addItem("all");
             v_lut_colors->selectIndex(0);
@@ -187,7 +188,7 @@ void PluginColorCalibration::copyLUT() {            //perform memory copy of oth
         int color_index = -1;       //default -1 is ALL colors; TODO be from var 'v_lut_colors'
         std::vector<VarType *> vectTarget = settings->findRelatives(v_lut_sources->getString(), true);
         if (vectTarget.size()!=1) {
-            fprintf(stderr, "LUT3D: Found too many camera nodes (%d) for camera '%s', aborting copy.\n",
+            fprintf(stderr, "LUT3D: Found too many camera nodes (%d) for '%s', aborting copy.\n",
                     static_cast<int>(vectTarget.size()), v_lut_sources->getString().c_str());
             bSuccess = false;
         }
@@ -197,7 +198,6 @@ void PluginColorCalibration::copyLUT() {            //perform memory copy of oth
         if (bSuccess && vectTarget.size()!=1) {
             fprintf(stderr, "LUT3D: Found too many LUT nodes (%d) for camera '%s', aborting copy.\n",
                     static_cast<int>(vectTarget.size()), v_lut_sources->getString().c_str());
-            bSuccess = false;
         }
         else {
             pSource = reinterpret_cast<VarBlob*>(vectTarget[0]);
@@ -209,9 +209,9 @@ void PluginColorCalibration::copyLUT() {            //perform memory copy of oth
             //  (added corresponding warning in multistack_robocup_ssl.cpp at allocation)
             
             GLLUTWidget *pGLLUTw = lutw->getGLLUTWidget();
-            if (pGLLUTw->copyLUT(pSource->getDataPointer(), pSource->getDataSize(), color_index)) {
-                fprintf(stderr, "PluginColorCalibration: Successful copy of LUT data from camera '%s'.\n",
-                        v_lut_sources->getString().c_str());
+            if (pGLLUTw->copyLUT(pSource->getDataPointer(), (int) pSource->getDataSize(), color_index)) {
+                fprintf(stderr, "PluginColorCalibration: Successfully copied LUT data from '%s' to '%s'.\n",
+                        v_lut_sources->getString().c_str(), pSelf->getName().c_str());
             }
         }
     }
