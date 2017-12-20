@@ -19,7 +19,6 @@
 */
 //========================================================================
 #include "plugin_colorcalib.h"
-#include <regex>
 
 #define LUT_COPY_PLACEHOLDER    "(click copy to refresh)"
 
@@ -43,9 +42,10 @@ PluginColorCalibration::PluginColorCalibration(FrameBuffer * _buffer, YUVLUT * _
 void PluginColorCalibration::updateColorList() {
     v_lut_colors->setSize(0);
     v_lut_colors->addItem("all");
-    for (auto &channel : lut->channels) {
+    for (std::vector<LUTChannel>::iterator it = lut->channels.begin(); it != lut->channels.end(); it++) {
         // the '<>' chars can not be stored in VarTypes, so remove it here
-        std::string label = std::regex_replace(channel.label, regex("[\\<\\>]"), "");
+        std::string label = it->label;
+        if(label == "<Clear>") label = "Clear";
         v_lut_colors->addItem(label);
     }
 }
