@@ -23,6 +23,8 @@
 
 #include <stdio.h>
 #include <QTime>
+#include <QTextCodec>
+#include <QtGlobal>
 #include "CentralWindow.h"
 
 
@@ -38,6 +40,10 @@ int main(int argc, char *argv[])
 
 
     app = new QApplication(argc,argv);
+
+#if QT_MAJOR_VERSION == 4
+    QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
+#endif
 
     CentralWindow* centralWindow = new CentralWindow();
     centralWindow->show();

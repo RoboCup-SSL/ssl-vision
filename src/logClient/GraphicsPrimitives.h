@@ -32,7 +32,7 @@
 #include <QThread>
 #include <QGLWidget>
 #include <QMutex>
-#include <QtGui/QPushButton>
+#include <QPushButton>
 #include "field_default_constants.h"
 #include "robocup_ssl_client.h"
 #include "timer.h"
