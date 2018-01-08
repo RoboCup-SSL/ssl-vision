@@ -19,6 +19,10 @@
 ========================================================================
 ```
 
+----
+[![Build Status](https://travis-ci.org/RoboCup-SSL/ssl-vision.svg?branch=master)](https://travis-ci.org/RoboCup-SSL/ssl-vision)
+----
+
 ## Online Documentation
 
   To find more in-depth and up-to-date information about SSL-Vision
