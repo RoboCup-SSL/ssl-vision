@@ -55,7 +55,7 @@ CaptureThread::CaptureThread(int cam_id)
   counter=new FrameCounter();
   capture=0;
   captureDC1394 = new CaptureDC1394v2(dc1394,camId);
-  captureFiles = new CaptureFromFile(fromfile);
+  captureFiles = new CaptureFromFile(fromfile, camId);
   captureGenerator = new CaptureGenerator(generator);
   captureV4L = new CaptureV4L(v4l,camId);
 
@@ -225,7 +225,6 @@ void CaptureThread::run() {
           if (bSuccess) {           //only on a good frame read do we proceed
               counter->count();
               stats->total=d->number=counter->getTotal();
-              d->cam_id=camId;
               stats->fps_capture=counter->getFPS(changed);
 
               stack_mutex.lock();
