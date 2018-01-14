@@ -43,7 +43,7 @@ ProcessResult PluginSSLNetworkOutput::process(FrameData * data, RenderOptions * 
   if (detection_frame != 0) {
     detection_frame->set_t_capture(data->time);
     detection_frame->set_frame_number(data->number);
-    detection_frame->set_camera_id(data->cam_id);
+    detection_frame->set_camera_id(_camera_params.additional_calibration_information->camera_index->getInt());
     detection_frame->set_t_sent(GetTimeSec());
     _udp_server->send(*detection_frame);
   }

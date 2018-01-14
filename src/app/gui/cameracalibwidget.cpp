@@ -33,6 +33,13 @@ CameraCalibrationWidget::CameraCalibrationWidget(CameraParameters &_cp) : camera
 {
   // The calibration points and the fit button:
   QGroupBox* calibrationStepsBox = new QGroupBox(tr("Calibration Steps"));
+
+  QLabel* globalCameraIdLabel = new QLabel("Global camera id ");
+  globalCameraId = new QLineEdit(QString::number(camera_parameters.additional_calibration_information->camera_index->getInt()));
+  globalCameraId->setValidator(new QIntValidator(0, 7, this));
+  globalCameraId->setMaximumWidth(30);
+  QPushButton* updateControlPointsButton = new QPushButton(tr("Update control points"));
+  connect(updateControlPointsButton, SIGNAL(clicked()), SLOT(is_clicked_update_control_points()));
   QPushButton* initialCalibrationButton = new QPushButton(tr("Do initial calibration"));
   connect(initialCalibrationButton, SIGNAL(clicked()), SLOT(is_clicked_initial()));
   QPushButton* fullCalibrationButton = new QPushButton(tr("Do full calibration"));
@@ -74,7 +81,15 @@ CameraCalibrationWidget::CameraCalibrationWidget(CameraParameters &_cp) : camera
   connect(distortionSlider, SIGNAL(valueChanged(int)), this, SLOT(distortion_slider_changed(int)));
   
   // Layout for calibration control:
+  QHBoxLayout *hbox = new QHBoxLayout;
+  hbox->addWidget(globalCameraIdLabel);
+  hbox->addWidget(globalCameraId);
+  hbox->addWidget(updateControlPointsButton);
+  QGroupBox* globalCameraSelectBox = new QGroupBox();
+  globalCameraSelectBox->setLayout(hbox);
+
   QVBoxLayout *vbox = new QVBoxLayout;
+  vbox->addWidget(globalCameraSelectBox);
   vbox->addWidget(initialCalibrationButton);
   vbox->addWidget(additionalPointsButton);
   vbox->addWidget(fullCalibrationButton);
@@ -114,6 +129,13 @@ void CameraCalibrationWidget::focusInEvent ( QFocusEvent * event ) {
   (void)event;
   //forward the focus to the actual widget that we contain
   // gllut->setFocus(Qt::OtherFocusReason); left as an example for later use
+}
+
+void CameraCalibrationWidget::is_clicked_update_control_points()
+{
+  int cameraId = globalCameraId->text().toInt();
+  camera_parameters.additional_calibration_information->camera_index->setInt(cameraId);
+  camera_parameters.additional_calibration_information->updateControlPoints();
 }
 
 void CameraCalibrationWidget::is_clicked_initial()

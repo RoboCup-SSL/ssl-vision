@@ -178,6 +178,13 @@ void PluginVisualize::DrawCameraCalibration(
         camera_parameters.additional_calibration_information->
         control_point_names[i]->getString();
     vis_frame->data.drawString(bx - 5, by + 15, label, cpoint_draw_color);
+
+    char buff[20];
+    snprintf(buff, sizeof(buff), "(%.0f,%.0f)",
+             camera_parameters.additional_calibration_information->control_point_field_xs[i]->getDouble(),
+             camera_parameters.additional_calibration_information->control_point_field_ys[i]->getDouble());
+    std::string description = buff;
+    vis_frame->data.drawString(bx + 10, by - 2, description, cpoint_draw_color);
   }
 }
 

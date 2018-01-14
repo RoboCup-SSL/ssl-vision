@@ -95,7 +95,6 @@ set (SHARED_SRCS
 
   ${shared_dir}/util/helpers.cpp
   ${shared_dir}/util/field.cpp
-  ${shared_dir}/util/field_default_constants.cpp
 )
 
 #only ones that need to be moc'ed
