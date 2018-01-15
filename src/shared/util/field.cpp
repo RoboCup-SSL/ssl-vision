@@ -525,7 +525,7 @@ void RoboCupField::updateFieldLinesAndArcs() {
     field_lines.push_back(new FieldLine("RightFieldRightPenaltyStretch", fieldLengthHalf, -penAreaY, penAreaX, -penAreaY, line_thickness->getDouble()));
     field_lines.push_back(new FieldLine("RightFieldLeftPenaltyStretch", fieldLengthHalf, penAreaY, penAreaX, penAreaY, line_thickness->getDouble()));
 
-  var_num_lines->setInt(field_lines.size());
+    var_num_lines->setInt(field_lines.size());
     for (size_t i = 0; i < field_lines.size(); ++i) {
         field_lines_list->addChild(field_lines[i]->list);
     }
@@ -539,8 +539,7 @@ void RoboCupField::updateFieldLinesAndArcs() {
     field_arcs.clear();
 
     // Load default arcs.
-    double centerCircleRadius = 500;
-    field_arcs.push_back(new FieldCircularArc("CenterCircle", 0, 0, centerCircleRadius, 0, 2.0 * M_PI, 10));
+    field_arcs.push_back(new FieldCircularArc("CenterCircle", 0, 0, FieldConstantsRoboCup2018A::kCenterCircleRadius, 0, 2.0 * M_PI, 10));
 
     var_num_arcs->setInt(field_arcs.size());
     for (size_t i = 0; i < field_arcs.size(); ++i) {
