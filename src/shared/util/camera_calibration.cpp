@@ -811,9 +811,11 @@ generateCameraControlPoints(int cameraId, int numCamerasTotal, double fieldHeigh
   double xStep = fieldHeight / nCamerasX;
   double yStep = fieldWidth / nCamerasY;
 
-  double x1 = -fieldHeight / 2 + (cameraId / nCamerasY) * xStep;
+  int xIdx = cameraId / nCamerasY;
+  int yIdx = cameraId % nCamerasY;
+  double x1 = -fieldHeight / 2 + xIdx * xStep;
   double x2 = x1 + xStep;
-  double y1 = -fieldWidth / 2 + (cameraId / nCamerasX) * yStep;
+  double y1 = -fieldWidth / 2 + yIdx * yStep;
   double y2 = y1 + yStep;
 
   points.push_back(GVector::vector2d<double>(x1, y1));
