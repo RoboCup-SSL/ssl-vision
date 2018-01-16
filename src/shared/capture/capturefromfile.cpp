@@ -102,7 +102,7 @@ bool CaptureFromFile::startCapture()
       if (strcmp(dirp->d_name,".") != 0 && strcmp(dirp->d_name,"..") != 0) 
       {
         if(isImageFileName(std::string(dirp->d_name)))
-          imgs_to_load.push_back(v_cap_dir->getString() + std::string(dirp->d_name));
+          imgs_to_load.push_back(v_cap_dir->getString() + "/" + std::string(dirp->d_name));
         else
           fprintf(stderr,"Not a valid image file: %s \n", dirp->d_name);
       }
