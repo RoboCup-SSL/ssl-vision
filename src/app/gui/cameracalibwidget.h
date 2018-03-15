@@ -53,9 +53,11 @@ public:
     QLabel* cameraHeightLabelRight;
     QSlider* distortionSlider;
     QLabel* distortionLabelRight;
+    QLineEdit* globalCameraId;
     bool detectEdges;
 
     public slots:
+    void is_clicked_update_control_points();
     void is_clicked_initial();
     void is_clicked_full();
     void is_clicked_reset();

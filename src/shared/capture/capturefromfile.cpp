@@ -25,10 +25,11 @@
 #include "capturefromfile.h"
 #include "image_io.h"
 #include "conversions.h"
+#include <sstream>
 
 
 #ifndef VDATA_NO_QT
-CaptureFromFile::CaptureFromFile(VarList * _settings, QObject * parent) : QObject(parent), CaptureInterface(_settings)
+CaptureFromFile::CaptureFromFile(VarList * _settings, int default_camera_id, QObject * parent) : QObject(parent), CaptureInterface(_settings)
 #else
 CaptureFromFile::CaptureFromFile(VarList * _settings) : CaptureInterface(_settings)
 #endif
@@ -45,7 +46,9 @@ CaptureFromFile::CaptureFromFile(VarList * _settings) : CaptureInterface(_settin
   v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV422_UYVY));
     
   //=======================CAPTURE SETTINGS==========================
-  capture_settings->addChild(v_cap_dir = new VarString("directory", ""));
+  ostringstream convert;
+  convert << "test-data/cam" << default_camera_id;
+  capture_settings->addChild(v_cap_dir = new VarString("directory", convert.str()));
     
   // Valid file endings
   validImageFileEndings.push_back("PNG");
@@ -56,10 +59,6 @@ CaptureFromFile::CaptureFromFile(VarList * _settings) : CaptureInterface(_settin
 
 CaptureFromFile::~CaptureFromFile()
 {
-  for(unsigned int i=0; i<images.size(); ++i)
-  {
-    delete images[i];
-  }
 }
 
 bool CaptureFromFile::stopCapture() 
@@ -103,7 +102,7 @@ bool CaptureFromFile::startCapture()
       if (strcmp(dirp->d_name,".") != 0 && strcmp(dirp->d_name,"..") != 0) 
       {
         if(isImageFileName(std::string(dirp->d_name)))
-          imgs_to_load.push_back(v_cap_dir->getString() + std::string(dirp->d_name));
+          imgs_to_load.push_back(v_cap_dir->getString() + "/" + std::string(dirp->d_name));
         else
           fprintf(stderr,"Not a valid image file: %s \n", dirp->d_name);
       }

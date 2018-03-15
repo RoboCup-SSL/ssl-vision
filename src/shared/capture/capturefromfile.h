@@ -78,7 +78,7 @@ protected:
   
 public:
 #ifndef VDATA_NO_QT
-  CaptureFromFile(VarList * _settings, QObject * parent=0);
+  CaptureFromFile(VarList * _settings, int default_camera_id, QObject * parent=0);
   void mvc_connect(VarList * group);
 #else
   CaptureFromFile(VarList * _settings);

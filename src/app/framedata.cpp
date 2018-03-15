@@ -25,7 +25,6 @@ FrameData::FrameData()
 {
   time=0;
   number=0;
-  cam_id=0;
 }
 
 

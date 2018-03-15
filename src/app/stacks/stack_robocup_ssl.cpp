@@ -47,7 +47,7 @@ StackRoboCupSSL::StackRoboCupSSL(
   lut_yuv->loadRoboCupChannels(LUTChannelMode_Numeric);
   lut_yuv->addDerivedLUT(new RGBLUT(5,5,5,""));
 
-  camera_parameters = new CameraParameters(_camera_id);
+  camera_parameters = new CameraParameters(_camera_id, global_field);
 
   _global_plugin_publish_geometry->addCameraParameters(camera_parameters);
   _legacy_plugin_publish_geometry->addCameraParameters(camera_parameters);

@@ -22,11 +22,6 @@
 #include "field.h"
 #include "field_default_constants.h"
 
-using FieldConstantsRoboCup2014::kFieldArcs;
-using FieldConstantsRoboCup2014::kFieldLines;
-using FieldConstantsRoboCup2014::kNumFieldArcs;
-using FieldConstantsRoboCup2014::kNumFieldLines;
-
 FieldLine* FieldLine::FromVarList(VarList* list) {
   vector<VarType*> list_entries = list->getChildren();
   if (list_entries.size() != static_cast<size_t>(6)) {
@@ -274,35 +269,51 @@ void FieldCircularArc::Rename() {
 
 RoboCupField::RoboCupField() {
   settings = new VarList("Field Configuration");
-  restore = new VarTrigger("Reset SSL 2014","Reset SSL 2014");
   field_length = new VarDouble(
-      "Field Length", FieldConstantsRoboCup2014::kFieldLength);
+      "Field Length", FieldConstantsRoboCup2018A::kFieldLength);
   field_width = new VarDouble(
-      "Field Width", FieldConstantsRoboCup2014::kFieldWidth);
+      "Field Width", FieldConstantsRoboCup2018A::kFieldWidth);
   goal_width = new VarDouble(
-      "Goal Width", FieldConstantsRoboCup2014::kGoalWidth);
+      "Goal Width", FieldConstantsRoboCup2018A::kGoalWidth);
   goal_depth = new VarDouble(
-      "Goal Depth", FieldConstantsRoboCup2014::kGoalDepth);
+      "Goal Depth", FieldConstantsRoboCup2018A::kGoalDepth);
   boundary_width = new VarDouble(
-      "Boundary Width", FieldConstantsRoboCup2014::kBoundaryWidth);
-  var_num_lines = new VarInt("Number of Line Segments", kNumFieldLines);
-  var_num_arcs = new VarInt("Number of Arcs", kNumFieldArcs);
+      "Boundary Width", FieldConstantsRoboCup2018A::kBoundaryWidth);
+  line_thickness = new VarDouble(
+      "Line Thickness", FieldConstantsRoboCup2018A::kLineThickness);
+  penalty_area_depth = new VarDouble(
+       "Penalty Area Depth", FieldConstantsRoboCup2018A::kPenaltyAreaDepth);
+  penalty_area_width = new VarDouble(
+       "Penalty Area Width", FieldConstantsRoboCup2018A::kPenaltyAreaWidth);
+  num_cameras_total = new VarInt(
+       "Total Number of Cameras", FieldConstantsRoboCup2018A::kNumCamerasTotal);
+  num_cameras_local = new VarInt(
+       "Local Number of Cameras", FieldConstantsRoboCup2018A::kNumCamerasLocal);
+
+  updateShapes = new VarTrigger("Field Lines/Arcs","Update");
+  var_num_lines = new VarInt("Number of Line Segments", 0);
+  var_num_arcs = new VarInt("Number of Arcs", 0);
   field_lines_list = new VarList("Field Lines");
   field_arcs_list = new VarList("Field Arcs");
 
-  settings->addChild(restore);
   settings->addChild(field_length);
   settings->addChild(field_width);
   settings->addChild(goal_width);
   settings->addChild(goal_depth);
   settings->addChild(boundary_width);
+  settings->addChild(line_thickness);
+  settings->addChild(penalty_area_depth);
+  settings->addChild(penalty_area_width);
+  settings->addChild(num_cameras_total);
+  settings->addChild(num_cameras_local);
   settings->addChild(var_num_lines);
   settings->addChild(var_num_arcs);
+  settings->addChild(updateShapes);
 
   settings->addChild(field_lines_list);
   settings->addChild(field_arcs_list);
 
-  connect(restore,SIGNAL(wasEdited(VarType*)),this,SLOT(restoreRoboCup()));
+  connect(updateShapes,SIGNAL(wasEdited(VarType*)),this,SLOT(updateFieldLinesAndArcs()));
   connect(var_num_lines, SIGNAL(wasEdited(VarType*)),
           this, SLOT(ResizeFieldLines()));
   connect(var_num_arcs, SIGNAL(wasEdited(VarType*)),
@@ -311,9 +322,8 @@ RoboCupField::RoboCupField() {
           this, SLOT(ProcessNewFieldLines()));
   connect(field_arcs_list, SIGNAL(XMLwasRead(VarType*)),
           this, SLOT(ProcessNewFieldArcs()));
-  connect(settings,SIGNAL(XMLwasRead(VarType*)),
-          this, SLOT(InjectDefaults()));
 
+    updateFieldLinesAndArcs();
   emit calibrationChanged();
 }
 
@@ -329,7 +339,7 @@ RoboCupField::~RoboCupField() {
   for (size_t i = 0; i < field_arcs.size(); ++i) {
     delete field_arcs[i];
   }
-  delete restore;
+  delete updateShapes;
   delete settings;
 }
 
@@ -363,39 +373,6 @@ void RoboCupField::toProtoBuffer(SSL_GeometryFieldSize& buffer) const {
     proto_arc.set_a2(arc.a2->getDouble());
     proto_arc.set_thickness(arc.thickness->getDouble());
     *(buffer.add_field_arcs()) = proto_arc;
-  }
-  field_markings_mutex.unlock();
-}
-
-void RoboCupField::loadDefaultsRoboCup2012() {
-  field_markings_mutex.lockForWrite();
-  var_num_lines->setInt(kNumFieldLines);
-  var_num_arcs->setInt(kNumFieldArcs);
-
-  // Delete all old lines.
-  vector<VarType*> old_lines = field_lines_list->getChildren();
-  for (size_t i = 0; i < old_lines.size(); ++i) {
-    field_lines_list->removeChild(old_lines[i]);
-  }
-  field_lines.clear();
-
-  // Load default lines.
-  for (size_t i = 0; i < kNumFieldLines; ++i) {
-    field_lines.push_back(new FieldLine(kFieldLines[i]));
-    field_lines_list->addChild(field_lines.back()->list);
-  }
-
-  // Delete all old arcs.
-  vector<VarType*> old_arcs = field_arcs_list->getChildren();
-  for (size_t i = 0; i < old_arcs.size(); ++i) {
-    field_arcs_list->removeChild(old_arcs[i]);
-  }
-  field_arcs.clear();
-
-  // Load default arcs.
-  for (size_t i = 0; i < kNumFieldArcs; ++i) {
-    field_arcs.push_back(new FieldCircularArc(kFieldArcs[i]));
-    field_arcs_list->addChild(field_arcs.back()->list);
   }
   field_markings_mutex.unlock();
 }
@@ -519,12 +496,54 @@ void RoboCupField::ResizeFieldArcs() {
   field_markings_mutex.unlock();
 }
 
-void RoboCupField::InjectDefaults() {
-  field_markings_mutex.lockForWrite();
-  const size_t num_lines = static_cast<size_t>(var_num_lines->getInt());
-  const size_t num_arcs = static_cast<size_t>(var_num_arcs->getInt());
-  field_markings_mutex.unlock();
-  if (num_lines == 0 && num_arcs == 0) {
-    loadDefaultsRoboCup2012();
-  }
+void RoboCupField::updateFieldLinesAndArcs() {
+    field_markings_mutex.lockForWrite();
+
+    // Delete all old lines.
+    vector<VarType*> old_lines = field_lines_list->getChildren();
+    for (size_t i = 0; i < old_lines.size(); ++i) {
+    field_lines_list->removeChild(old_lines[i]);
+    delete field_lines[i];
+    }
+    field_lines.clear();
+
+    // Load default lines.
+    double fieldLengthHalf = field_length->getDouble() / 2.0;
+    double fieldWidthHalf = field_width->getDouble() / 2.0;
+    double penAreaX = fieldLengthHalf - penalty_area_depth->getDouble();
+    double penAreaY = penalty_area_width->getDouble() / 2.0;
+    field_lines.push_back(new FieldLine("TopTouchLine", -fieldLengthHalf, fieldWidthHalf, fieldLengthHalf, fieldWidthHalf, line_thickness->getDouble()));
+    field_lines.push_back(new FieldLine("BottomTouchLine", -fieldLengthHalf, -fieldWidthHalf, fieldLengthHalf, -fieldWidthHalf, line_thickness->getDouble()));
+    field_lines.push_back(new FieldLine("LeftGoalLine", -fieldLengthHalf, -fieldWidthHalf, -fieldLengthHalf, fieldWidthHalf, line_thickness->getDouble()));
+    field_lines.push_back(new FieldLine("RightGoalLine", fieldLengthHalf, -fieldWidthHalf, fieldLengthHalf, fieldWidthHalf, line_thickness->getDouble()));
+    field_lines.push_back(new FieldLine("HalfwayLine", 0, -fieldWidthHalf, 0, fieldWidthHalf, line_thickness->getDouble()));
+    field_lines.push_back(new FieldLine("CenterLine", -fieldLengthHalf, 0, fieldLengthHalf, 0, line_thickness->getDouble()));
+    field_lines.push_back(new FieldLine("LeftPenaltyStretch", -penAreaX, -penAreaY, -penAreaX, penAreaY, line_thickness->getDouble()));
+    field_lines.push_back(new FieldLine("RightPenaltyStretch", penAreaX, -penAreaY, penAreaX, penAreaY, line_thickness->getDouble()));
+    field_lines.push_back(new FieldLine("LeftFieldLeftPenaltyStretch", -fieldLengthHalf, -penAreaY, -penAreaX, -penAreaY, line_thickness->getDouble()));
+    field_lines.push_back(new FieldLine("LeftFieldRightPenaltyStretch", -fieldLengthHalf, penAreaY, -penAreaX, penAreaY, line_thickness->getDouble()));
+    field_lines.push_back(new FieldLine("RightFieldRightPenaltyStretch", fieldLengthHalf, -penAreaY, penAreaX, -penAreaY, line_thickness->getDouble()));
+    field_lines.push_back(new FieldLine("RightFieldLeftPenaltyStretch", fieldLengthHalf, penAreaY, penAreaX, penAreaY, line_thickness->getDouble()));
+
+    var_num_lines->setInt(field_lines.size());
+    for (size_t i = 0; i < field_lines.size(); ++i) {
+        field_lines_list->addChild(field_lines[i]->list);
+    }
+
+    // Delete all old arcs.
+    vector<VarType*> old_arcs = field_arcs_list->getChildren();
+    for (size_t i = 0; i < old_arcs.size(); ++i) {
+      field_arcs_list->removeChild(old_arcs[i]);
+      delete field_arcs[i];
+    }
+    field_arcs.clear();
+
+    // Load default arcs.
+    field_arcs.push_back(new FieldCircularArc("CenterCircle", 0, 0, FieldConstantsRoboCup2018A::kCenterCircleRadius, 0, 2.0 * M_PI, 10));
+
+    var_num_arcs->setInt(field_arcs.size());
+    for (size_t i = 0; i < field_arcs.size(); ++i) {
+      field_arcs_list->addChild(field_arcs[i]->list);
+    }
+    field_markings_mutex.unlock();
 }
