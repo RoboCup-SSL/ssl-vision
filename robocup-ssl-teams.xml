@@ -11,7 +11,7 @@
 			true
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			125.000000
+			135.000000
 		</Var>
 		<Var name="Marker Image" type="list">
 			<Var name="Load Image File" type="bool">
