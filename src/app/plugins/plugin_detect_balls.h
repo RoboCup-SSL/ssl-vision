@@ -103,8 +103,8 @@ public:
 
   _settings->addChild(_filter_geometry = new VarList("Geometry Filters"));
     _filter_geometry->addChild(_ball_on_field_filter = new VarBool("Ball-In-Field Filter",true));
-    _filter_geometry->addChild(_ball_on_field_filter_threshold = new VarDouble("Ball-In-Field Extra Space (mm)",30.0));
-    _filter_geometry->addChild(_ball_in_goal_filter = new VarBool("Ball-In-Goal Filter",true));
+    _filter_geometry->addChild(_ball_on_field_filter_threshold = new VarDouble("Ball-In-Field Extra Space (mm)",300.0));
+    _filter_geometry->addChild(_ball_in_goal_filter = new VarBool("Ball-In-Goal Filter",false));
 
   }
   VarList * getSettings() {
