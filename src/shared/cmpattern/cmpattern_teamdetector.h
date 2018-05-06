@@ -123,7 +123,7 @@ public:
     _settings= new VarList(label);
     _settings->addChild(_selector = new VarStringEnum("Team",""));
     _selector->addFlags(VARTYPE_FLAG_NOLOAD_ENUM_CHILDREN);
-    _settings->addChild(_num_robots = new VarInt("Max Robots",6));
+    _settings->addChild(_num_robots = new VarInt("Max Robots",12));
     update();
   }
   VarList * getSettings() {
