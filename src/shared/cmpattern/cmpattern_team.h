@@ -27,28 +27,43 @@
 using namespace VarTypes;
 namespace CMPattern {
 
-/**
-	@author Author Name
-*/
 class TeamSelector;
 class TeamDetector;
 
 class Team : public QObject {
 Q_OBJECT
 
+signals:
+    void signalTeamNameChanged();
+    void signalChangeOccured(VarType * item);
+protected slots:
+    void slotTeamNameChanged();
+    void slotChangeOccured(VarType * item);
+
+protected:
+    VarNotifier _notifier;
+    VarList * _settings;
+
+public:
+    VarString * _team_name;
+    VarDouble * _robot_height;
+
+    Team(VarList * team_root);
+    ~Team();
+};
+
+class RobotPattern : public QObject {
+Q_OBJECT
+
 friend class TeamSelector;
 friend class TeamDetector;
 signals:
-   void signalTeamNameChanged();
-signals:
    void signalChangeOccured(VarType * item);
 protected slots:
-   void slotTeamNameChanged();
    void slotChangeOccured(VarType * item);
 protected:
   VarNotifier _notifier;
   VarList * _settings;
-    VarString * _team_name;
     VarBool * _unique_patterns;
     VarBool * _have_angle;
     VarBool * _load_markers_from_image_file;
@@ -56,8 +71,6 @@ protected:
     VarInt *    _marker_image_rows;
     VarInt *    _marker_image_cols;
     VarSelection * _valid_patterns;
-    VarDouble * _robot_height;
-    VarBool   * _use_marker_image_heights;
     VarList * _marker_image;
 
     VarList * _center_marker_filter;
@@ -103,9 +116,9 @@ protected:
       VarDouble * _pattern_fitness_uniform;
 
 public:
-    Team(VarList * team_root);
+    RobotPattern(VarList * team_root);
 
-    ~Team();
+    ~RobotPattern();
 
 };
 

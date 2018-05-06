@@ -52,11 +52,18 @@ Q_OBJECT
  VarList * teams; // a global variable, defining all teams
  VarTrigger * addTeam;
  vector<Team *> team_vector;
+
+ VarList * robotPatternSettings;
+ RobotPattern * robotPattern;
 signals:
   void teamInfoChanged();
+  void signalTeamDataChanged();
  protected slots:
    void slotTeamNodeAdded(VarType * node);
    void slotAddPressed();
+    void slotTeamDataChanged() {
+        emit(signalTeamDataChanged());
+    }
  public:
  vector<Team *> getTeams() const;
  Team * getTeam(int idx) const;
@@ -64,6 +71,7 @@ signals:
  VarList * getSettings() {
    return settings;
  }
+ RobotPattern * getRobotPattern() {return robotPattern;};
  //TODO: add notifier factory.
 
 };
@@ -129,7 +137,7 @@ public:
   VarList * getSettings() {
     return _settings;
   }
-  Team * getSelectedTeam() {
+    Team * getSelectedTeam() {
     if (_selector->getIndex() == -1) {
       update();
     } else if (current_team!=_detector_settings->getTeam(_selector->getIndex())) {
@@ -154,6 +162,7 @@ protected:
 
   const CameraParameters& _camera_params;
   const RoboCupField& _field;
+  RobotPattern * _robotPattern;
   Team * _team;
   LUT3D * _lut3d;
   FieldFilter field_filter;
@@ -222,7 +231,7 @@ public:
     }
     CMVision::Histogram * histogram;
 
-    void init(Team * team);
+    void init(RobotPattern * robotPattern, Team * team);
 
     void findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL_DetectionRobot >* robots, int team_color_id, const Image<raw8> * image, CMVision::ColorRegionList * colorlist, CMVision::RegionTree & reg_tree);
 
