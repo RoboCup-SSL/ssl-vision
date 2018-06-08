@@ -29,8 +29,12 @@ void Team::slotTeamNameChanged() {
   emit(signalTeamNameChanged());
 }
 
-void Team::slotChangeOccured(VarType * item) {
+void RobotPattern::slotChangeOccured(VarType * item) {
   emit(signalChangeOccured(item));
+}
+
+void Team::slotChangeOccured(VarType * item) {
+    emit(signalChangeOccured(item));
 }
 
 
@@ -39,17 +43,26 @@ Team::Team(VarList * team_root)
     _settings=team_root;
     _team_name = _settings->findChildOrReplace(new VarString("Team Name", team_root->getName()));
     connect(_team_name,SIGNAL(hasChanged(VarType *)),this,SLOT(slotTeamNameChanged()));
-    _unique_patterns = _settings->findChildOrReplace(new VarBool("Unique Patterns"));
-    _have_angle = _settings->findChildOrReplace(new VarBool("Have Angles"));
     _robot_height = _settings->findChildOrReplace(new VarDouble("Robot Height (mm)", 140.0));
-    _use_marker_image_heights = _settings->findChildOrReplace(new VarBool("Use Heights from Marker Image", true));
+
+    _notifier.addRecursive(_settings);
+    connect(&_notifier,SIGNAL(changeOccured(VarType*)),this,SLOT(slotChangeOccured(VarType *)));
+}
+
+Team::~Team() = default;
+
+RobotPattern::RobotPattern(VarList * team_root)
+{
+    _settings=team_root;
+    _unique_patterns = _settings->findChildOrReplace(new VarBool("Unique Patterns", true));
+    _have_angle = _settings->findChildOrReplace(new VarBool("Have Angles", true));
 
     _marker_image = _settings->findChildOrReplace(new VarList("Marker Image"));
       _load_markers_from_image_file = _marker_image->findChildOrReplace(new VarBool("Load Image File",true));
-      _marker_image_file = _marker_image->findChildOrReplace(new VarString("Marker Image File"));
-      _marker_image_rows = _marker_image->findChildOrReplace(new VarInt("Marker Image Rows",3));
+      _marker_image_file = _marker_image->findChildOrReplace(new VarString("Marker Image File", "patterns/teams/standard2010_16.png"));
+      _marker_image_rows = _marker_image->findChildOrReplace(new VarInt("Marker Image Rows",4));
       _marker_image_cols = _marker_image->findChildOrReplace(new VarInt("Marker Image Cols",4));
-      _valid_patterns = _marker_image->findChildOrReplace(new VarSelection("Valid Patterns",12,true));
+      _valid_patterns = _marker_image->findChildOrReplace(new VarSelection("Valid Patterns",16,true));
       _valid_patterns->addFlags(VARTYPE_FLAG_PERSISTENT);
 
     _center_marker_filter = _settings->findChildOrReplace(new VarList("Center Marker Settings"));
@@ -99,7 +112,7 @@ Team::Team(VarList * team_root)
 }
 
 
-Team::~Team()
+RobotPattern::~RobotPattern()
 {
 }
 

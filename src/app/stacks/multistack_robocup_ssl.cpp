@@ -100,6 +100,7 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
             global_ball_settings,
             global_plugin_publish_geometry,
             legacy_plugin_publish_geometry,
+            global_team_settings,
             global_team_selector_blue,
             global_team_selector_yellow,
             ds_udp_server_new,
