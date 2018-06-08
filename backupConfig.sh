@@ -7,7 +7,7 @@ if [ -n "$description" ]; then
 	description="_$description"
 fi
 
-dir="backup/`date +%C-%m-%d_%H-%M-%S`$description"
+dir="backup/`date +%Y-%m-%d_%H-%M-%S`$description"
 mkdir -p $dir
 cp robocup-* $dir/
 cp settings.xml $dir/
