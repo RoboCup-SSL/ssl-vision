@@ -24,7 +24,9 @@
 namespace CMPattern {
 
 TeamDetectorSettings::TeamDetectorSettings(string external_file) {
- settings=new VarList("Team Config");
+ settings=new VarList("Robot Detection");
+ settings->addChild(robotPatternSettings = new VarList("Pattern"));
+ robotPattern = new RobotPattern(robotPatternSettings);
  if (external_file.length()==0) {
     settings->addChild(teams = new VarList("Teams"));; // a global variable, defining all teams
  } else {
@@ -33,7 +35,8 @@ TeamDetectorSettings::TeamDetectorSettings(string external_file) {
  connect(teams,SIGNAL(childAdded(VarType *)),this,SLOT(slotTeamNodeAdded(VarType *)));
  settings->addChild(addTeam = new VarTrigger("Add", "Add Team..."));
  connect(addTeam,SIGNAL(signalTriggered()),this,SLOT(slotAddPressed()));
- 
+
+  connect(robotPattern,SIGNAL(signalChangeOccured(VarType*)),this,SLOT(slotTeamDataChanged()));
 }
 
 void TeamDetectorSettings::slotTeamNodeAdded(VarType * node) {
@@ -56,7 +59,7 @@ Team * TeamDetectorSettings::getTeam(int idx) const {
 }
 
 TeamDetector::TeamDetector(LUT3D * lut3d, const CameraParameters& camera_params, const RoboCupField& field) : _camera_params(camera_params), _field(field) {
-  _team=0;
+  _robotPattern=0;
   _lut3d=lut3d;
 
   histogram=0;
@@ -85,9 +88,10 @@ TeamDetector::TeamDetector(LUT3D * lut3d, const CameraParameters& camera_params,
   if (color_id_field_green == -1) printf("WARNING color label 'Field Green' not defined in LUT!!!\n");
 }
 
-void TeamDetector::init(Team * team)
+void TeamDetector::init(RobotPattern * robotPattern, Team * team)
 {
-  _team=team;
+  _robotPattern=robotPattern;
+  _team = team;
 
   if (histogram==0) histogram= new CMVision::Histogram(_lut3d->getChannelCount());
 
@@ -96,46 +100,46 @@ void TeamDetector::init(Team * team)
   field_filter.update(_field);
 
   //read config:
-  _unique_patterns=_team->_unique_patterns->getBool();
-  _have_angle=_team->_have_angle->getBool();
-  _load_markers_from_image_file=_team->_load_markers_from_image_file->getBool();
-  _marker_image_file=_team->_marker_image_file->getString();
-  _marker_image_rows=_team->_marker_image_rows->getInt();
-  _marker_image_cols=_team->_marker_image_cols->getInt();
+  _unique_patterns=_robotPattern->_unique_patterns->getBool();
+  _have_angle=_robotPattern->_have_angle->getBool();
+  _load_markers_from_image_file=_robotPattern->_load_markers_from_image_file->getBool();
+  _marker_image_file=_robotPattern->_marker_image_file->getString();
+  _marker_image_rows=_robotPattern->_marker_image_rows->getInt();
+  _marker_image_cols=_robotPattern->_marker_image_cols->getInt();
   _robot_height=_team->_robot_height->getDouble();
 
-  _center_marker_area_mean=_team->_center_marker_area_mean->getDouble();
-  _center_marker_area_stddev=_team->_center_marker_area_stddev->getDouble();
-  _center_marker_uniform=_team->_center_marker_uniform->getDouble();
-  _center_marker_duplicate_distance=_team->_center_marker_duplicate_distance->getDouble();
+  _center_marker_area_mean=_robotPattern->_center_marker_area_mean->getDouble();
+  _center_marker_area_stddev=_robotPattern->_center_marker_area_stddev->getDouble();
+  _center_marker_uniform=_robotPattern->_center_marker_uniform->getDouble();
+  _center_marker_duplicate_distance=_robotPattern->_center_marker_duplicate_distance->getDouble();
 
-  _other_markers_max_detections=_team->_other_markers_max_detections->getInt();
-  _other_markers_max_query_distance=_team->_other_markers_max_query_distance->getDouble();
+  _other_markers_max_detections=_robotPattern->_other_markers_max_detections->getInt();
+  _other_markers_max_query_distance=_robotPattern->_other_markers_max_query_distance->getDouble();
 
-  filter_team.setWidth(_team->_center_marker_min_width->getInt(),team->_center_marker_max_width->getInt());
-  filter_team.setHeight(_team->_center_marker_min_height->getInt(),team->_center_marker_max_height->getInt());
-  filter_team.setArea(_team->_center_marker_min_area->getInt(),team->_center_marker_max_area->getInt());
+  filter_team.setWidth(_robotPattern->_center_marker_min_width->getInt(),robotPattern->_center_marker_max_width->getInt());
+  filter_team.setHeight(_robotPattern->_center_marker_min_height->getInt(),robotPattern->_center_marker_max_height->getInt());
+  filter_team.setArea(_robotPattern->_center_marker_min_area->getInt(),robotPattern->_center_marker_max_area->getInt());
 
-  filter_others.setWidth(_team->_other_markers_min_width->getInt(),team->_other_markers_max_width->getInt());
-  filter_others.setHeight(_team->_other_markers_min_height->getInt(),team->_other_markers_max_height->getInt());
-  filter_others.setArea(_team->_other_markers_min_area->getInt(),team->_other_markers_max_area->getInt());
+  filter_others.setWidth(_robotPattern->_other_markers_min_width->getInt(),robotPattern->_other_markers_max_width->getInt());
+  filter_others.setHeight(_robotPattern->_other_markers_min_height->getInt(),robotPattern->_other_markers_max_height->getInt());
+  filter_others.setArea(_robotPattern->_other_markers_min_area->getInt(),robotPattern->_other_markers_max_area->getInt());
 
-  _histogram_enable=_team->_histogram_enable->getBool();
-  _histogram_pixel_scan_radius=_team->_histogram_pixel_scan_radius->getInt();
+  _histogram_enable=_robotPattern->_histogram_enable->getBool();
+  _histogram_pixel_scan_radius=_robotPattern->_histogram_pixel_scan_radius->getInt();
 
-  _histogram_markeryness.set(_team->_histogram_min_markeryness->getDouble(),_team->_histogram_max_markeryness->getDouble());
-  _histogram_field_greenness.set(_team->_histogram_min_field_greenness->getDouble(),_team->_histogram_max_field_greenness->getDouble());
-  _histogram_black_whiteness.set(_team->_histogram_min_black_whiteness->getDouble(),_team->_histogram_max_black_whiteness->getDouble());
+  _histogram_markeryness.set(_robotPattern->_histogram_min_markeryness->getDouble(),_robotPattern->_histogram_max_markeryness->getDouble());
+  _histogram_field_greenness.set(_robotPattern->_histogram_min_field_greenness->getDouble(),_robotPattern->_histogram_max_field_greenness->getDouble());
+  _histogram_black_whiteness.set(_robotPattern->_histogram_min_black_whiteness->getDouble(),_robotPattern->_histogram_max_black_whiteness->getDouble());
 
 
-  _pattern_max_dist=_team->_pattern_max_dist->getDouble();
-  _pattern_fit_params.fit_area_weight=_team->_pattern_fitness_weight_area->getDouble();
-  _pattern_fit_params.fit_cen_dist_weight=_team->_pattern_fitness_weight_center_distance->getDouble();
-  _pattern_fit_params.fit_next_dist_weight=_team->_pattern_fitness_weight_next_distance->getDouble();
-  _pattern_fit_params.fit_next_dist_weight=_team->_pattern_fitness_weight_next_angle_distance->getDouble();
-  _pattern_fit_params.fit_max_error=_team->_pattern_fitness_max_error->getDouble();
-  _pattern_fit_params.fit_variance=sq(_team->_pattern_fitness_stddev->getDouble());
-  _pattern_fit_params.fit_uniform=_team->_pattern_fitness_uniform->getDouble();
+  _pattern_max_dist=_robotPattern->_pattern_max_dist->getDouble();
+  _pattern_fit_params.fit_area_weight=_robotPattern->_pattern_fitness_weight_area->getDouble();
+  _pattern_fit_params.fit_cen_dist_weight=_robotPattern->_pattern_fitness_weight_center_distance->getDouble();
+  _pattern_fit_params.fit_next_dist_weight=_robotPattern->_pattern_fitness_weight_next_distance->getDouble();
+  _pattern_fit_params.fit_next_dist_weight=_robotPattern->_pattern_fitness_weight_next_angle_distance->getDouble();
+  _pattern_fit_params.fit_max_error=_robotPattern->_pattern_fitness_max_error->getDouble();
+  _pattern_fit_params.fit_variance=sq(_robotPattern->_pattern_fitness_stddev->getDouble());
+  _pattern_fit_params.fit_uniform=_robotPattern->_pattern_fitness_uniform->getDouble();
 
   //load team image:
 
@@ -151,7 +155,6 @@ void TeamDetector::init(Team * team)
       yuvImage yuvi;
       yuvi.allocate(rgbi.getWidth(),rgbi.getHeight());
       Images::convert(rgbi,yuvi);
-      printf("Loading Team Image %s\n",_marker_image_file.c_str());
       if (model.loadMultiPatternImage(yuvi,&minilut,_marker_image_rows,_marker_image_cols,_team->_robot_height->getDouble())==false) {
           fprintf(stderr,"Errors while processing team image file: '%s'.\n",_marker_image_file.c_str());
           fflush(stderr);
@@ -161,7 +164,7 @@ void TeamDetector::init(Team * team)
           fflush(stderr);
     }
     for (int i=0;i<model.getNumPatterns();i++) {
-      model.getPattern(i).setEnabled(_team->_valid_patterns->isSelected(i));
+      model.getPattern(i).setEnabled(_robotPattern->_valid_patterns->isSelected(i));
     }
     model.recheckColorsUsed();
   }

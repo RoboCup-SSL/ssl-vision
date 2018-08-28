@@ -57,17 +57,23 @@ CaptureThread::CaptureThread(int cam_id)
   counter=new FrameCounter();
   capture=0;
   captureDC1394 = new CaptureDC1394v2(dc1394,camId);
-  captureFiles = new CaptureFromFile(fromfile);
+  captureFiles = new CaptureFromFile(fromfile, camId);
   captureGenerator = new CaptureGenerator(generator);
   captureV4L = new CaptureV4L(v4l,camId);
   captureBasler = new CaptureBasler(basler);
-  
+
+#ifdef FLYCAP
+  captureModule->addItem("Flycapture");
+  settings->addChild( (VarType*) (flycap = new VarList("Flycapture")));
+  captureFlycap = new CaptureFlycap(flycap, camId);
+#endif
+
 #ifdef MVIMPACT
   captureModule->addItem("BlueFox2");
   settings->addChild( (VarType*) (bluefox2 = new VarList("BlueFox2")));
   captureBlueFox2 = new CaptureBlueFox2(bluefox2,camId);
 #endif
-  
+
   selectCaptureMethod();
   _kill =false;
   rb=0;
@@ -95,7 +101,11 @@ CaptureThread::~CaptureThread()
   delete captureGenerator;
   delete captureBasler;
   delete counter;
-  
+
+#ifdef FLYCAP
+  delete captureFlycap;
+#endif
+
 #ifdef MVIMPACT
   delete captureBlueFox2;
 #endif
@@ -129,6 +139,10 @@ void CaptureThread::selectCaptureMethod() {
     new_capture = captureV4L;
   } else if(captureModule->getString() == "DC 1394") {
     new_capture = captureDC1394;
+#ifdef FLYCAP
+  } else if(captureModule->getString() == "Flycapture") {
+    new_capture = captureFlycap;
+#endif
   } else if (captureModule->getString() == "Basler GigE") {
 	  new_capture = captureBasler;
   }
@@ -146,7 +160,7 @@ void CaptureThread::selectCaptureMethod() {
 }
 
 void CaptureThread::kill() {
- _kill=true; 
+ _kill=true;
   while(isRunning()) {
     usleep(100);
   }
@@ -217,7 +231,6 @@ void CaptureThread::run() {
           if (bSuccess) {           //only on a good frame read do we proceed
               counter->count();
               stats->total=d->number=counter->getTotal();
-              d->cam_id=camId;
               stats->fps_capture=counter->getFPS(changed);
 
               stack_mutex.lock();

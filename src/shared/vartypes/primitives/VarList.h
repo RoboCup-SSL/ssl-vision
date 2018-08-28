@@ -65,7 +65,15 @@ namespace VarTypes {
     virtual void printdebug() const { printf("VarList named %s containing %zu element(s)\n",getName().c_str(), list.size()); }
 
     /// adds a VarType item to the end of the list.
-    int addChild(VarType * child) { lock(); list.push_back(child); emit(childAdded(child)); unlock(); changed(); return (list.size()-1);}
+    int addChild(VarType * child) {
+        lock();
+        child->setParent(this);          //added 2/4/16 for parent/child search
+        list.push_back(child);
+        emit(childAdded(child));
+        unlock();
+        changed();
+        return (list.size()-1);
+    }
     bool removeChild(VarType * child) {
       lock();
       vector<VarType *> newlist;

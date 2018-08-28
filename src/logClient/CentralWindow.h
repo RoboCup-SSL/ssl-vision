@@ -23,13 +23,13 @@
 #define CENTRALWINDOW_H
 
 #include <QMainWindow>
-#include <QtGui/QGridLayout>
-#include <QtGui/QPushButton>
-#include <QtGui/QDockWidget>
-#include <QtGui/QWidget>
-#include <QtGui/QSlider>
-#include <QtGui/QLabel>
-#include <QtGui/QLCDNumber>
+#include <QGridLayout>
+#include <QPushButton>
+#include <QDockWidget>
+#include <QWidget>
+#include <QSlider>
+#include <QLabel>
+#include <QLCDNumber>
 #include "GraphicsPrimitives.h"
 #include "ClientThreading.h"
 

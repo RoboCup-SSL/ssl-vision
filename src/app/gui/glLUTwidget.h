@@ -202,6 +202,7 @@ protected:
 
 public:
   void setLUT(LUT3D * lut);
+  bool copyLUT(lut_mask_t *pDataLUT, int size_copy, int color_index=-1);
   virtual void init();
 
   VideoStats stats;

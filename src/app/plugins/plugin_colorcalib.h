@@ -30,20 +30,27 @@
 /**
 	@author Stefan Zickler <szickler@cs.cmu.edu>
 */
-class PluginColorCalibration : public VisionPlugin {
+class PluginColorCalibration : public VisionPlugin
+{
+Q_OBJECT
 protected:
     YUVLUT * lut;
     VarList * settings;
     LUTWidget * lutw;
+    VarStringEnum * v_lut_sources;
+    VarStringEnum * v_lut_colors;
+    VarTrigger * copy_LUT_trigger;
     LUTChannelMode mode;
     bool continuing_undo;
     void mouseEvent ( QMouseEvent * event, pixelloc loc );
+    void copyLUT();
+protected slots:
+    void slotCopyLUT();
 public:
-
     PluginColorCalibration(FrameBuffer * _buffer, YUVLUT * _lut, LUTChannelMode _mode=LUTChannelMode_Numeric);
     virtual VarList * getSettings();
     virtual string getName();
-    ~PluginColorCalibration();
+    virtual ~PluginColorCalibration();
     virtual QWidget * getControlWidget();
 
     virtual void keyPressEvent ( QKeyEvent * event );
@@ -51,7 +58,8 @@ public:
     virtual void mouseReleaseEvent ( QMouseEvent * event, pixelloc loc );
     virtual void mouseMoveEvent ( QMouseEvent * event, pixelloc loc );
 
-
+private:
+    void updateColorList();
 };
 
 #endif

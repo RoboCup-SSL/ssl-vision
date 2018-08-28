@@ -59,8 +59,12 @@ void PluginPublishGeometry::sendGeometry() {
   SSL_GeometryFieldSize * gfield = geodata.mutable_field();
   _field.toProtoBuffer(*gfield);
   for (unsigned int i = 0; i < params.size(); i++) {
+    int camId = params[i]->additional_calibration_information->camera_index->get();
+    if(camId < 0 || camId >= _field.num_cameras_total->get()) {
+      break;
+    }
     SSL_GeometryCameraCalibration * calib = geodata.add_calib();
-    params[i]->toProtoBuffer(*calib,i);
+    params[i]->toProtoBuffer(*calib);
   }
   _server->send(geodata);
 }

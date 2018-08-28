@@ -8,8 +8,8 @@
 #include "field_default_constants.h"
 #include "geomalgo.h"
 
-CameraParameters::CameraParameters(int camera_index_) :
-    camera_index(camera_index_), p_alpha(Eigen::VectorXd(1)) {
+CameraParameters::CameraParameters(int camera_index_, RoboCupField * field_) :
+        p_alpha(Eigen::VectorXd(1)) {
   focal_length = new VarDouble("focal length", 500.0);
   principal_point_x = new VarDouble("principal point x", 390.0);
   principal_point_y = new VarDouble("principal point y", 290.0);
@@ -30,7 +30,7 @@ CameraParameters::CameraParameters(int camera_index_) :
   tz->addFlags(VARTYPE_FLAG_NOLOAD_ATTRIBUTES);
 
   additional_calibration_information =
-      new AdditionalCalibrationInformation(camera_index);
+      new AdditionalCalibrationInformation(camera_index_, field_);
 
   q_rotate180 = Quaternion<double>(0, 0, 1.0,0);
 }
@@ -50,8 +50,7 @@ CameraParameters::~CameraParameters() {
   delete additional_calibration_information;
 }
 
-void CameraParameters::toProtoBuffer(
-    SSL_GeometryCameraCalibration & buffer, int camera_id) const {
+void CameraParameters::toProtoBuffer(SSL_GeometryCameraCalibration &buffer) const {
   buffer.set_focal_length(focal_length->getDouble());
   buffer.set_principal_point_x(principal_point_x->getDouble());
   buffer.set_principal_point_y(principal_point_y->getDouble());
@@ -63,7 +62,7 @@ void CameraParameters::toProtoBuffer(
   buffer.set_tx(tx->getDouble());
   buffer.set_ty(ty->getDouble());
   buffer.set_tz(tz->getDouble());
-  buffer.set_camera_id(camera_id);
+  buffer.set_camera_id(additional_calibration_information->camera_index->getInt());
 
   //--Set derived parameters:
   //compute camera world coordinates:
@@ -89,21 +88,6 @@ GVector::vector3d< double > CameraParameters::getWorldLocation() {
   v_in = (-(v_in));
   GVector::vector3d<double> v_out = q.rotateVectorByQuaternion(v_in);
   return v_out;
-}
-
-void CameraParameters::fromProtoBuffer(
-    const SSL_GeometryCameraCalibration & buffer) {
-  focal_length->setDouble(buffer.focal_length());
-  principal_point_x->setDouble(buffer.principal_point_x());
-  principal_point_y->setDouble(buffer.principal_point_y());
-  distortion->setDouble(buffer.distortion());
-  q0->setDouble(buffer.q0());
-  q1->setDouble(buffer.q1());
-  q2->setDouble(buffer.q2());
-  q3->setDouble(buffer.q3());
-  tx->setDouble(buffer.tx());
-  ty->setDouble(buffer.ty());
-  tz->setDouble(buffer.tz());
 }
 
 void CameraParameters::addSettingsToList(VarList& list) {
@@ -733,32 +717,32 @@ void CameraParameters::calibrate(
 
 
 CameraParameters::AdditionalCalibrationInformation::
-    AdditionalCalibrationInformation(int camera_index_) :
-    camera_index(camera_index_){
+    AdditionalCalibrationInformation(int camera_index_, RoboCupField* field_) :
+        field(field_) {
 
-  for (int i = 0; i < kNumControlPoints; ++i) {
-    ostringstream convert;
-    convert << i;
-    const string i_str = convert.str();
-    control_point_set[i] = new VarList("Control Point " + i_str);
-    control_point_names[i] = new VarString(
-        "Control point " + i_str + " name", "Control point " + i_str);
-    control_point_set[i]->addChild(control_point_names[i]);
-    control_point_image_xs[i] = new VarDouble(
-        "Control point " + i_str + " image x", 10.0);
-    control_point_set[i]->addChild(control_point_image_xs[i]);
-    control_point_image_ys[i] = new VarDouble(
-        "Control point " + i_str + " image y", 10.0);
-    control_point_set[i]->addChild(control_point_image_ys[i]);
-    control_point_field_xs[i] = new VarDouble(
-        "Control point " + i_str + " field x",
-        FieldConstantsRoboCup2014::kCameraControlPoints[camera_index][i].x);
-    control_point_set[i]->addChild(control_point_field_xs[i]);
-    control_point_field_ys[i] = new VarDouble(
-        "Control point " + i_str + " field y",
-        FieldConstantsRoboCup2014::kCameraControlPoints[camera_index][i].y);
-    control_point_set[i]->addChild(control_point_field_ys[i]);
-  }
+  camera_index = new VarInt("camera index", camera_index_);
+
+    for (int i = 0; i < kNumControlPoints; ++i) {
+        ostringstream convert;
+        convert << i;
+        const string i_str = convert.str();
+        control_point_set[i] = new VarList("Control Point " + i_str);
+        control_point_names[i] = new VarString(
+                "Control point " + i_str + " name", "CP " + i_str);
+        control_point_set[i]->addChild(control_point_names[i]);
+        control_point_image_xs[i] = new VarDouble(
+                "Control point " + i_str + " image x", 50.0);
+        control_point_set[i]->addChild(control_point_image_xs[i]);
+        control_point_image_ys[i] = new VarDouble(
+                "Control point " + i_str + " image y", 50.0 * (i+1));
+        control_point_set[i]->addChild(control_point_image_ys[i]);
+        control_point_field_xs[i] = new VarDouble(
+                "Control point " + i_str + " field x", 0.0);
+        control_point_set[i]->addChild(control_point_field_xs[i]);
+        control_point_field_ys[i] = new VarDouble(
+                "Control point " + i_str + " field y", 0.0);
+        control_point_set[i]->addChild(control_point_field_ys[i]);
+    }
 
   initial_distortion = new VarDouble("initial distortion", 1.0);
   camera_height = new VarDouble("camera height", 4000.0);
@@ -773,6 +757,72 @@ CameraParameters::AdditionalCalibrationInformation::
   cov_ls_x = new VarDouble("Cov line segment measurement x", 1.0);
   cov_ls_y = new VarDouble("Cov line segment measurement y", 1.0);
   pointSeparation = new VarDouble("Points separation", 150);
+}
+
+void CameraParameters::AdditionalCalibrationInformation::updateControlPoints() {
+
+    std::vector<GVector::vector2d<double> > control_points = generateCameraControlPoints(
+            camera_index->getInt(), field->num_cameras_total->getInt(), field->field_length->getDouble(), field->field_width->getDouble());
+
+    if(control_points.empty())
+    {
+        return;
+    }
+
+    for (int i = 0; i < kNumControlPoints; ++i) {
+        control_point_field_xs[i]->setDouble(control_points[i].x);
+        control_point_field_ys[i]->setDouble(control_points[i].y);
+    }
+}
+
+std::vector<GVector::vector2d<double> > CameraParameters::AdditionalCalibrationInformation::
+generateCameraControlPoints(int cameraId, int numCamerasTotal, double fieldHeight, double fieldWidth) {
+
+  std::vector<GVector::vector2d<double> > points;
+
+  int nCamerasX;
+  int nCamerasY;
+  switch (numCamerasTotal) {
+    case 1:
+      nCamerasX = 1;
+      nCamerasY = 1;
+      break;
+    case 2:
+      nCamerasX = 2;
+      nCamerasY = 1;
+      break;
+    case 4:
+      nCamerasX = 2;
+      nCamerasY = 2;
+      break;
+    case 6:
+      nCamerasX = 3;
+      nCamerasY = 2;
+      break;
+    case 8:
+      nCamerasX = 4;
+      nCamerasY = 2;
+      break;
+    default:
+      std::cerr << "Invalid camera id: " << cameraId << " for " << numCamerasTotal << " total cameras"
+                << std::endl;
+      return points;
+  }
+  double xStep = fieldHeight / nCamerasX;
+  double yStep = fieldWidth / nCamerasY;
+
+  int xIdx = cameraId / nCamerasY;
+  int yIdx = cameraId % nCamerasY;
+  double x1 = -fieldHeight / 2 + xIdx * xStep;
+  double x2 = x1 + xStep;
+  double y1 = -fieldWidth / 2 + yIdx * yStep;
+  double y2 = y1 + yStep;
+
+  points.push_back(GVector::vector2d<double>(x1, y1));
+  points.push_back(GVector::vector2d<double>(x1, y2));
+  points.push_back(GVector::vector2d<double>(x2, y2));
+  points.push_back(GVector::vector2d<double>(x2, y1));
+  return points;
 }
 
 CameraParameters::AdditionalCalibrationInformation::~AdditionalCalibrationInformation() {
@@ -803,6 +853,7 @@ void CameraParameters::AdditionalCalibrationInformation::addSettingsToList(
     list.addChild(control_point_set[i]);
   }
 
+  list.addChild(camera_index);
   list.addChild(initial_distortion);
   list.addChild(camera_height);
   list.addChild(line_search_corridor_width);

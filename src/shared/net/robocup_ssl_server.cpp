@@ -19,6 +19,7 @@
 */
 //========================================================================
 #include "robocup_ssl_server.h"
+#include "timer.h"
 
 RoboCupSSLServer::RoboCupSSLServer(int port,
                      string net_address,
@@ -41,8 +42,8 @@ void RoboCupSSLServer::close() {
 
 bool RoboCupSSLServer::open() {
   close();
-  if(!mc.open(_port,true,true)) {
-    fprintf(stderr,"Unable to open UDP network port: %d\n",_port);
+  if(!mc.open(0,true,true)) {
+    fprintf(stderr,"Unable to open UDP network\n");
     fflush(stderr);
     return(false);
   }
@@ -67,21 +68,32 @@ bool RoboCupSSLServer::send(const SSL_DetectionFrame & frame) {
   SSL_WrapperPacket pkt;
   SSL_DetectionFrame * nframe = pkt.mutable_detection();
   nframe->CopyFrom(frame);
-  return sendWrapperPacket<SSL_WrapperPacket>(pkt);
+  mutex.lock();
+  nframe->set_t_sent(GetTimeSec());
+  bool ret = sendWrapperPacket<SSL_WrapperPacket>(pkt);
+  mutex.unlock();
+  return ret;
 }
 
 bool RoboCupSSLServer::send(const SSL_GeometryData & geometry) {
   SSL_WrapperPacket pkt;
   SSL_GeometryData * gdata = pkt.mutable_geometry();
   gdata->CopyFrom(geometry);
-  return sendWrapperPacket<SSL_WrapperPacket>(pkt);
+  mutex.lock();
+  bool ret = sendWrapperPacket<SSL_WrapperPacket>(pkt);
+  mutex.unlock();
+  return ret;
 }
 
 bool RoboCupSSLServer::sendLegacyMessage(const SSL_DetectionFrame& frame) {
   RoboCup2014Legacy::Wrapper::SSL_WrapperPacket pkt;
   SSL_DetectionFrame * nframe = pkt.mutable_detection();
   nframe->CopyFrom(frame);
-  return sendWrapperPacket<RoboCup2014Legacy::Wrapper::SSL_WrapperPacket>(pkt);
+  mutex.lock();
+  nframe->set_t_sent(GetTimeSec());
+  bool ret = sendWrapperPacket<RoboCup2014Legacy::Wrapper::SSL_WrapperPacket>(pkt);
+  mutex.unlock();
+  return ret;
 }
 
 bool RoboCupSSLServer::sendLegacyMessage(
@@ -89,5 +101,8 @@ bool RoboCupSSLServer::sendLegacyMessage(
   RoboCup2014Legacy::Wrapper::SSL_WrapperPacket pkt;
   RoboCup2014Legacy::Geometry::SSL_GeometryData * gdata = pkt.mutable_geometry();
   gdata->CopyFrom(geometry);
-  return sendWrapperPacket<RoboCup2014Legacy::Wrapper::SSL_WrapperPacket>(pkt);
+  mutex.lock();
+  bool ret = sendWrapperPacket<RoboCup2014Legacy::Wrapper::SSL_WrapperPacket>(pkt);
+  mutex.unlock();
+  return ret;
 }

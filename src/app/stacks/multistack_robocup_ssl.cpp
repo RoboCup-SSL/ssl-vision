@@ -87,6 +87,10 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
   createThreads(cameras);
   unsigned int n = threads.size();
   for (unsigned int i = 0; i < n;i++) {
+    //NOTE: if modified to put different stacks in cameras, please
+    //      update the plugin_colorcalib.cpp code to safely reallocate and copy their
+    //      data instead of assuming that format and size is uniform across
+    //      cameras -- added when LUTs became aware of other cameras (Zavesky, 2/16)
     threads[i]->setFrameBuffer(new FrameBuffer(5));
     threads[i]->setStack(
         new StackRoboCupSSL(
@@ -96,13 +100,13 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
             global_ball_settings,
             global_plugin_publish_geometry,
             legacy_plugin_publish_geometry,
+            global_team_settings,
             global_team_selector_blue,
             global_team_selector_yellow,
             ds_udp_server_new,
             ds_udp_server_old,
             "robocup-ssl-cam-" + QString::number(i).toStdString()));
   }
-  //TODO: make LUT widgets aware of each other for easy data-sharing
 }
 
 string MultiStackRoboCupSSL::getSettingsFileName() {

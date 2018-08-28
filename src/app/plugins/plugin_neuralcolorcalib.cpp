@@ -259,9 +259,7 @@ void PluginNeuralColorCalib::mousePressEvent ( QMouseEvent * event, pixelloc loc
 }
 
 void PluginNeuralColorCalib::mouseReleaseEvent ( QMouseEvent * event, pixelloc loc ) {
-    event->accept();
-    //continuing_undo = false;
-    //mouseEvent(event,loc);
+    mouseEvent(event,loc);
 }
 
 void PluginNeuralColorCalib::mouseMoveEvent ( QMouseEvent * event, pixelloc loc ) {

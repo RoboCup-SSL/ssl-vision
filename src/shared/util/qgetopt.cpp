@@ -95,9 +95,9 @@
 GetOpt::GetOpt()
 {
     if ( !qApp )
-	qFatal( "GetOpt: requires a QApplication instance to be constructed first" );
+    qFatal( "GetOpt: requires a QApplication instance to be constructed first" );
 
-    init( qApp->argc(), qApp->argv(), 1 );
+    init( qApp->arguments(), 1 );
 }
 
 /**
@@ -106,9 +106,9 @@ GetOpt::GetOpt()
 GetOpt::GetOpt( int offset )
 {
     if ( !qApp )
-	qFatal( "GetOpt: requires a QApplication instance to be constructed first" );
+    qFatal( "GetOpt: requires a QApplication instance to be constructed first" );
 
-    init( qApp->argc(), qApp->argv(), offset );
+    init( qApp->arguments(), offset );
 }
 
 /**
@@ -158,6 +158,22 @@ void GetOpt::init( int argc, char *argv[], int offset )
 	// arguments
 	for ( int i = offset; i < argc; ++i )
 	    args.append( QString::fromUtf8( argv[i] ) );
+    }
+}
+
+/**
+   \internal
+*/
+void GetOpt::init( const QStringList &arguments, int offset )
+{
+    numReqArgs = numOptArgs = 0;
+    currArg = 1; // appname is not part of the arguments
+    if (arguments.size() > 0) {
+        // application name
+        aname = QFileInfo(arguments.at(0)).fileName();
+        // arguments
+        for ( int i = offset; i < arguments.size(); ++i )
+            args.append(arguments.at(i));
     }
 }
 
@@ -275,7 +291,7 @@ bool GetOpt::parse( bool untilFirstSwitchOnly )
 	    }
 	    if ( t == LongOpt && opt.type == OUnknown ) {
 		if ( currOpt.type != OVarLen ) {
-		    qWarning( "Unknown option --%s",a.toAscii().constData() );
+            qWarning( "Unknown option --%s",a.toLatin1().constData() );
 		    return false;
 		} else {
 		    // VarLength options support arguments starting with '-'
@@ -368,7 +384,7 @@ bool GetOpt::parse( bool untilFirstSwitchOnly )
 	    } else {
 		QString n = currType == LongOpt ?
 			    currOpt.lname : QString( QChar( currOpt.sname ) );
-		qWarning( "Expected an argument after '%s' option", n.toAscii().constData() );
+        qWarning( "Expected an argument after '%s' option", n.toLatin1().constData() );
 		return false;
 	    }
 	    break;

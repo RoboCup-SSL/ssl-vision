@@ -96,11 +96,9 @@ void PluginLegacyPublishGeometry::sendGeometry() {
   ds_field_old.set_goal_width(field.goal_width());
   ds_field_old.set_goal_depth(field.goal_depth());
   ds_field_old.set_boundary_width(field.boundary_width());
-  ds_field_old.set_center_circle_radius(
-      GetFieldCircularArcRadius("CenterCircle"));
-  ds_field_old.set_defense_radius(
-      GetFieldCircularArcRadius("LeftFieldLeftPenaltyArc"));
-  ds_field_old.set_defense_stretch(GetFieldLineLength("LeftPenaltyStretch"));
+  ds_field_old.set_center_circle_radius(GetFieldCircularArcRadius("CenterCircle"));
+  ds_field_old.set_defense_radius(_field.penalty_area_depth->getDouble());
+  ds_field_old.set_defense_stretch(_field.penalty_area_width->getDouble() - 2*_field.penalty_area_depth->getDouble());
   // The following fields no longer exist in ssl-vision, and are hard-coded
   // from the ssl-vision SVN trunk, r233.
   ds_field_old.set_line_width(10);
@@ -114,8 +112,12 @@ void PluginLegacyPublishGeometry::sendGeometry() {
 
   // Copy over the camera calibrations.
   for (unsigned int i = 0; i < params.size(); i++) {
+    int camId = params[i]->additional_calibration_information->camera_index->get();
+    if(camId < 0 || camId >= _field.num_cameras_total->get()) {
+      break;
+    }
     SSL_GeometryCameraCalibration* ds_calib_old = ds_geodata_old.add_calib();
-    params[i]->toProtoBuffer(*ds_calib_old,i);
+    params[i]->toProtoBuffer(*ds_calib_old);
   }
 
   _ds_udp_server_old->sendLegacyMessage(ds_geodata_old);

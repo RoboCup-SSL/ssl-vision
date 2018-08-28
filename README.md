@@ -19,6 +19,10 @@
 ========================================================================
 ```
 
+----
+[![Build Status](https://travis-ci.org/RoboCup-SSL/ssl-vision.svg?branch=master)](https://travis-ci.org/RoboCup-SSL/ssl-vision)
+----
+
 ## Online Documentation
 
   To find more in-depth and up-to-date information about SSL-Vision
@@ -40,10 +44,9 @@
  * libpng
  * video for linux 2 (v4l)
 
-To get all of these packages in (k)ubuntu, run:
-```
-    sudo apt-get install g++ libqt4-dev libeigen3-dev protobuf-compiler libprotobuf-dev libdc1394-22 libdc1394-22-dev cmake libv4l-0
-```
+To get all of these packages in (k)ubuntu, run the `InstallPackagesUbuntu.sh` script.
+
+Or, in archlinux, run the `InstallPackagesArch.sh` script.
 
 ## Hardware Requirements
  * The system supports 1394B / Firewire 800, but it's also backward compatible with 1394A.
