@@ -314,12 +314,3 @@ target_link_libraries(${gclient} ${libs})
 if(USE_QT5)
 	qt5_use_modules(${gclient} Widgets OpenGL)
 endif()
-
-add_executable(baslerGrab src/basler-test/Grab.cpp)
-target_link_libraries(baslerGrab ${libs})
-
-add_executable(params src/basler-test/Params.cpp)
-target_link_libraries(params ${libs})
-
-add_executable(barebones src/basler-test/Barebones.cpp)
-target_link_libraries(barebones ${libs})
