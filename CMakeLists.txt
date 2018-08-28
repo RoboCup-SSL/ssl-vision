@@ -109,6 +109,19 @@ else()
   message(WARNING "OpenCV NOT found => Neural Calibration not available")
 endif()
 
+find_package( Pylon5 QUIET )
+if(OpenCV_FOUND)
+  if(PYLON5_FOUND)
+    include_directories(SYSTEM ${PYLON5_INCLUDE_DIRS})
+    add_definitions(-D PYLON5)
+    message(STATUS "Pylon5 found")
+    set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capture_basler.cpp)
+    set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capture_basler.h)
+  else()
+    message(STATUS "Pylon5 not found")
+  endif()
+endif()
+
 include_directories(${PROJECT_SOURCE_DIR}/src/app)
 include_directories(${PROJECT_SOURCE_DIR}/src/app/gui)
 include_directories(${PROJECT_SOURCE_DIR}/src/app/plugins)
@@ -250,6 +263,7 @@ set (libs ${QT_LIBRARIES}
 	${PROTOBUF_LIBRARIES}
 	${DC1394_LIBRARIES}
 	${mvIMPACT_LIBRARIES}
+	${PYLON5_LIBRARIES}
 	${OpenCV_LIBS}
 	${FLYCAP_LIBS}
 )
