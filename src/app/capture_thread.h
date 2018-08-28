@@ -25,7 +25,6 @@
 #include "capturefromfile.h"
 #include "capturev4l.h"
 #include "capture_generator.h"
-#include "capture_basler.h"
 #include <QThread>
 #include "ringbuffer.h"
 #include "framedata.h"
@@ -42,6 +41,9 @@
 #include "capture_flycap.h"
 #endif
 
+#ifdef PYLON5
+#include "capture_basler.h"
+#endif
 
 /*!
   \class   CaptureThread
