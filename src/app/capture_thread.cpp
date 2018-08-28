@@ -38,7 +38,7 @@ CaptureThread::CaptureThread(int cam_id)
   captureModule->addItem("DC 1394");
   captureModule->addItem("Video 4 Linux");
   captureModule->addItem("Read from files");
-  captureModule->addItem("Generator");  
+  captureModule->addItem("Generator");
   settings->addChild( (VarType*) (dc1394 = new VarList("DC1394")));
   settings->addChild( (VarType*) (v4l = new VarList("Video 4 Linux")));
   settings->addChild( (VarType*) (fromfile = new VarList("Read from files")));
@@ -58,7 +58,7 @@ CaptureThread::CaptureThread(int cam_id)
   captureFiles = new CaptureFromFile(fromfile, camId);
   captureGenerator = new CaptureGenerator(generator);
   captureV4L = new CaptureV4L(v4l,camId);
-  
+
 #ifdef PYLON5
   captureModule->addItem("Basler GigE");
   settings->addChild( (VarType*) (basler = new VarList("Basler GigE")));
