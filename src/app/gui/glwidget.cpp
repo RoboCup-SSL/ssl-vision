@@ -239,8 +239,6 @@ void GLWidget::mainDraw() {
 void GLWidget::myGLdraw() {
   glPushAttrib ( GL_ALL_ATTRIB_BITS );
   glMatrixMode ( GL_PROJECTION );
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glPixelStorei(GL_PACK_ALIGNMENT, 1);
   glLoadIdentity();
   glPushMatrix();
     
