@@ -269,10 +269,6 @@ void GLWidget::myGLdraw() {
             glRasterPos2i ( 0,0 );
             glBitmap ( 0,0,0,0,orig.x,-orig.y,0 );
             glPixelZoom ( zoom.getZoom() * zoom.getFlipXval(),zoom.getZoom() * zoom.getFlipYval() * -1.0 );
-            //std::vector<int> params;
-            //params.push_back(CV_IMWRITE_PNG_COMPRESSION);
-            //params.push_back(9);
-            //cv::Mat cv_img = cv::Mat(img.getHeight(), img.getWidth(), CV_8UC3, img.getData());
             glDrawPixels ( img.getWidth(), img.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, img.getData() );
             glPopMatrix();
     
