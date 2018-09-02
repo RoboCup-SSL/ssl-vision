@@ -59,6 +59,12 @@ CaptureThread::CaptureThread(int cam_id)
   captureGenerator = new CaptureGenerator(generator);
   captureV4L = new CaptureV4L(v4l,camId);
 
+#ifdef PYLON5
+  captureModule->addItem("Basler GigE");
+  settings->addChild( (VarType*) (basler = new VarList("Basler GigE")));
+  captureBasler = new CaptureBasler(basler);
+#endif
+
 #ifdef FLYCAP
   captureModule->addItem("Flycapture");
   settings->addChild( (VarType*) (flycap = new VarList("Flycapture")));
@@ -97,6 +103,10 @@ CaptureThread::~CaptureThread()
   delete captureFiles;
   delete captureGenerator;
   delete counter;
+
+#ifdef PYLON5
+  delete captureBasler;
+#endif
 
 #ifdef FLYCAP
   delete captureFlycap;
@@ -138,6 +148,10 @@ void CaptureThread::selectCaptureMethod() {
 #ifdef FLYCAP
   } else if(captureModule->getString() == "Flycapture") {
     new_capture = captureFlycap;
+#endif
+#ifdef PYLON5
+  } else if (captureModule->getString() == "Basler GigE") {
+	  new_capture = captureBasler;
 #endif
   }
 

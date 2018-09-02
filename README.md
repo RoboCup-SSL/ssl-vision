@@ -59,6 +59,12 @@ chmod +x install_mvBlueFOX.sh
 ./install_mvBlueFOX.sh -u
 ```
 
+### (Optional) [Basler support](https://www.baslerweb.com/)
+Basler cameras are supported via the [Pylon Software Suite](https://www.baslerweb.com/en/products/software/basler-pylon-camera-software-suite/). Installation instructions are contained in the download. Tested with [Basler ace acA1300-75gc](https://www.baslerweb.com/en/products/cameras/area-scan-cameras/ace/aca1300-75gc/). If the library is not found on your computer support for this camera will be disabled silently. Pylon requires Opencv headers. These can be installed using the following command
+```
+sudo apt install libopencv-highgui-dev
+```
+
 ## Compilation
  build the code by running:
 ```

@@ -41,6 +41,9 @@
 #include "capture_flycap.h"
 #endif
 
+#ifdef PYLON5
+#include "capture_basler.h"
+#endif
 
 /*!
   \class   CaptureThread
@@ -62,6 +65,7 @@ protected:
   CaptureInterface * captureFlycap;
   CaptureInterface * captureFiles;
   CaptureInterface * captureGenerator;
+  CaptureInterface * captureBasler;
   AffinityManager * affinity;
   FrameBuffer * rb;
   bool _kill;
@@ -73,6 +77,7 @@ protected:
   VarList * flycap;
   VarList * generator;
   VarList * fromfile;
+  VarList * basler;
   VarList * control;
   VarTrigger * c_start;
   VarTrigger * c_stop;
