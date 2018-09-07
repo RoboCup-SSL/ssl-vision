@@ -76,6 +76,8 @@ include_directories(
 	${PROTOBUF_INCLUDE_DIRS}
 )
 
+include(src/shared/CMakeLists.txt.inc)
+
 if(UNIX AND NOT APPLE)
 	add_definitions(-D V4L)
 	set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capturev4l.cpp)
@@ -86,8 +88,6 @@ if(UNIX AND NOT APPLE)
   endif()
 
 find_package(mvIMPACT QUIET)
-
-include(src/shared/CMakeLists.txt.inc)
 
 if(${mvIMPACT_FOUND} MATCHES "TRUE")
   include_directories(${mvIMPACT_INCLUDE_DIRS})
