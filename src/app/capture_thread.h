@@ -23,7 +23,6 @@
 #define CAPTURE_THREAD_H
 #include "capturedc1394v2.h"
 #include "capturefromfile.h"
-#include "capturev4l.h"
 #include "capture_generator.h"
 #include <QThread>
 #include "ringbuffer.h"
@@ -32,6 +31,10 @@
 #include "visionstack.h"
 #include "capturestats.h"
 #include "affinity_manager.h"
+
+#ifdef V4L
+#include "capturev4l.h"
+#endif
 
 #ifdef MVIMPACT
 #include "capture_bluefox2.h"

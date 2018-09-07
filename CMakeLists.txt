@@ -20,6 +20,13 @@ add_definitions(-D UNIX)
 add_definitions(-D LINUX)
 add_definitions(-D _GNU_SOURCE)
 
+if(UNIX AND NOT APPLE)
+	add_definitions(-D AFFINITY_MANAGER)
+	message(STATUS "Building on a Linux platform => affinity manager enabled")
+else()
+	message(STATUS "Building on a non-Linux platform => affinity manager disabled")
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
@@ -68,6 +75,15 @@ include_directories(
 	${Eigen3_INCLUDE_DIRS}
 	${PROTOBUF_INCLUDE_DIRS}
 )
+
+if(UNIX AND NOT APPLE)
+	add_definitions(-D V4L)
+	set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capturev4l.cpp)
+	set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capturev4l.h)
+	message(STATUS "Building on a Linux platform => Video4Linux support enabled")
+  else()
+	message(STATUS "Building on a non-Linux platform => Video4Linux support disabled")
+  endif()
 
 find_package(mvIMPACT QUIET)
 

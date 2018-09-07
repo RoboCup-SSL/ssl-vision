@@ -21,6 +21,10 @@
 
 #include "gltext.h"
 
+#ifndef _GLUfuncptr
+typedef GLvoid (*_GLUfuncptr)();
+#endif
+
 const bool GLText::debugTesselation = false;
 const double GLText::FontRenderSize = 1000.0;
 

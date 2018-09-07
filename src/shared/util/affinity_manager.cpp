@@ -35,7 +35,7 @@ AffinityManager::~AffinityManager()
 }
 
 void AffinityManager::demandCore(int core) {
-
+#ifdef AFFINITY_MANAGER
   DT_LOCK;
   unsigned int tid=(long int)syscall(__NR_gettid);
   printf("The ID of this thread is: %d\n", tid);
@@ -72,9 +72,11 @@ void AffinityManager::demandCore(int core) {
   }	
 
   DT_UNLOCK;
+#endif
 }
 
 int AffinityManager::parseFileUpTo(FILE * f, char * output, int len, char end) {
+#ifdef AFFINITY_MANAGER
   char c=0;
   char prev_c=0;
   int i=0;
@@ -96,9 +98,13 @@ int AffinityManager::parseFileUpTo(FILE * f, char * output, int len, char end) {
   if (i > 0 && (output[i-1]==' ' || output[i-1]=='\t')) output[i-1]=0;
   output[i]=0;
   return i;
+#else
+  return 0;
+#endif
 }
 
 void AffinityManager::parseCpuInfo() {
+#ifdef AFFINITY_MANAGER
   DT_LOCK;
   cores.clear();
   int n=0;
@@ -151,4 +157,5 @@ void AffinityManager::parseCpuInfo() {
   }
   printf("==================================================================\n");
   DT_UNLOCK;
+#endif
 }

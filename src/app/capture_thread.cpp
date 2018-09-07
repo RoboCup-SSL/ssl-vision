@@ -36,11 +36,9 @@ CaptureThread::CaptureThread(int cam_id)
   control->addChild( (VarType*) (captureModule= new VarStringEnum("Capture Module","DC 1394")));
   captureModule->addFlags(VARTYPE_FLAG_NOLOAD_ENUM_CHILDREN);
   captureModule->addItem("DC 1394");
-  captureModule->addItem("Video 4 Linux");
   captureModule->addItem("Read from files");
   captureModule->addItem("Generator");
   settings->addChild( (VarType*) (dc1394 = new VarList("DC1394")));
-  settings->addChild( (VarType*) (v4l = new VarList("Video 4 Linux")));
   settings->addChild( (VarType*) (fromfile = new VarList("Read from files")));
   settings->addChild( (VarType*) (generator = new VarList("Generator")));
   settings->addFlags( VARTYPE_FLAG_AUTO_EXPAND_TREE );
@@ -57,7 +55,12 @@ CaptureThread::CaptureThread(int cam_id)
   captureDC1394 = new CaptureDC1394v2(dc1394,camId);
   captureFiles = new CaptureFromFile(fromfile, camId);
   captureGenerator = new CaptureGenerator(generator);
+
+#ifdef V4L
+  captureModule->addItem("Video 4 Linux");
+  settings->addChild( (VarType*) (v4l = new VarList("Video 4 Linux")));
   captureV4L = new CaptureV4L(v4l,camId);
+#endif
 
 #ifdef PYLON5
   captureModule->addItem("Basler GigE");
@@ -99,10 +102,13 @@ VarList * CaptureThread::getSettings() {
 CaptureThread::~CaptureThread()
 {
   delete captureDC1394;
-  delete captureV4L;
   delete captureFiles;
   delete captureGenerator;
   delete counter;
+
+#ifdef V4L
+  delete captureV4L;
+#endif
 
 #ifdef PYLON5
   delete captureBasler;
@@ -141,8 +147,10 @@ void CaptureThread::selectCaptureMethod() {
   } else if(captureModule->getString() == "BlueFox2") {
     new_capture = captureBlueFox2;
 #endif
+#ifdef V4L
   } else if(captureModule->getString() == "Video 4 Linux") {
     new_capture = captureV4L;
+#endif
   } else if(captureModule->getString() == "DC 1394") {
     new_capture = captureDC1394;
 #ifdef FLYCAP

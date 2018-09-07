@@ -25,8 +25,10 @@
 #include <string.h>
 #include <vector>
 #include <unistd.h>
+#ifdef AFFINITY_MANAGER
 #include <asm/unistd.h>
 #include <syscall.h>
+#endif
 #include <sched.h>
 #include "pthread.h"
 #define DT_LOCK pthread_mutex_lock((pthread_mutex_t*)_mutex);
