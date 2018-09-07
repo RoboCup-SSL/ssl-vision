@@ -101,7 +101,7 @@ public:
     this->conf = conf;    
   }
 
-  bool operator< (BallDetectResult a) {
+  bool operator< (const BallDetectResult a) const {
     return conf < a.conf;
   }
 };
@@ -272,7 +272,7 @@ ProcessResult PluginDetectBalls::process ( FrameData * data, RenderOptions * opt
     }
 
     // sort result by confidence and output first max_balls region(s)
-    //result.sort();
+    result.sort();
     
     int num_ball = 0;
     list<BallDetectResult>::reverse_iterator it;
