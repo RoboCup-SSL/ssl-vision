@@ -95,14 +95,6 @@ private:
   	void resetCamera(unsigned int new_id);
   	bool _stopCapture();
   	bool _buildCamera();
-
-// A slight blur helps to reduce noise and improve color recognition.
-#ifdef OPENCV
-  	static const double blur_sigma;
-  	void gaussianBlur(RawImage& img);
-    void contrast(RawImage& img, double factor);
-    void sharpen(RawImage& img);
-#endif
 };
 
 #endif

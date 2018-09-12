@@ -63,7 +63,7 @@ class MultiStackRoboCupSSL : public QObject, public MultiVisionStack {
   private:
   void UpdateServerSettings(const int port,
                             const string& address,
-                            const string& interface,
+                            const string& iface,
                             const string& server_name,
                             RoboCupSSLServer* server);
 };
