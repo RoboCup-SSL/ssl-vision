@@ -74,14 +74,11 @@ find_package(mvIMPACT QUIET)
 
 include(src/shared/CMakeLists.txt.inc)
 
-if(${mvIMPACT_FOUND} MATCHES "TRUE")
-  include_directories(${mvIMPACT_INCLUDE_DIRS})
+if(${mvIMPACT_FOUND} MATCHES "true")
+  include_directories(${mvIMPACT_INCLUDE_DIR})
   add_definitions(-D MVIMPACT)
   set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capture_bluefox2.cpp)
   set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capture_bluefox2.h)
-  message(STATUS "mvIMPACT found => BlueFox2 support enabled")
-else()
-  message(STATUS "mvIMPACT NOT found => BlueFox2 support disabled")
 endif()
 
 set(FLYCAP_HINTS "/usr/include/flycapture")
@@ -263,7 +260,7 @@ set (libs ${QT_LIBRARIES}
 	${OPENGL_glu_LIBRARY}
 	${PROTOBUF_LIBRARIES}
 	${DC1394_LIBRARIES}
-	${mvIMPACT_LIBRARIES}
+	${mvIMPACT_LIBS}
 	${PYLON5_LIBRARIES}
 	${OpenCV_LIBS}
 	${FLYCAP_LIBS}
