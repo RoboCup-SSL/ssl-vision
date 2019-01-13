@@ -105,7 +105,7 @@ if(OpenCV_FOUND)
   set (OPTIONAL_UI_SRCS ${OPTIONAL_UI_SRCS} src/app/gui/neurowidget.ui)
   message(STATUS "OpenCV found")
 else()
-  message(WARNING "OpenCV NOT found => Neural Calibration not available")
+  message(STATUS "OpenCV NOT found => Neural Calibration not available")
 endif()
 
 find_package( Pylon5 QUIET )
