@@ -43,11 +43,15 @@ class CaptureSplitter : public CaptureInterface
 
 protected:
   bool is_capturing;
-  int camera_id;
 
-  RawImage* frame;
-  RawImage* nextFrame;
-  std::mutex frameMutex;
+  VarDouble* relative_height_offset;
+  VarDouble* relative_width_offset;
+  VarDouble* relative_width;
+  VarDouble* relative_height;
+
+  RawImage* full_image;
+  std::mutex full_image_arrived_mutex;
+  std::mutex frame_processed_mutex;
 
 public:
 #ifndef VDATA_NO_QT
@@ -55,7 +59,7 @@ public:
 #else
   CaptureSplitter(VarList * _settings);
 #endif
-  ~CaptureSplitter() override;
+  ~CaptureSplitter() override = default;
 
   bool startCapture() override;
   bool stopCapture() override;
@@ -69,6 +73,7 @@ public:
   bool copyAndConvertFrame(const RawImage & src, RawImage & target) override;
   string getCaptureMethodName() const override;
 
-  void onNewFrame(RawImage* frame);
+  void onNewFrame(RawImage* image);
+  void waitUntilFrameProcessed();
 };
 
