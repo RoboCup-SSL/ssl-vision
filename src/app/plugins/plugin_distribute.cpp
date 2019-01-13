@@ -73,8 +73,11 @@ ProcessResult PluginDistribute::process(FrameData *data,
   if (data == 0)
     return ProcessingFailed;
 
-  for(int i=0;i<captureSplitters.size();i++) {
-    captureSplitters[i]->onNewFrame(&data->video);
+  for (auto &captureSplitter : captureSplitters) {
+    captureSplitter->onNewFrame(&data->video);
+  }
+  for (auto &captureSplitter : captureSplitters) {
+    captureSplitter->waitUntilFrameProcessed();
   }
 
   VisualizationFrame *vis_frame =
