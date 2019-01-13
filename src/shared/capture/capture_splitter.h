@@ -17,6 +17,7 @@
 
 #include "captureinterface.h"
 #include "VarTypes.h"
+#include <mutex>
 
 #ifndef VDATA_NO_QT
   #include <QMutex>
