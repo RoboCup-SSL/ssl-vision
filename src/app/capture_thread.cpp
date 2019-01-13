@@ -20,6 +20,7 @@
 //========================================================================
 
 #include "capture_thread.h"
+#include <capture_splitter.h>
 
 CaptureThread::CaptureThread(int cam_id)
 {
@@ -39,10 +40,12 @@ CaptureThread::CaptureThread(int cam_id)
   captureModule->addItem("Video 4 Linux");
   captureModule->addItem("Read from files");
   captureModule->addItem("Generator");
+  captureModule->addItem("Splitter");
   settings->addChild( (VarType*) (dc1394 = new VarList("DC1394")));
   settings->addChild( (VarType*) (v4l = new VarList("Video 4 Linux")));
   settings->addChild( (VarType*) (fromfile = new VarList("Read from files")));
   settings->addChild( (VarType*) (generator = new VarList("Generator")));
+  settings->addChild( (VarType*) (splitter = new VarList("Splitter")));
   settings->addFlags( VARTYPE_FLAG_AUTO_EXPAND_TREE );
   c_stop->addFlags( VARTYPE_FLAG_READONLY );
   c_refresh->addFlags( VARTYPE_FLAG_READONLY );
@@ -58,6 +61,7 @@ CaptureThread::CaptureThread(int cam_id)
   captureFiles = new CaptureFromFile(fromfile, camId);
   captureGenerator = new CaptureGenerator(generator);
   captureV4L = new CaptureV4L(v4l,camId);
+  captureSplitter = new CaptureSplitter(splitter, cam_id);
 
 #ifdef PYLON5
   captureModule->addItem("Basler GigE");
@@ -102,6 +106,7 @@ CaptureThread::~CaptureThread()
   delete captureV4L;
   delete captureFiles;
   delete captureGenerator;
+  delete captureSplitter;
   delete counter;
 
 #ifdef PYLON5
@@ -135,6 +140,8 @@ void CaptureThread::selectCaptureMethod() {
   CaptureInterface * new_capture=0;
   if(captureModule->getString() == "Read from files") {
     new_capture = captureFiles;
+  } else if(captureModule->getString() == "Splitter") {
+    new_capture = captureSplitter;
   } else if(captureModule->getString() == "Generator") {
     new_capture = captureGenerator;
 #ifdef MVIMPACT
