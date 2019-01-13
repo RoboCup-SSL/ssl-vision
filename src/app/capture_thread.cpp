@@ -267,12 +267,13 @@ void CaptureThread::run() {
                 stack->updateTimingStatistics();
                 stack_mutex.unlock();
               }
-              capture_mutex.lock();
-              if ((capture != 0) && (capture->isCapturing())) {
-                capture->releaseFrame();
-              }
-              capture_mutex.unlock();
           }
+
+          capture_mutex.lock();
+          if ((capture != 0) && (capture->isCapturing())) {
+            capture->releaseFrame();
+          }
+          capture_mutex.unlock();
         } else {
           stats->total=d->number=counter->getTotal();
           stats->fps_capture=counter->getFPS(changed);
