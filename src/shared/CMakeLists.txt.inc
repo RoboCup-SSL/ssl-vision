@@ -13,7 +13,6 @@ include_directories(${shared_dir}/vartypes/gui)
 include_directories(${shared_dir}/vartypes/xml)
 
 set (SHARED_SRCS
-	${shared_dir}/capture/capturedc1394v2.cpp
 	${shared_dir}/capture/capturev4l.cpp
 	${shared_dir}/capture/capturefromfile.cpp
 	${shared_dir}/capture/capture_generator.cpp
@@ -99,7 +98,6 @@ set (SHARED_SRCS
 
 #only ones that need to be moc'ed
 set (SHARED_HEADERS
-	${shared_dir}/capture/capturedc1394v2.h
 	${shared_dir}/capture/capturev4l.h
 	${shared_dir}/capture/capturefromfile.h
   ${shared_dir}/capture/capture_generator.h

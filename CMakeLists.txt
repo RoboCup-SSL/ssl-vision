@@ -1,6 +1,7 @@
 project(ssl-vision)
 set(OpenGL_GL_PREFERENCE LEGACY)
 set(USE_NEURAL_CALIBRATION FALSE CACHE BOOL "Enable neural network calibration (requires OpenCV 2, not compatible to later versions)")
+set(USE_DC1394 TRUE CACHE BOOL "Compile with DC1394 (firewire cameras)")
 set(USE_QT5 FALSE CACHE BOOL "Use Qt5 instead of Qt4")
 if(USE_QT5)
 	cmake_minimum_required(VERSION 2.8.9)
@@ -40,7 +41,6 @@ endif()
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(Eigen3 REQUIRED eigen3)
-pkg_check_modules(DC1394 REQUIRED libdc1394-2)
 
 if(USE_QT5)
 	set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -95,6 +95,22 @@ if(${FLYCAP_FOUND} MATCHES "TRUE")
   message(STATUS "Flycapture found => Flycap support enabled")
 else()
   message(STATUS "Flycapture NOT found => Flycap support disabled")
+endif()
+
+if(USE_DC1394)
+	pkg_check_modules(DC1394 REQUIRED libdc1394-2)
+	add_definitions(-D DC1394)
+	set (SHARED_SRCS ${SHARED_SRCS}
+			${shared_dir}/capture/capturedc1394v2.cpp
+			)
+	set (SHARED_HEADERS ${SHARED_HEADERS}
+			${shared_dir}/capture/capturedc1394v2.h
+			)
+	message(STATUS "DC1394 enabled")
+else()
+	add_definitions(-D NO_DC1394_CONVERSIONS)
+	set(DC1394_LIBRARIES "")
+	message(STATUS "DC1394 disabled")
 endif()
 
 if(USE_NEURAL_CALIBRATION)
