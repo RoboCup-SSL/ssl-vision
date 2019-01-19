@@ -157,6 +157,9 @@ int RawImage::computeImageSize(ColorFormat fmt, int pixelCount)
     case COLOR_YUV411: return pixelCount*3/2;
     case COLOR_MONO8: return pixelCount;
     case COLOR_MONO16: return pixelCount*2;
+    case COLOR_RAW8: return pixelCount;
+    case COLOR_RAW16: return pixelCount*2;
+    case COLOR_RAW32: return pixelCount*4;
     default:
     return 0;
   }

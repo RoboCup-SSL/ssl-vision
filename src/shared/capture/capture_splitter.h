@@ -50,6 +50,7 @@ protected:
   VarDouble* relative_height;
 
   RawImage* full_image;
+  RawImage* image_buffer;
   std::mutex full_image_arrived_mutex;
   std::mutex frame_processed_mutex;
 
@@ -59,7 +60,7 @@ public:
 #else
   CaptureSplitter(VarList * _settings);
 #endif
-  ~CaptureSplitter() override = default;
+  ~CaptureSplitter() override;
 
   bool startCapture() override;
   bool stopCapture() override;

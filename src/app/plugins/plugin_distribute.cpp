@@ -14,6 +14,7 @@
 //========================================================================
 
 #include "plugin_distribute.h"
+#include <opencv2/opencv.hpp>
 
 PluginDistribute::PluginDistribute(FrameBuffer *_buffer, vector<CaptureSplitter *> captureSplitters)
     : VisionPlugin(_buffer),
@@ -47,6 +48,10 @@ void PluginDistribute::DrawCameraImage(FrameData *data,
         data->video.getData(),
         reinterpret_cast<unsigned char *>(vis_frame->data.getData()),
         data->video.getWidth(), data->video.getHeight());
+  } else if (source_format==COLOR_RAW8) {
+    cv::Mat src(data->video.getHeight(), data->video.getWidth(), CV_8UC1, data->video.getData());
+    cv::Mat dst(data->video.getHeight(), data->video.getWidth(), CV_8UC3, vis_frame->data.getData());
+    cvtColor(src, dst, cv::COLOR_BayerBG2RGB);
   } else {
     // blank it:
     vis_frame->data.fillBlack();

@@ -15,6 +15,7 @@
 
 #include "capture_splitter.h"
 #include <algorithm>
+#include <opencv2/opencv.hpp>
 
 #ifndef VDATA_NO_QT
 CaptureSplitter::CaptureSplitter(VarList * _settings, int default_camera_id, QObject * parent) : QObject(parent), CaptureInterface(_settings)
@@ -51,6 +52,14 @@ CaptureSplitter::CaptureSplitter(VarList * _settings) : CaptureInterface(_settin
     settings->addChild(relative_height = new VarDouble("Relative height", 1.0, 0.0, 1.0));
     settings->addChild(relative_width = new VarDouble("Relative width", 1.0, 0.0, 1.0));
   }
+
+  image_buffer = new RawImage();
+}
+
+CaptureSplitter::~CaptureSplitter()
+{
+  image_buffer->clear();
+  delete image_buffer;
 }
 
 bool CaptureSplitter::stopCapture()
@@ -123,17 +132,50 @@ bool CaptureSplitter::copyAndConvertFrame(const RawImage &src, RawImage &target)
   width -= width % 4;
 
   // allocate target image
-  target.allocate(src.getColorFormat(), width, height);
+  image_buffer->ensure_allocation(src.getColorFormat(), width, height);
 
-  // copy data
-  unsigned char *data_dest = target.getData();
+  if(image_buffer->getData() == nullptr)
+  {
+    std::cout << "Could not allocate image. Source color format '" << Colors::colorFormatToString(src.getColorFormat()) << "' not supported?" << std::endl;
+#ifndef VDATA_NO_QT
+    mutex.unlock();
+#endif
+    return false;
+  }
+
+  // copy the respective part of the source image
+  unsigned char *data_buf = image_buffer->getData();
   unsigned char *data_src = src.getData();
-  auto pixel_size = (size_t) RawImage::computeImageSize(target.getColorFormat(), 1);
+  auto pixel_size = (size_t) RawImage::computeImageSize(image_buffer->getColorFormat(), 1);
   for (int i = 0; i < height; i++) {
     memcpy(
-            data_dest + i * width * pixel_size,
+            data_buf + i * width * pixel_size,
             data_src + ((i + height_offset) * src.getWidth() + width_offset) * pixel_size,
             pixel_size * width);
+  }
+
+  target.ensure_allocation(ColorFormat::COLOR_RGB8, width, height);
+
+  if(image_buffer->getData() == nullptr)
+  {
+    std::cout << "Could not allocate image. Target color format '" << Colors::colorFormatToString(target.getColorFormat()) << "' not supported?" << std::endl;
+#ifndef VDATA_NO_QT
+    mutex.unlock();
+#endif
+    return false;
+  }
+
+  if(image_buffer->getColorFormat() == ColorFormat::COLOR_RAW8) {
+  cv::Mat srcMat(height, width, CV_8UC1, data_buf);
+  cv::Mat dstMat(height, width, CV_8UC3, target.getData());
+  cvtColor(srcMat, dstMat, cv::COLOR_BayerBG2RGB);
+  } else if(image_buffer->getColorFormat() != ColorFormat::COLOR_RGB8)
+  {
+    std::cout << "Unsupported image format: " << Colors::colorFormatToString(image_buffer->getColorFormat()) << std::endl;
+#ifndef VDATA_NO_QT
+    mutex.unlock();
+#endif
+    return false;
   }
 
 #ifndef VDATA_NO_QT
