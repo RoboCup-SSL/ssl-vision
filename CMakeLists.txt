@@ -3,6 +3,15 @@ set(OpenGL_GL_PREFERENCE LEGACY)
 set(USE_NEURAL_CALIBRATION FALSE CACHE BOOL "Enable neural network calibration (requires OpenCV 2, not compatible to later versions)")
 set(USE_DC1394 TRUE CACHE BOOL "Compile with DC1394 (firewire cameras)")
 set(USE_QT5 FALSE CACHE BOOL "Use Qt5 instead of Qt4")
+set(USE_mvIMPACT FALSE CACHE BOOL "Compile with mvImpact (bluefox cameras)")
+
+if(USE_DC1394 AND USE_mvIMPACT)
+	message(FATAL_ERROR "DC1394 and mvImpact are not compatible: mvImpact crashes when creating device manager")
+endif()
+if(USE_NEURAL_CALIBRATION AND USE_mvIMPACT)
+	message(FATAL_ERROR "USE_NEURAL_CALIBRATION and USE_mvIMPACT are not compatible: They require different OpenCV versions")
+endif()
+
 if(USE_QT5)
 	cmake_minimum_required(VERSION 2.8.9)
 	if(POLICY CMP0020)
@@ -72,15 +81,27 @@ include_directories(
 	${PROTOBUF_INCLUDE_DIRS}
 )
 
-find_package(mvIMPACT QUIET)
-
 include(src/shared/CMakeLists.txt.inc)
 
-if(${mvIMPACT_FOUND} MATCHES "true")
-  include_directories(${mvIMPACT_INCLUDE_DIR})
-  add_definitions(-D MVIMPACT)
-  set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capture_bluefox2.cpp)
-  set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capture_bluefox2.h)
+if(USE_mvIMPACT)
+	find_package(mvIMPACT QUIET)
+	if(${mvIMPACT_FOUND} MATCHES "true")
+	  include_directories(${mvIMPACT_INCLUDE_DIR})
+	  add_definitions(-D MVIMPACT3)
+	  add_definitions(-D MVIMPACT2)
+	  set (SHARED_SRCS ${SHARED_SRCS}
+			  ${shared_dir}/capture/capture_bluefox2.cpp
+			  ${shared_dir}/capture/capture_bluefox3.cpp
+			  )
+	  set (SHARED_HEADERS ${SHARED_HEADERS}
+			  ${shared_dir}/capture/capture_bluefox2.h
+			  ${shared_dir}/capture/capture_bluefox3.h
+			  )
+	  message(STATUS "mvIMPACT found => Bluefox support enabled")
+	  message(STATUS "Bluefox not compatible with DC1394. Disabling DC1394")
+	else()
+	  message(STATUS "mvIMPACT NOT found => Bluefox support disabled")
+	endif()
 endif()
 
 set(FLYCAP_HINTS "/usr/include/flycapture")
@@ -124,6 +145,16 @@ if(USE_NEURAL_CALIBRATION)
 		message(STATUS "OpenCV 2 found => Neural Calibration available")
 	else()
 		message(STATUS "OpenCV 2 NOT found => Neural Calibration not available")
+	endif()
+elseif(USE_mvIMPACT)
+	# Note: Bluefox SDK is not compatible with some components of OpenCV. Take care when enabling more.
+	find_package( OpenCV REQUIRED COMPONENTS core imgproc)
+	if(OpenCV_FOUND)
+		include_directories(${OpenCV_INCLUDE_DIRS})
+		add_definitions(-D OPENCV)
+		message(STATUS "OpenCV found")
+	else()
+		message(FATAL_ERROR "OpenCV NOT found")
 	endif()
 endif()
 

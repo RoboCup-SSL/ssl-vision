@@ -34,8 +34,11 @@
 #include "capturestats.h"
 #include "affinity_manager.h"
 
-#ifdef MVIMPACT
+#ifdef MVIMPACT2
 #include "capture_bluefox2.h"
+#endif
+#ifdef MVIMPACT3
+#include "capture_bluefox3.h"
 #endif
 
 #ifdef FLYCAP
@@ -63,6 +66,7 @@ protected:
   CaptureInterface * captureDC1394;
   CaptureInterface * captureV4L;
   CaptureInterface * captureBlueFox2;
+  CaptureInterface * captureBlueFox3;
   CaptureInterface * captureFlycap;
   CaptureInterface * captureFiles;
   CaptureInterface * captureGenerator;
@@ -76,6 +80,7 @@ protected:
   VarList * dc1394;
   VarList * v4l;
   VarList * bluefox2;
+  VarList * bluefox3;
   VarList * flycap;
   VarList * generator;
   VarList * fromfile;

@@ -79,10 +79,16 @@ CaptureThread::CaptureThread(int cam_id)
   captureFlycap = new CaptureFlycap(flycap, camId);
 #endif
 
-#ifdef MVIMPACT
+#ifdef MVIMPACT2
   captureModule->addItem("BlueFox2");
   settings->addChild( (VarType*) (bluefox2 = new VarList("BlueFox2")));
   captureBlueFox2 = new CaptureBlueFox2(bluefox2,camId);
+#endif
+
+#ifdef MVIMPACT3
+  captureModule->addItem("BlueFox3");
+  settings->addChild( (VarType*) (bluefox3 = new VarList("BlueFox3")));
+  captureBlueFox3 = new CaptureBlueFox3(bluefox3,camId);
 #endif
 
   selectCaptureMethod();
@@ -123,8 +129,12 @@ CaptureThread::~CaptureThread()
   delete captureFlycap;
 #endif
 
-#ifdef MVIMPACT
+#ifdef MVIMPACT2
   delete captureBlueFox2;
+#endif
+
+#ifdef MVIMPACT3
+  delete captureBlueFox3;
 #endif
 }
 
@@ -150,9 +160,13 @@ void CaptureThread::selectCaptureMethod() {
     new_capture = captureSplitter;
   } else if(captureModule->getString() == "Generator") {
     new_capture = captureGenerator;
-#ifdef MVIMPACT
+#ifdef MVIMPACT2
   } else if(captureModule->getString() == "BlueFox2") {
     new_capture = captureBlueFox2;
+#endif
+#ifdef MVIMPACT3
+    } else if(captureModule->getString() == "BlueFox3") {
+    new_capture = captureBlueFox3;
 #endif
   } else if(captureModule->getString() == "Video 4 Linux") {
     new_capture = captureV4L;
