@@ -78,9 +78,8 @@ bool CaptureSplitter::startCapture()
   mutex.lock();
 #endif
 
-  is_capturing = true;
   full_image_arrived_mutex.try_lock();
-  frame_processed_mutex.try_lock();
+  is_capturing = true;
 
 #ifndef VDATA_NO_QT
   mutex.unlock();
@@ -183,6 +182,6 @@ void CaptureSplitter::onNewFrame(RawImage* image)
 void CaptureSplitter::waitUntilFrameProcessed()
 {
   if(isCapturing()) {
-	frame_processed_mutex.lock();
+	  frame_processed_mutex.lock();
   }
 }
