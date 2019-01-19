@@ -34,14 +34,13 @@ CaptureThread::CaptureThread(int cam_id)
   control->addChild( (VarType*) (c_reset  = new VarTrigger("reset bus","Reset")));
   control->addChild( (VarType*) (c_auto_refresh= new VarBool("auto refresh params",true)));
   control->addChild( (VarType*) (c_refresh= new VarTrigger("re-read params","Refresh")));
-  control->addChild( (VarType*) (captureModule= new VarStringEnum("Capture Module","DC 1394")));
+  control->addChild( (VarType*) (captureModule= new VarStringEnum("Capture Module","None")));
   captureModule->addFlags(VARTYPE_FLAG_NOLOAD_ENUM_CHILDREN);
-  captureModule->addItem("DC 1394");
+  captureModule->addItem("None");
   captureModule->addItem("Video 4 Linux");
   captureModule->addItem("Read from files");
   captureModule->addItem("Generator");
   captureModule->addItem("Splitter");
-  settings->addChild( (VarType*) (dc1394 = new VarList("DC1394")));
   settings->addChild( (VarType*) (v4l = new VarList("Video 4 Linux")));
   settings->addChild( (VarType*) (fromfile = new VarList("Read from files")));
   settings->addChild( (VarType*) (generator = new VarList("Generator")));
@@ -56,12 +55,17 @@ CaptureThread::CaptureThread(int cam_id)
   connect(captureModule,SIGNAL(hasChanged(VarType *)),this,SLOT(selectCaptureMethod()));
   stack = 0;
   counter=new FrameCounter();
-  capture=0;
-  captureDC1394 = new CaptureDC1394v2(dc1394,camId);
+  capture=nullptr;
   captureFiles = new CaptureFromFile(fromfile, camId);
   captureGenerator = new CaptureGenerator(generator);
   captureV4L = new CaptureV4L(v4l,camId);
   captureSplitter = new CaptureSplitter(splitter, cam_id);
+
+#ifdef DC1394
+  captureModule->addItem("DC 1394");
+  settings->addChild( (VarType*) (dc1394 = new VarList("DC1394")));
+  captureDC1394 = new CaptureDC1394v2(dc1394,camId);
+#endif
 
 #ifdef PYLON5
   captureModule->addItem("Basler GigE");
@@ -102,7 +106,9 @@ VarList * CaptureThread::getSettings() {
 
 CaptureThread::~CaptureThread()
 {
+#ifdef DC1394
   delete captureDC1394;
+#endif
   delete captureV4L;
   delete captureFiles;
   delete captureGenerator;
@@ -137,7 +143,7 @@ VisionStack * CaptureThread::getStack() const {
 void CaptureThread::selectCaptureMethod() {
   capture_mutex.lock();
   CaptureInterface * old_capture=capture;
-  CaptureInterface * new_capture=0;
+  CaptureInterface * new_capture=nullptr;
   if(captureModule->getString() == "Read from files") {
     new_capture = captureFiles;
   } else if(captureModule->getString() == "Splitter") {
@@ -150,8 +156,10 @@ void CaptureThread::selectCaptureMethod() {
 #endif
   } else if(captureModule->getString() == "Video 4 Linux") {
     new_capture = captureV4L;
+#ifdef DC1394
   } else if(captureModule->getString() == "DC 1394") {
     new_capture = captureDC1394;
+#endif
 #ifdef FLYCAP
   } else if(captureModule->getString() == "Flycapture") {
     new_capture = captureFlycap;
@@ -161,14 +169,10 @@ void CaptureThread::selectCaptureMethod() {
 	  new_capture = captureBasler;
 #endif
   }
-
-  if (old_capture!=0 && new_capture!=old_capture && old_capture->isCapturing()) {
+  if (old_capture!=nullptr && new_capture!=old_capture && old_capture->isCapturing()) {
     capture_mutex.unlock();
     stop();
     capture_mutex.lock();
-    capture=new_capture;
-    capture_mutex.unlock();
-    return;
   }
   capture=new_capture;
   capture_mutex.unlock();
@@ -183,7 +187,7 @@ void CaptureThread::kill() {
 
 bool CaptureThread::init() {
   capture_mutex.lock();
-  bool res = capture->startCapture();
+  bool res = capture != nullptr && capture->startCapture();
   if (res==true) {
     c_start->addFlags( VARTYPE_FLAG_READONLY );
     c_reset->addFlags( VARTYPE_FLAG_READONLY );
@@ -196,7 +200,7 @@ bool CaptureThread::init() {
 
 bool CaptureThread::stop() {
   capture_mutex.lock();
-  bool res = capture->stopCapture();
+  bool res = capture != nullptr && capture->stopCapture();
   if (res==true) {
     c_stop->addFlags( VARTYPE_FLAG_READONLY );
     c_refresh->addFlags( VARTYPE_FLAG_READONLY );
@@ -209,14 +213,16 @@ bool CaptureThread::stop() {
 
 bool CaptureThread::reset() {
   capture_mutex.lock();
-  bool res = capture->resetBus();
+  bool res = capture != nullptr && capture->resetBus();
   capture_mutex.unlock();
   return res;
 }
 
 void CaptureThread::refresh() {
   capture_mutex.lock();
-  capture->readAllParameterValues();
+  if(capture != nullptr) {
+    capture->readAllParameterValues();
+  }
   capture_mutex.unlock();
 }
 
@@ -237,7 +243,7 @@ void CaptureThread::run() {
           stats=(CaptureStats *)d->map.insert("capture_stats",new CaptureStats());
         }
         capture_mutex.lock();
-        if ((capture != 0) && (capture->isCapturing())) {
+        if ((capture != nullptr) && (capture->isCapturing())) {
           RawImage pic_raw=capture->getFrame();
           d->time=pic_raw.getTime();
           bool bSuccess = capture->copyAndConvertFrame( pic_raw,d->video);
@@ -270,7 +276,7 @@ void CaptureThread::run() {
           }
 
           capture_mutex.lock();
-          if ((capture != 0) && (capture->isCapturing())) {
+          if ((capture != nullptr) && (capture->isCapturing())) {
             capture->releaseFrame();
           }
           capture_mutex.unlock();
@@ -283,7 +289,7 @@ void CaptureThread::run() {
         }
         if (_kill) {
           capture_mutex.lock();
-          if(capture != 0) {
+          if(capture != nullptr) {
             capture->stopCapture();
             //make sure to read latest params from camera to be saved to file...
             if (capture->isCapturing()) capture->readAllParameterValues();
