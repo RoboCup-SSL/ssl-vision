@@ -25,6 +25,7 @@
 #include "capturefromfile.h"
 #include "capturev4l.h"
 #include "capture_generator.h"
+#include "capture_splitter.h"
 #include <QThread>
 #include "ringbuffer.h"
 #include "framedata.h"
@@ -66,6 +67,7 @@ protected:
   CaptureInterface * captureFiles;
   CaptureInterface * captureGenerator;
   CaptureInterface * captureBasler;
+  CaptureInterface * captureSplitter;
   AffinityManager * affinity;
   FrameBuffer * rb;
   bool _kill;
@@ -78,6 +80,7 @@ protected:
   VarList * generator;
   VarList * fromfile;
   VarList * basler;
+  VarList * splitter;
   VarList * control;
   VarTrigger * c_start;
   VarTrigger * c_stop;
@@ -102,6 +105,7 @@ public:
   void kill();
   VarList * getSettings();
   void setAffinityManager(AffinityManager * _affinity);
+  CaptureInterface* getCaptureSplitter() {return captureSplitter;};
   CaptureThread(int cam_id);
   ~CaptureThread();
 

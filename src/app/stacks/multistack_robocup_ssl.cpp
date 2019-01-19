@@ -19,8 +19,10 @@
 */
 //========================================================================
 #include "multistack_robocup_ssl.h"
+#include "capture_splitter.h"
+#include "DistributorStack.h"
 
-MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
+MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions *_opts) :
     MultiVisionStack("RoboCup SSL Multi-Cam",_opts),
     ds_udp_server_new(NULL),
     ds_udp_server_old(NULL) {
@@ -84,9 +86,11 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
       *global_field);
 
   //add parameter for number of cameras
-  createThreads(cameras);
-  unsigned int n = threads.size();
-  for (unsigned int i = 0; i < n;i++) {
+  int numNormalCameraThreads = 4;
+  createThreads(numNormalCameraThreads + 1);
+  std::vector<CaptureSplitter*> captureSplitters;
+  captureSplitters.resize((unsigned long) numNormalCameraThreads);
+  for (unsigned int i = 0; i < numNormalCameraThreads;i++) {
     //NOTE: if modified to put different stacks in cameras, please
     //      update the plugin_colorcalib.cpp code to safely reallocate and copy their
     //      data instead of assuming that format and size is uniform across
@@ -106,7 +110,15 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
             ds_udp_server_new,
             ds_udp_server_old,
             "robocup-ssl-cam-" + QString::number(i).toStdString()));
+    captureSplitters[i] = dynamic_cast<CaptureSplitter*>(threads[i]->getCaptureSplitter());
   }
+
+  threads[numNormalCameraThreads]->setFrameBuffer(new FrameBuffer(5));
+  threads[numNormalCameraThreads]->setStack(
+          new DistributorStack(
+                  _opts,
+                  threads[numNormalCameraThreads]->getFrameBuffer(),
+                  captureSplitters));
 }
 
 string MultiStackRoboCupSSL::getSettingsFileName() {
