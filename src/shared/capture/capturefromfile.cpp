@@ -26,6 +26,8 @@
 #include "image_io.h"
 #include "conversions.h"
 #include <sstream>
+#include <fstream>
+#include <opencv2/opencv.hpp>
 
 
 #ifndef VDATA_NO_QT
@@ -44,7 +46,10 @@ CaptureFromFile::CaptureFromFile(VarList * _settings) : CaptureInterface(_settin
   conversion_settings->addChild(v_colorout=new VarStringEnum("convert to mode",Colors::colorFormatToString(COLOR_YUV422_UYVY)));
   v_colorout->addItem(Colors::colorFormatToString(COLOR_RGB8));
   v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV422_UYVY));
-    
+
+  conversion_settings-> addChild(v_raw_width=new VarInt("raw width", 0));
+  conversion_settings-> addChild(v_raw_height=new VarInt("raw height", 0));
+
   //=======================CAPTURE SETTINGS==========================
   ostringstream convert;
   convert << "test-data/cam" << default_camera_id;
@@ -55,6 +60,7 @@ CaptureFromFile::CaptureFromFile(VarList * _settings) : CaptureInterface(_settin
   validImageFileEndings.push_back("BMP");
   validImageFileEndings.push_back("JPG");
   validImageFileEndings.push_back("JPEG");
+  validImageFileEndings.push_back("RAW");
 }
 
 CaptureFromFile::~CaptureFromFile()
@@ -123,11 +129,35 @@ bool CaptureFromFile::startCapture()
     std::list<std::string>::iterator currentImage = imgs_it;
     while(currentImage != imgs_to_load.end())
     {
-      int width(-1);
-      int height(-1);
-      rgba* rgba_img = ImageIO::readRGBA(width, height, currentImage->c_str());
+      int width(v_raw_width->get());
+      int height(v_raw_height->get());
+      if(getFileEnding(*currentImage) == "RAW") {
+        std::ifstream file( *currentImage, std::ios::binary );
+        if(!file)
+        {
+          std::cout << "Could not read file: " << *currentImage << std::endl;
+          continue;
+        }
+        vector<char> buffer((istreambuf_iterator<char>(file)), (istreambuf_iterator<char>()));
+
+        if((int) buffer.size() < width*height)
+        {
+          std::cerr << "Image " << *currentImage << " is too small!" << std::endl;
+          continue;
+        }
+
+        rgba *rgba_img = new rgba[width*height];
+        cv::Mat srcMat(height, width, CV_8UC1, buffer.data());
+        cv::Mat intMat(height, width, CV_8UC3);
+        cv::Mat dstMat(height, width, CV_8UC4, rgba_img);
+        cvtColor(srcMat, intMat, cv::COLOR_BayerRG2BGR);
+        cvtColor(intMat, dstMat, cv::COLOR_BGR2RGBA);
+        images.push_back(rgba_img);
+      } else {
+        rgba *rgba_img = ImageIO::readRGBA(width, height, currentImage->c_str());
+        images.push_back(rgba_img);
+      }
       fprintf (stderr, "Loaded %s \n", currentImage->c_str());
-      images.push_back(rgba_img);
       heights.push_back(height);
       widths.push_back(width);
       ++currentImage;
@@ -142,19 +172,31 @@ bool CaptureFromFile::startCapture()
   return true;
 }
 
-bool CaptureFromFile::isImageFileName(const std::string& fileName)
+std::string CaptureFromFile::getFileEnding(const std::string& fileName)
 {
   // Get ending and turn it to uppercase:
-  string::size_type pointPos = fileName.find_last_of(".");
+  string::size_type pointPos = fileName.find_last_of('.');
   if(pointPos == string::npos)
-    return false;
+    return "";
   string ending = fileName.substr(pointPos+1);
-  for(unsigned int i=0; i<ending.size(); ++i)
-    ending[i] = toupper(ending[i]);
+  for (char &i : ending) {
+    i = toupper(i);
+  }
+  return ending;
+}
+
+bool CaptureFromFile::isImageFileName(const std::string& fileName)
+{
+  auto ending = getFileEnding(fileName);
+  if(ending.empty()) {
+    return false;
+  }
   // Compare against list of valid endings
-  for(unsigned int i=0; i<validImageFileEndings.size();++i)
-    if(ending == validImageFileEndings[i])
+  for (const auto &validImageFileEnding : validImageFileEndings) {
+    if (ending == validImageFileEnding) {
       return true;
+    }
+  }
   return false;
 }
 
