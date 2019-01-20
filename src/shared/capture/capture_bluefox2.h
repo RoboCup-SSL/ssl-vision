@@ -236,7 +236,7 @@ protected:
   VarList * capture_settings;
   
   // BlueFox2 specific data
-  DeviceManager devMgr;
+  DeviceManager* pDevMgr;
   Device* pDevice;
   FunctionInterface* pFI;
   CameraSettingsBlueFOX* pSettings;

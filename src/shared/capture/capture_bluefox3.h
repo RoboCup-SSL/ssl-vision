@@ -81,44 +81,43 @@ protected:
   VarList * capture_settings;
   
   // BlueFox3 specific data
-  DeviceManager* devMgr;
+  DeviceManager* pDevMgr;
   Device* pDevice;
   FunctionInterface* pFI;
   int lastRequestNr;
 
   unsigned int cam_id;
-  ColorFormat capture_format;
 
 public:
-  #ifndef VDATA_NO_QT
-    CaptureBlueFox3(VarList * _settings=0,int default_camera_id=0,QObject * parent=0);
-  #else
+#ifndef VDATA_NO_QT
+  explicit CaptureBlueFox3(VarList * _settings= nullptr, int default_camera_id=0, QObject * parent=nullptr);
+#else
     CaptureBlueFox3(VarList * _settings=0,int default_camera_id=0);
-  #endif
-  ~CaptureBlueFox3();
+#endif
+  ~CaptureBlueFox3() override;
 
   /// Initialize the interface and start capture
-  virtual bool startCapture();
+  bool startCapture() override;
 
   /// Stop Capture
-  virtual bool stopCapture();
+  bool stopCapture() override;
 
-  virtual bool isCapturing() { return is_capturing; };
+  bool isCapturing() override { return is_capturing; };
 
   /// this gives a raw-image with a pointer directly to the video-buffer
   /// Note that this pointer is only guaranteed to point to a valid
   /// memory location until releaseFrame() is called.
-  virtual RawImage getFrame();
+  RawImage getFrame() override;
 
-  virtual void releaseFrame();
+  void releaseFrame() override;
 
-  virtual bool resetBus();
+  bool resetBus() override;
 
-  virtual void readAllParameterValues();
+  void readAllParameterValues() override;
 
-  virtual bool copyAndConvertFrame(const RawImage & src, RawImage & target);
+  bool copyAndConvertFrame(const RawImage & src, RawImage & target) override;
 
-  virtual string getCaptureMethodName() const;
+  string getCaptureMethodName() const override;
 };
 
 #endif
