@@ -59,6 +59,8 @@ protected:
 
   //processing variables:
   VarStringEnum * v_colorout;
+  VarInt * v_raw_width;
+  VarInt * v_raw_height;
 
   //capture variables:
   VarString * v_cap_dir;
@@ -74,6 +76,7 @@ protected:
   unsigned int currentImageIndex;
   
   bool isImageFileName(const std::string& fileName);
+  std::string getFileEnding(const std::string& fileName);
   std::vector<std::string> validImageFileEndings;
   
 public:
