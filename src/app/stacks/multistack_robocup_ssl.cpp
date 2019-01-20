@@ -136,14 +136,14 @@ MultiStackRoboCupSSL::~MultiStackRoboCupSSL() {
 
 void MultiStackRoboCupSSL::UpdateServerSettings(const int port,
                           const string& address,
-                          const string& interface,
+                          const string& iface,
                           const string& server_name,
                           RoboCupSSLServer* server) {
   server->mutex.lock();
   server->close();
   server->_port = port;
   server->_net_address = address;
-  server->_net_interface = interface;
+  server->_net_interface = iface;
   if (server->open()==false) {
     fprintf(stderr,
             "ERROR WHEN TRYING TO OPEN UDP NETWORK SERVER FOR %s!\n",
@@ -156,12 +156,12 @@ void MultiStackRoboCupSSL::UpdateServerSettings(const int port,
 void MultiStackRoboCupSSL::RefreshLegacyNetworkOutput() {
   const string address =
       legacy_network_output_settings->multicast_address->getString();
-  const string interface =
+  const string iface =
       legacy_network_output_settings->multicast_interface->getString();
   UpdateServerSettings(
       legacy_network_output_settings->ds_multicast_port_old->getInt(),
       address,
-      interface,
+      iface,
       "DOUBLE-SIZE FIELD (OLD FORMAT)",
       ds_udp_server_old
   );

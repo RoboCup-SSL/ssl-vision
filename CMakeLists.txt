@@ -1,9 +1,10 @@
 project(ssl-vision)
 set(OpenGL_GL_PREFERENCE LEGACY)
-set(USE_NEURAL_CALIBRATION FALSE CACHE BOOL "Enable neural network calibration (requires OpenCV 2, not compatible to later versions)")
-set(USE_DC1394 TRUE CACHE BOOL "Compile with DC1394 (firewire cameras)")
 set(USE_QT5 FALSE CACHE BOOL "Use Qt5 instead of Qt4")
-set(USE_mvIMPACT FALSE CACHE BOOL "Compile with mvImpact (bluefox cameras)")
+set(USE_NEURAL_CALIBRATION FALSE CACHE BOOL "Enable neural network calibration (requires OpenCV 2, not compatible to later versions)")
+set(USE_DC1394 TRUE CACHE BOOL "Compile with DC1394 driver (firewire cameras)")
+set(USE_SPINNAKER FALSE CACHE BOOL "Compile with Spinnaker driver (FLIR USB3 cameras)")
+set(USE_mvIMPACT FALSE CACHE BOOL "Compile with mvImpact driver (bluefox USB2 + USB3 cameras)")
 
 if(USE_DC1394 AND USE_mvIMPACT)
 	message(FATAL_ERROR "DC1394 and mvImpact are not compatible: mvImpact crashes when creating device manager")
@@ -172,6 +173,18 @@ if(OpenCV_FOUND)
   endif()
 endif()
 
+if( USE_SPINNAKER )
+	find_package( SPINNAKER REQUIRED)
+	add_definitions( -DSPINNAKER )
+	include_directories( ${SPINNAKER_INCLUDE_DIRS} )
+	set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capture_spinnaker.cpp)
+	set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capture_spinnaker.h)
+	message(STATUS "SPINNAKER support enabled")
+else()
+	set( SPINNAKER_LIBS "" )
+	message(STATUS "SPINNAKER support disabled")
+endif()
+
 include_directories(${PROJECT_SOURCE_DIR}/src/app)
 include_directories(${PROJECT_SOURCE_DIR}/src/app/gui)
 include_directories(${PROJECT_SOURCE_DIR}/src/app/plugins)
@@ -318,6 +331,7 @@ set (libs ${QT_LIBRARIES}
 	${PYLON5_LIBRARIES}
 	${OpenCV_LIBS}
 	${FLYCAP_LIBS}
+	${SPINNAKER_LIBS}
 )
 target_link_libraries(sslvision ${libs})
 if(USE_QT5)

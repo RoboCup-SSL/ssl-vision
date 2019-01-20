@@ -37,6 +37,7 @@
 #ifdef MVIMPACT2
 #include "capture_bluefox2.h"
 #endif
+
 #ifdef MVIMPACT3
 #include "capture_bluefox3.h"
 #endif
@@ -47,6 +48,10 @@
 
 #ifdef PYLON5
 #include "capture_basler.h"
+#endif
+
+#ifdef SPINNAKER
+#include "capture_spinnaker.h"
 #endif
 
 /*!
@@ -73,6 +78,7 @@ protected:
   CaptureInterface * captureGenerator;
   CaptureInterface * captureBasler;
   CaptureInterface * captureSplitter;
+  CaptureInterface * captureSpinnaker;
   AffinityManager * affinity;
   FrameBuffer * rb;
   bool _kill;
@@ -87,6 +93,7 @@ protected:
   VarList * fromfile;
   VarList * basler;
   VarList * splitter;
+  VarList * spinnaker;
   VarList * control;
   VarTrigger * c_start;
   VarTrigger * c_stop;

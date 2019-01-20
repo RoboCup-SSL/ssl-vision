@@ -91,6 +91,12 @@ CaptureThread::CaptureThread(int cam_id)
   captureBlueFox3 = new CaptureBlueFox3(bluefox3,camId);
 #endif
 
+#ifdef SPINNAKER
+  captureModule->addItem("Spinnaker");
+  settings->addChild( (VarType*) (spinnaker = new VarList("Spinnaker")));
+  captureSpinnaker = new CaptureSpinnaker(spinnaker,camId);
+#endif
+
   selectCaptureMethod();
   _kill =false;
   rb=0;
@@ -136,6 +142,10 @@ CaptureThread::~CaptureThread()
 #ifdef MVIMPACT3
   delete captureBlueFox3;
 #endif
+
+#ifdef SPINNAKER
+  delete captureSpinnaker;
+#endif
 }
 
 void CaptureThread::setFrameBuffer(FrameBuffer * _rb) {
@@ -167,6 +177,10 @@ void CaptureThread::selectCaptureMethod() {
 #ifdef MVIMPACT3
     } else if(captureModule->getString() == "BlueFox3") {
     new_capture = captureBlueFox3;
+#endif
+#ifdef SPINNAKER
+  } else if(captureModule->getString() == "Spinnaker") {
+    new_capture = captureSpinnaker;
 #endif
   } else if(captureModule->getString() == "Video 4 Linux") {
     new_capture = captureV4L;
