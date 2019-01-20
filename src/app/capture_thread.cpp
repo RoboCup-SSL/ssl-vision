@@ -213,7 +213,7 @@ bool CaptureThread::init() {
 }
 
 bool CaptureThread::stop() {
-  capture_mutex.lock();
+  capture_cycle_mutex.lock();
   bool res = capture != nullptr && capture->stopCapture();
   if (res==true) {
     c_stop->addFlags( VARTYPE_FLAG_READONLY );
@@ -221,7 +221,7 @@ bool CaptureThread::stop() {
     c_start->removeFlags( VARTYPE_FLAG_READONLY );
     c_reset->removeFlags( VARTYPE_FLAG_READONLY );
   }
-  capture_mutex.unlock();
+  capture_cycle_mutex.unlock();
   return res;
 }
 
@@ -258,6 +258,7 @@ void CaptureThread::run() {
         }
         capture_mutex.lock();
         if ((capture != nullptr) && (capture->isCapturing())) {
+          capture_cycle_mutex.lock();
           RawImage pic_raw=capture->getFrame();
           d->time=pic_raw.getTime();
           bool bSuccess = capture->copyAndConvertFrame( pic_raw,d->video);
@@ -294,6 +295,7 @@ void CaptureThread::run() {
             capture->releaseFrame();
           }
           capture_mutex.unlock();
+          capture_cycle_mutex.unlock();
         } else {
           stats->total=d->number=counter->getTotal();
           stats->fps_capture=counter->getFPS(changed);
@@ -309,7 +311,7 @@ void CaptureThread::run() {
             if (capture->isCapturing()) capture->readAllParameterValues();
           }
           capture_mutex.unlock();
-          return;
+          break;
         }
       }
     }
