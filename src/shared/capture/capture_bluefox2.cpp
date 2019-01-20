@@ -27,8 +27,9 @@ CaptureBlueFox2::CaptureBlueFox2(VarList * _settings,int default_camera_id, QObj
 CaptureBlueFox2::CaptureBlueFox2(VarList * _settings,int default_camera_id) : CaptureInterface(_settings)
 #endif
 {
-  cam_id = default_camera_id;
+  cam_id = (unsigned int) default_camera_id;
   is_capturing = false;
+  pDevMgr = nullptr;
   
   #ifndef VDATA_NO_QT
     mutex.lock();
@@ -281,6 +282,7 @@ CaptureBlueFox2::~CaptureBlueFox2()
 {
   capture_settings->deleteAllChildren();
   dcam_parameters->deleteAllChildren();
+  delete pDevMgr;
 }
 
 bool CaptureBlueFox2::resetBus()
@@ -327,11 +329,15 @@ bool CaptureBlueFox2::startCapture()
   #ifndef VDATA_NO_QT
     mutex.lock();
   #endif
+
+  if(pDevMgr == nullptr) {
+    pDevMgr = new DeviceManager();
+  }
     
   //grab current parameters:
-  cam_id = v_cam_bus->getInt();
+  cam_id = (unsigned int) v_cam_bus->getInt();
   
-  const unsigned int devCnt = devMgr.deviceCount();
+  const unsigned int devCnt = pDevMgr->deviceCount();
   fprintf(stderr, "BlueFox2: Number of cams: %u\n", devCnt);
   
   if(cam_id >= devCnt)
@@ -343,8 +349,8 @@ bool CaptureBlueFox2::startCapture()
     #endif
     return false;
   }
-  
-  pDevice = devMgr[cam_id];
+
+  pDevice = (*pDevMgr)[cam_id];
   
   try
   {

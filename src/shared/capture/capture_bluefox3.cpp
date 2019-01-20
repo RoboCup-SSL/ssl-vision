@@ -29,9 +29,9 @@ CaptureBlueFox3::CaptureBlueFox3(VarList * _settings,int default_camera_id, QObj
 CaptureBlueFox3::CaptureBlueFox3(VarList * _settings,int default_camera_id) : CaptureInterface(_settings)
 #endif
 {
-  cam_id = default_camera_id;
+  cam_id = (unsigned int) default_camera_id;
   is_capturing = false;
-  devMgr = nullptr;
+  pDevMgr = nullptr;
   
   #ifndef VDATA_NO_QT
     mutex.lock();
@@ -55,7 +55,7 @@ CaptureBlueFox3::~CaptureBlueFox3()
 {
   capture_settings->deleteAllChildren();
 
-  delete devMgr;
+  delete pDevMgr;
 }
 
 void CaptureBlueFox3::readAllParameterValues()
@@ -64,7 +64,7 @@ void CaptureBlueFox3::readAllParameterValues()
 
 
 #ifndef VDATA_NO_QT
-void CaptureBlueFox3::changed(VarType * group) {
+void CaptureBlueFox3::changed(VarType * /*group*/) {
 }
 #endif
 
@@ -93,9 +93,8 @@ bool CaptureBlueFox3::stopCapture()
   }
   
   vector<VarType *> tmp = capture_settings->getChildren();
-  for (unsigned int i=0; i < tmp.size();i++)
-  {
-    tmp[i]->removeFlags( VARTYPE_FLAG_READONLY );
+  for (auto &i : tmp) {
+    i->removeFlags( VARTYPE_FLAG_READONLY );
   }
   
   return true;
@@ -108,14 +107,14 @@ bool CaptureBlueFox3::startCapture()
     mutex.lock();
   #endif
 
-  if(devMgr == nullptr) {
-    devMgr = new DeviceManager();
+  if(pDevMgr == nullptr) {
+    pDevMgr = new DeviceManager();
   }
     
   //grab current parameters:
-  cam_id = v_cam_bus->getInt();
+  cam_id = (unsigned int) v_cam_bus->getInt();
   
-  const unsigned int devCnt = devMgr->deviceCount();
+  const unsigned int devCnt = pDevMgr->deviceCount();
   fprintf(stderr, "BlueFox3: Number of cams: %u\n", devCnt);
   
   if(cam_id >= devCnt)
@@ -128,7 +127,7 @@ bool CaptureBlueFox3::startCapture()
     return false;
   }
   
-  pDevice = (*devMgr)[cam_id];
+  pDevice = (*pDevMgr)[cam_id];
   
   try
   {
@@ -173,8 +172,8 @@ bool CaptureBlueFox3::startCapture()
   is_capturing = true;
 
   vector<VarType *> tmp = capture_settings->getChildren();
-  for (unsigned int i=0; i < tmp.size();i++) {
-    tmp[i]->addFlags( VARTYPE_FLAG_READONLY );
+  for (auto &i : tmp) {
+    i->addFlags( VARTYPE_FLAG_READONLY );
   }
     
   #ifndef VDATA_NO_QT
@@ -204,13 +203,14 @@ RawImage CaptureBlueFox3::getFrame()
   #ifndef VDATA_NO_QT
     mutex.lock();
   #endif
-    
+
+  ColorFormat out_color = Colors::stringToColorFormat(v_colorout->getSelection().c_str());
   RawImage result;
-  result.setColorFormat(capture_format);
+  result.setColorFormat(out_color);
   result.setWidth(0);
   result.setHeight(0);
   result.setTime(0.0);
-  result.setData(0);
+  result.setData(nullptr);
   
   // make sure the request queue is always filled
   while((static_cast<TDMR_ERROR>( pFI->imageRequestSingle() ) ) == DMR_NO_ERROR ) {};
@@ -233,13 +233,11 @@ RawImage CaptureBlueFox3::getFrame()
 
   if(pRequest->isOK())
   {
-    timeval tv;
-    gettimeofday(&tv,NULL);
+    timeval tv{};
+    gettimeofday(&tv, nullptr);
     result.setTime((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
     result.setWidth(pRequest->imageWidth.read());
     result.setHeight(pRequest->imageHeight.read());
-    ColorFormat out_color = Colors::stringToColorFormat(v_colorout->getSelection().c_str());
-    result.setColorFormat(out_color);
     result.setData((unsigned char*)pRequest->imageData.read());
   }
   else
@@ -257,16 +255,16 @@ RawImage CaptureBlueFox3::getFrame()
 
 void CaptureBlueFox3::releaseFrame() 
 {
-  #ifndef VDATA_NO_QT
-    mutex.lock();
-  #endif
+#ifndef VDATA_NO_QT
+  mutex.lock();
+#endif
 
   if(pFI->isRequestNrValid(lastRequestNr))
     pFI->imageRequestUnlock(lastRequestNr);
   
-  #ifndef VDATA_NO_QT
-    mutex.unlock();
-  #endif
+#ifndef VDATA_NO_QT
+  mutex.unlock();
+#endif
 }
 
 string CaptureBlueFox3::getCaptureMethodName() const 
