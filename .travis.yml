@@ -10,6 +10,6 @@ before_install:
 matrix:
   include:
     - sudo: required
-      dist: trusty
+      dist: xenial
 
 script: make
