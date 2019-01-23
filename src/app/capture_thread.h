@@ -65,7 +65,6 @@ Q_OBJECT
 protected:
   QMutex stack_mutex; //this mutex protects multi-threaded operations on the stack
   QMutex capture_mutex; //this mutex protects multi-threaded operations on the capture control
-  QMutex capture_cycle_mutex; //this mutex protects multi-threaded operations on the capture control
   VisionStack * stack;
   FrameCounter * counter;
   CaptureInterface * capture;
