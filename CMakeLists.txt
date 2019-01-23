@@ -151,7 +151,7 @@ if(USE_NEURAL_CALIBRATION)
 endif()
 
 # Note: Bluefox SDK is not compatible with some components of OpenCV. Take care when enabling more.
-find_package( OpenCV REQUIRED COMPONENTS core imgproc)
+find_package( OpenCV REQUIRED COMPONENTS core imgproc imgcodecs)
 if(OpenCV_FOUND)
 	include_directories(${OpenCV_INCLUDE_DIRS})
 	add_definitions(-D OPENCV)
