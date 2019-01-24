@@ -25,7 +25,7 @@ CameraParameters::CameraParameters(int camera_index_, RoboCupField * field_) :
   tx = new VarDouble("tx", 0);
   ty = new VarDouble("ty", 1250);
 
-  tz = new VarDouble("tz", 3500, 0, 5000);
+  tz = new VarDouble("tz", 3500, 0, 6500);
   //do not overwrite min/max ranges with values from config file
   tz->addFlags(VARTYPE_FLAG_NOLOAD_ATTRIBUTES);
 
