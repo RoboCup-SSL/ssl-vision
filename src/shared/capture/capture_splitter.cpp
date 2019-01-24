@@ -127,8 +127,11 @@ bool CaptureSplitter::copyAndConvertFrame(const RawImage &src, RawImage &target)
   int height = (int) (src.getHeight() * rel_height);
   int width = (int) (src.getWidth() * rel_width);
 
-  // for some reason, the image gets screwed when the width is not a multiple of 4
-  width -= width % 4;
+  // make sure to not cut through the bayer pattern in the raw image
+  height_offset -= height_offset % 2;
+  width_offset -= width_offset % 2;
+  width -= width % 2;
+  height -= height % 2;
 
   // allocate target image
   image_buffer->ensure_allocation(src.getColorFormat(), width, height);
