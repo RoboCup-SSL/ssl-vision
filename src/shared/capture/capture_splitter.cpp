@@ -158,7 +158,7 @@ bool CaptureSplitter::copyAndConvertFrame(const RawImage &src, RawImage &target)
 
   target.ensure_allocation(ColorFormat::COLOR_RGB8, width, height);
 
-  if(image_buffer->getData() == nullptr)
+  if(target.getData() == nullptr)
   {
     std::cout << "Could not allocate image. Target color format '" << Colors::colorFormatToString(target.getColorFormat()) << "' not supported?" << std::endl;
 #ifndef VDATA_NO_QT
@@ -167,11 +167,17 @@ bool CaptureSplitter::copyAndConvertFrame(const RawImage &src, RawImage &target)
     return false;
   }
 
-  if(image_buffer->getColorFormat() == ColorFormat::COLOR_RAW8) {
-  cv::Mat srcMat(height, width, CV_8UC1, data_buf);
-  cv::Mat dstMat(height, width, CV_8UC3, target.getData());
-  cvtColor(srcMat, dstMat, cv::COLOR_BayerBG2RGB);
-  } else if(image_buffer->getColorFormat() != ColorFormat::COLOR_RGB8)
+  if(image_buffer->getColorFormat() == ColorFormat::COLOR_RAW8)
+  {
+    cv::Mat srcMat(height, width, CV_8UC1, data_buf);
+    cv::Mat dstMat(height, width, CV_8UC3, target.getData());
+    cvtColor(srcMat, dstMat, cv::COLOR_BayerBG2RGB);
+  }
+  else if(target.getColorFormat() == ColorFormat::COLOR_RGB8)
+  {
+    memcpy(target.getData(), image_buffer->getData(), static_cast<size_t>(image_buffer->getNumBytes()));
+  }
+  else
   {
     std::cout << "Unsupported image format: " << Colors::colorFormatToString(image_buffer->getColorFormat()) << std::endl;
 #ifndef VDATA_NO_QT
