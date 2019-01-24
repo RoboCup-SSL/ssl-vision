@@ -35,7 +35,7 @@ protected:
   void run()
   {
     static const double minDuration = 0.01; //100FPS
-    RoboCupSSLClient client;
+    RoboCupSSLClient client(m_port);
     client.open(false);
     SSL_WrapperPacket packet;
     while(runApp) {
@@ -53,16 +53,23 @@ protected:
   }
   
 public:
-  MyThread(QObject* parent = 0){}
+  MyThread(int port, QObject* parent = 0): QThread(parent), m_port(port) {}
   ~MyThread(){}
+
+private:
+  int m_port;
 };
 
 int main(int argc, char **argv)
 {
-  QApplication app(argc, argv);  
+  QApplication app(argc, argv);
+
+  QStringList arguments = QCoreApplication::arguments();
+
+  const int portNumber = arguments.size() > 1 ? arguments[1].toInt() : 10006;
   view = new GLSoccerView();
   view->show();
-  MyThread thread;
+  MyThread thread(portNumber);
   thread.start();
   int retVal = app.exec();
   runApp = false;
