@@ -35,8 +35,10 @@ CaptureThread::CaptureThread(int cam_id)
   control->addChild( (VarType*) (captureModule= new VarStringEnum("Capture Module","DC 1394")));
   captureModule->addFlags(VARTYPE_FLAG_NOLOAD_ENUM_CHILDREN);
   captureModule->addItem("Read from files");
+  captureModule->addItem("DC 1394");
   captureModule->addItem("Generator");
   settings->addChild( (VarType*) (fromfile = new VarList("Read from files")));
+  settings->addChild( (VarType*) (dc1394 = new VarList("DC1394")));
   settings->addChild( (VarType*) (generator = new VarList("Generator")));
   settings->addFlags( VARTYPE_FLAG_AUTO_EXPAND_TREE );
   c_stop->addFlags( VARTYPE_FLAG_READONLY );
@@ -49,6 +51,7 @@ CaptureThread::CaptureThread(int cam_id)
   stack = 0;
   counter=new FrameCounter();
   capture=0;
+  captureDC1394 = new CaptureDC1394v2(dc1394, camId);
   captureFiles = new CaptureFromFile(fromfile, camId);
   captureGenerator = new CaptureGenerator(generator);
 
@@ -82,6 +85,7 @@ VarList * CaptureThread::getSettings() {
 CaptureThread::~CaptureThread()
 {
   delete captureFiles;
+  delete captureDC1394;
   delete captureGenerator;
   delete counter;
 
@@ -114,6 +118,8 @@ void CaptureThread::selectCaptureMethod() {
     new_capture = captureFiles;
   } else if(captureModule->getString() == "Generator") {
     new_capture = captureGenerator;
+  } else if (captureModule->getString() == "DC 1394") {
+    new_capture = captureDC1394;
 #ifdef MVIMPACT
   } else if(captureModule->getString() == "BlueFox2") {
     new_capture = captureBlueFox2;
