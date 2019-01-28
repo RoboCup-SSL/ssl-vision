@@ -22,7 +22,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "affinity_manager.h"
 #include <QtGui>
 #include <qmainwindow.h>
 #include "ui_mainwindow.h"
@@ -50,7 +49,6 @@ class MainWindow : public QMainWindow, public Ui_MainWindow
   Q_OBJECT
 
 public:
-  AffinityManager * affinity;
   //GetOpt * opt;
   VarList * root;
   VarTreeView * tree_view;
@@ -68,7 +66,7 @@ public:
 
   MultiVisionStack * multi_stack;
 
-  MainWindow(bool start_capture, bool enforce_affinity);
+  MainWindow(bool start_capture);
   virtual ~MainWindow();
   void init();
   void Quit() { emit close(); }

@@ -125,16 +125,13 @@ class RoboCupField : public QObject {
 Q_OBJECT
 protected:
   VarList* settings;
-  VarTrigger* restore;
+  VarTrigger* updateShapes;
 public:
   VarList* getSettings() const {
     return settings;
   }
 
   void toProtoBuffer(SSL_GeometryFieldSize& buffer) const ;
-  void fromProtoBuffer(const SSL_GeometryFieldSize& buffer);
-
-  void loadDefaultsRoboCup2012();
 
   mutable QReadWriteLock field_markings_mutex;
   VarDouble* field_length;
@@ -142,6 +139,11 @@ public:
   VarDouble* goal_width;
   VarDouble* goal_depth;
   VarDouble* boundary_width;
+  VarDouble* line_thickness;
+  VarDouble* penalty_area_depth;
+  VarDouble* penalty_area_width;
+  VarInt* num_cameras_total;
+  VarInt* num_cameras_local;
   VarInt* var_num_lines;
   VarInt* var_num_arcs;
   VarList* field_lines_list;
@@ -161,13 +163,10 @@ protected slots:
   void ProcessNewFieldArcs();
   void ResizeFieldLines();
   void ResizeFieldArcs();
-  void InjectDefaults();
   void changed() {
     calibrationChanged();
   }
-  void restoreRoboCup() {
-    loadDefaultsRoboCup2012();
-  }
+  void updateFieldLinesAndArcs();
 };
 
 

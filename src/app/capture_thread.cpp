@@ -24,7 +24,6 @@
 CaptureThread::CaptureThread(int cam_id)
 {
   camId=cam_id;
-  affinity=0;
   settings=new VarList("Image Capture");
 
   settings->addChild( (VarType*) (control= new VarList("Capture Control")));
@@ -35,13 +34,11 @@ CaptureThread::CaptureThread(int cam_id)
   control->addChild( (VarType*) (c_refresh= new VarTrigger("re-read params","Refresh")));
   control->addChild( (VarType*) (captureModule= new VarStringEnum("Capture Module","DC 1394")));
   captureModule->addFlags(VARTYPE_FLAG_NOLOAD_ENUM_CHILDREN);
-  captureModule->addItem("DC 1394");
-  captureModule->addItem("Video 4 Linux");
   captureModule->addItem("Read from files");
+  captureModule->addItem("DC 1394");
   captureModule->addItem("Generator");
-  settings->addChild( (VarType*) (dc1394 = new VarList("DC1394")));
-  settings->addChild( (VarType*) (v4l = new VarList("Video 4 Linux")));
   settings->addChild( (VarType*) (fromfile = new VarList("Read from files")));
+  settings->addChild( (VarType*) (dc1394 = new VarList("DC1394")));
   settings->addChild( (VarType*) (generator = new VarList("Generator")));
   settings->addFlags( VARTYPE_FLAG_AUTO_EXPAND_TREE );
   c_stop->addFlags( VARTYPE_FLAG_READONLY );
@@ -54,10 +51,9 @@ CaptureThread::CaptureThread(int cam_id)
   stack = 0;
   counter=new FrameCounter();
   capture=0;
-  captureDC1394 = new CaptureDC1394v2(dc1394,camId);
-  captureFiles = new CaptureFromFile(fromfile);
+  captureDC1394 = new CaptureDC1394v2(dc1394, camId);
+  captureFiles = new CaptureFromFile(fromfile, camId);
   captureGenerator = new CaptureGenerator(generator);
-  captureV4L = new CaptureV4L(v4l,camId);
 
 #ifdef FLYCAP
   captureModule->addItem("Flycapture");
@@ -76,10 +72,6 @@ CaptureThread::CaptureThread(int cam_id)
   rb=0;
 }
 
-void CaptureThread::setAffinityManager(AffinityManager * _affinity) {
-  affinity=_affinity;
-}
-
 void CaptureThread::setStack(VisionStack * _stack) {
   stack_mutex.lock();
   stack=_stack;
@@ -92,9 +84,8 @@ VarList * CaptureThread::getSettings() {
 
 CaptureThread::~CaptureThread()
 {
-  delete captureDC1394;
-  delete captureV4L;
   delete captureFiles;
+  delete captureDC1394;
   delete captureGenerator;
   delete counter;
 
@@ -127,14 +118,12 @@ void CaptureThread::selectCaptureMethod() {
     new_capture = captureFiles;
   } else if(captureModule->getString() == "Generator") {
     new_capture = captureGenerator;
+  } else if (captureModule->getString() == "DC 1394") {
+    new_capture = captureDC1394;
 #ifdef MVIMPACT
   } else if(captureModule->getString() == "BlueFox2") {
     new_capture = captureBlueFox2;
 #endif
-  } else if(captureModule->getString() == "Video 4 Linux") {
-    new_capture = captureV4L;
-  } else if(captureModule->getString() == "DC 1394") {
-    new_capture = captureDC1394;
 #ifdef FLYCAP
   } else if(captureModule->getString() == "Flycapture") {
     new_capture = captureFlycap;
@@ -204,10 +193,6 @@ void CaptureThread::run() {
     CaptureStats * stats;
     bool changed;
 
-    if (affinity!=0) {
-      affinity->demandCore(camId);
-    }
-
     while(true) {
       if (rb!=0) {
         int idx=rb->curWrite();
@@ -225,7 +210,6 @@ void CaptureThread::run() {
           if (bSuccess) {           //only on a good frame read do we proceed
               counter->count();
               stats->total=d->number=counter->getTotal();
-              d->cam_id=camId;
               stats->fps_capture=counter->getFPS(changed);
 
               stack_mutex.lock();

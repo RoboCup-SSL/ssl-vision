@@ -18,10 +18,10 @@
 				true
 			</Var>
 			<Var name="Marker Image File" type="string">
-				patterns/teams/standard2010.png
+				patterns/teams/standard2010_16.png
 			</Var>
 			<Var name="Marker Image Rows" type="int" minval="" maxval="">
-				3
+				4
 			</Var>
 			<Var name="Marker Image Cols" type="int" minval="" maxval="">
 				4
@@ -61,6 +61,18 @@
 					true
 				</Var>
 				<Var name="11" type="bool">
+					true
+				</Var>
+				<Var name="12" type="bool">
+					true
+				</Var>
+				<Var name="13" type="bool">
+					true
+				</Var>
+				<Var name="14" type="bool">
+					true
+				</Var>
+				<Var name="15" type="bool">
 					true
 				</Var>
 			</Var>

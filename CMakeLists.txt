@@ -16,9 +16,9 @@ else()
 endif()
 
 #defines
-add_definitions(-D UNIX)
-add_definitions(-D LINUX)
-add_definitions(-D _GNU_SOURCE)
+#add_definitions(-D UNIX)
+#add_definitions(-D LINUX)
+#add_definitions(-D _GNU_SOURCE)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
@@ -27,7 +27,6 @@ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 # Find third-party libraries
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
-
 find_package(Protobuf REQUIRED)
 if(EXISTS ${PROTOBUF_PROTOC_EXECUTABLE})
 	message(STATUS "Found PROTOBUF Compiler: ${PROTOBUF_PROTOC_EXECUTABLE}")
@@ -169,6 +168,7 @@ qt4_wrap_cpp (MOC_SRCS
 	src/app/plugins/plugin_publishgeometry.h
 	src/app/plugins/plugin_legacypublishgeometry.h
 	src/app/plugins/visionplugin.h
+	src/app/plugins/plugin_colorcalib.h
 
 	src/app/stacks/multistack_robocup_ssl.h
 
@@ -228,10 +228,10 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ansi")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 #flags to set in debug mode
-set (CMAKE_CXX_FLAGS_DEBUG "-g -Wl,--no-as-needed")
+set (CMAKE_CXX_FLAGS_DEBUG "-g -Wl")
 
 #flags to set in release mode
-set (CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 -march=native -Wl,--no-as-needed")
+set (CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 -march=native -Wl")
 
 message( STATUS "CC Flags: ${CMAKE_CXX_FLAGS_RELEASE}")
 message (STATUS "Custom CC Flags: ${cc_flags}")
@@ -239,7 +239,12 @@ message (STATUS "Custom CC Flags: ${cc_flags}")
 add_definitions(${cc_flags})
 
 ## build the common code
-add_library(sslvision ${SHARED_MOC_SRCS} ${SHARED_RC_SRCS} ${CC_PROTO} ${SHARED_SRCS})
+add_library(sslvision
+		${SHARED_MOC_SRCS}
+		${SHARED_RC_SRCS}
+		${CC_PROTO}
+		${SHARED_SRCS}
+		)
 add_dependencies(sslvision GenerateProto)
 
 set (libs ${QT_LIBRARIES}

@@ -48,11 +48,10 @@ public:
   class AdditionalCalibrationInformation;
   class CalibrationData;
 
-  CameraParameters(int camera_index_);
+  CameraParameters(int camera_index_, RoboCupField * field);
   ~CameraParameters();
   void addSettingsToList(VarList& list);
 
-  const int camera_index;
   VarDouble* focal_length;
   VarDouble* principal_point_x;
   VarDouble* principal_point_y;
@@ -93,8 +92,7 @@ public:
   double calc_chisqr(std::vector<GVector::vector3d<double> > &p_f, std::vector<GVector::vector2d<double> > &p_i, Eigen::VectorXd &p, int);
   void field2image(GVector::vector3d<double> &p_f, GVector::vector2d<double> &p_i, Eigen::VectorXd &p);
 
-  void toProtoBuffer(SSL_GeometryCameraCalibration & buffer, int camera_id) const;
-  void fromProtoBuffer(const SSL_GeometryCameraCalibration & buffer);
+  void toProtoBuffer(SSL_GeometryCameraCalibration &buffer) const;
 
   enum
   {
@@ -128,12 +126,13 @@ public:
   class AdditionalCalibrationInformation
   {
     public:
-      AdditionalCalibrationInformation(int camera_index_);
+      AdditionalCalibrationInformation(int camera_index_, RoboCupField* field);
       ~AdditionalCalibrationInformation();
       void addSettingsToList(VarList& list);
+      void updateControlPoints();
 
       static const int kNumControlPoints = 4;
-      const int camera_index;
+      VarInt* camera_index;
       VarList* control_point_set[kNumControlPoints];
       VarString* control_point_names[kNumControlPoints];
       VarDouble* control_point_image_xs[kNumControlPoints];
@@ -154,6 +153,11 @@ public:
       VarDouble* cov_ls_y;
 
       VarDouble* pointSeparation;
+
+  private:
+      RoboCupField* field;
+      std::vector<GVector::vector2d<double> >
+      generateCameraControlPoints(int cameraId, int numCamerasTotal, double fieldHeight, double fieldWidth);
   };
 
   /*!

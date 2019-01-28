@@ -139,6 +139,7 @@ namespace VarTypes {
     #endif
     VarTypeFlag _flags;
     string _name;
+    VarType * _parent;
     static string fixString(const char * cst);
     static string intToString(int val);
     static string doubleToString(double val);
@@ -196,7 +197,17 @@ namespace VarTypes {
     /// Finds a child based on its label
     /// Returns 0 if not found
     VarType * findChild(string label) const;
+
+    /// Finds all relatives (parent/children) based on its label (warning, can be costly)
+    /// Returns empty if not found
+    std::vector<VarType *> findRelatives(string label, bool bSearchAncestors=false) const;
   
+    /// Utility function for lists and the like to inform their progeny
+    inline void setParent(VarType *parent) { _parent = parent; };
+
+    /// Utility function for any node to get its parent
+    inline VarType * getParent() const { return _parent; };
+      
     /// TODO: implement this function. It might be useful for some purposes.
     /// VarType * merge(VarType * structure, VarType * data);
   

@@ -21,9 +21,7 @@
 
 #ifndef CAPTURE_THREAD_H
 #define CAPTURE_THREAD_H
-#include "capturedc1394v2.h"
 #include "capturefromfile.h"
-#include "capturev4l.h"
 #include "capture_generator.h"
 #include <QThread>
 #include "ringbuffer.h"
@@ -31,7 +29,7 @@
 #include "framecounter.h"
 #include "visionstack.h"
 #include "capturestats.h"
-#include "affinity_manager.h"
+#include "capturedc1394v2.h"
 
 #ifdef MVIMPACT
 #include "capture_bluefox2.h"
@@ -51,57 +49,53 @@ class CaptureThread : public QThread
 {
 Q_OBJECT
 protected:
-  QMutex stack_mutex; //this mutex protects multi-threaded operations on the stack
-  QMutex capture_mutex; //this mutex protects multi-threaded operations on the capture control
-  VisionStack * stack;
-  FrameCounter * counter;
-  CaptureInterface * capture;
-  CaptureInterface * captureDC1394;
-  CaptureInterface * captureV4L;
-  CaptureInterface * captureBlueFox2;
-  CaptureInterface * captureFlycap;
-  CaptureInterface * captureFiles;
-  CaptureInterface * captureGenerator;
-  AffinityManager * affinity;
-  FrameBuffer * rb;
-  bool _kill;
-  int camId;
-  VarList * settings;
-  VarList * dc1394;
-  VarList * v4l;
-  VarList * bluefox2;
-  VarList * flycap;
-  VarList * generator;
-  VarList * fromfile;
-  VarList * control;
-  VarTrigger * c_start;
-  VarTrigger * c_stop;
-  VarTrigger * c_reset;
-  VarTrigger * c_refresh;
-  VarBool * c_auto_refresh;
-  VarStringEnum * captureModule;
-  Timer timer;
+	QMutex stack_mutex; //this mutex protects multi-threaded operations on the stack
+	QMutex capture_mutex; //this mutex protects multi-threaded operations on the capture control
+	VisionStack * stack;
+	FrameCounter * counter;
+	CaptureInterface * capture;
+	CaptureInterface * captureDC1394;
+	CaptureInterface * captureBlueFox2;
+	CaptureInterface * captureFlycap;
+	CaptureInterface * captureFiles;
+	CaptureInterface * captureGenerator;
+	FrameBuffer * rb;
+	bool _kill;
+	int camId;
+	VarList * settings;
+	VarList * bluefox2;
+	VarList * flycap;
+	VarList * dc1394;
+	VarList * generator;
+	VarList * fromfile;
+	VarList * control;
+	VarTrigger * c_start;
+	VarTrigger * c_stop;
+	VarTrigger * c_reset;
+	VarTrigger * c_refresh;
+	VarBool * c_auto_refresh;
+	VarStringEnum * captureModule;
+	Timer timer;
 
 public slots:
-  bool init();
-  bool stop();
-  bool reset();
-  void refresh();
-  void selectCaptureMethod();
+	bool init();
+	bool stop();
+	bool reset();
+	void refresh();
+	void selectCaptureMethod();
 
 public:
-  void setFrameBuffer(FrameBuffer * _rb);
-  FrameBuffer * getFrameBuffer() const;
-  void setStack(VisionStack * _stack);
-  VisionStack * getStack() const;
-  void kill();
-  VarList * getSettings();
-  void setAffinityManager(AffinityManager * _affinity);
-  CaptureThread(int cam_id);
-  ~CaptureThread();
-
-  virtual void run();
-
+	void setFrameBuffer(FrameBuffer * _rb);
+	FrameBuffer * getFrameBuffer() const;
+	void setStack(VisionStack * _stack);
+	VisionStack * getStack() const;
+	void kill();
+	VarList * getSettings();
+	CaptureThread(int cam_id);
+	~CaptureThread();
+	
+	virtual void run();
+	
 };
 
 

@@ -29,20 +29,17 @@
 class FieldLine;
 class FieldCircularArc;
 
-namespace FieldConstantsRoboCup2014 {
-
-const double kFieldLength = 9000.0;
-const double kFieldWidth = 6000.0;
-const double kGoalWidth = 1000.0;
-const double kGoalDepth = 200.0;
-const double kBoundaryWidth = 250.0;
-
-extern const std::size_t kNumFieldLines;
-extern const FieldLine kFieldLines[];
-
-extern const std::size_t kNumFieldArcs;
-extern const FieldCircularArc kFieldArcs[];
-
-extern const GVector::vector2d<double> kCameraControlPoints[4][4];
+namespace FieldConstantsRoboCup2018A {
+    const double kFieldLength = 12000.0;
+    const double kFieldWidth = 9000.0;
+    const double kGoalWidth = 1200.0;
+    const double kGoalDepth = 180.0;
+    const double kBoundaryWidth = 250.0;
+    const double kLineThickness = 10.0;
+    const double kPenaltyAreaDepth = 1200.0;
+    const double kPenaltyAreaWidth = 2400.0;
+    const double kCenterCircleRadius = 500.0;
+    const int kNumCamerasTotal = 8;
+    const int kNumCamerasLocal = 4;
 }
 #endif // FIELD_H

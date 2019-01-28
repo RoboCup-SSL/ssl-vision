@@ -60,7 +60,7 @@ void PluginPublishGeometry::sendGeometry() {
   _field.toProtoBuffer(*gfield);
   for (unsigned int i = 0; i < params.size(); i++) {
     SSL_GeometryCameraCalibration * calib = geodata.add_calib();
-    params[i]->toProtoBuffer(*calib,i);
+    params[i]->toProtoBuffer(*calib);
   }
   _server->send(geodata);
 }

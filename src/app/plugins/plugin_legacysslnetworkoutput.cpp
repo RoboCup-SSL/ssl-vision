@@ -75,7 +75,7 @@ ProcessResult PluginLegacySSLNetworkOutput::process(
   if (detection_frame != 0) {
     detection_frame->set_t_capture(data->time);
     detection_frame->set_frame_number(data->number);
-    detection_frame->set_camera_id(data->cam_id);
+    detection_frame->set_camera_id(_camera_params.additional_calibration_information->camera_index->getInt());
     detection_frame->set_t_sent(GetTimeSec());
     // The double-sized field server uses the normal field coordinates.
     _ds_udp_server_old->sendLegacyMessage(*detection_frame);

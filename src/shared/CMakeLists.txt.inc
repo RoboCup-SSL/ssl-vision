@@ -13,11 +13,10 @@ include_directories(${shared_dir}/vartypes/gui)
 include_directories(${shared_dir}/vartypes/xml)
 
 set (SHARED_SRCS
-	${shared_dir}/capture/capturedc1394v2.cpp
-	${shared_dir}/capture/capturev4l.cpp
 	${shared_dir}/capture/capturefromfile.cpp
 	${shared_dir}/capture/capture_generator.cpp
 	${shared_dir}/capture/captureinterface.cpp
+    ${shared_dir}/capture/capturedc1394v2.cpp
 
 	${shared_dir}/cmpattern/cmpattern_pattern.cpp
 	${shared_dir}/cmpattern/cmpattern_team.cpp
@@ -34,7 +33,6 @@ set (SHARED_SRCS
 	${shared_dir}/net/robocup_ssl_client.cpp
 	${shared_dir}/net/robocup_ssl_server.cpp
 
-	${shared_dir}/util/affinity_manager.cpp
 	${shared_dir}/util/camera_calibration.cpp
 	${shared_dir}/util/conversions.cpp
 	${shared_dir}/util/global_random.cpp
@@ -95,15 +93,13 @@ set (SHARED_SRCS
 
   ${shared_dir}/util/helpers.cpp
   ${shared_dir}/util/field.cpp
-  ${shared_dir}/util/field_default_constants.cpp
 )
 
 #only ones that need to be moc'ed
 set (SHARED_HEADERS
-	${shared_dir}/capture/capturedc1394v2.h
-	${shared_dir}/capture/capturev4l.h
 	${shared_dir}/capture/capturefromfile.h
   ${shared_dir}/capture/capture_generator.h
+  ${shared_dir}/capture/capturedc1394v2.h
 
 	${shared_dir}/cmpattern/cmpattern_team.h
 	${shared_dir}/cmpattern/cmpattern_teamdetector.h

@@ -24,7 +24,7 @@
 #include <QGLWidget>
 #include <QMutex>
 #include <QVector>
-#include <GL/glu.h>
+#include <OpenGL/glu.h>
 #include <math.h>
 #include <float.h>
 #include <stdio.h>

@@ -119,15 +119,15 @@ namespace VarTypes {
   
     /// get the string of item at a given index
     string getLabel(unsigned int index) const {
-    string result="";
-    lock();
-    if (index > (list.size() - 1)) {
-      result="";
-    } else {
-      result=((VarString *)(list[index]))->getString();
-    }
-    unlock();
-    return result;
+        string result="";
+        lock();
+        if (index > (list.size() - 1)) {
+          result="";
+        } else {
+          result=((VarString *)(list[index]))->getString();
+        }
+        unlock();
+        return result;
     }
   
     /// trim or extend the list to a certain total number of items
@@ -152,19 +152,19 @@ namespace VarTypes {
   
     /// set the string of item at a given index
     void setLabel(unsigned int index, const string & label) {
-    string result="";
-    lock();
-    if (index < list.size()) {
-      if (((VarString *)(list[index]))->getString().compare(selected)==0) {
-        selected=label;
-      }
-      ((VarString *)(list[index]))->setString(label);
-      
-    }
-    
-    unlock();
-    changed();
-    return;
+        string result="";
+        lock();
+        if (index < list.size()) {
+          if (((VarString *)(list[index]))->getString().compare(selected)==0) {
+            selected=label;
+          }
+          ((VarString *)(list[index]))->setString(label);
+          
+        }
+        
+        unlock();
+        changed();
+        return;
     }
   
     /// add an item to the end of the enumeration

@@ -24,11 +24,6 @@
 #include "field.h"
 #include "field_default_constants.h"
 
-using FieldConstantsRoboCup2014::kNumFieldLines;
-using FieldConstantsRoboCup2014::kNumFieldArcs;
-using FieldConstantsRoboCup2014::kFieldLines;
-using FieldConstantsRoboCup2014::kFieldArcs;
-
 const double GLSoccerView::minZValue = -10;
 const double GLSoccerView::maxZValue = 10;
 const double GLSoccerView::FieldZ = 1.0;
@@ -40,15 +35,9 @@ const double GLSoccerView::MinRedrawInterval = 0.016; ///Minimum time between gr
 const int GLSoccerView::unknownRobotID = -1;
 
 GLSoccerView::FieldDimensions::FieldDimensions() :
-  field_length(FieldConstantsRoboCup2014::kFieldLength),
-  field_width(FieldConstantsRoboCup2014::kFieldWidth),
-  boundary_width(FieldConstantsRoboCup2014::kBoundaryWidth) {
-  for (size_t i = 0; i < kNumFieldLines; ++i) {
-    lines.push_back(new FieldLine(kFieldLines[i]));
-  }
-  for (size_t i = 0; i < kNumFieldArcs; ++i) {
-    arcs.push_back(new FieldCircularArc(kFieldArcs[i]));
-  }
+  field_length(FieldConstantsRoboCup2018A::kFieldLength),
+  field_width(FieldConstantsRoboCup2018A::kFieldWidth),
+  boundary_width(FieldConstantsRoboCup2018A::kBoundaryWidth) {
 }
 
 GLSoccerView::GLSoccerView(QWidget* parent) :

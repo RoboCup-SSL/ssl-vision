@@ -19,15 +19,35 @@
 */
 //========================================================================
 #include "plugin_colorcalib.h"
-#include <QStackedWidget>
+
+#define LUT_COPY_PLACEHOLDER    "(click copy to refresh)"
 
 PluginColorCalibration::PluginColorCalibration(FrameBuffer * _buffer, YUVLUT * _lut, LUTChannelMode _mode) : VisionPlugin(_buffer)
 {
-  mode=_mode;
-  lut=_lut;
-  lutw=0;
-  settings=new VarList("YUV Calibrator");
-  continuing_undo = false;
+    mode=_mode;
+    lut=_lut;
+    lutw=NULL;
+    settings=new VarList("YUV Calibrator");
+    continuing_undo = false;
+    
+    copy_LUT_trigger = new VarTrigger("Copy LUT", "Copy LUT");
+    settings->addChild(copy_LUT_trigger);
+    connect(copy_LUT_trigger,SIGNAL(signalTriggered()),this,SLOT(slotCopyLUT()));
+    settings->addChild( v_lut_sources = new VarStringEnum("LUT Source", LUT_COPY_PLACEHOLDER));
+    v_lut_sources->addItem(LUT_COPY_PLACEHOLDER);
+    settings->addChild( v_lut_colors = new VarStringEnum("Color", LUT_COPY_PLACEHOLDER));
+    updateColorList();
+}
+
+void PluginColorCalibration::updateColorList() {
+    v_lut_colors->setSize(0);
+    v_lut_colors->addItem("all");
+    for (std::vector<LUTChannel>::iterator it = lut->channels.begin(); it != lut->channels.end(); it++) {
+        // the '<>' chars can not be stored in VarTypes, so remove it here
+        std::string label = it->label;
+        if(label == "<Clear>") label = "Clear";
+        v_lut_colors->addItem(label);
+    }
 }
 
 VarList * PluginColorCalibration::getSettings() {
@@ -40,7 +60,10 @@ string PluginColorCalibration::getName() {
 
 PluginColorCalibration::~PluginColorCalibration()
 {
-  delete settings;
+    delete settings;
+    delete copy_LUT_trigger;
+    delete v_lut_sources;
+    delete v_lut_colors;
 }
 
 QWidget * PluginColorCalibration::getControlWidget() {
@@ -140,3 +163,61 @@ void PluginColorCalibration::mouseReleaseEvent ( QMouseEvent * event, pixelloc l
 void PluginColorCalibration::mouseMoveEvent ( QMouseEvent * event, pixelloc loc ) {
   mouseEvent(event,loc);
 }
+
+void PluginColorCalibration::slotCopyLUT() {
+    copyLUT();
+}
+
+void PluginColorCalibration::copyLUT() {
+    updateColorList();
+    VarString *pSelf = reinterpret_cast<VarString*>(settings->getParent());
+    if (v_lut_sources->getCount()==1 && v_lut_sources->getString()==LUT_COPY_PLACEHOLDER) {
+        std::vector<VarType *> vectRelatives = settings->findRelatives("LUT 3D", true);
+        if (vectRelatives.size() < 1) { // nothing like LUTs? abort
+            fprintf(stderr, "LUT3D: Could not find any LUT3D nodes for sources, aborting copy.\n");
+        }
+        else {
+            //truncate/clear former list
+            v_lut_sources->setSize(0);
+            for (uint iCam=0; iCam<vectRelatives.size(); iCam++) {
+                VarString *pCamera = reinterpret_cast<VarString*>(vectRelatives[iCam]->getParent()->getParent());
+                if (pCamera != pSelf)
+                    v_lut_sources->addItem(pCamera->getName());
+            }
+            if (!vectRelatives.empty()) {
+                v_lut_sources->selectIndex(0);
+            }
+        }
+    }
+    else { //user has selected a camera
+        VarBlob *pSource = NULL;
+        int color_index = v_lut_colors->getIndex() - 1;
+        std::vector<VarType *> vectTarget = settings->findRelatives(v_lut_sources->getString(), true);
+        if (vectTarget.size()!=1) {
+            fprintf(stderr, "LUT3D: Found too many camera nodes (%d) for '%s', aborting copy.\n",
+                    static_cast<int>(vectTarget.size()), v_lut_sources->getString().c_str());
+            return;
+        }
+        vectTarget = vectTarget[0]->findRelatives("LUT Data", false);  //just children
+        if (vectTarget.size()!=1) {
+            fprintf(stderr, "LUT3D: Found too many LUT nodes (%d) for camera '%s', aborting copy.\n",
+                    static_cast<int>(vectTarget.size()), v_lut_sources->getString().c_str());
+            return;
+        }
+
+        pSource = reinterpret_cast<VarBlob*>(vectTarget[0]);
+
+        //WARNING: Makes assumption that all LUT blobs have the same properties
+        //  (e.g. same initializer, etc) because we do not reallocate, modify shift
+        //  indicies, or anything else dramatic.  This is an acceptable risk because
+        //  the constructor for this class just loops to add multiple camera sources.
+        //  (added corresponding warning in multistack_robocup_ssl.cpp at allocation)
+
+        GLLUTWidget *pGLLUTw = lutw->getGLLUTWidget();
+        if (pGLLUTw->copyLUT(pSource->getDataPointer(), (int) pSource->getDataSize(), color_index)) {
+            fprintf(stderr, "PluginColorCalibration: Successfully copied LUT data for color '%s' from '%s' to '%s'.\n",
+                    v_lut_colors->getString().c_str(), v_lut_sources->getString().c_str(), pSelf->getName().c_str());
+        }
+    }
+}
+
