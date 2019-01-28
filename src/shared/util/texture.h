@@ -38,8 +38,8 @@
 #endif
 
 #include <stdio.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
 #include <string>
 #include "image.h"
 using namespace std;

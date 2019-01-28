@@ -21,9 +21,7 @@
 
 #ifndef CAPTURE_THREAD_H
 #define CAPTURE_THREAD_H
-#include "capturedc1394v2.h"
 #include "capturefromfile.h"
-#include "capturev4l.h"
 #include "capture_generator.h"
 #include <QThread>
 #include "ringbuffer.h"
@@ -31,7 +29,6 @@
 #include "framecounter.h"
 #include "visionstack.h"
 #include "capturestats.h"
-#include "affinity_manager.h"
 
 #ifdef MVIMPACT
 #include "capture_bluefox2.h"
@@ -56,19 +53,14 @@ protected:
   VisionStack * stack;
   FrameCounter * counter;
   CaptureInterface * capture;
-  CaptureInterface * captureDC1394;
-  CaptureInterface * captureV4L;
   CaptureInterface * captureBlueFox2;
   CaptureInterface * captureFlycap;
   CaptureInterface * captureFiles;
   CaptureInterface * captureGenerator;
-  AffinityManager * affinity;
   FrameBuffer * rb;
   bool _kill;
   int camId;
   VarList * settings;
-  VarList * dc1394;
-  VarList * v4l;
   VarList * bluefox2;
   VarList * flycap;
   VarList * generator;
@@ -96,7 +88,6 @@ public:
   VisionStack * getStack() const;
   void kill();
   VarList * getSettings();
-  void setAffinityManager(AffinityManager * _affinity);
   CaptureThread(int cam_id);
   ~CaptureThread();
 

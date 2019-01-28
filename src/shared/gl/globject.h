@@ -21,7 +21,7 @@
 
 #ifndef GLOBJECT_H
 #define GLOBJECT_H
-#include "GL/gl.h"
+#include "OpenGL/gl.h"
 #include "geometry.h"
 
 /*!

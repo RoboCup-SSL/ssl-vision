@@ -21,7 +21,7 @@
 
 #ifndef GLCAMERA_H
 #define GLCAMERA_H
-#include "GL/gl.h"
+#include "OpenGL/gl.h"
 #include "globject.h"
 #include "geometry.h"
 #include <cmath>

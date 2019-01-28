@@ -200,41 +200,6 @@ void Conversions::rgb2uyvy (unsigned char *src, unsigned char *dest, int width, 
 
 }
 
-void Conversions::rgb2yuyv (unsigned char *src, unsigned char *dest, int width, int height)
-{
-#ifndef NO_DC1394_CONVERSIONS
-    dc1394_convert_to_RGB8(src,dest, width, height, DC1394_BYTE_ORDER_YUYV,
-                           DC1394_COLOR_CODING_RGB8, 8);
-#else
-    
-    int NumPixels = width*height;
-    
-    register int max_i = ( NumPixels << 1 )-1;
-    //register int max_j = NumPixels + ( NumPixels << 1 ) -1;
-    register int i = 0;
-    register int j = 0;
-    register int y0, y1, u, v;
-    register int r, g, b;
-    
-    rgb2yuv(int r, int g, int b, int & y, int & u, int & v
-    
-    while ( i < max_i ) {
-        r = ( unsigned char ) src[i++];
-        g = ( unsigned char ) src[i++];
-        b = ( unsigned char ) src[i++];
-        rgb2yuv ( r, g, b, y0, u, v );
-        r = ( unsigned char ) src[i++];
-        g = ( unsigned char ) src[i++];
-        b = ( unsigned char ) src[i++];
-        rgb2yuv ( r, g, b, y1, u, v );
-        dest[j++] = y0;
-        dest[j++] = u+128;
-        dest[j++] = y1;
-        dest[j++] = v+128;
-    }
-#endif
-}
-
 void Conversions::uyvy2bgr ( unsigned char *src,
                              unsigned char *dest,
                              int width,

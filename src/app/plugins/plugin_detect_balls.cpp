@@ -106,6 +106,10 @@ public:
   }
 };
 
+bool operator< (BallDetectResult a, BallDetectResult b) {
+  return a.conf < b.conf;
+}
+
 ProcessResult PluginDetectBalls::process ( FrameData * data, RenderOptions * options ) {
   ( void ) options;
   if ( data==0 ) return ProcessingFailed;

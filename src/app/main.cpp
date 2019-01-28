@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 
   printPathWarning();
 
-  MainWindow mainWin(start, enforce_affinity);
+  MainWindow mainWin(start);
   mainWinPtr = &mainWin;
   mainWin.show();
   mainWin.init();

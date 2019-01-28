@@ -21,7 +21,7 @@
 
 #include <QVector>
 #include <QtGui>
-#include <GL/glu.h>
+#include <OpenGL/glu.h>
 #include <math.h>
 #include <stdio.h>
 #include <float.h>

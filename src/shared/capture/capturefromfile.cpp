@@ -180,16 +180,20 @@ bool CaptureFromFile::copyAndConvertFrame(const RawImage & src, RawImage & targe
   }
   else if (src_fmt == COLOR_RGB8 && output_fmt == COLOR_YUV422_UYVY)
   {
-    if (src.getData() != 0)
-      dc1394_convert_to_YUV422(src.getData(), target.getData(), src.getWidth(), src.getHeight(), 
+    if (src.getData() != 0){
+    
+    }
+      dc1394_convert_to_YUV422(src.getData(), target.getData(), src.getWidth(), src.getHeight(),
                                DC1394_BYTE_ORDER_UYVY, DC1394_COLOR_CODING_RGB8, 8);
   }
   else if (src_fmt == COLOR_YUV422_UYVY && output_fmt == COLOR_RGB8)
   {
-    if (src.getData() != 0)
-      dc1394_convert_to_RGB8(src.getData(),target.getData(), src.getWidth(), src.getHeight(), 
+    if (src.getData() != 0) {
+    
+    }
+      dc1394_convert_to_RGB8(src.getData(),target.getData(), src.getWidth(), src.getHeight(),
                              DC1394_BYTE_ORDER_UYVY, DC1394_COLOR_CODING_YUV422, 8);
-  } 
+  }
   else 
   {
     fprintf(stderr,"Cannot copy and convert frame...unknown conversion selected from: %s to %s\n",
