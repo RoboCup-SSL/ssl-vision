@@ -1,0 +1,10 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: ubuntu:18.04
+    steps:
+      - run: apt-get update -qq && apt-get install -qq git
+      - checkout
+      - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
+      - run: make
