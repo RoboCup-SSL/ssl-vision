@@ -30,7 +30,7 @@ protected:
 
   std::vector<CaptureSplitter*> captureSplitters;
 
-  void DrawCameraImage(FrameData *data, VisualizationFrame *vis_frame);
+  void drawCameraImage(FrameData *data, VisualizationFrame *vis_frame);
 
 public:
   PluginDistribute(FrameBuffer *_buffer, vector<CaptureSplitter *> captureSplitters);
