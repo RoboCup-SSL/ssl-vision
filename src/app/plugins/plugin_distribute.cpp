@@ -23,30 +23,28 @@ PluginDistribute::PluginDistribute(FrameBuffer *_buffer, vector<CaptureSplitter 
   _v_image = new VarBool("image", true);
   _v_greyscale = new VarBool("greyscale", false);
 
-  _settings = new VarList("Visualization");
+  _settings = new VarList("Distribute");
   _settings->addChild(_v_enabled);
   _settings->addChild(_v_image);
   _settings->addChild(_v_greyscale);
 }
 
-PluginDistribute::~PluginDistribute() {}
+PluginDistribute::~PluginDistribute() = default;
 
 VarList *PluginDistribute::getSettings() { return _settings; }
 
-string PluginDistribute::getName() { return "Visualization"; }
+string PluginDistribute::getName() { return "Distribute"; }
 
-void PluginDistribute::DrawCameraImage(FrameData *data,
-                                       VisualizationFrame *vis_frame) {
-  // if converting entire image then blanking is not needed
+void PluginDistribute::drawCameraImage(FrameData *data, VisualizationFrame *vis_frame) {
   const ColorFormat source_format = data->video.getColorFormat();
   if (source_format == COLOR_RGB8) {
     // plain copy of data
     memcpy(vis_frame->data.getData(), data->video.getData(),
-           data->video.getNumBytes());
+           static_cast<size_t>(data->video.getNumBytes()));
   } else if (source_format == COLOR_YUV422_UYVY) {
     Conversions::uyvy2rgb(
         data->video.getData(),
-        reinterpret_cast<unsigned char *>(vis_frame->data.getData()),
+        vis_frame->data.getData(),
         data->video.getWidth(), data->video.getHeight());
   } else if (source_format==COLOR_RAW8) {
     cv::Mat src(data->video.getHeight(), data->video.getWidth(), CV_8UC1, data->video.getData());
@@ -61,8 +59,8 @@ void PluginDistribute::DrawCameraImage(FrameData *data,
     fprintf(stderr, "(Feel free to add more conversions to %s in %s).\n",
             __FUNCTION__, __FILE__);
   }
-  if (_v_greyscale->getBool() == true) {
-    unsigned int n = vis_frame->data.getNumPixels();
+  if (_v_greyscale->getBool()) {
+    auto n = static_cast<unsigned int>(vis_frame->data.getNumPixels());
     rgb *vis_ptr = vis_frame->data.getPixelData();
     rgb color;
     for (unsigned int i = 0; i < n; i++) {
@@ -73,9 +71,8 @@ void PluginDistribute::DrawCameraImage(FrameData *data,
   }
 }
 
-ProcessResult PluginDistribute::process(FrameData *data,
-                                        RenderOptions *options) {
-  if (data == 0)
+ProcessResult PluginDistribute::process(FrameData *data, RenderOptions *options) {
+  if (data == nullptr)
     return ProcessingFailed;
 
   for (auto &captureSplitter : captureSplitters) {
@@ -87,7 +84,7 @@ ProcessResult PluginDistribute::process(FrameData *data,
 
   VisualizationFrame *vis_frame =
       reinterpret_cast<VisualizationFrame *>(data->map.get("vis_frame"));
-  if (vis_frame == 0) {
+  if (vis_frame == nullptr) {
     vis_frame = reinterpret_cast<VisualizationFrame *>(
         data->map.insert("vis_frame", new VisualizationFrame()));
   }
@@ -106,7 +103,7 @@ ProcessResult PluginDistribute::process(FrameData *data,
 
     // Draw camera image
     if (_v_image->getBool()) {
-      DrawCameraImage(data, vis_frame);
+      drawCameraImage(data, vis_frame);
     } else {
       vis_frame->data.fillBlack();
     }
