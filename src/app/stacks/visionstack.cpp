@@ -20,11 +20,8 @@
 //========================================================================
 #include "visionstack.h"
 
-VisionStack::VisionStack(string _name, RenderOptions * _opts) {
-  name=_name;
+VisionStack::VisionStack(RenderOptions * _opts) {
   opts=_opts;
-  //counter_proc=0.0;
-  //counter_post_proc=0.0;
   settings=new VarList("Global");
 }
 
@@ -32,59 +29,24 @@ VisionStack::~VisionStack() {
   delete settings;
 }
 
-string VisionStack::getName() {
-  return name;
-}
-
 VarList * VisionStack::getSettings() {
   return settings;
 }
 
-string VisionStack::getSettingsFileName() {
-  //this can be done dynamically based on camera-id's etc...
-  return name;
-}
-
 void VisionStack::process(FrameData * data) {
-  double a=0.0;
-  double b=0.0;
-  unsigned int n=stack.size();
-  VisionPlugin * p;
-  double total=0.0;
-  bool show_timing = false;
-  if (show_timing) printf("----------\n");
-  for (unsigned int i=0;i<n;i++) {
-    p=stack[i];
+  for (auto p : stack) {
     p->lock();
-    a=GetTimeSec();
     p->process(data,opts);
-    b=GetTimeSec();
-    p->setTimeProcessing(b-a);
-    total+=(p->getTimeProcessing());
-    if (show_timing) {
-      printf("Plugin %s: %fms\n",p->getName().c_str(),  p->getTimeProcessing() * 1000.0);
-    }
     p->unlock();
   }
-  if (show_timing) printf("Total time: %fms\n",total * 1000.0);
-  //counter_proc+=1.0;
 }
 
 void VisionStack::postProcess(FrameData * data) {
-  unsigned int n=stack.size();
-  double a=0.0;
-  double b=0.0;
-  VisionPlugin * p;
-  for (unsigned int i=0;i<n;i++) {
-    p=stack[i];
+  for (auto p : stack) {
     p->lock();
-    a=GetTimeSec();
     p->postProcess(data,opts);
-    b=GetTimeSec();
-    p->setTimePostProcessing(b-a);
     p->unlock();
   }
-  //counter_post_proc+=1.0;
 }
 
 void VisionStack::updateTimingStatistics() {
