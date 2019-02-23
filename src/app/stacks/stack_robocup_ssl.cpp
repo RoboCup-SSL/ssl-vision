@@ -34,7 +34,7 @@ StackRoboCupSSL::StackRoboCupSSL(
     RoboCupSSLServer * ds_udp_server_new,
     RoboCupSSLServer * ds_udp_server_old,
     string cam_settings_filename) :
-    VisionStack("RoboCup Image Processing",_opts),
+    VisionStack(_opts),
     _camera_id(camera_id),
     _cam_settings_filename(cam_settings_filename),
     global_field(_global_field),

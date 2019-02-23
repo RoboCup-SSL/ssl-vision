@@ -19,6 +19,6 @@
 
 DistributorStack::DistributorStack(RenderOptions *_opts, FrameBuffer *_fb,
                                    vector<CaptureSplitter *> captureSplitters)
-    : VisionStack("RoboCup Image Distributor", _opts) {
+    : VisionStack(_opts) {
   stack.push_back(new PluginDistribute(_fb, std::move(captureSplitters)));
 }
