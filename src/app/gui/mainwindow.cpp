@@ -196,7 +196,7 @@ void MainWindow::timerEvent( QTimerEvent * e) {
     if (fb!=0) {
       fb->lockRead();
       int cur=fb->curRead();
-      if (fb->nextRead(false) != cur) frame_changed=true;
+      if (fb->nextRead(true) != cur) frame_changed=true;
       fb->unlockRead();
     }
     w->displayLoopEvent(frame_changed,opts);
