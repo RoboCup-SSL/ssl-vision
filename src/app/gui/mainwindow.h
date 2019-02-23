@@ -68,7 +68,7 @@ public:
 
   MultiVisionStack * multi_stack;
 
-  MainWindow(bool start_capture, bool enforce_affinity);
+  MainWindow(bool start_capture, bool enforce_affinity, int num_cameras);
   virtual ~MainWindow();
   void init();
   void Quit() { emit close(); }
