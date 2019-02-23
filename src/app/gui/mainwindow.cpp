@@ -21,7 +21,7 @@
 
 #include "mainwindow.h"
 
-MainWindow::MainWindow(bool start_capture, bool enforce_affinity)
+MainWindow::MainWindow(bool start_capture, bool enforce_affinity, int num_cameras)
 {
 
   affinity=0;
@@ -50,7 +50,7 @@ MainWindow::MainWindow(bool start_capture, bool enforce_affinity)
   //opt->parse();
 
   //load RoboCup SSL stack by default:
-  multi_stack= new MultiStackRoboCupSSL(opts);
+  multi_stack= new MultiStackRoboCupSSL(opts, num_cameras);
 
   VarExternal * stackvar;
   root->addChild(stackvar= new VarExternal((multi_stack->getSettingsFileName() + ".xml").c_str(),multi_stack->getName()));
@@ -64,7 +64,11 @@ MainWindow::MainWindow(bool start_capture, bool enforce_affinity)
     GLWidget * gl=new GLWidget(0,false);
     gl->setRingBuffer(multi_stack->threads[i]->getFrameBuffer());
     gl->setVisionStack(s);
-    QString label = "Camera " + QString::number(i);
+    QString label = "Thread " + QString::number(i);
+    if(i == multi_stack->threads.size() - 1)
+    {
+      label = "Distributor Thread";
+    }
 
     VarList * threadvar = new VarList(label.toStdString());
 

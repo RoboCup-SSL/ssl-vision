@@ -54,7 +54,7 @@ class MultiStackRoboCupSSL : public QObject, public MultiVisionStack {
   // UDP Server for Double-Sized field, old protobuf format.
   RoboCupSSLServer * ds_udp_server_old;
   public:
-  MultiStackRoboCupSSL(RenderOptions *_opts);
+  MultiStackRoboCupSSL(RenderOptions *_opts, int num_normal_camera_threads);
   virtual string getSettingsFileName();
   virtual ~MultiStackRoboCupSSL();
   public slots:
