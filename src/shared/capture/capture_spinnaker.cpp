@@ -115,7 +115,6 @@ bool CaptureSpinnaker::startCapture()
 
   pSystem = System::GetInstance();
     
-  //grab current parameters:
   cam_id = (unsigned int) v_cam_bus->getInt();
 
   CameraList camList = pSystem->GetCameras();
@@ -138,7 +137,7 @@ bool CaptureSpinnaker::startCapture()
   }
   catch (Spinnaker::Exception &e)
   {
-    fprintf(stderr, "Spinnaker: An error occurred while opening the device(error code: %d, '%s')\n", e.GetError(), e.GetErrorMessage());
+    fprintf(stderr, "An error occurred while opening device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetErrorMessage());
 #ifndef VDATA_NO_QT
     mutex.unlock();
 #endif
@@ -147,22 +146,20 @@ bool CaptureSpinnaker::startCapture()
 
   camList.Clear();
   
-  fprintf(stderr, "Spinnaker: Opened: %s\n", pCam->DeviceSerialNumber.GetDisplayName().c_str());
+  fprintf(stderr, "Opened %s - %s\n", pCam->DeviceModelName.GetValue().c_str(), pCam->DeviceSerialNumber.GetValue().c_str());
 
-  INodeMap & nodeMap = pCam->GetNodeMap();
-
-  CEnumerationPtr ptrAcquisitionMode = nodeMap.GetNode("AcquisitionMode");
-  CEnumEntryPtr ptrAcquisitionModeContinuous = ptrAcquisitionMode->GetEntryByName("Continuous");
-  int64_t acquisitionModeContinuous = ptrAcquisitionModeContinuous->GetValue();
-  ptrAcquisitionMode->SetIntValue(acquisitionModeContinuous);
+  pCam->TriggerMode.SetValue(Spinnaker::TriggerModeEnums::TriggerMode_Off);
+  pCam->AcquisitionMode.SetValue(Spinnaker::AcquisitionModeEnums::AcquisitionMode_Continuous);
+  pCam->ExposureTime.SetValue(5000);
+  pCam->ExposureAuto.SetValue(Spinnaker::ExposureAutoEnums::ExposureAuto_Continuous);
+  pCam->Gain.SetValue(0.0);
+  pCam->GainAuto.SetValue(Spinnaker::GainAutoEnums::GainAuto_Continuous);
+  pCam->BalanceWhiteAuto.SetValue(Spinnaker::BalanceWhiteAutoEnums::BalanceWhiteAuto_Continuous);
 
   ColorFormat out_color = Colors::stringToColorFormat(v_colorout->getSelection().c_str());
   if(out_color == COLOR_RAW8)
   {
-    CEnumerationPtr ptrPixelFormat = nodeMap.GetNode("PixelFormat");
-    CEnumEntryPtr ptrPixelFormatBayerRg8 = ptrPixelFormat->GetEntryByName("BayerRG8");
-    int64_t pixelFormatBayerRg8 = ptrPixelFormatBayerRg8->GetValue();
-    ptrPixelFormat->SetIntValue(pixelFormatBayerRg8);
+    pCam->PixelFormat.SetValue(Spinnaker::PixelFormatEnums::PixelFormat_BayerRG8);
   } else {
     fprintf(stderr, "Spinnaker: Color format not supported: %s\n", Colors::colorFormatToString(COLOR_RAW8).c_str());
 #ifndef VDATA_NO_QT
