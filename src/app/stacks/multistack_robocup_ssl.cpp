@@ -95,7 +95,7 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions *_opts, int num_normal_
     //      update the plugin_colorcalib.cpp code to safely reallocate and copy their
     //      data instead of assuming that format and size is uniform across
     //      cameras -- added when LUTs became aware of other cameras (Zavesky, 2/16)
-    threads[i]->setFrameBuffer(new FrameBuffer(5));
+    threads[i]->setFrameBuffer(new FrameBuffer(3));
     threads[i]->setStack(
         new StackRoboCupSSL(
             _opts,threads[i]->getFrameBuffer(),
@@ -113,7 +113,7 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions *_opts, int num_normal_
     captureSplitters[i] = dynamic_cast<CaptureSplitter*>(threads[i]->getCaptureSplitter());
   }
 
-  threads[num_normal_camera_threads]->setFrameBuffer(new FrameBuffer(5));
+  threads[num_normal_camera_threads]->setFrameBuffer(new FrameBuffer(3));
   threads[num_normal_camera_threads]->setStack(
           new DistributorStack(
                   _opts,
