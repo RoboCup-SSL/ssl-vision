@@ -216,8 +216,6 @@ void Conversions::rgb2yuyv (unsigned char *src, unsigned char *dest, int width, 
     register int y0, y1, u, v;
     register int r, g, b;
     
-    rgb2yuv(int r, int g, int b, int & y, int & u, int & v
-    
     while ( i < max_i ) {
         r = ( unsigned char ) src[i++];
         g = ( unsigned char ) src[i++];

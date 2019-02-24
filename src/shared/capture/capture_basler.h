@@ -16,6 +16,9 @@
 #include <sys/time.h>
 #include "VarTypes.h"
 
+// Unset 'interface' from pylon/api_autoconf.h which conflicts with variables in ssl-vision
+#undef interface
+
 #ifndef VDATA_NO_QT
 #include <QMutex>
 #endif

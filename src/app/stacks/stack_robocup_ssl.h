@@ -42,7 +42,7 @@
 #include "cmpattern_teamdetector.h"
 #include "robocup_ssl_server.h"
 
-#ifdef OPENCV
+#ifdef NEURAL_CALIBRATION
 #include "plugin_neuralcolorcalib.h"
 #endif
 
