@@ -10,10 +10,6 @@
 #include <vector>
 #include <string>
 
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/core/core.hpp"
-
 #ifndef VDATA_NO_QT
 #define MUTEX_LOCK mutex.lock()
 #define MUTEX_UNLOCK mutex.unlock()
@@ -193,15 +189,6 @@ void CaptureBasler::releaseFrame() {
 	MUTEX_UNLOCK;
 }
 
-void write_img(const RawImage& img, const std::string& name) {
-	std::vector<int> params;
-	params.push_back(CV_IMWRITE_PNG_COMPRESSION);
-	params.push_back(9);
-	cv::Mat cv_img = cv::Mat(img.getHeight(), img.getWidth(), CV_8UC3,
-			img.getData());
-	cv::imwrite(name + ".png", cv_img, params);
-}
-
 RawImage CaptureBasler::getFrame() {
 	MUTEX_LOCK;
 	RawImage img;
@@ -255,12 +242,6 @@ RawImage CaptureBasler::getFrame() {
 		unsigned char* buf = (unsigned char*) malloc(capture.GetImageSize());
 		memcpy(buf, capture.GetBuffer(), capture.GetImageSize());
 		img.setData(buf);
-
-#ifdef OPENCV
-		// gaussianBlur(img);
-        // contrast(img, 1.6);
-        // sharpen(img);
-#endif
 
 		last_buf = buf;
 
@@ -413,34 +394,6 @@ void CaptureBasler::writeParameterValues(VarList* vars) {
 	//	startCapture();
 	//}
 }
-
-#ifdef OPENCV
-inline void CaptureBasler::gaussianBlur(RawImage& img) {
-	cv::Mat cv_img(img.getHeight(), img.getWidth(), CV_8UC3, img.getData());
-	cv::GaussianBlur(cv_img, cv_img, cv::Size(), blur_sigma);
-}
-
-void CaptureBasler::contrast(RawImage& img, double factor) {
-	cv::Mat cv_img(img.getHeight(), img.getWidth(), CV_8UC3, img.getData());
-    for (int y = 0; y < cv_img.rows; ++y) {
-        for (int x = 0; x < cv_img.cols; ++x) {
-            for (int i = 0; i < 3; ++i) {
-                uint8_t channel = cv_img.at<cv::Vec3b>(y, x)[i];
-                int newChannel = channel * factor;
-                if (newChannel > 255) newChannel = 255;
-                cv_img.at<cv::Vec3b>(y, x)[i] = newChannel;
-            }
-        }
-    }
-}
-
-void CaptureBasler::sharpen(RawImage& img) {
-	cv::Mat cv_img(img.getHeight(), img.getWidth(), CV_8UC3, img.getData());
-	cv::Mat cv_img_copy = cv_img.clone();
-	cv::GaussianBlur(cv_img_copy, cv_img_copy, cv::Size(), 3);
-    cv::addWeighted(cv_img, 2.5, cv_img_copy, -1.5, 0, cv_img);
-}
-#endif
 
 #ifndef VDATA_NO_QT
 void CaptureBasler::mvc_connect(VarList * group) {
