@@ -77,7 +77,16 @@ protected:
   VarInt    * v_cam_bus;
   VarStringEnum * v_colorout;
 
+  //DCAM parameters:
+  VarStringEnum* v_expose_auto;
+  VarDouble* v_expose_us;
+  VarStringEnum* v_gain_auto;
+  VarDouble* v_gain_db;
+  VarStringEnum* v_white_balance_auto;
+  VarDouble* v_frame_rate;
+
   VarList * capture_settings;
+  VarList * dcam_parameters;
   
   // Spinnaker specific data
   Spinnaker::SystemPtr pSystem;
@@ -89,6 +98,7 @@ protected:
 public:
 #ifndef VDATA_NO_QT
   explicit CaptureSpinnaker(VarList * _settings = nullptr, int default_camera_id = 0, QObject * parent = nullptr);
+  void mvc_connect(VarList * group);
 #else
     CaptureSpinnaker(VarList * _settings=0,int default_camera_id=0);
 #endif
@@ -111,11 +121,96 @@ public:
 
   bool resetBus() override;
 
+  void readParameterValues(VarList * item);
+
+  void writeParameterValues(VarList * item);
+
   void readAllParameterValues() override;
+
+  void writeAllParameterValues();
 
   bool copyAndConvertFrame(const RawImage & src, RawImage & target) override;
 
   string getCaptureMethodName() const override;
+
+private:
+
+    static string exposureAutoToString(Spinnaker::ExposureAutoEnums e) {
+      switch(e)
+      {
+        case Spinnaker::ExposureAuto_Off:
+          return "off";
+        case Spinnaker::ExposureAuto_Once:
+          return "once";
+        case Spinnaker::ExposureAuto_Continuous:
+          return "continues";
+        default:
+          return "off";
+      }
+    }
+
+    static Spinnaker::ExposureAutoEnums stringToExposureAuto(const char* s) {
+      if(strcmp(s, "off") == 0) {
+        return Spinnaker::ExposureAuto_Off;
+      } else if(strcmp(s, "once") == 0) {
+        return Spinnaker::ExposureAuto_Once;
+      } else if(strcmp(s, "continues") == 0) {
+        return Spinnaker::ExposureAuto_Continuous;
+      }
+      return Spinnaker::ExposureAuto_Off;
+    }
+
+
+    static string gainAutoToString(Spinnaker::GainAutoEnums e) {
+      switch(e)
+      {
+        case Spinnaker::GainAuto_Off:
+          return "off";
+        case Spinnaker::GainAuto_Once:
+          return "once";
+        case Spinnaker::GainAuto_Continuous:
+          return "continues";
+        default:
+          return "off";
+      }
+    }
+
+    static Spinnaker::GainAutoEnums stringToGainAuto(const char* s) {
+      if(strcmp(s, "off") == 0) {
+        return Spinnaker::GainAuto_Off;
+      } else if(strcmp(s, "once") == 0) {
+        return Spinnaker::GainAuto_Once;
+      } else if(strcmp(s, "continues") == 0) {
+        return Spinnaker::GainAuto_Continuous;
+      }
+      return Spinnaker::GainAuto_Off;
+    }
+
+
+    static string balanceWhiteAutoToString(Spinnaker::BalanceWhiteAutoEnums e) {
+      switch(e)
+      {
+        case Spinnaker::BalanceWhiteAuto_Off:
+          return "off";
+        case Spinnaker::BalanceWhiteAuto_Once:
+          return "once";
+        case Spinnaker::BalanceWhiteAuto_Continuous:
+          return "continues";
+        default:
+          return "off";
+      }
+    }
+
+    static Spinnaker::BalanceWhiteAutoEnums stringToBalanceWhiteAuto(const char* s) {
+      if(strcmp(s, "off") == 0) {
+        return Spinnaker::BalanceWhiteAuto_Off;
+      } else if(strcmp(s, "once") == 0) {
+        return Spinnaker::BalanceWhiteAuto_Once;
+      } else if(strcmp(s, "continues") == 0) {
+        return Spinnaker::BalanceWhiteAuto_Continuous;
+      }
+      return Spinnaker::BalanceWhiteAuto_Off;
+    }
 };
 
 #endif
