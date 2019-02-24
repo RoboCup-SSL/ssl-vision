@@ -134,7 +134,7 @@ void CaptureSpinnaker::readParameterValues(VarList * item)
   }
   catch (Spinnaker::Exception &e)
   {
-    fprintf(stderr, "An error occurred while reading parameters of device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetErrorMessage());
+    fprintf(stderr, "An error occurred while reading parameters of device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
   }
 
 #ifndef VDATA_NO_QT
@@ -174,7 +174,7 @@ void CaptureSpinnaker::writeParameterValues(VarList * item)
   }
   catch (Spinnaker::Exception &e)
   {
-    fprintf(stderr, "An error occurred while writing parameters to device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetErrorMessage());
+    fprintf(stderr, "An error occurred while writing parameters to device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
   }
 
 #ifndef VDATA_NO_QT
@@ -208,7 +208,7 @@ bool CaptureSpinnaker::stopCapture()
     }
     catch (Spinnaker::Exception &e)
     {
-      fprintf(stderr, "Spinnaker: An error occurred while closing the device (error code: %d, '%s')\n", e.GetError(), e.GetErrorMessage());
+      fprintf(stderr, "Spinnaker: An error occurred while closing the device (error code: %d, '%s')\n", e.GetError(), e.GetFullErrorMessage());
     }
   }
   
@@ -256,7 +256,7 @@ bool CaptureSpinnaker::startCapture()
   }
   catch (Spinnaker::Exception &e)
   {
-    fprintf(stderr, "An error occurred while opening device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetErrorMessage());
+    fprintf(stderr, "An error occurred while opening device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
     camList.Clear();
     pSystem->ReleaseInstance();
 #ifndef VDATA_NO_QT
@@ -268,8 +268,8 @@ bool CaptureSpinnaker::startCapture()
   try {
     fprintf(stderr, "Opened %s - %s\n", pCam->DeviceModelName.GetValue().c_str(), pCam->DeviceSerialNumber.GetValue().c_str());
 
-    pCam->TriggerMode.SetValue(Spinnaker::TriggerModeEnums::TriggerMode_Off);
-    pCam->AcquisitionMode.SetValue(Spinnaker::AcquisitionModeEnums::AcquisitionMode_Continuous);
+    pCam->TriggerMode.SetValue(Spinnaker::TriggerMode_Off);
+    pCam->AcquisitionMode.SetValue(Spinnaker::AcquisitionMode_Continuous);
 
     // Only take the latest image, reference: https://www.ptgrey.com/tan/11174
     pCam->TLStream.StreamBufferHandlingMode.SetValue(StreamBufferHandlingMode_NewestOnly);
@@ -277,14 +277,20 @@ bool CaptureSpinnaker::startCapture()
     ColorFormat out_color = Colors::stringToColorFormat(v_colorout->getSelection().c_str());
     if(out_color == COLOR_RAW8)
     {
-      pCam->PixelFormat.SetValue(Spinnaker::PixelFormat_BayerRG8);
+      try {
+        pCam->PixelFormat.SetValue(Spinnaker::PixelFormat_BayerRG8);
+      }
+      catch (Spinnaker::Exception &e)
+      {
+        fprintf(stderr, "An error occurred while configuring device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
+      }
     } else {
       fprintf(stderr, "Spinnaker: Color format not supported: %s\n", Colors::colorFormatToString(COLOR_RAW8).c_str());
     }
   }
   catch (Spinnaker::Exception &e)
   {
-    fprintf(stderr, "An error occurred while configuring device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetErrorMessage());
+    fprintf(stderr, "An error occurred while configuring device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
     pCam->DeInit();
     pCam = (int) NULL;
     pSystem->ReleaseInstance();
@@ -376,7 +382,7 @@ void CaptureSpinnaker::releaseFrame()
   }
   catch (Spinnaker::Exception &e)
   {
-    fprintf(stderr, "Spinnaker: An error occurred while releasing an image (error code: %d, '%s')\n", e.GetError(), e.GetErrorMessage());
+    fprintf(stderr, "Spinnaker: An error occurred while releasing an image (error code: %d, '%s')\n", e.GetError(), e.GetFullErrorMessage());
   }
 
   #ifndef VDATA_NO_QT
