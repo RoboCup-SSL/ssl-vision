@@ -271,6 +271,9 @@ bool CaptureSpinnaker::startCapture()
     pCam->TriggerMode.SetValue(Spinnaker::TriggerModeEnums::TriggerMode_Off);
     pCam->AcquisitionMode.SetValue(Spinnaker::AcquisitionModeEnums::AcquisitionMode_Continuous);
 
+    // Only take the latest image, reference: https://www.ptgrey.com/tan/11174
+    pCam->TLStream.StreamBufferHandlingMode.SetValue(StreamBufferHandlingMode_NewestOnly);
+
     ColorFormat out_color = Colors::stringToColorFormat(v_colorout->getSelection().c_str());
     if(out_color == COLOR_RAW8)
     {
