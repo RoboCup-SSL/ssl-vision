@@ -72,7 +72,7 @@ protected:
   unsigned int currentImageIndex;
   
   bool isImageFileName(const std::string& fileName);
-  std::string getFileEnding(const std::string& fileName);
+  std::string getFileExtension(const std::string &fileName);
   std::vector<std::string> validImageFileEndings;
   
 public:

@@ -126,10 +126,10 @@ bool CaptureFromFile::startCapture()
   
     // Read images to buffer in memory:
     imgs_to_load.sort();
-    for (auto &currentImage : imgs_to_load) {
+    for (const auto& currentImage : imgs_to_load) {
       int width(v_raw_width->get());
       int height(v_raw_height->get());
-      if(getFileEnding(currentImage) == "RAW")
+      if(getFileExtension(currentImage) == "RAW")
       {
         std::ifstream file(currentImage, std::ios::binary );
         if(!file)
@@ -153,11 +153,14 @@ bool CaptureFromFile::startCapture()
       }
       else
       {
+        // read image to default OpenCV image format (BGR8)
         cv::Mat srcImg = imread(currentImage, cv::IMREAD_COLOR);
-        RawImage raw_img;
-        raw_img.allocate(ColorFormat::COLOR_RGB8, width, height);
-        memcpy(raw_img.getData(), srcImg.data, static_cast<size_t>(raw_img.getNumBytes()));
-        images.push_back(raw_img);
+        RawImage img;
+        img.allocate(ColorFormat::COLOR_RGB8, srcImg.cols, srcImg.rows);
+        cv::Mat dstImg(img.getHeight(), img.getWidth(), CV_8UC3, img.getData());
+        // convert to default ssl-vision format (RGB8)
+        cvtColor(srcImg, dstImg, cv::COLOR_BGR2RGB);
+        images.push_back(img);
       }
       fprintf (stderr, "Loaded %s \n", currentImage.c_str());
     }
@@ -171,7 +174,7 @@ bool CaptureFromFile::startCapture()
   return true;
 }
 
-std::string CaptureFromFile::getFileEnding(const std::string& fileName)
+std::string CaptureFromFile::getFileExtension(const std::string &fileName)
 {
   // Get ending and turn it to uppercase:
   string::size_type pointPos = fileName.find_last_of('.');
@@ -186,7 +189,7 @@ std::string CaptureFromFile::getFileEnding(const std::string& fileName)
 
 bool CaptureFromFile::isImageFileName(const std::string& fileName)
 {
-  auto ending = getFileEnding(fileName);
+  auto ending = getFileExtension(fileName);
   if(ending.empty()) {
     return false;
   }
