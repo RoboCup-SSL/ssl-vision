@@ -227,6 +227,7 @@ bool CaptureThread::init() {
 }
 
 bool CaptureThread::stop() {
+  capture_mutex.lock();
   bool res = capture != nullptr && capture->stopCapture();
   if (res==true) {
     c_stop->addFlags( VARTYPE_FLAG_READONLY );
@@ -234,6 +235,7 @@ bool CaptureThread::stop() {
     c_start->removeFlags( VARTYPE_FLAG_READONLY );
     c_reset->removeFlags( VARTYPE_FLAG_READONLY );
   }
+  capture_mutex.unlock();
   return res;
 }
 
