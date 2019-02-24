@@ -48,7 +48,7 @@ string MultiVisionStack::getSettingsFileName() {
 
 void MultiVisionStack::createThreads(int number) {
   for (int i=0;i<number;i++) {
-    threads.push_back(new CaptureThread(i));
+    threads.push_back(new CaptureThread(i%4));
   }
 }
 
