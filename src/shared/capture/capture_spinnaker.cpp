@@ -240,6 +240,7 @@ bool CaptureSpinnaker::startCapture()
   if(cam_id >= camList.GetSize())
   {
     fprintf(stderr, "Spinnaker: Invalid cam_id: %u\n", cam_id);
+    pSystem->ReleaseInstance();
 
     #ifndef VDATA_NO_QT
       mutex.unlock();
@@ -257,6 +258,7 @@ bool CaptureSpinnaker::startCapture()
   {
     fprintf(stderr, "An error occurred while opening device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetErrorMessage());
     camList.Clear();
+    pSystem->ReleaseInstance();
 #ifndef VDATA_NO_QT
     mutex.unlock();
 #endif
@@ -280,6 +282,9 @@ bool CaptureSpinnaker::startCapture()
   catch (Spinnaker::Exception &e)
   {
     fprintf(stderr, "An error occurred while configuring device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetErrorMessage());
+    pCam->DeInit();
+    pCam = (int) NULL;
+    pSystem->ReleaseInstance();
   #ifndef VDATA_NO_QT
     mutex.unlock();
   #endif
