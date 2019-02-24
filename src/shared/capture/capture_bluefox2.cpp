@@ -27,7 +27,7 @@ CaptureBlueFox2::CaptureBlueFox2(VarList * _settings,int default_camera_id, QObj
 CaptureBlueFox2::CaptureBlueFox2(VarList * _settings,int default_camera_id) : CaptureInterface(_settings)
 #endif
 {
-  cam_id = (unsigned int) default_camera_id;
+  cam_id = static_cast<unsigned int>(default_camera_id);
   is_capturing = false;
   pDevMgr = nullptr;
   
@@ -335,7 +335,7 @@ bool CaptureBlueFox2::startCapture()
   }
     
   //grab current parameters:
-  cam_id = (unsigned int) v_cam_bus->getInt();
+  cam_id = static_cast<unsigned int>(v_cam_bus->getInt());
   
   const unsigned int devCnt = pDevMgr->deviceCount();
   fprintf(stderr, "BlueFox2: Number of cams: %u\n", devCnt);

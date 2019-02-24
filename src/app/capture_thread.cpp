@@ -194,7 +194,7 @@ void CaptureThread::kill() {
 
 bool CaptureThread::init() {
   capture_mutex.lock();
-  bool res = capture != nullptr && capture->startCapture();
+  bool res = (capture != nullptr) && capture->startCapture();
   if (res==true) {
     c_start->addFlags( VARTYPE_FLAG_READONLY );
     c_reset->addFlags( VARTYPE_FLAG_READONLY );
@@ -207,7 +207,7 @@ bool CaptureThread::init() {
 
 bool CaptureThread::stop() {
   capture_mutex.lock();
-  bool res = capture != nullptr && capture->stopCapture();
+  bool res = (capture != nullptr) && capture->stopCapture();
   if (res==true) {
     c_stop->addFlags( VARTYPE_FLAG_READONLY );
     c_refresh->addFlags( VARTYPE_FLAG_READONLY );
@@ -220,7 +220,7 @@ bool CaptureThread::stop() {
 
 bool CaptureThread::reset() {
   capture_mutex.lock();
-  bool res = capture != nullptr && capture->resetBus();
+  bool res = (capture != nullptr) && capture->resetBus();
   capture_mutex.unlock();
   return res;
 }
