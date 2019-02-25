@@ -87,6 +87,7 @@ protected:
   VarDouble* v_gain_db;
   VarStringEnum* v_white_balance_auto;
   VarDouble* v_frame_rate;
+  VarDouble* v_frame_rate_result;
 
   VarList * capture_settings;
   VarList * dcam_parameters;

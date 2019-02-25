@@ -63,6 +63,8 @@ CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id) : 
 
   v_frame_rate = new VarDouble("Frame Rate", 0.0);
   v_frame_rate->addFlags(VARTYPE_FLAG_READONLY);
+  v_frame_rate_result = new VarDouble("Resulting Frame Rate", 0.0);
+  v_frame_rate_result->addFlags(VARTYPE_FLAG_READONLY);
 
   dcam_parameters->addChild(v_expose_auto);
   dcam_parameters->addChild(v_expose_us);
@@ -70,6 +72,7 @@ CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id) : 
   dcam_parameters->addChild(v_gain_db);
   dcam_parameters->addChild(v_white_balance_auto);
   dcam_parameters->addChild(v_frame_rate);
+  dcam_parameters->addChild(v_frame_rate_result);
 
   #ifndef VDATA_NO_QT
     mvc_connect(dcam_parameters);
@@ -131,6 +134,7 @@ void CaptureSpinnaker::readParameterValues(VarList * item)
 
     v_white_balance_auto->setString(balanceWhiteAutoToString(pCam->BalanceWhiteAuto.GetValue()));
     v_frame_rate->setDouble(pCam->AcquisitionFrameRate.GetValue());
+    v_frame_rate_result->setDouble(pCam->AcquisitionResultingFrameRate.GetValue());
   }
   catch (Spinnaker::Exception &e)
   {
