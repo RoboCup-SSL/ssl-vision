@@ -78,14 +78,18 @@ protected:
 
   //capture variables:
   VarInt    * v_cam_bus;
-  VarStringEnum * v_colorout;
+  VarStringEnum * v_convert_to_mode;
 
   //DCAM parameters:
+  VarStringEnum * v_capture_mode;
   VarStringEnum* v_expose_auto;
   VarDouble* v_expose_us;
   VarStringEnum* v_gain_auto;
   VarDouble* v_gain_db;
   VarStringEnum* v_white_balance_auto;
+  VarStringEnum* v_stream_buffer_handling_mode;
+  VarStringEnum* v_stream_buffer_count_mode;
+  VarInt* v_stream_buffer_count;
   VarDouble* v_frame_rate;
   VarDouble* v_frame_rate_result;
 
@@ -139,7 +143,7 @@ public:
 
 private:
 
-    static string exposureAutoToString(Spinnaker::ExposureAutoEnums e) {
+    static string toString(Spinnaker::ExposureAutoEnums e) {
       switch(e)
       {
         case Spinnaker::ExposureAuto_Off:
@@ -165,7 +169,7 @@ private:
     }
 
 
-    static string gainAutoToString(Spinnaker::GainAutoEnums e) {
+    static string toString(Spinnaker::GainAutoEnums e) {
       switch(e)
       {
         case Spinnaker::GainAuto_Off:
@@ -191,7 +195,7 @@ private:
     }
 
 
-    static string balanceWhiteAutoToString(Spinnaker::BalanceWhiteAutoEnums e) {
+    static string toString(Spinnaker::BalanceWhiteAutoEnums e) {
       switch(e)
       {
         case Spinnaker::BalanceWhiteAuto_Off:
@@ -214,6 +218,58 @@ private:
         return Spinnaker::BalanceWhiteAuto_Continuous;
       }
       return Spinnaker::BalanceWhiteAuto_Off;
+    }
+
+
+    static string toString(Spinnaker::StreamBufferHandlingModeEnum e) {
+      switch(e)
+      {
+        case Spinnaker::StreamBufferHandlingMode_NewestOnly:
+          return "NewestOnly";
+        case Spinnaker::StreamBufferHandlingMode_NewestFirst:
+          return "NewestFirst";
+        case Spinnaker::StreamBufferHandlingMode_OldestFirstOverwrite:
+          return "OldestFirstOverwrite";
+        case Spinnaker::StreamBufferHandlingMode_OldestFirst:
+          return "OldestFirst";
+        default:
+          return "OldestFirstOverwrite";
+      }
+    }
+
+    static Spinnaker::StreamBufferHandlingModeEnum stringToStreamBufferHandlingMode(const char* s) {
+      if(strcmp(s, "NewestOnly") == 0) {
+        return Spinnaker::StreamBufferHandlingMode_NewestOnly;
+      } else if(strcmp(s, "NewestFirst") == 0) {
+        return Spinnaker::StreamBufferHandlingMode_NewestFirst;
+      } else if(strcmp(s, "OldestFirstOverwrite") == 0) {
+        return Spinnaker::StreamBufferHandlingMode_OldestFirstOverwrite;
+      } else if(strcmp(s, "OldestFirst") == 0) {
+        return Spinnaker::StreamBufferHandlingMode_OldestFirst;
+      }
+      return Spinnaker::StreamBufferHandlingMode_OldestFirstOverwrite;
+    }
+
+
+    static string toString(Spinnaker::StreamBufferCountModeEnum e) {
+      switch(e)
+      {
+        case Spinnaker::StreamBufferCountMode_Auto:
+          return "Auto";
+        case Spinnaker::StreamBufferCountMode_Manual:
+          return "Manual";
+        default:
+          return "Auto";
+      }
+    }
+
+    static Spinnaker::StreamBufferCountModeEnum stringToStreamBufferCountMode(const char* s) {
+      if(strcmp(s, "Auto") == 0) {
+        return Spinnaker::StreamBufferCountMode_Auto;
+      } else if(strcmp(s, "Manual") == 0) {
+        return Spinnaker::StreamBufferCountMode_Manual;
+      }
+      return Spinnaker::StreamBufferCountMode_Auto;
     }
 };
 
