@@ -87,7 +87,7 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions *_opts, int num_normal_
 
   //add parameter for number of cameras
   int num_threads = num_normal_camera_threads + 1;
-  createThreads(num_threads);
+  createThreads(num_threads, num_normal_camera_threads);
   std::vector<CaptureSplitter*> captureSplitters;
   captureSplitters.resize((unsigned long) num_normal_camera_threads);
   for (unsigned int i = 0; i < num_normal_camera_threads;i++) {
