@@ -151,7 +151,7 @@ if(USE_NEURAL_CALIBRATION)
 endif()
 
 # Note: Bluefox SDK is not compatible with some components of OpenCV. Take care when enabling more.
-find_package( OpenCV REQUIRED COMPONENTS core imgproc)
+find_package( OpenCV REQUIRED COMPONENTS core imgproc imgcodecs)
 if(OpenCV_FOUND)
 	message(STATUS "OpenCV ${OpenCV_VERSION} found")
 	if(OpenCV_VERSION_MAJOR LESS 3)
@@ -222,12 +222,14 @@ set (SRCS
 	src/app/plugins/plugin_legacysslnetworkoutput.cpp
 	src/app/plugins/plugin_visualize.cpp
 	src/app/plugins/plugin_dvr.cpp
+	src/app/plugins/plugin_distribute.cpp
 	src/app/plugins/visionplugin.cpp
 
 	src/app/stacks/multistack_robocup_ssl.cpp
 	src/app/stacks/multivisionstack.cpp
 	src/app/stacks/stack_robocup_ssl.cpp
 	src/app/stacks/visionstack.cpp
+	src/app/stacks/DistributorStack.cpp
 
 	${OPTIONAL_SRCS}
 )

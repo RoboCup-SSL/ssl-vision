@@ -26,6 +26,8 @@
 #include "image_io.h"
 #include "conversions.h"
 #include <sstream>
+#include <fstream>
+#include <opencv2/opencv.hpp>
 
 
 #ifndef VDATA_NO_QT
@@ -44,7 +46,11 @@ CaptureFromFile::CaptureFromFile(VarList * _settings) : CaptureInterface(_settin
   conversion_settings->addChild(v_colorout=new VarStringEnum("convert to mode",Colors::colorFormatToString(COLOR_YUV422_UYVY)));
   v_colorout->addItem(Colors::colorFormatToString(COLOR_RGB8));
   v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV422_UYVY));
-    
+  v_colorout->addItem(Colors::colorFormatToString(COLOR_RAW8));
+
+  conversion_settings-> addChild(v_raw_width=new VarInt("raw width", 0));
+  conversion_settings-> addChild(v_raw_height=new VarInt("raw height", 0));
+
   //=======================CAPTURE SETTINGS==========================
   ostringstream convert;
   convert << "test-data/cam" << default_camera_id;
@@ -55,6 +61,7 @@ CaptureFromFile::CaptureFromFile(VarList * _settings) : CaptureInterface(_settin
   validImageFileEndings.push_back("BMP");
   validImageFileEndings.push_back("JPG");
   validImageFileEndings.push_back("JPEG");
+  validImageFileEndings.push_back("RAW");
 }
 
 CaptureFromFile::~CaptureFromFile()
@@ -119,18 +126,43 @@ bool CaptureFromFile::startCapture()
   
     // Read images to buffer in memory:
     imgs_to_load.sort();
-    imgs_it = imgs_to_load.begin();
-    std::list<std::string>::iterator currentImage = imgs_it;
-    while(currentImage != imgs_to_load.end())
-    {
-      int width(-1);
-      int height(-1);
-      rgba* rgba_img = ImageIO::readRGBA(width, height, currentImage->c_str());
-      fprintf (stderr, "Loaded %s \n", currentImage->c_str());
-      images.push_back(rgba_img);
-      heights.push_back(height);
-      widths.push_back(width);
-      ++currentImage;
+    for (const auto& currentImage : imgs_to_load) {
+      int width(v_raw_width->get());
+      int height(v_raw_height->get());
+      if(getFileExtension(currentImage) == "RAW")
+      {
+        std::ifstream file(currentImage, std::ios::binary );
+        if(!file)
+        {
+          std::cout << "Could not read file: " << currentImage << std::endl;
+          continue;
+        }
+        vector<char> buffer((istreambuf_iterator<char>(file)), (istreambuf_iterator<char>()));
+
+        if((int) buffer.size() < width*height)
+        {
+          std::cerr << "Image " << currentImage << " is too small!" << std::endl;
+          continue;
+        }
+
+        RawImage raw_img;
+        raw_img.allocate(ColorFormat::COLOR_RAW8, width, height);
+        memcpy(raw_img.getData(), buffer.data(), static_cast<size_t>(raw_img.getNumBytes()));
+
+        images.push_back(raw_img);
+      }
+      else
+      {
+        // read image to default OpenCV image format (BGR8)
+        cv::Mat srcImg = imread(currentImage, cv::IMREAD_COLOR);
+        RawImage img;
+        img.allocate(ColorFormat::COLOR_RGB8, srcImg.cols, srcImg.rows);
+        cv::Mat dstImg(img.getHeight(), img.getWidth(), CV_8UC3, img.getData());
+        // convert to default ssl-vision format (RGB8)
+        cvtColor(srcImg, dstImg, cv::COLOR_BGR2RGB);
+        images.push_back(img);
+      }
+      fprintf (stderr, "Loaded %s \n", currentImage.c_str());
     }
     currentImageIndex = 0;
   }
@@ -142,19 +174,31 @@ bool CaptureFromFile::startCapture()
   return true;
 }
 
-bool CaptureFromFile::isImageFileName(const std::string& fileName)
+std::string CaptureFromFile::getFileExtension(const std::string &fileName)
 {
   // Get ending and turn it to uppercase:
-  string::size_type pointPos = fileName.find_last_of(".");
+  string::size_type pointPos = fileName.find_last_of('.');
   if(pointPos == string::npos)
-    return false;
+    return "";
   string ending = fileName.substr(pointPos+1);
-  for(unsigned int i=0; i<ending.size(); ++i)
-    ending[i] = toupper(ending[i]);
+  for (char &i : ending) {
+    i = toupper(i);
+  }
+  return ending;
+}
+
+bool CaptureFromFile::isImageFileName(const std::string& fileName)
+{
+  auto ending = getFileExtension(fileName);
+  if(ending.empty()) {
+    return false;
+  }
   // Compare against list of valid endings
-  for(unsigned int i=0; i<validImageFileEndings.size();++i)
-    if(ending == validImageFileEndings[i])
+  for (const auto &validImageFileEnding : validImageFileEndings) {
+    if (ending == validImageFileEnding) {
       return true;
+    }
+  }
   return false;
 }
 
@@ -163,36 +207,37 @@ bool CaptureFromFile::copyAndConvertFrame(const RawImage & src, RawImage & targe
 #ifndef VDATA_NO_QT
   mutex.lock();
 #endif
+
   ColorFormat output_fmt = Colors::stringToColorFormat(v_colorout->getSelection().c_str());
-  ColorFormat src_fmt=src.getColorFormat();
-    
-  if (target.getData()==0)
-    target.allocate(output_fmt, src.getWidth(), src.getHeight());
-  else
-    target.ensure_allocation(output_fmt, src.getWidth(), src.getHeight());
-     
+  ColorFormat src_fmt = src.getColorFormat();
+
+  target.ensure_allocation(output_fmt, src.getWidth(), src.getHeight());
   target.setTime(src.getTime());
-     
   if (output_fmt == src_fmt)
   {
-    if (src.getData() != 0)
-      memcpy(target.getData(),src.getData(),src.getNumBytes());
+    memcpy(target.getData(), src.getData(), static_cast<size_t>(src.getNumBytes()));
+  }
+  else if(src_fmt == COLOR_RAW8 && output_fmt == COLOR_RGB8)
+  {
+      cv::Mat srcMat(src.getHeight(), src.getWidth(), CV_8UC1, src.getData());
+      cv::Mat dstMat(target.getHeight(), target.getWidth(), CV_8UC3, target.getData());
+      cvtColor(srcMat, dstMat, cv::COLOR_BayerRG2BGR);
   }
 #ifndef NO_DC1394_CONVERSIONS
   else if (src_fmt == COLOR_RGB8 && output_fmt == COLOR_YUV422_UYVY)
   {
     if (src.getData() != 0)
-      dc1394_convert_to_YUV422(src.getData(), target.getData(), src.getWidth(), src.getHeight(), 
+      dc1394_convert_to_YUV422(src.getData(), target.getData(), src.getWidth(), src.getHeight(),
                                DC1394_BYTE_ORDER_UYVY, DC1394_COLOR_CODING_RGB8, 8);
   }
   else if (src_fmt == COLOR_YUV422_UYVY && output_fmt == COLOR_RGB8)
   {
     if (src.getData() != 0)
-      dc1394_convert_to_RGB8(src.getData(),target.getData(), src.getWidth(), src.getHeight(), 
+      dc1394_convert_to_RGB8(src.getData(),target.getData(), src.getWidth(), src.getHeight(),
                              DC1394_BYTE_ORDER_UYVY, DC1394_COLOR_CODING_YUV422, 8);
   }
 #endif
-  else 
+  else
   {
     fprintf(stderr,"Cannot copy and convert frame...unknown conversion selected from: %s to %s\n",
             Colors::colorFormatToString(src_fmt).c_str(),
@@ -201,7 +246,7 @@ bool CaptureFromFile::copyAndConvertFrame(const RawImage & src, RawImage & targe
     mutex.unlock();
 #endif
     return false;
-  } 
+  }
 #ifndef VDATA_NO_QT
   mutex.unlock();
 #endif
@@ -215,47 +260,23 @@ RawImage CaptureFromFile::getFrame()
 #endif
 
   RawImage result;
-  result.setColorFormat(COLOR_RGB8); 
-  result.setTime(0.0);
-  rgba* rgba_img = 0;
-  int width;
-  int height;
-  if(images.size())
-  {
-    rgba_img = images[currentImageIndex];
-    width = widths[currentImageIndex];
-    height = heights[currentImageIndex];
-    currentImageIndex = (currentImageIndex + 1) % images.size();
-  }
-  if (rgba_img == 0)
+  if(images.empty())
   {
     fprintf (stderr, "CaptureFromFile Error, no images available");
     is_capturing=false;
-    result.setData(0);
+    result.setData(nullptr);
     result.setWidth(640);
     result.setHeight(480);
-    frame = 0;
+    result.setTime(0.0);
+  } else {
+    result = images[currentImageIndex];
+    currentImageIndex = static_cast<unsigned int>((currentImageIndex + 1) % images.size());
+
+    timeval tv{};
+    gettimeofday(&tv, nullptr);
+    result.setTime((double) tv.tv_sec + tv.tv_usec*(1.0E-6));
   }
-  else
-  {
-    frame = new unsigned char[width*height*3];
-    unsigned char* p = &frame[0];
-    for (int i=0; i < width * height; i++)
-    {
-      *p = rgba_img[i].r;
-      p++;
-      *p = rgba_img[i].g;
-      p++;
-      *p = rgba_img[i].b;
-      p++;
-    }
-    result.setWidth(width);
-    result.setHeight(height);
-    result.setData(frame);
-    timeval tv;    
-    gettimeofday(&tv,0);
-    result.setTime((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
-  }
+
 #ifndef VDATA_NO_QT
   mutex.unlock();
 #endif 
@@ -267,7 +288,6 @@ void CaptureFromFile::releaseFrame()
 #ifndef VDATA_NO_QT
   mutex.lock();
 #endif
-  delete[] frame;
 #ifndef VDATA_NO_QT
   mutex.unlock();
 #endif

@@ -59,21 +59,20 @@ protected:
 
   //processing variables:
   VarStringEnum * v_colorout;
+  VarInt * v_raw_width;
+  VarInt * v_raw_height;
 
   //capture variables:
   VarString * v_cap_dir;
   VarList * capture_settings;
   VarList * conversion_settings;
 
-  unsigned char* frame;
   std::list<std::string> imgs_to_load;
-  std::list<std::string>::iterator imgs_it;
-  std::vector<rgba*> images;
-  std::vector<int> heights;
-  std::vector<int> widths;
+  std::vector<RawImage> images;
   unsigned int currentImageIndex;
   
   bool isImageFileName(const std::string& fileName);
+  std::string getFileExtension(const std::string &fileName);
   std::vector<std::string> validImageFileEndings;
   
 public:

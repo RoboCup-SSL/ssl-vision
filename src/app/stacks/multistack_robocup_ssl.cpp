@@ -19,8 +19,10 @@
 */
 //========================================================================
 #include "multistack_robocup_ssl.h"
+#include "capture_splitter.h"
+#include "DistributorStack.h"
 
-MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
+MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions *_opts, int num_normal_camera_threads) :
     MultiVisionStack("RoboCup SSL Multi-Cam",_opts),
     ds_udp_server_new(NULL),
     ds_udp_server_old(NULL) {
@@ -84,14 +86,16 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
       *global_field);
 
   //add parameter for number of cameras
-  createThreads(cameras);
-  unsigned int n = threads.size();
-  for (unsigned int i = 0; i < n;i++) {
+  int num_threads = num_normal_camera_threads + 1;
+  createThreads(num_threads, num_normal_camera_threads);
+  std::vector<CaptureSplitter*> captureSplitters;
+  captureSplitters.resize((unsigned long) num_normal_camera_threads);
+  for (unsigned int i = 0; i < num_normal_camera_threads;i++) {
     //NOTE: if modified to put different stacks in cameras, please
     //      update the plugin_colorcalib.cpp code to safely reallocate and copy their
     //      data instead of assuming that format and size is uniform across
     //      cameras -- added when LUTs became aware of other cameras (Zavesky, 2/16)
-    threads[i]->setFrameBuffer(new FrameBuffer(5));
+    threads[i]->setFrameBuffer(new FrameBuffer(3));
     threads[i]->setStack(
         new StackRoboCupSSL(
             _opts,threads[i]->getFrameBuffer(),
@@ -106,7 +110,15 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions * _opts, int cameras) :
             ds_udp_server_new,
             ds_udp_server_old,
             "robocup-ssl-cam-" + QString::number(i).toStdString()));
+    captureSplitters[i] = dynamic_cast<CaptureSplitter*>(threads[i]->getCaptureSplitter());
   }
+
+  threads[num_normal_camera_threads]->setFrameBuffer(new FrameBuffer(3));
+  threads[num_normal_camera_threads]->setStack(
+          new DistributorStack(
+                  _opts,
+                  threads[num_normal_camera_threads]->getFrameBuffer(),
+                  captureSplitters));
 }
 
 string MultiStackRoboCupSSL::getSettingsFileName() {
