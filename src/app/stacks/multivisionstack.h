@@ -44,7 +44,7 @@ public:
   RenderOptions * opts;
   VarList * settings;
 protected:
-    void createThreads(int number);
+    void createThreads(int number, int max_cameras);
 public:
     MultiVisionStack(string _name, RenderOptions * _opts);
     virtual ~MultiVisionStack();
