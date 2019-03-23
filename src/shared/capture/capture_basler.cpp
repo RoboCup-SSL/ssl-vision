@@ -10,13 +10,8 @@
 #include <vector>
 #include <string>
 
-#ifndef VDATA_NO_QT
 #define MUTEX_LOCK mutex.lock()
 #define MUTEX_UNLOCK mutex.unlock()
-#else
-#define MUTEX_LOCK
-#define MUTEX_UNLOCK
-#endif
 
 int BaslerInitManager::count = 0;
 
@@ -32,12 +27,8 @@ void BaslerInitManager::unregister_capture() {
 	}
 }
 
-#ifndef VDATA_NO_QT
 CaptureBasler::CaptureBasler(VarList* _settings, QObject* parent) :
 		QObject(parent), CaptureInterface(_settings) {
-#else
-	CaptureBasler::CaptureBasler(VarList* _settings) : CaptureInterface(_settings) {
-#endif
 	is_capturing = false;
 	camera = NULL;
 	ignore_capture_failure = false;
@@ -89,10 +80,8 @@ CaptureBasler::CaptureBasler(VarList* _settings, QObject* parent) :
 
 	current_id = 0;
 
-#ifndef VDATA_NO_QT
 	mvc_connect(settings);
 	mvc_connect(vars);
-#endif
 }
 
 CaptureBasler::~CaptureBasler() {
@@ -395,7 +384,6 @@ void CaptureBasler::writeParameterValues(VarList* vars) {
 	//}
 }
 
-#ifndef VDATA_NO_QT
 void CaptureBasler::mvc_connect(VarList * group) {
 	vector<VarType *> v = group->getChildren();
 	for (unsigned int i = 0; i < v.size(); i++) {
@@ -409,4 +397,3 @@ if (group->getType() == VARTYPE_ID_LIST) {
 writeParameterValues(dynamic_cast<VarList*>(group));
 }
 }
-#endif

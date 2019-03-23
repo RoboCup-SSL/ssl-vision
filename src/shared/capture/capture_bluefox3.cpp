@@ -23,19 +23,13 @@
 #include <memory>
 #include <iostream>
 
-#ifndef VDATA_NO_QT
 CaptureBlueFox3::CaptureBlueFox3(VarList * _settings,int default_camera_id, QObject * parent) : QObject(parent), CaptureInterface(_settings)
-#else
-CaptureBlueFox3::CaptureBlueFox3(VarList * _settings,int default_camera_id) : CaptureInterface(_settings)
-#endif
 {
   cam_id = (unsigned int) default_camera_id;
   is_capturing = false;
   pDevMgr = nullptr;
   
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
 
   settings->addChild(capture_settings = new VarList("Capture Settings"));
 
@@ -46,9 +40,7 @@ CaptureBlueFox3::CaptureBlueFox3(VarList * _settings,int default_camera_id) : Ca
   v_colorout->addItem(Colors::colorFormatToString(COLOR_RGB8));
   v_colorout->addItem(Colors::colorFormatToString(COLOR_RAW8));
 
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
 }
 
 CaptureBlueFox3::~CaptureBlueFox3()
@@ -63,20 +55,14 @@ void CaptureBlueFox3::readAllParameterValues()
 }
 
 
-#ifndef VDATA_NO_QT
 void CaptureBlueFox3::changed(VarType * /*group*/) {
 }
-#endif
 
 bool CaptureBlueFox3::resetBus()
 {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
 
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
     
   return true;
 }
@@ -103,9 +89,7 @@ bool CaptureBlueFox3::stopCapture()
 bool CaptureBlueFox3::startCapture()
 {
     using namespace std;
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
 
   if(pDevMgr == nullptr) {
     pDevMgr = new DeviceManager();
@@ -121,9 +105,7 @@ bool CaptureBlueFox3::startCapture()
   {
     fprintf(stderr, "BlueFox3: Invalid cam_id: %u\n", cam_id);
 
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #endif
     return false;
   }
   
@@ -137,9 +119,7 @@ bool CaptureBlueFox3::startCapture()
   {
     // this e.g. might happen if the same device is already opened in another process...
     fprintf(stderr, "BlueFox3: An error occurred while opening the device(error code: %d, '%s')\n", e.getErrorCode(), e.getErrorString().c_str());
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #endif
     return false;
   }
   
@@ -176,33 +156,25 @@ bool CaptureBlueFox3::startCapture()
     i->addFlags( VARTYPE_FLAG_READONLY );
   }
     
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
     
   return true;
 }
 
 bool CaptureBlueFox3::copyAndConvertFrame(const RawImage & src, RawImage & target)
 {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
 
   target = src;
 
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
 
   return true;
 }
 
 RawImage CaptureBlueFox3::getFrame()
 {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
 
   ColorFormat out_color = Colors::stringToColorFormat(v_colorout->getSelection().c_str());
   RawImage result;
@@ -223,9 +195,7 @@ RawImage CaptureBlueFox3::getFrame()
       // If the error code is -2119(DEV_WAIT_FOR_REQUEST_FAILED), the documentation will provide
       // additional information under TDMR_ERROR in the interface reference
       fprintf(stderr, "imageRequestWaitFor failed (%d, %s)\n", requestNr, ImpactAcquireException::getErrorCodeAsString( requestNr ).c_str());
-      #ifndef VDATA_NO_QT
 	mutex.unlock();
-      #endif
       return result;
   }
 
@@ -247,24 +217,18 @@ RawImage CaptureBlueFox3::getFrame()
   
   lastRequestNr = requestNr;
   
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
   return result;
 }
 
 void CaptureBlueFox3::releaseFrame() 
 {
-#ifndef VDATA_NO_QT
   mutex.lock();
-#endif
 
   if(pFI->isRequestNrValid(lastRequestNr))
     pFI->imageRequestUnlock(lastRequestNr);
   
-#ifndef VDATA_NO_QT
   mutex.unlock();
-#endif
 }
 
 string CaptureBlueFox3::getCaptureMethodName() const 

@@ -31,11 +31,7 @@
 #include <mvIMPACT_CPP/mvIMPACT_acquire_GenICam.h>
 
 //#include "conversions.h"
-#ifndef VDATA_NO_QT
   #include <QMutex>
-#else
-  #include <pthread.h>
-#endif
 
 using namespace mvIMPACT::acquire;
 
@@ -51,15 +47,10 @@ using namespace mvIMPACT::acquire;
   please inform the author, as we are aiming for complete camera
   coverage.
 */
-#ifndef VDATA_NO_QT
   #include <QMutex>
   //if using QT, inherit QObject as a base
 class CaptureBlueFox3 : public QObject, public CaptureInterface
-#else
-class CaptureBlueFox3 : public CaptureInterface
-#endif
 {
-#ifndef VDATA_NO_QT
   Q_OBJECT
   
   public slots:
@@ -69,7 +60,6 @@ class CaptureBlueFox3 : public CaptureInterface
   QMutex mutex;
   
   public:
-#endif
 
 protected:
   bool is_capturing;
@@ -89,11 +79,7 @@ protected:
   unsigned int cam_id;
 
 public:
-#ifndef VDATA_NO_QT
   explicit CaptureBlueFox3(VarList * _settings= nullptr, int default_camera_id=0, QObject * parent=nullptr);
-#else
-    CaptureBlueFox3(VarList * _settings=0,int default_camera_id=0);
-#endif
   ~CaptureBlueFox3() override;
 
   /// Initialize the interface and start capture

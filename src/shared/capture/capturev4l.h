@@ -45,11 +45,7 @@
 
 #include <map>
 
-#ifndef VDATA_NO_QT
 #include <QMutex>
-#else
-#include <pthread.h>
-#endif
 
 typedef long v4lfeature_t;
 
@@ -85,10 +81,6 @@ public:
     };
 protected:
     GlobalV4Linstance() {
-#ifndef VDATA_NO_QT
-#else
-        pthread_mutex_init (&mutex);
-#endif
         counter=0;
         pollset.fd=-1;
         mzero(img, V4L_STREAMBUFS);
@@ -96,16 +88,8 @@ protected:
     }
     ~GlobalV4Linstance() {
         while (counter) removeInstance();       //if iterating, release control first
-#ifndef VDATA_NO_QT
-#else
-        pthread_mutex_destroy (&mutex);
-#endif
     }
-#ifndef VDATA_NO_QT
     QMutex mutex;
-#else
-    pthread_mutex_t mutex;
-#endif
 private:
     pollfd pollset;
     char counter;
@@ -139,18 +123,10 @@ public:
     
 private:
     void lock() {
-#ifndef VDATA_NO_QT
         mutex.lock();
-#else
-        pthread_mutex_lock();
-#endif
     }
     void unlock() {
-#ifndef VDATA_NO_QT
         mutex.unlock();
-#else
-        pthread_mutex_unlock();
-#endif
     }
     
 // utility functions for testing before ssl-vision
@@ -213,22 +189,16 @@ private:
  please inform the author, but also consider contributing yourself,
  so that we can cover as many options as possible.
  */
-#ifndef VDATA_NO_QT
 #include <QMutex>
 //if using QT, inherit QObject as a base
 class CaptureV4L : public QObject, public CaptureInterface
-#else
-class CaptureV4L : public CaptureInterface
-#endif
 {
-#ifndef VDATA_NO_QT
     Q_OBJECT
     public slots:
     void changed(VarType * group);
 protected:
     QMutex mutex;
 public:
-#endif
     
     
 protected:
@@ -279,12 +249,8 @@ protected:
     VarList * conversion_settings;
     
 public:
-#ifndef VDATA_NO_QT
     CaptureV4L(VarList * _settings=0,int default_camera_id=0,QObject * parent=0);
     void mvc_connect(VarList * group);
-#else
-    CaptureV4L(VarList * _settings=0,int default_camera_id=0);
-#endif
     ~CaptureV4L();
     
     /// Initialize the interface and start capture

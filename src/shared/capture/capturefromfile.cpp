@@ -30,11 +30,7 @@
 #include <opencv2/opencv.hpp>
 
 
-#ifndef VDATA_NO_QT
 CaptureFromFile::CaptureFromFile(VarList * _settings, int default_camera_id, QObject * parent) : QObject(parent), CaptureInterface(_settings)
-#else
-CaptureFromFile::CaptureFromFile(VarList * _settings) : CaptureInterface(_settings)
-#endif
 {
   currentImageIndex = 0;
   is_capturing=false;
@@ -76,20 +72,14 @@ bool CaptureFromFile::stopCapture()
 
 void CaptureFromFile::cleanup()
 {
-#ifndef VDATA_NO_QT
   mutex.lock();
-#endif
   is_capturing=false;
-#ifndef VDATA_NO_QT
   mutex.unlock();
-#endif
 }
 
 bool CaptureFromFile::startCapture()
 {
-#ifndef VDATA_NO_QT
   mutex.lock();
-#endif
   if(images.size() == 0)
   {
     // Acquire a list of file names
@@ -98,9 +88,7 @@ bool CaptureFromFile::startCapture()
     if((v_cap_dir->getString() == "") || ((dp  = opendir(v_cap_dir->getString().c_str())) == 0)) 
     {
       fprintf(stderr,"Failed to open directory %s \n", v_cap_dir->getString().c_str());
-#ifndef VDATA_NO_QT
       mutex.unlock();
-#endif      
       is_capturing=false;
       return false;
     }  
@@ -117,9 +105,7 @@ bool CaptureFromFile::startCapture()
     closedir(dp);
     if(imgs_to_load.size() == 0)
     {
-#ifndef VDATA_NO_QT
       mutex.unlock();
-#endif      
       is_capturing=false;
       return false;
     }
@@ -168,9 +154,7 @@ bool CaptureFromFile::startCapture()
   }
   is_capturing=true;  
   
-#ifndef VDATA_NO_QT
   mutex.unlock();
-#endif
   return true;
 }
 
@@ -204,9 +188,7 @@ bool CaptureFromFile::isImageFileName(const std::string& fileName)
 
 bool CaptureFromFile::copyAndConvertFrame(const RawImage & src, RawImage & target)
 {
-#ifndef VDATA_NO_QT
   mutex.lock();
-#endif
 
   ColorFormat output_fmt = Colors::stringToColorFormat(v_colorout->getSelection().c_str());
   ColorFormat src_fmt = src.getColorFormat();
@@ -242,22 +224,16 @@ bool CaptureFromFile::copyAndConvertFrame(const RawImage & src, RawImage & targe
     fprintf(stderr,"Cannot copy and convert frame...unknown conversion selected from: %s to %s\n",
             Colors::colorFormatToString(src_fmt).c_str(),
             Colors::colorFormatToString(output_fmt).c_str());
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
     return false;
   }
-#ifndef VDATA_NO_QT
   mutex.unlock();
-#endif
   return true;
 }
 
 RawImage CaptureFromFile::getFrame()
 {
-#ifndef VDATA_NO_QT
    mutex.lock();
-#endif
 
   RawImage result;
   if(images.empty())
@@ -277,20 +253,14 @@ RawImage CaptureFromFile::getFrame()
     result.setTime((double) tv.tv_sec + tv.tv_usec*(1.0E-6));
   }
 
-#ifndef VDATA_NO_QT
   mutex.unlock();
-#endif 
   return result;
 }
 
 void CaptureFromFile::releaseFrame() 
 {
-#ifndef VDATA_NO_QT
   mutex.lock();
-#endif
-#ifndef VDATA_NO_QT
   mutex.unlock();
-#endif
 }
 
 string CaptureFromFile::getCaptureMethodName() const 

@@ -550,9 +550,7 @@ bool CaptureFlycap::convertFrame(const RawImage & src,
       if (debayer) {
         //de-bayer
         if ( dc1394_bayer_decoding_8bit( src.getData(), target.getData(), src.getWidth(), src.getHeight(), bayer_format, bayer_method) != DC1394_SUCCESS ) {
-          #ifndef VDATA_NO_QT
             mutex.unlock();
-          #endif
           return false;
         }
       } else {
@@ -567,9 +565,7 @@ bool CaptureFlycap::convertFrame(const RawImage & src,
         if ( dc1394_bayer_decoding_16bit( (uint16_t *)src.getData(), (uint16_t *)target.getData(), src.getWidth(), src.getHeight(), bayer_format, bayer_method, y16bits) != DC1394_SUCCESS ) {
           fprintf(stderr,"Error in 16bit Bayer Conversion");
 
-          #ifndef VDATA_NO_QT
             mutex.unlock();
-          #endif
           return false;
         }
       } else if (debayer==false && output_fmt==COLOR_RGB8) {

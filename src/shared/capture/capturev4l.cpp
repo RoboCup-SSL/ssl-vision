@@ -556,20 +556,14 @@ GlobalV4Linstance::rgb GlobalV4Linstance::yuv2rgb(GlobalV4Linstance::yuv p)
 
 //======================= GUI & API Definitions =======================
 
-#ifndef VDATA_NO_QT
 CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id, QObject * parent) : QObject(parent), CaptureInterface(_settings)
-#else
-CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id) : CaptureInterface(_settings)
-#endif
 {
     mzero(cam_list, MAX_CAM_SCAN);
     cam_count = 0;
     cam_id=default_camera_id;
     is_capturing=false;
 
-#ifndef VDATA_NO_QT
     mutex.lock();
-#endif
     
     cam_count = GlobalV4LinstanceManager::enumerateInstances(cam_list, MAX_CAM_SCAN);
     if (cam_count==0) {
@@ -654,88 +648,66 @@ CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id) : CaptureInter
     P_BRIGHTNESS->addChild(new VarBool("enabled"));
     P_BRIGHTNESS->addChild(new VarBool("default"));
     P_BRIGHTNESS->addChild(new VarInt("value"));
-#ifndef VDATA_NO_QT
     mvc_connect(P_BRIGHTNESS);
-#endif
     
     dcam_parameters->addChild(P_SHARPNESS = new VarList("sharpness"));
     P_SHARPNESS->addChild(new VarBool("enabled"));
     P_SHARPNESS->addChild(new VarInt("defulat"));
     P_SHARPNESS->addChild(new VarInt("value"));
-#ifndef VDATA_NO_QT
     mvc_connect(P_SHARPNESS);
-#endif
     
     dcam_parameters->addChild(P_WHITE_BALANCE = new VarList("white balance"));
     P_WHITE_BALANCE->addChild(new VarBool("enabled"));
     P_WHITE_BALANCE->addChild(new VarBool("auto"));
-#ifndef VDATA_NO_QT
     mvc_connect(P_WHITE_BALANCE);
-#endif
     
     dcam_parameters->addChild(P_HUE = new VarList("hue"));
     P_HUE->addChild(new VarBool("enabled"));
     P_HUE->addChild(new VarBool("default"));
     P_HUE->addChild(new VarInt("value"));
-#ifndef VDATA_NO_QT
     mvc_connect(P_HUE);
-#endif
     
     dcam_parameters->addChild(P_SATURATION = new VarList("saturation"));
     P_SATURATION->addChild(new VarBool("enabled"));
     P_SATURATION->addChild(new VarBool("default"));
     P_SATURATION->addChild(new VarInt("value"));
-#ifndef VDATA_NO_QT
     mvc_connect(P_SATURATION);
-#endif
     
     dcam_parameters->addChild(P_GAMMA = new VarList("gamma"));
     P_GAMMA->addChild(new VarBool("enabled"));
     P_GAMMA->addChild(new VarBool("default"));
     P_GAMMA->addChild(new VarInt("value"));
-#ifndef VDATA_NO_QT
     mvc_connect(P_GAMMA);
-#endif
     
     dcam_parameters->addChild(P_EXPOSURE = new VarList("shutter/exposure"));
     P_EXPOSURE->addChild(new VarBool("enabled"));
     P_EXPOSURE->addChild(new VarBool("default"));
     P_EXPOSURE->addChild(new VarInt("value"));
-#ifndef VDATA_NO_QT
     mvc_connect(P_EXPOSURE);
-#endif
     
     dcam_parameters->addChild(P_CONTRAST = new VarList("contrast"));
     P_CONTRAST->addChild(new VarBool("enabled"));
     P_CONTRAST->addChild(new VarBool("default"));
     P_CONTRAST->addChild(new VarInt("value"));
-#ifndef VDATA_NO_QT
     mvc_connect(P_CONTRAST);
-#endif
     
     dcam_parameters->addChild(P_TEMPERATURE = new VarList("temperature"));
     P_TEMPERATURE->addChild(new VarBool("enabled"));
     P_TEMPERATURE->addChild(new VarBool("default"));
     P_TEMPERATURE->addChild(new VarInt("value"));
-#ifndef VDATA_NO_QT
     mvc_connect(P_TEMPERATURE);
-#endif
     
     dcam_parameters->addChild(P_GAIN = new VarList("gain"));
     P_GAIN->addChild(new VarBool("enabled"));
     P_GAIN->addChild(new VarBool("default"));
     P_GAIN->addChild(new VarInt("value"));
-#ifndef VDATA_NO_QT
     mvc_connect(P_GAIN);
-#endif
     
     dcam_parameters->addChild(P_FRAME_RATE = new VarList("frame rate"));
     P_FRAME_RATE->addChild(new VarBool("enabled"));
     P_FRAME_RATE->addChild(new VarBool("auto"));
     P_FRAME_RATE->addChild(new VarInt("value"));
-#ifndef VDATA_NO_QT
     mvc_connect(P_FRAME_RATE);
-#endif
     
     vector<VarType *> v=dcam_parameters->getChildren();
     for (unsigned int i=0;i<v.size();i++) {
@@ -746,16 +718,11 @@ CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id) : CaptureInter
         }
     }
     
-#ifndef VDATA_NO_QT
     mvc_connect(P_FRAME_RATE);
-#endif
     
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
 }
 
-#ifndef VDATA_NO_QT
 void CaptureV4L::mvc_connect(VarList * group) {
     vector<VarType *> v=group->getChildren();
     for (unsigned int i=0;i<v.size();i++) {
@@ -770,7 +737,6 @@ void CaptureV4L::changed(VarType * group) {
         readParameterValues( (VarList *)group );
     }
 }
-#endif
 
 
 void CaptureV4L::readAllParameterValues() {
@@ -803,16 +769,12 @@ void CaptureV4L::writeAllParameterValues() {
 
 void CaptureV4L::readParameterValues(VarList * item) {
     if (!camera_instance) return;
-#ifndef VDATA_NO_QT
     mutex.lock();
-#endif
     bool valid=true;
     v4lfeature_t feature=getV4LfeatureEnum(item,valid);
     if (valid==false) {
         printf("INVALID FEATURE: %s\n",item->getName().c_str());
-#ifndef VDATA_NO_QT
         mutex.unlock();
-#endif
         return;
     }
     VarInt * vint=0;
@@ -859,21 +821,15 @@ void CaptureV4L::readParameterValues(VarList * item) {
     }
     
     
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
 }
 
 void CaptureV4L::writeParameterValues(VarList * item) {
-#ifndef VDATA_NO_QT
     mutex.lock();
-#endif
     bool valid=true;
     v4lfeature_t feature=getV4LfeatureEnum(item,valid);
     if (valid==false) {
-#ifndef VDATA_NO_QT
         mutex.unlock();
-#endif
         return;
     }
     VarInt * vint=0;
@@ -908,25 +864,19 @@ void CaptureV4L::writeParameterValues(VarList * item) {
             }
         }
     }
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
 }
 
 
 void CaptureV4L::readParameterProperty(VarList * item) {
     if (!camera_instance) return;
-#ifndef VDATA_NO_QT
     mutex.lock();
-#endif
     bool debug=false;
     bool valid=true;
     v4lfeature_t feature=getV4LfeatureEnum(item,valid);
     if (valid==false) {
         fprintf(stderr,"ERROR: INVALID PROPERTY ENCOUNTERED DURING READOUT: %s\n", item->getName().c_str());
-#ifndef VDATA_NO_QT
         mutex.unlock();
-#endif
         return;
     }
     VarInt * vint=0;
@@ -972,9 +922,7 @@ void CaptureV4L::readParameterProperty(VarList * item) {
             }
         }
     }
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
 }
 
 
@@ -985,22 +933,16 @@ CaptureV4L::~CaptureV4L()
 }
 
 bool CaptureV4L::resetBus() {
-#ifndef VDATA_NO_QT
     mutex.lock();
-#endif
 
     cam_count = GlobalV4LinstanceManager::enumerateInstances(cam_list, MAX_CAM_SCAN);
     if (cam_count==0) {
         fprintf(stderr,"CaptureV4L Error: can't find cameras");
-#ifndef VDATA_NO_QT
         mutex.unlock();
-#endif
         return false;
     }
     
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
     return true;
     
 }
@@ -1024,17 +966,13 @@ bool CaptureV4L::stopCapture()
 
 void CaptureV4L::cleanup()
 {
-#ifndef VDATA_NO_QT
     mutex.lock();
-#endif
     
     //TODO: cleanup/free any memory buffers.
     if (camera_instance && is_capturing)
         camera_instance->stopStreaming();
     is_capturing=false;
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
     
 }
 
@@ -1097,9 +1035,7 @@ VarList * CaptureV4L::getVariablePointer(v4lfeature_t val)
 bool CaptureV4L::startCapture()
 {
     if (!v_cam_bus) return false;
-#ifndef VDATA_NO_QT
     mutex.lock();
-#endif
     //disable any previous activity on that camera:
     if (is_capturing)
         camera_instance->stopStreaming();
@@ -1123,9 +1059,7 @@ bool CaptureV4L::startCapture()
     }
     if (!camera_instance) {
         fprintf(stderr,"CaptureV4L: unable to obtain instance of camera id %d in startCapture!\n", cam_id);
-#ifndef VDATA_NO_QT
         mutex.unlock();
-#endif
         return false;
     }
     
@@ -1142,9 +1076,7 @@ bool CaptureV4L::startCapture()
     //Check configuration parameters:
     if (fps > 60 ) {
         fprintf(stderr,"CaptureV4L Error: The library does not support framerates higher than 60 fps (does your camera?).");
-#ifndef VDATA_NO_QT
         mutex.unlock();
-#endif
         return false;
     }
     
@@ -1350,9 +1282,7 @@ bool CaptureV4L::startCapture()
     
     if (!camera_instance->startStreaming(width, height)) {
         fprintf(stderr,"CaptureV4L Error: unable to setup capture. Maybe selected combination of Format/Resolution is not supported?\n");
-#ifndef VDATA_NO_QT
         mutex.unlock();
-#endif
         cleanup();
         return false;
     }
@@ -1368,26 +1298,20 @@ bool CaptureV4L::startCapture()
     }
     
     dcam_parameters->removeFlags( VARTYPE_FLAG_HIDE_CHILDREN );
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
 
     readAllParameterProperties();
     printf("CaptureV4L Info: Restoring Previously Saved Camera Parameters\n");
     writeAllParameterValues();
     readAllParameterValues();
     
-#ifndef VDATA_NO_QT
     mutex.lock();
-#endif
     camera_instance->captureWarm();
     
     //now we can allow upstream/external to capture
     is_capturing=true;
 
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
 
     return true;
 }
@@ -1405,9 +1329,7 @@ bool CaptureV4L::copyAndConvertFrame(const RawImage & src, RawImage & target)
 
 bool CaptureV4L::convertFrame(const RawImage & src, RawImage & target, ColorFormat output_fmt, int y16bits)
 {
-#ifndef VDATA_NO_QT
     mutex.lock();
-#endif
     ColorFormat src_fmt=src.getColorFormat();
     if (target.getData()==0) {
         //allocate target, if it does not exist yet
@@ -1447,30 +1369,22 @@ bool CaptureV4L::convertFrame(const RawImage & src, RawImage & target, ColorForm
             fprintf(stderr,"Cannot copy and convert frame...unknown conversion selected from: %s to %s\n",
                     Colors::colorFormatToString(src_fmt).c_str(),
                     Colors::colorFormatToString(output_fmt).c_str());
-    #ifndef VDATA_NO_QT
             mutex.unlock();
-    #endif
             return false;
         }
     }
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
     return true;
 }
 
 RawImage CaptureV4L::getFrame()
 {
-#ifndef VDATA_NO_QT
     mutex.lock();
-#endif
     // capture a frame and write it
     rawFrame.ensure_allocation(capture_format, width, height);
     if (!camera_instance || !is_capturing || !camera_instance->captureFrame(&rawFrame)) {
         fprintf (stderr, "CaptureV4L Warning: Frame not ready, camera %d\n", cam_id);
-#ifndef VDATA_NO_QT
         mutex.unlock();
-#endif
         RawImage badImage;
         return badImage;
     }
@@ -1486,21 +1400,15 @@ RawImage CaptureV4L::getFrame()
     
     /*printf("B: %d w: %d h: %d bytes: %d pad: %d pos: %d %d depth: %d bpp %d coding: %d  behind %d id %d\n",frame->data_in_padding ? 1 : 0, frame->size[0],frame->size[1],frame->image_bytes,frame->padding_bytes, frame->position[0],frame->position[1],frame->data_depth,frame->packets_per_frame,frame->color_coding,frame->frames_behind,frame->id);*/
 
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
     return rawFrame;
 }
 
 void CaptureV4L::releaseFrame() {
-#ifndef VDATA_NO_QT
     mutex.lock();
-#endif
     
     //frame management done at low-level now...
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
 }
 
 string CaptureV4L::getCaptureMethodName() const {
