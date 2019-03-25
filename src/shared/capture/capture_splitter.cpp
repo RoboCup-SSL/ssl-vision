@@ -17,11 +17,7 @@
 #include <algorithm>
 #include <opencv2/opencv.hpp>
 
-#ifndef VDATA_NO_QT
 CaptureSplitter::CaptureSplitter(VarList * _settings, int default_camera_id, QObject * parent) : QObject(parent), CaptureInterface(_settings)
-#else
-CaptureSplitter::CaptureSplitter(VarList * _settings) : CaptureInterface(_settings)
-#endif
 {
   is_capturing=false;
   switch(default_camera_id)
@@ -70,41 +66,29 @@ bool CaptureSplitter::stopCapture()
 
 void CaptureSplitter::cleanup()
 {
-#ifndef VDATA_NO_QT
   mutex.lock();
-#endif
   is_capturing=false;
   full_image_arrived_mutex.unlock();
   frame_processed_mutex.unlock();
-#ifndef VDATA_NO_QT
   mutex.unlock();
-#endif
 }
 
 bool CaptureSplitter::startCapture()
 {
-#ifndef VDATA_NO_QT
   mutex.lock();
-#endif
 
   full_image_arrived_mutex.try_lock();
   is_capturing = true;
 
-#ifndef VDATA_NO_QT
   mutex.unlock();
-#endif
   return true;
 }
 
 bool CaptureSplitter::copyAndConvertFrame(const RawImage &src, RawImage &target) {
-#ifndef VDATA_NO_QT
   mutex.lock();
-#endif
 
   if (src.getWidth() == 0 || src.getHeight() == 0) {
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
     return false;
   }
   target.setTime(src.getTime());
@@ -139,9 +123,7 @@ bool CaptureSplitter::copyAndConvertFrame(const RawImage &src, RawImage &target)
   if(image_buffer->getData() == nullptr)
   {
     std::cout << "Could not allocate image. Source color format '" << Colors::colorFormatToString(src.getColorFormat()) << "' not supported?" << std::endl;
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
     return false;
   }
 
@@ -161,9 +143,7 @@ bool CaptureSplitter::copyAndConvertFrame(const RawImage &src, RawImage &target)
   if(target.getData() == nullptr)
   {
     std::cout << "Could not allocate image. Target color format '" << Colors::colorFormatToString(target.getColorFormat()) << "' not supported?" << std::endl;
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
     return false;
   }
 
@@ -180,23 +160,17 @@ bool CaptureSplitter::copyAndConvertFrame(const RawImage &src, RawImage &target)
   else
   {
     std::cout << "Unsupported image format: " << Colors::colorFormatToString(image_buffer->getColorFormat()) << std::endl;
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
     return false;
   }
 
-#ifndef VDATA_NO_QT
   mutex.unlock();
-#endif
   return true;
 }
 
 RawImage CaptureSplitter::getFrame()
 {
-#ifndef VDATA_NO_QT
    mutex.lock();
-#endif
 
   full_image_arrived_mutex.lock();
 
@@ -206,9 +180,7 @@ RawImage CaptureSplitter::getFrame()
     frame = *full_image;
   }
 
-#ifndef VDATA_NO_QT
   mutex.unlock();
-#endif
   return frame;
 }
 

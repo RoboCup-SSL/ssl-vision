@@ -34,11 +34,7 @@
 // Unset 'interface' from spinnaker/SpinGenApi/Types.h which conflicts with variables in ssl-vision
 #undef interface
 
-#ifndef VDATA_NO_QT
   #include <QMutex>
-#else
-  #include <pthread.h>
-#endif
 
 
 /*!
@@ -53,15 +49,10 @@
   please inform the author, as we are aiming for complete camera
   coverage.
 */
-#ifndef VDATA_NO_QT
   #include <QMutex>
   //if using QT, inherit QObject as a base
 class CaptureSpinnaker : public QObject, public CaptureInterface
-#else
-class CaptureSpinnaker : public CaptureInterface
-#endif
 {
-#ifndef VDATA_NO_QT
   Q_OBJECT
   
   public slots:
@@ -71,7 +62,6 @@ class CaptureSpinnaker : public CaptureInterface
   QMutex mutex;
   
   public:
-#endif
 
 protected:
   bool is_capturing;
@@ -104,12 +94,8 @@ protected:
   unsigned int cam_id;
 
 public:
-#ifndef VDATA_NO_QT
   explicit CaptureSpinnaker(VarList * _settings = nullptr, int default_camera_id = 0, QObject * parent = nullptr);
   void mvc_connect(VarList * group);
-#else
-    CaptureSpinnaker(VarList * _settings=0,int default_camera_id=0);
-#endif
   ~CaptureSpinnaker() override;
 
   /// Initialize the interface and start capture

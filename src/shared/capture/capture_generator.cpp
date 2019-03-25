@@ -23,11 +23,7 @@
 #include "conversions.h"
 
 
-#ifndef VDATA_NO_QT
 CaptureGenerator::CaptureGenerator ( VarList * _settings, QObject * parent ) : QObject ( parent ), CaptureInterface ( _settings )
-#else
-CaptureGenerator::CaptureGenerator ( VarList * _settings ) : CaptureInterface ( _settings )
-#endif
 {
   is_capturing=false;
 
@@ -58,35 +54,25 @@ bool CaptureGenerator::stopCapture()
 
 void CaptureGenerator::cleanup()
 {
-#ifndef VDATA_NO_QT
   mutex.lock();
-#endif
   is_capturing=false;
-#ifndef VDATA_NO_QT
   mutex.unlock();
-#endif
 }
 
 bool CaptureGenerator::startCapture()
 {
-#ifndef VDATA_NO_QT
   mutex.lock();
-#endif
   limit.init ( v_framerate->getDouble() );
   is_capturing=true;
 
 
-#ifndef VDATA_NO_QT
   mutex.unlock();
-#endif
   return true;
 }
 
 bool CaptureGenerator::copyAndConvertFrame ( const RawImage & src, RawImage & target )
 {
-#ifndef VDATA_NO_QT
   mutex.lock();
-#endif
   ColorFormat output_fmt = Colors::stringToColorFormat ( v_colorout->getSelection().c_str() );
   ColorFormat src_fmt=src.getColorFormat();
 
@@ -110,22 +96,16 @@ bool CaptureGenerator::copyAndConvertFrame ( const RawImage & src, RawImage & ta
     fprintf ( stderr,"Cannot copy and convert frame...unknown conversion selected from: %s to %s\n",
               Colors::colorFormatToString ( src_fmt ).c_str(),
               Colors::colorFormatToString ( output_fmt ).c_str() );
-#ifndef VDATA_NO_QT
     mutex.unlock();
-#endif
     return false;
   }
-#ifndef VDATA_NO_QT
   mutex.unlock();
-#endif
   return true;
 }
 
 RawImage CaptureGenerator::getFrame()
 {
-#ifndef VDATA_NO_QT
   mutex.lock();
-#endif
   limit.waitForNextFrame();
   result.setColorFormat ( COLOR_RGB8 );
   result.setTime ( GetTimeSec() );
@@ -171,21 +151,15 @@ RawImage CaptureGenerator::getFrame()
   }
 
 
-#ifndef VDATA_NO_QT
   mutex.unlock();
-#endif
   return result;
 }
 
 void CaptureGenerator::releaseFrame()
 {
-#ifndef VDATA_NO_QT
   mutex.lock();
-#endif
 
-#ifndef VDATA_NO_QT
   mutex.unlock();
-#endif
 }
 
 string CaptureGenerator::getCaptureMethodName() const

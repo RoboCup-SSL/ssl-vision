@@ -31,11 +31,7 @@
 #include <dc1394/conversions.h>
 
 //#include "conversions.h"
-#ifndef VDATA_NO_QT
   #include <QMutex>
-#else
-  #include <pthread.h>
-#endif
 
 
 /*!
@@ -47,24 +43,12 @@ class GlobalCaptureDC1394instance
 {
   public:
   GlobalCaptureDC1394instance() {
-    #ifndef VDATA_NO_QT
-    #else
-      pthread_mutex_init (&mutex);
-    #endif
     counter=0;
     dc_instance=0;
   }
   ~GlobalCaptureDC1394instance() {
-    #ifndef VDATA_NO_QT
-    #else
-      pthread_mutex_destroy (&mutex);
-    #endif
   }
-  #ifndef VDATA_NO_QT
     QMutex mutex;
-  #else
-    pthread_mutex_t mutex;
-  #endif
   protected:
   char counter;
   dc1394_t* dc_instance;
@@ -99,18 +83,10 @@ class GlobalCaptureDC1394instance
 
   private:
   void lock() {
-    #ifndef VDATA_NO_QT
       mutex.lock();
-    #else
-      pthread_mutex_lock();
-    #endif
   }
   void unlock() {
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #else
-      pthread_mutex_unlock();
-    #endif
   }
 
 };
@@ -159,22 +135,16 @@ class GlobalCaptureDC1394instanceManager
   please inform the author, as we are aiming for complete camera
   coverage.
 */
-#ifndef VDATA_NO_QT
   #include <QMutex>
   //if using QT, inherit QObject as a base
 class CaptureDC1394v2 : public QObject, public CaptureInterface
-#else
-class CaptureDC1394v2 : public CaptureInterface
-#endif
 {
-#ifndef VDATA_NO_QT
   Q_OBJECT
   public slots:
   void changed(VarType * group);
   protected:
   QMutex mutex;
   public:
-#endif
 
 
 static dc1394color_filter_t stringToColorFilter(const char * s) {
@@ -382,12 +352,8 @@ protected:
   VarList * conversion_settings;
 
 public:
-  #ifndef VDATA_NO_QT
     CaptureDC1394v2(VarList * _settings=0,int default_camera_id=0,QObject * parent=0);
     void mvc_connect(VarList * group);
-  #else
-    CaptureDC1394v2(VarList * _settings=0,int default_camera_id=0);
-  #endif
   ~CaptureDC1394v2();
 
   /// Initialize the interface and start capture

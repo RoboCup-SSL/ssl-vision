@@ -30,11 +30,7 @@
 #include <mvIMPACT_CPP/mvIMPACT_acquire.h>
 
 //#include "conversions.h"
-#ifndef VDATA_NO_QT
   #include <QMutex>
-#else
-  #include <pthread.h>
-#endif
 
 namespace mvIMPACT {
 namespace acquire {
@@ -58,15 +54,10 @@ using namespace mvIMPACT::acquire;
   please inform the author, as we are aiming for complete camera
   coverage.
 */
-#ifndef VDATA_NO_QT
   #include <QMutex>
   //if using QT, inherit QObject as a base
 class CaptureBlueFox2 : public QObject, public CaptureInterface
-#else
-class CaptureBlueFox2 : public CaptureInterface
-#endif
 {
-#ifndef VDATA_NO_QT
   Q_OBJECT
   
   public slots:
@@ -76,7 +67,6 @@ class CaptureBlueFox2 : public CaptureInterface
   QMutex mutex;
   
   public:
-#endif
 
   enum HDRMode
   {
@@ -247,12 +237,8 @@ protected:
   ColorFormat capture_format;
 
 public:
-  #ifndef VDATA_NO_QT
     CaptureBlueFox2(VarList * _settings=0,int default_camera_id=0,QObject * parent=0);
     void mvc_connect(VarList * group);
-  #else
-    CaptureBlueFox2(VarList * _settings=0,int default_camera_id=0);
-  #endif
   ~CaptureBlueFox2();
 
   /// Initialize the interface and start capture

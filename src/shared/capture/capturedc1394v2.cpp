@@ -54,20 +54,14 @@ GlobalCaptureDC1394instanceManager::~GlobalCaptureDC1394instanceManager() {
 }
 
 
-#ifndef VDATA_NO_QT
 CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id, QObject * parent) : QObject(parent), CaptureInterface(_settings)
-#else
-CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : CaptureInterface(_settings)
-#endif
 {
   dc1394_instance=GlobalCaptureDC1394instanceManager::obtainInstance();
   cam_list=0;
   cam_id=default_camera_id;
   camera=0;
   is_capturing=false;
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
 
   settings->addChild(conversion_settings = new VarList("Conversion Settings"));
   settings->addChild(capture_settings = new VarList("Capture Settings"));
@@ -123,9 +117,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_BRIGHTNESS->addChild(new VarInt("value"));
   P_BRIGHTNESS->addChild(new VarBool("use absolute"));
   P_BRIGHTNESS->addChild(new VarDouble("absolute value"));
-  #ifndef VDATA_NO_QT
     mvc_connect(P_BRIGHTNESS);
-  #endif
 
   dcam_parameters->addChild(P_EXPOSURE = new VarList("exposure"));
   P_EXPOSURE->addChild(new VarBool("enabled"));
@@ -134,9 +126,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_EXPOSURE->addChild(new VarInt("value"));
   P_EXPOSURE->addChild(new VarBool("use absolute"));
   P_EXPOSURE->addChild(new VarDouble("absolute value"));
-  #ifndef VDATA_NO_QT
     mvc_connect(P_EXPOSURE);
-  #endif
 
   dcam_parameters->addChild(P_SHARPNESS = new VarList("sharpness"));
   P_SHARPNESS->addChild(new VarBool("enabled"));
@@ -145,9 +135,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_SHARPNESS->addChild(new VarInt("value"));
   P_SHARPNESS->addChild(new VarBool("use absolute"));
   P_SHARPNESS->addChild(new VarDouble("absolute value"));
-  #ifndef VDATA_NO_QT
     mvc_connect(P_SHARPNESS);
-  #endif
 
   dcam_parameters->addChild(P_WHITE_BALANCE = new VarList("white balance"));
   P_WHITE_BALANCE->addChild(new VarBool("enabled"));
@@ -157,9 +145,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_WHITE_BALANCE->addChild(new VarInt("value V"));
   P_WHITE_BALANCE->addChild(new VarBool("use absolute"));
   P_WHITE_BALANCE->addChild(new VarDouble("absolute value"));
-  #ifndef VDATA_NO_QT
     mvc_connect(P_WHITE_BALANCE);
-  #endif
 
   dcam_parameters->addChild(P_HUE = new VarList("hue"));
   P_HUE->addChild(new VarBool("enabled"));
@@ -168,9 +154,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_HUE->addChild(new VarInt("value"));
   P_HUE->addChild(new VarBool("use absolute"));
   P_HUE->addChild(new VarDouble("absolute value"));
-  #ifndef VDATA_NO_QT
     mvc_connect(P_HUE);
-  #endif
 
   dcam_parameters->addChild(P_SATURATION = new VarList("saturation"));
   P_SATURATION->addChild(new VarBool("enabled"));
@@ -179,9 +163,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_SATURATION->addChild(new VarInt("value"));
   P_SATURATION->addChild(new VarBool("use absolute"));
   P_SATURATION->addChild(new VarDouble("absolute value"));
-  #ifndef VDATA_NO_QT
     mvc_connect(P_SATURATION);
-  #endif
 
   dcam_parameters->addChild(P_GAMMA = new VarList("gamma"));
   P_GAMMA->addChild(new VarBool("enabled"));
@@ -190,9 +172,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_GAMMA->addChild(new VarInt("value"));
   P_GAMMA->addChild(new VarBool("use absolute"));
   P_GAMMA->addChild(new VarDouble("absolute value"));
-  #ifndef VDATA_NO_QT
     mvc_connect(P_GAMMA);
-  #endif
 
   dcam_parameters->addChild(P_SHUTTER = new VarList("shutter"));
   P_SHUTTER->addChild(new VarBool("enabled"));
@@ -201,9 +181,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_SHUTTER->addChild(new VarInt("value"));
   P_SHUTTER->addChild(new VarBool("use absolute"));
   P_SHUTTER->addChild(new VarDouble("absolute value"));
-  #ifndef VDATA_NO_QT
     mvc_connect(P_SHUTTER);
-  #endif
 
   dcam_parameters->addChild(P_GAIN = new VarList("gain"));
   P_GAIN->addChild(new VarBool("enabled"));
@@ -212,9 +190,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_GAIN->addChild(new VarInt("value"));
   P_GAIN->addChild(new VarBool("use absolute"));
   P_GAIN->addChild(new VarDouble("absolute value"));
-  #ifndef VDATA_NO_QT
     mvc_connect(P_GAIN);
-  #endif
 
   dcam_parameters->addChild(P_IRIS = new VarList("iris"));
   P_IRIS->addChild(new VarBool("enabled"));
@@ -223,9 +199,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_IRIS->addChild(new VarInt("value"));
   P_IRIS->addChild(new VarBool("use absolute"));
   P_IRIS->addChild(new VarDouble("absolute value"));
-  #ifndef VDATA_NO_QT
     mvc_connect(P_IRIS);
-  #endif
 
   dcam_parameters->addChild(P_FOCUS = new VarList("focus"));
   P_FOCUS->addChild(new VarBool("enabled"));
@@ -234,9 +208,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_FOCUS->addChild(new VarInt("value"));
   P_FOCUS->addChild(new VarBool("use absolute"));
   P_FOCUS->addChild(new VarDouble("absolute value"));
-  #ifndef VDATA_NO_QT
     mvc_connect(P_FOCUS);
-  #endif
 
   dcam_parameters->addChild(P_TEMPERATURE = new VarList("temperature"));
   P_TEMPERATURE->addChild(new VarBool("enabled"));
@@ -245,9 +217,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_TEMPERATURE->addChild(new VarInt("value"));
   P_TEMPERATURE->addChild(new VarBool("use absolute"));
   P_TEMPERATURE->addChild(new VarDouble("absolute value"));
-  #ifndef VDATA_NO_QT
     mvc_connect(P_TEMPERATURE);
-  #endif
 
   dcam_parameters->addChild(P_TRIGGER = new VarList("trigger"));
   P_TRIGGER->addChild(new VarBool("enabled"));
@@ -256,9 +226,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_TRIGGER->addChild(new VarInt("value"));
   P_TRIGGER->addChild(new VarBool("use absolute"));
   P_TRIGGER->addChild(new VarDouble("absolute value"));
-  #ifndef VDATA_NO_QT
     mvc_connect(P_TRIGGER);
-  #endif
 
   dcam_parameters->addChild(P_TRIGGER_DELAY = new VarList("trigger delay"));
   P_TRIGGER_DELAY->addChild(new VarBool("enabled"));
@@ -267,9 +235,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_TRIGGER_DELAY->addChild(new VarInt("value"));
   P_TRIGGER_DELAY->addChild(new VarBool("use absolute"));
   P_TRIGGER_DELAY->addChild(new VarDouble("absolute value"));
-  #ifndef VDATA_NO_QT
     mvc_connect(P_TRIGGER_DELAY);
-  #endif
 
   dcam_parameters->addChild(P_WHITE_SHADING = new VarList("white shading"));
   P_WHITE_SHADING->addChild(new VarBool("enabled"));
@@ -280,9 +246,7 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
   P_WHITE_SHADING->addChild(new VarInt("value B"));
   P_WHITE_SHADING->addChild(new VarBool("use absolute"));
   P_WHITE_SHADING->addChild(new VarDouble("absolute value"));
-  #ifndef VDATA_NO_QT
     mvc_connect(P_WHITE_SHADING);
-  #endif
 
   dcam_parameters->addChild(P_FRAME_RATE = new VarList("frame rate"));
   P_FRAME_RATE->addChild(new VarBool("enabled"));
@@ -306,16 +270,11 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
     }
   }
 
-  #ifndef VDATA_NO_QT
     mvc_connect(P_FRAME_RATE);
-  #endif
 
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
 }
 
-#ifndef VDATA_NO_QT
   void CaptureDC1394v2::mvc_connect(VarList * group) {
     vector<VarType *> v=group->getChildren();
     for (unsigned int i=0;i<v.size();i++) {
@@ -330,7 +289,6 @@ CaptureDC1394v2::CaptureDC1394v2(VarList * _settings,int default_camera_id) : Ca
       readParameterValues( (VarList *)group );
     }
   }
-#endif
 
 
 void CaptureDC1394v2::readAllParameterValues() {
@@ -362,17 +320,13 @@ void CaptureDC1394v2::writeAllParameterValues() {
 }
 
 void CaptureDC1394v2::readParameterValues(VarList * item) {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
   dc1394bool_t dcb;
   bool valid=true;
   dc1394feature_t feature=getDC1394featureEnum(item,valid);
   if (valid==false) {
     printf("INVALID FEATURE: %s\n",item->getName().c_str());
-    #ifndef VDATA_NO_QT
     mutex.unlock();
-    #endif
     return;
   }
   VarDouble * vabs=0;
@@ -560,22 +514,16 @@ void CaptureDC1394v2::readParameterValues(VarList * item) {
   }
 
 
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
 }
 
 void CaptureDC1394v2::writeParameterValues(VarList * item) {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
   dc1394bool_t dcb;
   bool valid=true;
   dc1394feature_t feature=getDC1394featureEnum(item,valid);
   if (valid==false) {
-    #ifndef VDATA_NO_QT
     mutex.unlock();
-    #endif
     return;
   }
   VarDouble * vabs=0;
@@ -658,24 +606,18 @@ void CaptureDC1394v2::writeParameterValues(VarList * item) {
   } else {
     //printf("==============Not writing parameter %s!===========\n",item->getName().c_str());
   }
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
 }
 
 void CaptureDC1394v2::readParameterProperty(VarList * item) {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
   bool debug=false;
   dc1394bool_t dcb;
   bool valid=true;
   dc1394feature_t feature=getDC1394featureEnum(item,valid);
   if (valid==false) {
     fprintf(stderr,"ERROR: INVALID PROPERTY ENCOUNTERED DURING READOUT: %s\n", item->getName().c_str());
-    #ifndef VDATA_NO_QT
     mutex.unlock();
-    #endif
     return;
   }
   VarDouble * vabs=0;
@@ -783,9 +725,7 @@ void CaptureDC1394v2::readParameterProperty(VarList * item) {
   } else {
     fprintf(stderr,"DC1394 PROP READOUT ERROR: %s\n", item->getName().c_str());
   }
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
 }
 
 
@@ -796,9 +736,7 @@ CaptureDC1394v2::~CaptureDC1394v2()
 }
 
 bool CaptureDC1394v2::resetBus() {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
 
   //delete any old camera data structures:
   if (camera != 0) {
@@ -813,25 +751,19 @@ bool CaptureDC1394v2::resetBus() {
 
   if (dc1394_camera_enumerate(dc1394_instance, &cam_list)!=DC1394_SUCCESS) {
     fprintf(stderr,"CaptureDC1394v2 Error: can't find cameras");
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #endif
     return false;
   }
 
   if (cam_list==0) {
     fprintf(stderr,"CaptureDC1394v2 Error: Camera List was a null pointer");
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #endif
     return false;
   }
 
   if (cam_list->num==0) {
     fprintf(stderr,"CaptureDC1394v2 Error: 0 cameras found");
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #endif
     return false;
   }
 
@@ -883,9 +815,7 @@ bool CaptureDC1394v2::resetBus() {
 
   dc1394_free_camera(local_camera);
   */
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
   return true;
 
 }
@@ -908,9 +838,7 @@ bool CaptureDC1394v2::stopCapture() {
 
 void CaptureDC1394v2::cleanup()
 {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
 
   if (camera!=0) {
     dc1394_capture_stop(camera);
@@ -921,9 +849,7 @@ void CaptureDC1394v2::cleanup()
   //TODO: cleanup/free any memory buffers.
 
   is_capturing=false;
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
 
 }
 
@@ -999,9 +925,7 @@ VarList * CaptureDC1394v2::getVariablePointer(dc1394feature_t val)
 
 bool CaptureDC1394v2::startCapture()
 {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
   //grab current parameters:
   cam_id=v_cam_bus->getInt();
   width=v_width->getInt();
@@ -1034,17 +958,13 @@ bool CaptureDC1394v2::startCapture()
     dcfps=DC1394_FRAMERATE_240;
   } else {
     fprintf(stderr,"CaptureDC1394v2 Error: The library does not support framerates higher than 240 fps (does your camera?).");
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #endif
     return false;
   }
 
   if (dc1394_camera_enumerate(dc1394_instance, &cam_list)!=DC1394_SUCCESS) {
     fprintf(stderr,"CaptureDC1394v2 Error: can't find cameras");
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #endif
     return false;
   }
 
@@ -1052,25 +972,19 @@ bool CaptureDC1394v2::startCapture()
 
   if (cam_list==0) {
     fprintf(stderr,"CaptureDC1394v2 Error: Camera List was a null pointer");
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #endif
     return false;
   }
 
   if (cam_list->num==0) {
     fprintf(stderr,"CaptureDC1394v2 Error: 0 cameras found");
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #endif
     return false;
   }
 
   if (cam_id >= cam_list->num) {
     fprintf(stderr,"CaptureDC1394v2 Error: no camera found with index %d. Max index is: %d\n",cam_id,cam_list->num-1);
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #endif
     return false;
   }
 
@@ -1124,9 +1038,7 @@ bool CaptureDC1394v2::startCapture()
 
   if (dc1394_video_set_iso_speed(camera, iso_speed) !=  DC1394_SUCCESS) {
     fprintf(stderr,"CaptureDC1394v2 Error: unable to set ISO speed!\n");
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #endif
     cleanup();
     return false;
   }
@@ -1260,9 +1172,7 @@ bool CaptureDC1394v2::startCapture()
           if (found==false) {
             fprintf(stderr,"CaptureDC1394v2 Error: No Format 7 modes available!");
             fprintf(stderr,"CaptureDC1394v2 Error: Maybe try selecting a supported Format 0 resolution/framerate?");
-            #ifndef VDATA_NO_QT
               mutex.unlock();
-            #endif
             return false;
           }
         } else {
@@ -1272,9 +1182,7 @@ bool CaptureDC1394v2::startCapture()
       } else {
         fprintf(stderr,"CaptureDC1394v2 Error: Selected color format/resolution not natively supported!");
         fprintf(stderr,"CaptureDC1394v2 Error: Maybe try switching to auto or a format7 mode.");
-        #ifndef VDATA_NO_QT
           mutex.unlock();
-        #endif
         return false;
       }
     }
@@ -1301,9 +1209,7 @@ bool CaptureDC1394v2::startCapture()
     }
     if (found==false) {
       fprintf(stderr,"CaptureDC1394v2 Error: Selected mode (format/resolution/framerate) is not supported by camera!\n");
-      #ifndef VDATA_NO_QT
         mutex.unlock();
-      #endif
       cleanup();
       return false;
     } else {
@@ -1313,9 +1219,7 @@ bool CaptureDC1394v2::startCapture()
 
   if (dc1394_video_set_mode(camera,dcformat) !=  DC1394_SUCCESS) {
     fprintf(stderr,"CaptureDC1394v2 Error: unable to set capture mode\n");
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #endif
     cleanup();
     return false;
   }
@@ -1325,9 +1229,7 @@ bool CaptureDC1394v2::startCapture()
   if (dc1394_video_get_mode(camera,&check_mode) ==  DC1394_SUCCESS) {
     if (check_mode!=dcformat) {
       fprintf(stderr,"CaptureDC1394v2 Error: Unable to set selected mode\n");
-      #ifndef VDATA_NO_QT
         mutex.unlock();
-      #endif
       cleanup();
       return false;
     }
@@ -1359,36 +1261,28 @@ bool CaptureDC1394v2::startCapture()
         color_coding=DC1394_COLOR_CODING_RAW16;
     } else {
         fprintf(stderr,"CaptureDC1394v2 Error: System does not know selected Format 7 Color Coding Format\n");
-        #ifndef VDATA_NO_QT
           mutex.unlock();
-        #endif
         cleanup();
         return false;
     }
 
     if (  dc1394_format7_set_color_coding(camera, dcformat, color_coding) != DC1394_SUCCESS) {
       fprintf(stderr,"CaptureDC1394v2 Error: unable to set Format 7 Color Coding Format\n");
-      #ifndef VDATA_NO_QT
         mutex.unlock();
-      #endif
       cleanup();
       return false;
     }
 
     if (dc1394_format7_set_image_size(camera, dcformat, width, height) != DC1394_SUCCESS) {
       fprintf(stderr,"CaptureDC1394v2 Error: unable to set Format 7 image size\n");
-      #ifndef VDATA_NO_QT
         mutex.unlock();
-      #endif
       cleanup();
       return false;
     }
 
     if (dc1394_format7_set_image_position(camera, dcformat, left, top) != DC1394_SUCCESS) {
       fprintf(stderr,"CaptureDC1394v2 Error: unable to set Format 7 image size\n");
-      #ifndef VDATA_NO_QT
         mutex.unlock();
-      #endif
       cleanup();
       return false;
     }
@@ -1422,9 +1316,7 @@ bool CaptureDC1394v2::startCapture()
       if (dc1394_format7_set_packet_size(camera, dcformat, recommended_size) != DC1394_SUCCESS) {
         fprintf(stderr,"CaptureDC1394v2 Error: unable to set Format 7 packet size / framerate!\n");
 
-        #ifndef VDATA_NO_QT
           mutex.unlock();
-        #endif
         cleanup();
         return false;
       }
@@ -1448,9 +1340,7 @@ bool CaptureDC1394v2::startCapture()
       }
       if (found==false) {
         fprintf(stderr,"CaptureDC1394v2 Error: selected framerate is not supported!\n");
-        #ifndef VDATA_NO_QT
         mutex.unlock();
-        #endif
         cleanup();
         return false;
       }
@@ -1458,9 +1348,7 @@ bool CaptureDC1394v2::startCapture()
 
     if (dc1394_video_set_framerate(camera,dcfps) !=  DC1394_SUCCESS) {
       fprintf(stderr,"CaptureDC1394v2 Error: unable to set framerate!\n");
-      #ifndef VDATA_NO_QT
         mutex.unlock();
-      #endif
       cleanup();
       return false;
     }
@@ -1489,18 +1377,14 @@ dc1394error_t dc1394_format7_get_packets_per_frame(dc1394camera_t *camera, dc139
   //DC1394_CAPTURE_FLAGS_CHANNEL_ALLOC /*
   if (dc1394_capture_setup(camera, ring_buffer_size, DC1394_CAPTURE_FLAGS_DEFAULT ) != DC1394_SUCCESS) {
     fprintf(stderr,"CaptureDC1394v2 Error: unable to setup capture. Maybe selected combination of Format/Resolution is not supported?\n");
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #endif
     cleanup();
     return false;
   }
 
   if (dc1394_video_set_transmission(camera,DC1394_ON) !=DC1394_SUCCESS) {
     fprintf(stderr,"CaptureDC1394v2 Error: Unable to start iso transmission on camera %d.\n",cam_id);
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #endif
     cleanup();
     return false;
   }
@@ -1518,9 +1402,7 @@ dc1394error_t dc1394_format7_get_packets_per_frame(dc1394camera_t *camera, dc139
   }
 
   dcam_parameters->removeFlags( VARTYPE_FLAG_HIDE_CHILDREN );
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
   readAllParameterProperties();
   printf("CaptureDC1394v2 Info: Restoring Previously Saved Camera Parameters\n");
   writeAllParameterValues();
@@ -1547,9 +1429,7 @@ bool CaptureDC1394v2::copyAndConvertFrame(const RawImage & src, RawImage & targe
 bool CaptureDC1394v2::convertFrame(const RawImage & src, RawImage & target, ColorFormat output_fmt,
                          bool debayer, dc1394color_filter_t bayer_format,dc1394bayer_method_t bayer_method, int y16bits)
 {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
   ColorFormat src_fmt=src.getColorFormat();
   if (target.getData()==0) {
     //allocate target, if it does not exist yet
@@ -1571,9 +1451,7 @@ bool CaptureDC1394v2::convertFrame(const RawImage & src, RawImage & target, Colo
       if (debayer) {
         //de-bayer
         if ( dc1394_bayer_decoding_8bit( src.getData(), target.getData(), src.getWidth(), src.getHeight(), bayer_format, bayer_method) != DC1394_SUCCESS ) {
-          #ifndef VDATA_NO_QT
             mutex.unlock();
-          #endif
           return false;
         }
       } else {
@@ -1588,9 +1466,7 @@ bool CaptureDC1394v2::convertFrame(const RawImage & src, RawImage & target, Colo
         if ( dc1394_bayer_decoding_16bit( (uint16_t *)src.getData(), (uint16_t *)target.getData(), src.getWidth(), src.getHeight(), bayer_format, bayer_method, y16bits) != DC1394_SUCCESS ) {
           fprintf(stderr,"Error in 16bit DC1394 Bayer Conversion");
 
-          #ifndef VDATA_NO_QT
             mutex.unlock();
-          #endif
           return false;
         }
       } else if (debayer==false && output_fmt==COLOR_RGB8) {
@@ -1600,9 +1476,7 @@ bool CaptureDC1394v2::convertFrame(const RawImage & src, RawImage & target, Colo
         //Conversions::y162rgb (src.getData(), target.getData(), src.getNumPixels(), y16bits);
       } else {
       fprintf(stderr,"Cannot copy and convert frame...unknown conversion selected from: %s to %s\n",Colors::colorFormatToString(src_fmt).c_str(),Colors::colorFormatToString(output_fmt).c_str());
-      #ifndef VDATA_NO_QT
         mutex.unlock();
-      #endif
       return false;
       }
     } else if (src_fmt==COLOR_YUV411 && output_fmt==COLOR_RGB8) {
@@ -1622,23 +1496,17 @@ bool CaptureDC1394v2::convertFrame(const RawImage & src, RawImage & target, Colo
       //Conversions::uyv2rgb (src.getData(), target.getData(), src.getNumPixels());
     } else {
       fprintf(stderr,"Cannot copy and convert frame...unknown conversion selected from: %s to %s\n",Colors::colorFormatToString(src_fmt).c_str(),Colors::colorFormatToString(output_fmt).c_str());
-      #ifndef VDATA_NO_QT
         mutex.unlock();
-      #endif
       return false;
     }
   }
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
   return true;
 }
 
 RawImage CaptureDC1394v2::getFrame()
 {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
   RawImage result;
   result.setColorFormat(capture_format);
   result.setWidth(width);
@@ -1670,22 +1538,16 @@ RawImage CaptureDC1394v2::getFrame()
 
     /*printf("B: %d w: %d h: %d bytes: %d pad: %d pos: %d %d depth: %d bpp %d coding: %d  behind %d id %d\n",frame->data_in_padding ? 1 : 0, frame->size[0],frame->size[1],frame->image_bytes,frame->padding_bytes, frame->position[0],frame->position[1],frame->data_depth,frame->packets_per_frame,frame->color_coding,frame->frames_behind,frame->id);*/
   }
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
   return result;
 }
 
 void CaptureDC1394v2::releaseFrame() {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
   if (dc1394_capture_enqueue (camera, frame) !=DC1394_SUCCESS) {
     fprintf (stderr, "CaptureDC1394v2 Error: Failed to release frame from camera %d\n", cam_id);
   }
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
 }
 
 string CaptureDC1394v2::getCaptureMethodName() const {

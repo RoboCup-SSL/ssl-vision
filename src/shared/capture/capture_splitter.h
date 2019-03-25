@@ -19,27 +19,17 @@
 #include "VarTypes.h"
 #include <mutex>
 
-#ifndef VDATA_NO_QT
   #include <QMutex>
-#else
-  #include <pthread.h>
-#endif
 
 
-#ifndef VDATA_NO_QT
 //if using QT, inherit QObject as a base
 class CaptureSplitter : public QObject, public CaptureInterface
-#else
-class CaptureSplitter : public CaptureInterface
-#endif
 {
-#ifndef VDATA_NO_QT
   Q_OBJECT
 /*   public slots: */
   protected:
   QMutex mutex;
   public:
-#endif
 
 protected:
   bool is_capturing;
@@ -55,11 +45,7 @@ protected:
   std::mutex frame_processed_mutex;
 
 public:
-#ifndef VDATA_NO_QT
   CaptureSplitter(VarList * _settings, int default_camera_id, QObject * parent=nullptr);
-#else
-  CaptureSplitter(VarList * _settings);
-#endif
   ~CaptureSplitter() override;
 
   bool startCapture() override;
