@@ -57,12 +57,12 @@ CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id, QO
   v_gain_auto->addItem(toString(Spinnaker::GainAuto_Continuous));
   v_gain_db = new VarDouble("Gain [dB]", 0.0, 0.0, 12.0);
 
-  v_white_balance_auto = new VarStringEnum("Auto While Balance", toString(Spinnaker::BalanceWhiteAuto_Continuous));
+  v_white_balance_auto = new VarStringEnum("Auto While Balance", toString(Spinnaker::BalanceWhiteAuto_Off));
   v_white_balance_auto->addItem(toString(Spinnaker::BalanceWhiteAuto_Off));
   v_white_balance_auto->addItem(toString(Spinnaker::BalanceWhiteAuto_Once));
   v_white_balance_auto->addItem(toString(Spinnaker::BalanceWhiteAuto_Continuous));
 
-  v_stream_buffer_handling_mode = new VarStringEnum("Stream Buffer Handling Mode", toString(Spinnaker::StreamBufferHandlingMode_OldestFirst));
+  v_stream_buffer_handling_mode = new VarStringEnum("Stream Buffer Handling Mode", toString(Spinnaker::StreamBufferHandlingMode_NewestOnly));
   v_stream_buffer_handling_mode->addItem(toString(Spinnaker::StreamBufferHandlingMode_OldestFirst));
   v_stream_buffer_handling_mode->addItem(toString(Spinnaker::StreamBufferHandlingMode_OldestFirstOverwrite));
   v_stream_buffer_handling_mode->addItem(toString(Spinnaker::StreamBufferHandlingMode_NewestFirst));
@@ -370,7 +370,14 @@ RawImage CaptureSpinnaker::getFrame()
   result.setTime(0.0);
   result.setData(nullptr);
 
-  pImage = pCam->GetNextImage();
+  try {
+    pImage = pCam->GetNextImage();
+  }
+  catch (Spinnaker::Exception &e)
+  {
+    fprintf(stderr, "Spinnaker: An error occurred while getting the next image (error code: %d, '%s')\n", e.GetError(), e.GetFullErrorMessage());
+  }
+
 
   if (pImage->IsIncomplete())
   {
