@@ -271,12 +271,25 @@ bool CaptureSpinnaker::startCapture()
   try
   {
     pCam = camList.GetByIndex(cam_id);
+  }
+  catch (Spinnaker::Exception &e)
+  {
+    fprintf(stderr, "An error occurred while opening device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
+    camList.Clear();
+    pSystem->ReleaseInstance();
+    mutex.unlock();
+    return false;
+  }
+
+  try
+  {
     pCam->Init();
     camList.Clear();
   }
   catch (Spinnaker::Exception &e)
   {
-    fprintf(stderr, "An error occurred while opening device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
+    fprintf(stderr, "An error occurred while initializing camera %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
+    pCam = (int) NULL;
     camList.Clear();
     pSystem->ReleaseInstance();
     mutex.unlock();
