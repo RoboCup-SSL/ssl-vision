@@ -35,6 +35,7 @@ class VisionStack {
 protected:
   RenderOptions * opts;
   VarList * settings;
+  VarBool * _v_print_timings;
 public:
     VisionStack(RenderOptions * _opts);
     virtual ~VisionStack();

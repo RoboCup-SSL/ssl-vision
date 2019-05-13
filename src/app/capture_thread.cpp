@@ -21,6 +21,7 @@
 
 #include "capture_thread.h"
 #include <capture_splitter.h>
+#include <iomanip>
 
 CaptureThread::CaptureThread(int cam_id)
 {
@@ -33,6 +34,7 @@ CaptureThread::CaptureThread(int cam_id)
   control->addChild( (VarType*) (c_stop   = new VarTrigger("stop capture","Stop")));
   control->addChild( (VarType*) (c_reset  = new VarTrigger("reset bus","Reset")));
   control->addChild( (VarType*) (c_auto_refresh= new VarBool("auto refresh params",true)));
+  control->addChild( (VarType*) (c_print_timings = new VarBool("print timings",false)));
   control->addChild( (VarType*) (c_refresh= new VarTrigger("re-read params","Refresh")));
   control->addChild( (VarType*) (captureModule= new VarStringEnum("Capture Module","None")));
   captureModule->addFlags(VARTYPE_FLAG_NOLOAD_ENUM_CHILDREN);
@@ -272,9 +274,12 @@ void CaptureThread::run() {
         }
         capture_mutex.lock();
         if ((capture != nullptr) && (capture->isCapturing())) {
+          auto t_start = std::chrono::steady_clock::now();
           RawImage pic_raw=capture->getFrame();
+          auto t_getFrame = std::chrono::steady_clock::now();
           d->time=pic_raw.getTime();
           bool bSuccess = capture->copyAndConvertFrame( pic_raw,d->video);
+          auto t_convert = std::chrono::steady_clock::now();
           capture_mutex.unlock();
 
           if (bSuccess) {           //only on a good frame read do we proceed
@@ -290,6 +295,23 @@ void CaptureThread::run() {
               stack_mutex.unlock();
               rb->nextWrite(true);
 
+            auto t_process = std::chrono::steady_clock::now();
+
+              if(c_print_timings->getBool())
+              {
+                auto getFrame_duration = std::chrono::duration_cast<std::chrono::microseconds>(t_getFrame - t_start);
+                std::cout << std::setw(13) << std::left << "getFrame"
+                          << std::setw(5) << std::right << getFrame_duration.count() << " μs" << std::endl;
+                auto convert_duration = std::chrono::duration_cast<std::chrono::microseconds>(t_convert - t_getFrame);
+                std::cout << std::setw(13) << std::left << "copy&convert"
+                          << std::setw(5) << std::right << convert_duration.count() << " μs" << std::endl;
+                auto process_duration = std::chrono::duration_cast<std::chrono::microseconds>(t_process - t_convert);
+                std::cout << std::setw(13) << std::left << "process"
+                          << std::setw(5) << std::right << process_duration.count() << " μs" << std::endl;
+                auto total_duration = std::chrono::duration_cast<std::chrono::microseconds>(t_process - t_start);
+                std::cout << std::setw(13) << std::left << "total"
+                          << std::setw(5) << std::right << total_duration.count() << " μs" << std::endl << std::endl;
+              }
 
               if (changed) {
                 if (c_auto_refresh->getBool()==true) {

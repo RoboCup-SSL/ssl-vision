@@ -99,6 +99,7 @@ protected:
   VarTrigger * c_reset;
   VarTrigger * c_refresh;
   VarBool * c_auto_refresh;
+  VarBool * c_print_timings;
   VarStringEnum * captureModule;
   Timer timer;
 

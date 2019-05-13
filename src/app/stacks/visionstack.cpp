@@ -19,10 +19,13 @@
 */
 //========================================================================
 #include "visionstack.h"
+#include <iomanip>
 
 VisionStack::VisionStack(RenderOptions * _opts) {
   opts=_opts;
   settings=new VarList("Global");
+  _v_print_timings = new VarBool("print stack timings", false);
+  settings->addChild(_v_print_timings);
 }
 
 VisionStack::~VisionStack() {
@@ -34,10 +37,26 @@ VarList * VisionStack::getSettings() {
 }
 
 void VisionStack::process(FrameData * data) {
-  for (auto p : stack) {
-    p->lock();
-    p->process(data,opts);
-    p->unlock();
+  if(_v_print_timings->getBool()) {
+    auto totalStart = std::chrono::steady_clock::now();
+    for (auto p : stack) {
+      p->lock();
+      auto start = std::chrono::steady_clock::now();
+      p->process(data,opts);
+      auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start);
+      std::cout << std::setw(23) << std::left << p->getName()
+                << std::setw(5) << std::right << duration.count() << " μs" << std::endl;
+      p->unlock();
+    }
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - totalStart);
+    std::cout << std::setw(23) << std::left << "All"
+              << std::setw(5) << std::right << duration.count() << " μs" << std::endl << std::endl;
+  } else {
+    for (auto p : stack) {
+      p->lock();
+      p->process(data,opts);
+      p->unlock();
+    }
   }
 }
 
