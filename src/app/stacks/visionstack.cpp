@@ -20,6 +20,7 @@
 //========================================================================
 #include "visionstack.h"
 #include <iomanip>
+#include <chrono>
 
 VisionStack::VisionStack(RenderOptions * _opts) {
   opts=_opts;
