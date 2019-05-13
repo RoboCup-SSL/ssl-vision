@@ -21,6 +21,7 @@
 
 #include "capture_thread.h"
 #include <capture_splitter.h>
+#include <iostream>
 #include <iomanip>
 
 CaptureThread::CaptureThread(int cam_id)
