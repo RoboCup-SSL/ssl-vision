@@ -348,7 +348,8 @@ bool CaptureSpinnaker::startCapture()
 
 bool CaptureSpinnaker::copyAndConvertFrame(const RawImage & src, RawImage & target)
 {
-    mutex.lock();
+  mutex.lock();
+  target.setTime(src.getTime());
 
   ColorFormat src_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
   ColorFormat out_color = Colors::stringToColorFormat(v_convert_to_mode->getSelection().c_str());
@@ -359,7 +360,6 @@ bool CaptureSpinnaker::copyAndConvertFrame(const RawImage & src, RawImage & targ
     cv::Mat srcMat(src.getHeight(), src.getWidth(), CV_8UC1, src.getData());
     cv::Mat dstMat(target.getHeight(), target.getWidth(), CV_8UC3, target.getData());
     cvtColor(srcMat, dstMat, cv::COLOR_BayerBG2RGB);
-    target.setTime(src.getTime());
   } else {
     fprintf(stderr, "Invalid conversion from %s to %s\n",
             v_capture_mode->getSelection().c_str(), v_convert_to_mode->getSelection().c_str());
@@ -374,7 +374,7 @@ bool CaptureSpinnaker::copyAndConvertFrame(const RawImage & src, RawImage & targ
 
 RawImage CaptureSpinnaker::getFrame()
 {
-    mutex.lock();
+  mutex.lock();
 
   ColorFormat out_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
   RawImage result;
