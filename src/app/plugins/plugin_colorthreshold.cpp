@@ -42,28 +42,44 @@ ProcessResult PluginColorThreshold::process(FrameData * data, RenderOptions * op
     img_thresholded=(Image<raw8> *)data->map.insert("cmv_threshold",new Image<raw8>());
   }
 
-  if (data->video.getColorFormat()==COLOR_YUV422_UYVY) {
-    //make sure image is allocated:
-    img_thresholded->allocate(data->video.getWidth(),data->video.getHeight());
-    //directly apply YUV lut:
-    CMVisionThreshold::thresholdImageYUV422_UYVY(img_thresholded,&(data->video),lut);
-  } else if (data->video.getColorFormat()==COLOR_YUV444) {
-    //make sure image is allocated:
-    img_thresholded->allocate(data->video.getWidth(),data->video.getHeight());
-    //directly apply YUV lut:
-    CMVisionThreshold::thresholdImageYUV444(img_thresholded,&(data->video),lut);    
-  } else if (data->video.getColorFormat()==COLOR_RGB8) {
-    //FIXME: check for changes in YUV LUT....if changed...copy things to RGB lut...
-    RGBLUT * rgblut = (RGBLUT *) lut->getDerivedLUT(CSPACE_RGB);
-    if (rgblut==0) {
-      printf("WARNING: No RGB LUT has been defined. You need to create a derived RGB LUT by calling e.g. \"lut_yuv->addDerivedLUT(new RGBLUT(5,5,5,\"\"))\" in the stack constructor!\n");
+  //make sure image is allocated:
+  img_thresholded->allocate(data->video.getWidth(),data->video.getHeight());
+
+  int n = 4;
+  for(int i=0;i<n;i++) {
+    RawImage imageIn;
+    imageIn.setColorFormat(data->video.getColorFormat());
+    imageIn.setHeight(data->video.getHeight()/n);
+    imageIn.setWidth(data->video.getWidth());
+    int offsetBytesIn = i * data->video.getNumBytes() / n;
+    imageIn.setData(data->video.getData() + offsetBytesIn);
+
+    RawImage rawImageOut;
+    rawImageOut.setColorFormat(img_thresholded->getColorFormat());
+    rawImageOut.setHeight(img_thresholded->getHeight()/n);
+    rawImageOut.setWidth(img_thresholded->getWidth());
+    int offsetBytesOut = i * img_thresholded->getNumBytes() / n;
+    rawImageOut.setData(img_thresholded->getData() + offsetBytesOut);
+    Image<raw8> imageOut;
+    imageOut.fromRawImage(rawImageOut);
+
+    if (data->video.getColorFormat()==COLOR_YUV422_UYVY) {
+      //directly apply YUV lut:
+      CMVisionThreshold::thresholdImageYUV422_UYVY(&imageOut,&imageIn,lut);
+    } else if (data->video.getColorFormat()==COLOR_YUV444) {
+      //directly apply YUV lut:
+      CMVisionThreshold::thresholdImageYUV444(&imageOut,&imageIn,lut);
+    } else if (data->video.getColorFormat()==COLOR_RGB8) {
+      auto * rgblut = (RGBLUT *) lut->getDerivedLUT(CSPACE_RGB);
+      if (rgblut == nullptr) {
+        printf("WARNING: No RGB LUT has been defined. You need to create a derived RGB LUT by calling e.g. \"lut_yuv->addDerivedLUT(new RGBLUT(5,5,5,\"\"))\" in the stack constructor!\n");
+      } else {
+        CMVisionThreshold::thresholdImageRGB(&imageOut,&imageIn,rgblut);
+      }
     } else {
-      img_thresholded->allocate(data->video.getWidth(),data->video.getHeight());
-      CMVisionThreshold::thresholdImageRGB(img_thresholded,&(data->video),rgblut);
+      fprintf(stderr,"ColorThresholding needs YUV422, YUV444, or RGB8 as input image, but found: %s\n",Colors::colorFormatToString(data->video.getColorFormat()).c_str());
+      return ProcessingFailed;
     }
-  } else {
-    fprintf(stderr,"ColorThresholding needs YUV422, YUV444, or RGB8 as input image, but found: %s\n",Colors::colorFormatToString(data->video.getColorFormat()).c_str());
-    return ProcessingFailed;
   }
   
   return ProcessingOk;
