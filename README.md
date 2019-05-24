@@ -78,7 +78,7 @@ USB 3.0 cameras are currently supported.
 Tested cameras:
  * Blackfly S (BFS-U3-51S5C-C)
  
-Download and install the [SDK](https://www.ptgrey.com/support/downloads) and build ssl-vision with `-DUSE_SPINNAKER=true`.
+Download and install the [SDK](https://www.flir.com/products/spinnaker-sdk) and build ssl-vision with `-DUSE_SPINNAKER=true`.
 
 ## Compilation
 
