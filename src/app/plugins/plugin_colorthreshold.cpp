@@ -20,42 +20,44 @@
 //========================================================================
 #include "plugin_colorthreshold.h"
 
-PluginColorThreshold::PluginColorThreshold(FrameBuffer * _buffer, YUVLUT * _lut)
- : VisionPlugin(_buffer)
-{
-  lut=_lut;
-
-  int n=4;
-  for(int i=0;i<n;i++) {
-    auto *thread = new QThread();
-    thread->setObjectName("ColorThresholding");
-    moveToThread(thread);
-    auto *worker = new PluginColorThresholdWorker(thread, i, n, lut);
-    workers.push_back(worker);
-    connect(thread, SIGNAL(started()), worker, SLOT(thresholdImage()));
-    connect(worker, SIGNAL(finished()), thread, SLOT(quit()));
-    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
-    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+static void thresholdImage(RawImage *imagePartIn, Image<raw8> *imagePartOut, YUVLUT * lut) {
+  if (imagePartIn->getColorFormat() == COLOR_YUV422_UYVY) {
+    CMVisionThreshold::thresholdImageYUV422_UYVY(imagePartOut, imagePartIn, lut);
+  } else if (imagePartIn->getColorFormat() == COLOR_YUV444) {
+    CMVisionThreshold::thresholdImageYUV444(imagePartOut, imagePartIn, lut);
+  } else if (imagePartIn->getColorFormat() == COLOR_RGB8) {
+    auto *rgblut = (RGBLUT *) lut->getDerivedLUT(CSPACE_RGB);
+    if (rgblut == nullptr) {
+      printf("WARNING: No RGB LUT has been defined. You need to create a derived RGB LUT by calling e.g. \"lut_yuv->addDerivedLUT(new RGBLUT(5,5,5,\"\"))\" in the stack constructor!\n");
+    } else {
+      CMVisionThreshold::thresholdImageRGB(imagePartOut, imagePartIn, rgblut);
+    }
+  } else {
+    fprintf(stderr, "ColorThresholding needs YUV422, YUV444, or RGB8 as input image, but found: %s\n",
+            Colors::colorFormatToString(imagePartIn->getColorFormat()).c_str());
   }
 }
 
+PluginColorThresholdWorker::PluginColorThresholdWorker(int _id, int _totalThreads, YUVLUT * _lut) : QObject() {
 
-PluginColorThreshold::~PluginColorThreshold()
-{
-  for(auto worker : workers) {
-    delete worker->thread;
-    delete worker;
-  }
-  workers.clear();
+  this->id = _id;
+  this->totalThreads = _totalThreads;
+  this->lut = _lut;
+
+  thread = new QThread();
+  thread->setObjectName("ColorThreshold");
+  moveToThread(thread);
+  connect(this, SIGNAL(startThresholding()), this, SLOT(process()));
+  thread->start();
+}
+
+PluginColorThresholdWorker::~PluginColorThresholdWorker() {
+  thread->quit();
+  thread->deleteLater();
 }
 
 
-PluginColorThresholdWorker::PluginColorThresholdWorker(QThread* thread, int id, int totalThreads, YUVLUT * lut)
-: thread(thread), id(id), totalThreads(totalThreads), lut(lut) {
-}
-
-
-void PluginColorThresholdWorker::thresholdImage() {
+void PluginColorThresholdWorker::process() {
   RawImage imagePartIn;
   imagePartIn.setColorFormat(imageIn->getColorFormat());
   imagePartIn.setHeight(imageIn->getHeight()/totalThreads);
@@ -72,22 +74,45 @@ void PluginColorThresholdWorker::thresholdImage() {
   Image<raw8> imagePartOut;
   imagePartOut.fromRawImage(rawImageOut);
 
-  if (imageIn->getColorFormat()==COLOR_YUV422_UYVY) {
-    //directly apply YUV lut:
-    CMVisionThreshold::thresholdImageYUV422_UYVY(&imagePartOut,&imagePartIn,lut);
-  } else if (imageIn->getColorFormat()==COLOR_YUV444) {
-    //directly apply YUV lut:
-    CMVisionThreshold::thresholdImageYUV444(&imagePartOut,&imagePartIn,lut);
-  } else if (imageIn->getColorFormat()==COLOR_RGB8) {
-    auto * rgblut = (RGBLUT *) lut->getDerivedLUT(CSPACE_RGB);
-    if (rgblut == nullptr) {
-      printf("WARNING: No RGB LUT has been defined. You need to create a derived RGB LUT by calling e.g. \"lut_yuv->addDerivedLUT(new RGBLUT(5,5,5,\"\"))\" in the stack constructor!\n");
-    } else {
-      CMVisionThreshold::thresholdImageRGB(&imagePartOut,&imagePartIn,rgblut);
-    }
-  } else {
-    fprintf(stderr,"ColorThresholding needs YUV422, YUV444, or RGB8 as input image, but found: %s\n",Colors::colorFormatToString(imageIn->getColorFormat()).c_str());
+  thresholdImage(&imagePartIn, &imagePartOut, lut);
+
+  doneMutex.unlock();
+}
+
+
+void PluginColorThresholdWorker::start() {
+  doneMutex.lock();
+  emit startThresholding();
+}
+
+
+void PluginColorThresholdWorker::wait() {
+  doneMutex.lock();
+  doneMutex.unlock();
+}
+
+
+PluginColorThreshold::PluginColorThreshold(FrameBuffer * _buffer, YUVLUT * _lut)
+ : VisionPlugin(_buffer)
+{
+  lut=_lut;
+
+  settings=new VarList("Color Threshold");
+  numThreads = new VarInt("number of threads", 0, 0, 32);
+  settings->addChild(numThreads);
+}
+
+
+PluginColorThreshold::~PluginColorThreshold()
+{
+  clearWorkers();
+}
+
+void PluginColorThreshold::clearWorkers() {
+  for (auto worker : workers) {
+    worker->deleteLater();
   }
+  workers.clear();
 }
 
 
@@ -103,21 +128,33 @@ ProcessResult PluginColorThreshold::process(FrameData * data, RenderOptions * op
   //make sure image is allocated:
   img_thresholded->allocate(data->video.getWidth(),data->video.getHeight());
 
-  for(auto worker : workers) {
-    worker->imageIn = &data->video;
-    worker->imageOut = img_thresholded;
-    worker->thread->start();
+  if(workers.size() != numThreads->getInt()) {
+    clearWorkers();
+    for(int i=0;i<numThreads->getInt();i++) {
+      auto *worker = new PluginColorThresholdWorker(i, numThreads->getInt(), lut);
+      workers.push_back(worker);
+    }
   }
 
-  for(auto worker : workers) {
-    worker->thread->wait();
+  if(workers.empty()) {
+    thresholdImage(&data->video, img_thresholded, lut);
+  } else {
+    for (auto worker : workers) {
+      worker->imageIn = &data->video;
+      worker->imageOut = img_thresholded;
+      worker->start();
+    }
+
+    for (auto worker : workers) {
+      worker->wait();
+    }
   }
   
   return ProcessingOk;
 }
 
 VarList * PluginColorThreshold::getSettings() {
-  return nullptr;
+  return settings;
 }
 
 string PluginColorThreshold::getName() {
