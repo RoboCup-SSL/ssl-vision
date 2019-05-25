@@ -44,8 +44,8 @@ CaptureFromFile::CaptureFromFile(VarList * _settings, int default_camera_id, QOb
   v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV422_UYVY));
   v_colorout->addItem(Colors::colorFormatToString(COLOR_RAW8));
 
-  conversion_settings-> addChild(v_raw_width=new VarInt("raw width", 0));
-  conversion_settings-> addChild(v_raw_height=new VarInt("raw height", 0));
+  conversion_settings-> addChild(v_raw_width=new VarInt("raw width", 2448));
+  conversion_settings-> addChild(v_raw_height=new VarInt("raw height", 2048));
 
   //=======================CAPTURE SETTINGS==========================
   ostringstream convert;
@@ -117,6 +117,11 @@ bool CaptureFromFile::startCapture()
       int height(v_raw_height->get());
       if(getFileExtension(currentImage) == "RAW")
       {
+        if(width <= 0 || height <= 0)
+        {
+          std::cout << "Could not read image. Dimensions must be positive." << std::endl;
+          continue;
+        }
         std::ifstream file(currentImage, std::ios::binary );
         if(!file)
         {
