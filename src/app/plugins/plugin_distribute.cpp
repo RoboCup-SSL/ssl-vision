@@ -23,7 +23,7 @@ PluginDistribute::PluginDistribute(FrameBuffer *_buffer, vector<CaptureSplitter 
   _v_image = new VarBool("image", true);
   _v_greyscale = new VarBool("greyscale", false);
 
-  _settings = new VarList("Distribute");
+  _settings = new VarList("Visualization");
   _settings->addChild(_v_enabled);
   _settings->addChild(_v_image);
   _settings->addChild(_v_greyscale);

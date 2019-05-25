@@ -57,12 +57,12 @@ CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id, QO
   v_gain_auto->addItem(toString(Spinnaker::GainAuto_Continuous));
   v_gain_db = new VarDouble("Gain [dB]", 0.0, 0.0, 12.0);
 
-  v_white_balance_auto = new VarStringEnum("Auto While Balance", toString(Spinnaker::BalanceWhiteAuto_Continuous));
+  v_white_balance_auto = new VarStringEnum("Auto While Balance", toString(Spinnaker::BalanceWhiteAuto_Off));
   v_white_balance_auto->addItem(toString(Spinnaker::BalanceWhiteAuto_Off));
   v_white_balance_auto->addItem(toString(Spinnaker::BalanceWhiteAuto_Once));
   v_white_balance_auto->addItem(toString(Spinnaker::BalanceWhiteAuto_Continuous));
 
-  v_stream_buffer_handling_mode = new VarStringEnum("Stream Buffer Handling Mode", toString(Spinnaker::StreamBufferHandlingMode_OldestFirst));
+  v_stream_buffer_handling_mode = new VarStringEnum("Stream Buffer Handling Mode", toString(Spinnaker::StreamBufferHandlingMode_NewestOnly));
   v_stream_buffer_handling_mode->addItem(toString(Spinnaker::StreamBufferHandlingMode_OldestFirst));
   v_stream_buffer_handling_mode->addItem(toString(Spinnaker::StreamBufferHandlingMode_OldestFirstOverwrite));
   v_stream_buffer_handling_mode->addItem(toString(Spinnaker::StreamBufferHandlingMode_NewestFirst));
@@ -271,12 +271,25 @@ bool CaptureSpinnaker::startCapture()
   try
   {
     pCam = camList.GetByIndex(cam_id);
+  }
+  catch (Spinnaker::Exception &e)
+  {
+    fprintf(stderr, "An error occurred while opening device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
+    camList.Clear();
+    pSystem->ReleaseInstance();
+    mutex.unlock();
+    return false;
+  }
+
+  try
+  {
     pCam->Init();
     camList.Clear();
   }
   catch (Spinnaker::Exception &e)
   {
-    fprintf(stderr, "An error occurred while opening device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
+    fprintf(stderr, "An error occurred while initializing camera %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
+    pCam = (int) NULL;
     camList.Clear();
     pSystem->ReleaseInstance();
     mutex.unlock();
@@ -335,7 +348,8 @@ bool CaptureSpinnaker::startCapture()
 
 bool CaptureSpinnaker::copyAndConvertFrame(const RawImage & src, RawImage & target)
 {
-    mutex.lock();
+  mutex.lock();
+  target.setTime(src.getTime());
 
   ColorFormat src_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
   ColorFormat out_color = Colors::stringToColorFormat(v_convert_to_mode->getSelection().c_str());
@@ -360,7 +374,7 @@ bool CaptureSpinnaker::copyAndConvertFrame(const RawImage & src, RawImage & targ
 
 RawImage CaptureSpinnaker::getFrame()
 {
-    mutex.lock();
+  mutex.lock();
 
   ColorFormat out_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
   RawImage result;
@@ -370,7 +384,14 @@ RawImage CaptureSpinnaker::getFrame()
   result.setTime(0.0);
   result.setData(nullptr);
 
-  pImage = pCam->GetNextImage();
+  try {
+    pImage = pCam->GetNextImage();
+  }
+  catch (Spinnaker::Exception &e)
+  {
+    fprintf(stderr, "Spinnaker: An error occurred while getting the next image (error code: %d, '%s')\n", e.GetError(), e.GetFullErrorMessage());
+  }
+
 
   if (pImage->IsIncomplete())
   {
