@@ -35,6 +35,7 @@ CaptureThread::CaptureThread(int cam_id)
   control->addChild( (VarType*) (c_stop   = new VarTrigger("stop capture","Stop")));
   control->addChild( (VarType*) (c_reset  = new VarTrigger("reset bus","Reset")));
   control->addChild( (VarType*) (c_auto_refresh= new VarBool("auto refresh params",true)));
+  // timings should only be printed on demand for a short period of time by temporally activating this flag
   control->addChild( (VarType*) (c_print_timings = new VarBool("print timings",false)));
   control->addChild( (VarType*) (c_refresh= new VarTrigger("re-read params","Refresh")));
   control->addChild( (VarType*) (captureModule= new VarStringEnum("Capture Module","None")));

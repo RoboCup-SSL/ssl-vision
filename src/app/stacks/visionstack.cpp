@@ -26,6 +26,7 @@
 VisionStack::VisionStack(RenderOptions * _opts) {
   opts=_opts;
   settings=new VarList("Global");
+  // timings should only be printed on demand for a short period of time by temporally activating this flag
   _v_print_timings = new VarBool("print stack timings", false);
   settings->addChild(_v_print_timings);
 }
