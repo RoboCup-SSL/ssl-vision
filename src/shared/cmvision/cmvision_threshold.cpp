@@ -20,7 +20,7 @@
 */
 //========================================================================
 #include "cmvision_threshold.h"
-#ifndef DISABLE_SIMD_INTRINSICS
+#ifdef __AVX2__
 #include <x86intrin.h>
 #endif
 
@@ -139,13 +139,7 @@ bool CMVisionThreshold::thresholdImageRGB(Image<raw8> * target, const ImageInter
   int Z_AND_Y_BITS=lut->Z_AND_Y_BITS;
   int Z_BITS = lut->Z_BITS;
 
-#ifdef DISABLE_SIMD_INTRINSICS
-#pragma GCC unroll 4
-  for (int i=0; i<source_size; i++) {
-    rgb p=source_pointer[i];
-    target_pointer[i] =  LUT[(((p.r >> X_SHIFT) << Z_AND_Y_BITS) | ((p.g >> Y_SHIFT) << Z_BITS) | (p.b >> Z_SHIFT))];
-  }
-#else
+#ifdef __AVX2__
   // unpacking from: https://docs.google.com/presentation/d/1I0-SiHid1hTsv7tjLST2dYW5YF5AJVfs9l4Rg9rvz48/edit#slide=id.g1eefe20b_0_125
   __m128i ssse3_red_indeces_0 = _mm_set_epi8(-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 15, 12, 9, 6, 3, 0);
   __m128i ssse3_red_indeces_1 = _mm_set_epi8(-1, -1, -1, -1, -1, 14, 11, 8, 5, 2, -1, -1, -1, -1, -1, -1);
@@ -195,6 +189,12 @@ bool CMVisionThreshold::thresholdImageRGB(Image<raw8> * target, const ImageInter
     for(int j=0; j<16; j++) {
       target_pointer[i+j] = LUT[idx[j]];
     }
+  }
+#else
+  #pragma GCC unroll 4
+  for (int i=0; i<source_size; i++) {
+    rgb p=source_pointer[i];
+    target_pointer[i] =  LUT[(((p.r >> X_SHIFT) << Z_AND_Y_BITS) | ((p.g >> Y_SHIFT) << Z_BITS) | (p.b >> Z_SHIFT))];
   }
 #endif
 
