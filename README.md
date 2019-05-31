@@ -41,10 +41,29 @@ Multiple cameras are supported:
  * Basic usb camera support via the [Video for Linux (V4L)](http://linuxtv.org/downloads/v4l-dvb-apis/) drivers
  * Matrix-Vision BlueFox (USB 2.0) and BlueFox3 (USB 3.0) cameras via [mvIMPACT Acquire SDK](http://www.matrix-vision.com/software-drivers-en.html)
  * Basler cameras via the [Pylon Software Suite](https://www.baslerweb.com/en/products/software/basler-pylon-camera-software-suite/)
- * FLIR cameras via the [SPINNAKER SDK](https://www.ptgrey.com/support/downloads)
+ * FLIR cameras via the [SPINNAKER and FLYCAP SDK](https://www.flir.com/support-center/iis/machine-vision/downloads/spinnaker-sdk-flycapture-and-firmware-download/)
  
 To enable support for one or more of those cameras, install the corresponding SDK (linked above and described in more details below) first.
-Then build with the corresponding option: `-DUSE_DC1394=true`, `-DUSE_SPINNAKER=true`, `-DUSE_mvIMPACT=true`.
+Then build with the corresponding option:
+ 
+ * `-DUSE_DC1394=true`
+ * `-DUSE_SPINNAKER=true`
+ * `-DUSE_mvIMPACT=true`
+ * `-DUSE_PYLON=true`
+ * `-DUSE_FLYCAP=true`
+ * `-DUSE_V4L=true`
+ 
+Example: `cd build; cmake -DUSE_SPINNAKER=true ..`. As these are cached cmake option, you only need to run this once and can build with `make` afterwards.
+
+### Virtual Splitter cameras
+
+In addition to the physical cameras, you can activate virtual cameras with `-DUSE_SPLITTER=true`. 
+There will be an additional 'Distributor Thread' that captures from a single physical camera (or from file).
+The capture mode of the normal camera threads can be set to 'splitter'. That way, a part of the original image from the
+distributor thread is used as input.
+This may speedup processing time for cameras with large resolutions, but at the trait-of of multiple cameras with the
+same camera center, which may not work well with some consumers.
+
 
 ### Matrix-Vision cameras
 
@@ -90,6 +109,7 @@ If you need to pass extra parameters to cmake, you need to run `cmake` directly:
 ```bash
 cd build
 cmake -DUSE_WHAT_SO_EVER=true ..
+cd ..
 make
 ```
 The `USE_*` parameters are cached, so they do not have to be passed in each time.
