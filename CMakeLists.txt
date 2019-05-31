@@ -3,8 +3,12 @@ set(OpenGL_GL_PREFERENCE LEGACY)
 set(USE_QT5 FALSE CACHE BOOL "Use Qt5 instead of Qt4")
 set(USE_NEURAL_CALIBRATION FALSE CACHE BOOL "Enable neural network calibration (requires OpenCV 2, not compatible with later versions)")
 set(USE_DC1394 TRUE CACHE BOOL "Compile with DC1394 driver (firewire cameras)")
-set(USE_SPINNAKER FALSE CACHE BOOL "Compile with Spinnaker driver (FLIR USB3 cameras)")
+set(USE_SPINNAKER FALSE CACHE BOOL "Compile with Spinnaker driver (FLIR cameras)")
 set(USE_mvIMPACT FALSE CACHE BOOL "Compile with mvImpact driver (bluefox USB2 + USB3 cameras)")
+set(USE_PYLON FALSE CACHE BOOL "Compile with pylon driver (Basler cameras)")
+set(USE_FLYCAP FALSE CACHE BOOL "Compile with flycap driver (FLIR cameras, predecessor of Spinnaker)")
+set(USE_V4L FALSE CACHE BOOL "Compile with Video4Linux support (generic webcams)")
+set(USE_SPLITTER FALSE CACHE BOOL "Compile with Camera splitter support (virtual cameras with part of a full image)")
 
 if(USE_DC1394 AND USE_mvIMPACT)
 	message(FATAL_ERROR "DC1394 and mvImpact are not compatible: mvImpact crashes when creating device manager")
@@ -84,39 +88,48 @@ include_directories(
 
 include(src/shared/CMakeLists.txt.inc)
 
-if(USE_mvIMPACT)
-	find_package(mvIMPACT QUIET)
-	if(${mvIMPACT_FOUND} MATCHES "true")
-	  include_directories(${mvIMPACT_INCLUDE_DIR})
-	  add_definitions(-D MVIMPACT3)
-	  add_definitions(-D MVIMPACT2)
-	  set (SHARED_SRCS ${SHARED_SRCS}
-			  ${shared_dir}/capture/capture_bluefox2.cpp
-			  ${shared_dir}/capture/capture_bluefox3.cpp
-			  )
-	  set (SHARED_HEADERS ${SHARED_HEADERS}
-			  ${shared_dir}/capture/capture_bluefox2.h
-			  ${shared_dir}/capture/capture_bluefox3.h
-			  )
-	  message(STATUS "mvIMPACT found => Bluefox support enabled")
-	  message(STATUS "Bluefox not compatible with DC1394. Disabling DC1394")
-	else()
-	  message(STATUS "mvIMPACT NOT found => Bluefox support disabled")
-	endif()
+# Note: Bluefox SDK is not compatible with some components of OpenCV. Take care when enabling more.
+find_package( OpenCV REQUIRED COMPONENTS core imgproc imgcodecs )
+if( OpenCV_FOUND )
+    message(STATUS "OpenCV ${OpenCV_VERSION} found")
+    if(OpenCV_VERSION_MAJOR LESS 3)
+        message(FATAL_ERROR "OpenCV major version >= 3 is required")
+    endif()
+    include_directories(${OpenCV_INCLUDE_DIRS})
+    add_definitions(-D OPENCV)
+else()
+    message(FATAL_ERROR "OpenCV NOT found")
 endif()
 
-set(FLYCAP_HINTS "/usr/include/flycapture")
-find_package(flycapture)
-if(${FLYCAP_FOUND} MATCHES "TRUE")
-  message("Flycap dirs " ${FLYCAP_INCLUDE_DIRS})
-  include_directories(${FLYCAP_INCLUDE_DIRS})
-  add_definitions(-D FLYCAP)
-  set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capture_flycap.cpp)
-  set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capture_flycap.h)
-  set (FLYCAP_LIBS flycapture)
-  message(STATUS "Flycapture found => Flycap support enabled")
+if( USE_mvIMPACT )
+	find_package(mvIMPACT REQUIRED)
+	include_directories(${mvIMPACT_INCLUDE_DIR})
+	add_definitions(-D MVIMPACT3)
+	add_definitions(-D MVIMPACT2)
+	set (SHARED_SRCS ${SHARED_SRCS}
+		  ${shared_dir}/capture/capture_bluefox2.cpp
+		  ${shared_dir}/capture/capture_bluefox3.cpp
+		)
+	set (SHARED_HEADERS ${SHARED_HEADERS}
+		  ${shared_dir}/capture/capture_bluefox2.h
+		  ${shared_dir}/capture/capture_bluefox3.h
+		)
+	message(STATUS "mvIMPACT enabled")
 else()
-  message(STATUS "Flycapture NOT found => Flycap support disabled")
+	message(STATUS "mvIMPACT disabled")
+endif()
+
+if( USE_FLYCAP )
+	set(FLYCAP_HINTS "/usr/include/flycapture")
+	find_package(FLYCAP REQUIRED)
+	include_directories(${FLYCAP_INCLUDE_DIRS})
+	add_definitions(-D FLYCAP)
+	set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capture_flycap.cpp)
+	set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capture_flycap.h)
+	set (FLYCAP_LIBS flycapture)
+	message(STATUS "Flycap enabled")
+else()
+  message(STATUS "Flycap disabled")
 endif()
 
 if(USE_DC1394)
@@ -150,42 +163,50 @@ if(USE_NEURAL_CALIBRATION)
 	endif()
 endif()
 
-# Note: Bluefox SDK is not compatible with some components of OpenCV. Take care when enabling more.
-find_package( OpenCV REQUIRED COMPONENTS core imgproc imgcodecs)
-if(OpenCV_FOUND)
-	message(STATUS "OpenCV ${OpenCV_VERSION} found")
-	if(OpenCV_VERSION_MAJOR LESS 3)
-		message(FATAL_ERROR "OpenCV major version >= 3 is required")
-	endif()
-	include_directories(${OpenCV_INCLUDE_DIRS})
-	add_definitions(-D OPENCV)
+if( USE_PYLON )
+	find_package( PYLON5 REQUIRED )
+	include_directories(SYSTEM ${PYLON5_INCLUDE_DIRS})
+	add_definitions(-DPYLON5)
+	set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capture_basler.cpp)
+	set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capture_basler.h)
+	message(STATUS "Pylon5 enabled")
 else()
-	message(FATAL_ERROR "OpenCV NOT found")
-endif()
-
-find_package( Pylon5 QUIET )
-if(OpenCV_FOUND)
-  if(PYLON5_FOUND)
-    include_directories(SYSTEM ${PYLON5_INCLUDE_DIRS})
-    add_definitions(-D PYLON5)
-    message(STATUS "Pylon5 found")
-    set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capture_basler.cpp)
-    set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capture_basler.h)
-  else()
-    message(STATUS "Pylon5 not found")
-  endif()
+	message(STATUS "Pylon5 disabled")
 endif()
 
 if( USE_SPINNAKER )
-	find_package( SPINNAKER REQUIRED)
+	find_package( SPINNAKER REQUIRED )
 	add_definitions( -DSPINNAKER )
 	include_directories( ${SPINNAKER_INCLUDE_DIRS} )
 	set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capture_spinnaker.cpp)
 	set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capture_spinnaker.h)
-	message(STATUS "SPINNAKER support enabled")
+	message(STATUS "SPINNAKER enabled")
 else()
 	set( SPINNAKER_LIBS "" )
-	message(STATUS "SPINNAKER support disabled")
+	message(STATUS "SPINNAKER disabled")
+endif()
+
+if( USE_V4L )
+	add_definitions( -DV4L )
+	set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capturev4l.cpp)
+	set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capturev4l.h)
+	message(STATUS "Video 4 Linux enabled")
+else()
+	message(STATUS "Video 4 Linux disabled")
+endif()
+
+if( USE_SPLITTER )
+	add_definitions( -DCAMERA_SPLITTER )
+	set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capture_splitter.cpp)
+	set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capture_splitter.h)
+	set (SRCS ${SRCS}
+			src/app/plugins/plugin_distribute.cpp
+			src/app/stacks/DistributorStack.cpp
+		)
+
+	message(STATUS "Camera splitter enabled")
+else()
+	message(STATUS "Camera splitter disabled")
 endif()
 
 include_directories(${PROJECT_SOURCE_DIR}/src/app)
@@ -193,7 +214,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/app/gui)
 include_directories(${PROJECT_SOURCE_DIR}/src/app/plugins)
 include_directories(${PROJECT_SOURCE_DIR}/src/app/stacks)
 
-set (SRCS
+set (SRCS ${SRCS}
 	src/app/capture_thread.cpp
 	src/app/framedata.cpp
 	src/app/main.cpp
@@ -222,14 +243,12 @@ set (SRCS
 	src/app/plugins/plugin_legacysslnetworkoutput.cpp
 	src/app/plugins/plugin_visualize.cpp
 	src/app/plugins/plugin_dvr.cpp
-	src/app/plugins/plugin_distribute.cpp
 	src/app/plugins/visionplugin.cpp
 
 	src/app/stacks/multistack_robocup_ssl.cpp
 	src/app/stacks/multivisionstack.cpp
 	src/app/stacks/stack_robocup_ssl.cpp
 	src/app/stacks/visionstack.cpp
-	src/app/stacks/DistributorStack.cpp
 
 	${OPTIONAL_SRCS}
 )

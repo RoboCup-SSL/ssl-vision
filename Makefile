@@ -1,9 +1,7 @@
 buildDir=build
-#buildDir=build_debug
 
 #change to Debug for debug mode
 buildType=Release
-#buildType=Debug
 
 all: build_cmake
 

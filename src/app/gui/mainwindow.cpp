@@ -65,10 +65,12 @@ MainWindow::MainWindow(bool start_capture, bool enforce_affinity, int num_camera
     gl->setRingBuffer(multi_stack->threads[i]->getFrameBuffer());
     gl->setVisionStack(s);
     QString label = "Thread " + QString::number(i);
+#ifdef CAMERA_SPLITTER
     if(i == multi_stack->threads.size() - 1)
     {
       label = "Distributor Thread";
     }
+#endif
 
     VarList * threadvar = new VarList(label.toStdString());
 
