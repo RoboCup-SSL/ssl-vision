@@ -432,7 +432,7 @@ void ImageProcessor::processThresholded(Image<raw8> * _img_thresholded, int min_
   CMVision::RegionProcessing::extractRegions(reglist, runlist);
 
   if (reglist->getUsedRegions() == reglist->getMaxRegions()) {
-    printf("Warning: extract regions exceeded maximum number of %d regions\n",reglist->getMaxRegions());
+    printf("Warning: Region: extract regions exceeded maximum number of %d regions\n",reglist->getMaxRegions());
   }
 
   //Separate Regions by colors:

@@ -28,8 +28,6 @@
 #include "cmvision_threshold.h"
 #include "lut3d.h"
 
-#define CMV_DEFAULT_MAX_RUNS 100000
-
 namespace CMVision {
 
 

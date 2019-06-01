@@ -106,6 +106,7 @@ PluginColorThreshold::PluginColorThreshold(FrameBuffer * _buffer, YUVLUT * _lut)
 PluginColorThreshold::~PluginColorThreshold()
 {
   clearWorkers();
+  delete settings;
 }
 
 void PluginColorThreshold::clearWorkers() {
