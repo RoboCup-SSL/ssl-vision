@@ -49,6 +49,10 @@ public:
     if (pair.first==map<string,void *>::end()) return 0;
     return pair.first->second;
   }
+  void * update(const string & label, void * item) {
+    erase(label);
+    return insert(label, item);
+  }
 };
 
 /*!

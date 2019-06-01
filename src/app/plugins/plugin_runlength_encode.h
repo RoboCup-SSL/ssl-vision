@@ -31,17 +31,18 @@
 class PluginRunlengthEncode : public VisionPlugin
 {
 protected:
-  int _max_runs;
+  VarList * settings;
+  VarInt * v_max_runs;
 public:
-    PluginRunlengthEncode(FrameBuffer * _buffer, int max_runs);
+    explicit PluginRunlengthEncode(FrameBuffer * _buffer);
 
-    ~PluginRunlengthEncode();
+    ~PluginRunlengthEncode() override;
 
-    virtual ProcessResult process(FrameData * data, RenderOptions * options);
+    ProcessResult process(FrameData * data, RenderOptions * options) override;
 
-    virtual VarList * getSettings();
+    VarList * getSettings() override;
 
-    virtual string getName();
+    string getName() override;
 };
 
 #endif
