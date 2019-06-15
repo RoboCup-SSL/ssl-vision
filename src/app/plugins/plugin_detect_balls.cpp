@@ -248,7 +248,9 @@ ProcessResult PluginDetectBalls::process ( FrameData * data, RenderOptions * opt
             for (int r = 0; r < robots_n; r++) {
               const SSL_DetectionRobot & robot = robots->Get(r);
               if (robot.confidence() > 0.0) {
-                if ((sq((double)(robot.x())-(double)(field_pos.x)) + sq((double)(robot.y())-(double)(field_pos.y))) < near_robot_dist_sq) {
+                vector3d field_on_bot_pos_3d;
+                camera_parameters.image2field ( field_on_bot_pos_3d, pixel_pos, robot.height());
+                if ((sq((double)(robot.x())-(double)(field_on_bot_pos_3d.x)) + sq((double)(robot.y())-(double)(field_on_bot_pos_3d.y))) < near_robot_dist_sq) {
                   conf = 0.0;
                   break;
                 }
