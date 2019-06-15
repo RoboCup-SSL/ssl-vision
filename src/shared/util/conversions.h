@@ -94,6 +94,17 @@ inline static yuv rgb2yuv(rgb const &in)
   return (col);
 }
 
+inline static yuv uyvy2yuv(const uyvy &color_uyvy, int x) {
+  yuv color_yuv;
+  color_yuv.u = color_uyvy.u;
+  color_yuv.v = color_uyvy.v;
+  if ((x % 2) == 0) {
+    color_yuv.y = color_uyvy.y1;
+  } else {
+    color_yuv.y = color_uyvy.y2;
+  }
+  return color_yuv;
+}
 
 //DC1394 accelerated:
 static void uyvy2rgb (unsigned char *src, unsigned char *dest, int width, int height);

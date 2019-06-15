@@ -69,6 +69,9 @@ class RawImage : public ImageInterface
   int getNumColorBlocks() const;
   int getNumPixels() const;
 
+  rgb getRgb(int x, int y) const;
+  yuv getYuv(int x, int y) const;
+
   //mutators:
   void setColorFormat(ColorFormat f);
   void setWidth(int w);
