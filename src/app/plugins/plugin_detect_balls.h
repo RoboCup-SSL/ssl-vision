@@ -78,7 +78,7 @@ public:
   _settings->addChild(_color_label = new VarString("Ball Color","Orange"));
 
   _settings->addChild(_filter_general = new VarList("Ball Properties"));
-    _filter_general->addChild(_ball_z_height = new VarDouble("Ball Z-Height", 30.0));
+    _filter_general->addChild(_ball_z_height = new VarDouble("Ball Z-Height", 21.5));
     _filter_general->addChild(_ball_min_width = new VarInt("Min Width (pixels)", 3));
     _filter_general->addChild(_ball_max_width = new VarInt("Max Width (pixels)", 30));
     _filter_general->addChild(_ball_min_height = new VarInt("Min Height (pixels)", 3));
