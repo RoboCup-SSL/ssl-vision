@@ -211,6 +211,15 @@ bool CaptureFromFile::copyAndConvertFrame(const RawImage & src, RawImage & targe
       cvtColor(srcMat, dstMat, cv::COLOR_BayerRG2BGR);
   }
 #ifndef NO_DC1394_CONVERSIONS
+  else if(src_fmt == COLOR_RAW8 && output_fmt == COLOR_YUV422_UYVY)
+  {
+    // note: this an inefficient double conversion and should only be used for testing!
+    cv::Mat srcMat(src.getHeight(), src.getWidth(), CV_8UC1, src.getData());
+    cv::Mat dstMat(target.getHeight(), target.getWidth(), CV_8UC3);
+    cvtColor(srcMat, dstMat, cv::COLOR_BayerRG2BGR);
+    dc1394_convert_to_YUV422(dstMat.data, target.getData(), src.getWidth(), src.getHeight(),
+                             DC1394_BYTE_ORDER_UYVY, DC1394_COLOR_CODING_RGB8, 8);
+  }
   else if (src_fmt == COLOR_RGB8 && output_fmt == COLOR_YUV422_UYVY)
   {
     if (src.getData() != 0)
