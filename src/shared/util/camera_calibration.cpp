@@ -747,7 +747,7 @@ CameraParameters::AdditionalCalibrationInformation::
   initial_distortion = new VarDouble("initial distortion", 1.0);
   line_search_corridor_width = new VarDouble("line search corridor width", 280.0);
   image_boundary = new VarDouble("Image boundary for edge detection", 10.0);
-  max_feature_distance = new VarDouble("Max distance of edge from camera", 9000.0);
+  max_feature_distance = new VarDouble("Max distance of edge from camera", 20000.0);
   convergence_timeout = new VarDouble("convergence timeout (s)", 10.0);
   cov_corner_x = new VarDouble("Cov corner measurement x", 1.0);
   cov_corner_y = new VarDouble("Cov corner measurement y", 1.0);
