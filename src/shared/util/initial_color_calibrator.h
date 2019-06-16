@@ -40,14 +40,17 @@ public:
 
     void process(const std::vector<ColorClazz> &calibration_points, YUVLUT *global_lut);
 
-    VarDouble* maxColorDist;
-    VarDouble* maxAngle;
-    VarList* weights;
-    std::map<int, VarDouble*> weightMap;
+    VarDouble *maxColorDist;
+    VarDouble *maxAngle;
+    VarList *weights;
+    std::map<int, VarDouble *> weightMap;
 
 private:
-    VarDouble* createWeight(const std::string &colorName, int channel);
-    double ratedYuvColorDist(const yuv &c1, const yuv &c2, const double weight);
+    VarDouble *createWeight(const std::string &colorName, int channel);
+
+    double ratedYuvColorDist(const yuv &c1, const yuv &c2, double weight);
+
+    double getWeight(const ColorClazz &j);
 };
 
 

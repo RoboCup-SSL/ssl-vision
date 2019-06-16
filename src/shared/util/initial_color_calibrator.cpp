@@ -32,7 +32,7 @@
 #define CH_PINK 5
 #define CH_GREEN 7
 
-VarDouble* InitialColorCalibrator::createWeight(const std::string &colorName, int channel) {
+VarDouble *InitialColorCalibrator::createWeight(const std::string &colorName, int channel) {
   VarDouble *v_weight = new VarDouble(colorName, 1, 0, 10);
   weightMap[channel] = v_weight;
   return v_weight;
@@ -67,23 +67,24 @@ double InitialColorCalibrator::ratedYuvColorDist(const yuv &c1, const yuv &c2, c
   midToC2V *= 1 / normFac2;
   float scalar = midToC1U * midToC2U + midToC1V * midToC2V;
   float angle = std::acos(scalar);
+  double relAngle = angle / maxAngle->getDouble();
+  double dMaxHalf = maxColorDist->getDouble() * 0.5f;
 
-  float bonus = 0;
-  if (angle < maxAngle->getDouble()) {
+  float bonus;
+  if (relAngle < 1) {
     // give bonus for good angles
-    bonus = (1 - (angle / maxAngle->getDouble())) * maxColorDist->getDouble() * 0.5f;
+    bonus = (1 - relAngle) * dMaxHalf;
   } else {
     // give penalty for bad angles
-    angle = std::min(1.57f, angle);
-    bonus = -maxColorDist->getDouble() * 0.5f * angle / maxAngle->getDouble();
+    bonus = -relAngle * dMaxHalf;
   }
 
+  float y = c1.y - c2.y;
   float u = c1.u - c2.u;
   float v = c1.v - c2.v;
-  float y = c1.y - c2.y;
 
-  float uvDist = u * u + v * v;
-  return ((uvDist + y * y) - bonus) * weight;
+  float yuvDist = y * y + u * u + v * v;
+  return (yuvDist - bonus) * weight;
 }
 
 void InitialColorCalibrator::process(const std::vector<ColorClazz> &calibration_points, YUVLUT *global_lut) {
@@ -94,22 +95,18 @@ void InitialColorCalibrator::process(const std::vector<ColorClazz> &calibration_
         yuv color = yuv(static_cast<unsigned char>(y),
                         static_cast<unsigned char>(u),
                         static_cast<unsigned char>(v));
-        float minDiff = 1e10;
+        float minScore = 1e10;
         int clazz = 0;
-        for (auto &j : calibration_points) {
-          VarDouble* v_weight = weightMap[j.clazz];
-          double weight = 1;
-          if(v_weight != nullptr) {
-            weight = v_weight->getDouble();
-          }
-          double diff = ratedYuvColorDist(color, j.color_yuv, weight);
-          if (diff < minDiff) {
-            minDiff = diff;
-            clazz = j.clazz;
+        for (auto &colorClazz : calibration_points) {
+          double weight = getWeight(colorClazz);
+          double score = ratedYuvColorDist(color, colorClazz.color_yuv, weight);
+          if (score < minScore) {
+            minScore = score;
+            clazz = colorClazz.clazz;
           }
         }
 
-        if (minDiff < maxColorDist->getDouble()) {
+        if (minScore < maxColorDist->getDouble()) {
           global_lut->set(color.y, color.u, color.v, static_cast<lut_mask_t>(clazz));
         }
       }
@@ -117,5 +114,14 @@ void InitialColorCalibrator::process(const std::vector<ColorClazz> &calibration_
   }
   global_lut->unlock();
   global_lut->updateDerivedLUTs();
+}
+
+double InitialColorCalibrator::getWeight(const ColorClazz &j) {
+  VarDouble *v_weight = weightMap[j.clazz];
+  double weight = 1;
+  if (v_weight != nullptr) {
+    weight = v_weight->getDouble();
+  }
+  return weight;
 }
 
