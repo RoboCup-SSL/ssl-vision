@@ -50,11 +50,13 @@ AutomatedColorCalibWidget::AutomatedColorCalibWidget(const LUT3D *lut) {
 
   auto *gridLayout = new QGridLayout;
   gridLayout->addWidget(resetLUTButton, 0, 0, 1, 1);
-  gridLayout->addWidget(new QLabel("Clear LUT"), 0, 1, 1, 1);
+  gridLayout->addWidget(new QLabel("Start with an empty LUT"), 0, 1, 1, 1);
   gridLayout->addWidget(resetCalibrationButton, 1, 0, 1, 1);
   gridLayout->addWidget(new QLabel("Remove all samples"), 1, 1, 1, 1);
   gridLayout->addWidget(list, 2, 0, 1, 1);
-  gridLayout->addWidget(new QLabel("Select color and collect samples in image"), 2, 1, 1, 1);
+  gridLayout->addWidget(new QLabel(
+          "Select color and collect samples in image\nYou can find the collected samples in the config tree on the left"),
+                        2, 1, 1, 1);
   gridLayout->addWidget(initialCalibrationButton, 3, 0, 1, 1);
   gridLayout->addWidget(new QLabel("Initialize based on samples"), 3, 1, 1, 1);
   gridLayout->setColumnStretch(0, 1);
