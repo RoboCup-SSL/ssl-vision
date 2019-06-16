@@ -51,7 +51,7 @@ class PluginAutoColorCalibration : public VisionPlugin {
 Q_OBJECT
 
 public:
-    PluginAutoColorCalibration(FrameBuffer *_buffer, YUVLUT *lut, LUTWidget* lutw);
+    PluginAutoColorCalibration(FrameBuffer *_buffer, YUVLUT *lut, LUTWidget *lutw);
 
     ~PluginAutoColorCalibration() override;
 
@@ -63,7 +63,7 @@ public:
 
     string getName() override;
 
-    void mouseEvent ( QMouseEvent * event, pixelloc loc );
+    void mouseEvent(QMouseEvent *event, pixelloc loc);
 
     void mousePressEvent(QMouseEvent *event, pixelloc loc) override;
 
@@ -73,19 +73,30 @@ public:
 
 private:
     void addCalibrationPoint(const yuv &color, int channel);
+
     void clearCalibrationPoints();
 
     InitialColorCalibrator initialColorCalibrator;
     AutomatedColorCalibWidget *accw = nullptr;
-    VarList * settings;
-    VarList * v_calibration_points;
+    VarList *settings;
+    VarList *v_calibration_points;
     YUVLUT *global_lut;
-    LUTWidget* lutw;
+    LUTWidget *lutw;
 
-    bool initial_calibration_running = false;
-    int processed_frames = 0;
+    VarDouble *v_maxDistance;
+    VarDouble *v_maxAngle;
+    VarList *v_weights;
+    std::map<int, VarDouble *> weightMap;
 
     void process_gui_commands();
+
+    float getWeight(int channel);
+
+    VarDouble *createWeight(const std::string &colorName, int channel);
+
+    void removeMarkedCalibrationPoints();
+
+    void runCalibration();
 };
 
 #endif /* SRC_APP_PLUGINS_PLUGIN_ONLINE_COLOR_CALIB_H_ */

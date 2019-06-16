@@ -25,32 +25,31 @@
 
 class ColorClazz {
 public:
-    ColorClazz(const yuv &initColor, int clazz);
+    ColorClazz(
+            const yuv &initColor,
+            int clazz,
+            float weight,
+            float maxDistance,
+            float maxAngle);
 
     yuv color_yuv;
     int clazz;
+    float weight;
+    float maxDistance;
+    float maxAngle;
 };
 
 class InitialColorCalibrator {
 
 public:
-    InitialColorCalibrator();
+    InitialColorCalibrator() = default;
 
     ~InitialColorCalibrator() = default;
 
     void process(const std::vector<ColorClazz> &calibration_points, YUVLUT *global_lut);
 
-    VarDouble *maxColorDist;
-    VarDouble *maxAngle;
-    VarList *weights;
-    std::map<int, VarDouble *> weightMap;
-
 private:
-    VarDouble *createWeight(const std::string &colorName, int channel);
-
-    double ratedYuvColorDist(const yuv &c1, const yuv &c2, double weight);
-
-    double getWeight(const ColorClazz &j);
+    float ratedYuvColorDist(const yuv &c1, const ColorClazz &colorClazz);
 };
 
 

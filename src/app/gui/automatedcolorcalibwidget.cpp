@@ -33,11 +33,14 @@ AutomatedColorCalibWidget::AutomatedColorCalibWidget(const LUT3D *lut) {
   QPushButton *resetLUTButton = new QPushButton(tr("Clear LUT"));
   connect(resetLUTButton, SIGNAL(clicked()), SLOT(resetLut()));
 
-  QPushButton *resetCalibrationButton = new QPushButton(tr("Reset calibration"));
+  QPushButton *resetCalibrationButton = new QPushButton(tr("Remove all samples"));
   connect(resetCalibrationButton, SIGNAL(clicked()), SLOT(reset()));
 
-  QPushButton *initialCalibrationButton = new QPushButton(tr("Initialize calibration"));
+  QPushButton *initialCalibrationButton = new QPushButton(tr("Initialize LUT"));
   connect(initialCalibrationButton, SIGNAL(clicked()), SLOT(initialize()));
+
+  QPushButton *updateCalibrationButton = new QPushButton(tr("Update LUT"));
+  connect(updateCalibrationButton, SIGNAL(clicked()), SLOT(update()));
 
   list = new QListWidget(this);
   list->setGeometry(QRect(50, 40, 120, 200));
@@ -48,23 +51,23 @@ AutomatedColorCalibWidget::AutomatedColorCalibWidget(const LUT3D *lut) {
   list->setFocusPolicy(Qt::NoFocus);
   setFocusPolicy(Qt::StrongFocus);
 
-  auto *gridLayout = new QGridLayout;
-  gridLayout->addWidget(resetLUTButton, 0, 0, 1, 1);
-  gridLayout->addWidget(new QLabel("Start with an empty LUT"), 0, 1, 1, 1);
-  gridLayout->addWidget(resetCalibrationButton, 1, 0, 1, 1);
-  gridLayout->addWidget(new QLabel("Remove all samples"), 1, 1, 1, 1);
-  gridLayout->addWidget(list, 2, 0, 1, 1);
-  gridLayout->addWidget(new QLabel(
-          "Select color and collect samples in image\nYou can find the collected samples in the config tree on the left"),
-                        2, 1, 1, 1);
-  gridLayout->addWidget(initialCalibrationButton, 3, 0, 1, 1);
-  gridLayout->addWidget(new QLabel("Initialize based on samples"), 3, 1, 1, 1);
-  gridLayout->setColumnStretch(0, 1);
-  gridLayout->setColumnStretch(1, 3);
+  auto *samplesLayout = new QHBoxLayout;
+  samplesLayout->addWidget(list);
+  samplesLayout->addWidget(new QLabel(
+          "Select color and collect samples in image\nYou can find the collected samples in the config tree on the left"));
+  auto* samplesBox = new QGroupBox();
+  samplesBox->setLayout(samplesLayout);
 
-  auto *boxWrapper = new QVBoxLayout;
-  boxWrapper->addLayout(gridLayout, 1);
-  calibrationStepsBox->setLayout(boxWrapper);
+  auto *vBox = new QVBoxLayout;
+  vBox->addWidget(resetLUTButton);
+  vBox->addWidget(resetCalibrationButton);
+  vBox->addWidget(samplesBox);
+  vBox->addWidget(initialCalibrationButton);
+  vBox->addWidget(updateCalibrationButton);
+
+  auto *vBoxWrapper = new QVBoxLayout;
+  vBoxWrapper->addLayout(vBox, 1);
+  calibrationStepsBox->setLayout(vBoxWrapper);
 
   status_label = new QLabel("/");
 
@@ -118,7 +121,12 @@ void AutomatedColorCalibWidget::resetLut() {
 }
 
 void AutomatedColorCalibWidget::initialize() {
-  pending_initialize = true;
+  pending_reset_lut = true;
+  pending_update = true;
+}
+
+void AutomatedColorCalibWidget::update() {
+  pending_update = true;
 }
 
 void AutomatedColorCalibWidget::set_status(const QString &status) {

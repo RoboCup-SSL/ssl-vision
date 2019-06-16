@@ -36,12 +36,29 @@ PluginAutoColorCalibration::PluginAutoColorCalibration(
   settings = new VarList("Auto Color Calibration");
   v_calibration_points = new VarList("Calibration Points");
   settings->addChild(v_calibration_points);
-  settings->addChild(initialColorCalibrator.maxColorDist);
-  settings->addChild(initialColorCalibrator.maxAngle);
-  settings->addChild(initialColorCalibrator.weights);
+
+  v_maxDistance = new VarDouble("Max distance", 3000, 0);
+  v_maxAngle = new VarDouble("Max angle", 0.3, 0, 3.14);
+
+  v_weights = new VarList("Weights");
+  for (int i = 0; i < lut->getChannelCount(); i++) {
+    v_weights->addChild(createWeight(lut->getChannel(i).label, i));
+  }
+
+  auto *v_defaults = new VarList("Defaults");
+  v_defaults->addChild(v_weights);
+  v_defaults->addChild(v_maxDistance);
+  v_defaults->addChild(v_maxAngle);
+  settings->addChild(v_defaults);
 
   // get mouse events
   this->installEventFilter(this);
+}
+
+VarDouble *PluginAutoColorCalibration::createWeight(const std::string &colorName, int channel) {
+  VarDouble *v_weight = new VarDouble(colorName, 1, 0, 10);
+  weightMap[channel] = v_weight;
+  return v_weight;
 }
 
 PluginAutoColorCalibration::~PluginAutoColorCalibration() {
@@ -64,35 +81,36 @@ ProcessResult PluginAutoColorCalibration::process(FrameData *frame, RenderOption
     return ProcessingFailed;
   }
 
-  // handle GUI commands here
   process_gui_commands();
 
-  // run initial calibration
-  if (initial_calibration_running) {
-    std::vector<ColorClazz> colors;
-    for (auto p : v_calibration_points->getChildren()) {
-      yuv color;
-      int channel = 0;
-      for (auto *c : p->getChildren()) {
-        if (c->getName() == "y") color.y = ((VarInt *) c)->getInt();
-        if (c->getName() == "u") color.u = ((VarInt *) c)->getInt();
-        if (c->getName() == "v") color.v = ((VarInt *) c)->getInt();
-        if (c->getName() == "channel") channel = ((VarInt *) c)->getInt();
-      }
-      colors.emplace_back(color, channel);
-    }
+  return ProcessingOk;
+}
 
-    initialColorCalibrator.process(colors, global_lut);
-    lutw->getGLLUTWidget()->needs_init = true;
-    lutw->getGLLUTWidget()->repaint();
-
-    processed_frames++;
-    if (processed_frames > 5) {
-      initial_calibration_running = false;
+void PluginAutoColorCalibration::runCalibration() {
+  vector<ColorClazz> colors;
+  for (auto p : v_calibration_points->getChildren()) {
+    bool use = true;
+    yuv color;
+    int channel = 0;
+    float maxAngle = 0;
+    float maxDistance = 0;
+    float weight = 0;
+    for (auto *c : p->getChildren()) {
+      if (c->getName() == "use") use = ((VarBool *) c)->getBool();
+      if (c->getName() == "y") color.y = ((VarInt *) c)->getInt();
+      if (c->getName() == "u") color.u = ((VarInt *) c)->getInt();
+      if (c->getName() == "v") color.v = ((VarInt *) c)->getInt();
+      if (c->getName() == "channel") channel = ((VarInt *) c)->getInt();
+      if (c->getName() == "maxAngle") maxAngle = ((VarDouble *) c)->getDouble();
+      if (c->getName() == "maxDistance") maxDistance = ((VarDouble *) c)->getDouble();
+      if (c->getName() == "weight") weight = ((VarDouble *) c)->getDouble();
     }
+    if (use) colors.emplace_back(color, channel, weight, maxDistance, maxAngle);
   }
 
-  return ProcessingOk;
+  initialColorCalibrator.process(colors, global_lut);
+  lutw->getGLLUTWidget()->needs_init = true;
+  lutw->getGLLUTWidget()->repaint();
 }
 
 VarList *PluginAutoColorCalibration::getSettings() {
@@ -104,6 +122,9 @@ string PluginAutoColorCalibration::getName() {
 }
 
 void PluginAutoColorCalibration::process_gui_commands() {
+
+  removeMarkedCalibrationPoints();
+
   if (accw == nullptr) {
     return;
   }
@@ -121,11 +142,10 @@ void PluginAutoColorCalibration::process_gui_commands() {
     clearCalibrationPoints();
   }
 
-  if (accw->pending_initialize) {
-    accw->pending_initialize = false;
-    processed_frames = 0;
-    initial_calibration_running = true;
-    accw->set_status("Triggered initial calibration");
+  if (accw->pending_update) {
+    accw->pending_update = false;
+    runCalibration();
+    accw->set_status("Triggered calibration");
   }
 }
 
@@ -157,15 +177,51 @@ void PluginAutoColorCalibration::mouseEvent(QMouseEvent *event, pixelloc loc) {
 }
 
 void PluginAutoColorCalibration::addCalibrationPoint(const yuv &color, int channel) {
+  VarList *v_point = new VarList(global_lut->getChannel(channel).label + " sample");
 
-  VarList *v_point = new VarList("Sample");
+  VarInt *v_channel = new VarInt("channel", channel, 0);
+  v_channel->setFlags(VARTYPE_FLAG_READONLY);
+
+  v_point->addChild(new VarBool("use", true));
   v_point->addChild(new VarInt("y", color.y, 0, 255));
   v_point->addChild(new VarInt("u", color.u, 0, 255));
   v_point->addChild(new VarInt("v", color.v, 0, 255));
-  v_point->addChild(new VarInt("channel", channel, 0));
+  v_point->addChild(v_channel);
+  v_point->addChild(new VarDouble("maxAngle", v_maxAngle->getDouble(), 0.01, 1.57));
+  v_point->addChild(new VarDouble("maxDistance", v_maxDistance->getDouble(), 0.0, 10000));
+  v_point->addChild(new VarDouble("weight", getWeight(channel), 0.0, 10));
+  v_point->addChild(new VarTrigger("Remove"));
   v_calibration_points->addChild(v_point);
 
   accw->set_status("Samples Captured: " + QString::number(v_calibration_points->getChildrenCount()));
+}
+
+void PluginAutoColorCalibration::removeMarkedCalibrationPoints() {
+  for (VarType *v_child : v_calibration_points->getChildren()) {
+    auto *v_point = (VarList *) v_child;
+    for (auto *c : v_point->getChildren()) {
+      if (c->getName() == "Remove") {
+        auto *v_remove = (VarTrigger *) c;
+        if (v_remove->getAndResetCounter() > 0) {
+          for (auto *ch : v_point->getChildren()) {
+            v_point->removeChild(ch);
+          }
+          v_calibration_points->removeChild(v_child);
+          return;
+        }
+        break;
+      }
+    }
+  }
+}
+
+float PluginAutoColorCalibration::getWeight(int channel) {
+  VarDouble *v_weight = weightMap[channel];
+  float weight = 1;
+  if (v_weight != nullptr) {
+    weight = v_weight->getDouble();
+  }
+  return weight;
 }
 
 void PluginAutoColorCalibration::clearCalibrationPoints() {

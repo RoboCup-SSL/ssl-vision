@@ -48,7 +48,7 @@ public:
     int currentChannel = -1;
     bool pending_reset = false;
     bool pending_reset_lut = false;
-    bool pending_initialize = false;
+    bool pending_update = false;
 
 public slots:
 
@@ -56,6 +56,7 @@ public slots:
     void reset();
     void resetLut();
     void initialize();
+    void update();
 };
 
 #endif
