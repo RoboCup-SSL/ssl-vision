@@ -60,51 +60,59 @@ CaptureThread::CaptureThread(int cam_id)
   captureGenerator = new CaptureGenerator(generator);
 
 #ifdef DC1394
-  captureDC1394 = new CaptureDC1394v2(dc1394,camId);
   captureModule->addItem("DC 1394");
-  settings->addChild( (VarType*) (dc1394 = new VarList("DC1394")));
+  dc1394 = new VarList("DC1394");
+  settings->addChild(dc1394);
+  captureDC1394 = new CaptureDC1394v2(dc1394, camId);
 #endif
 
 #ifdef V4L
-  captureV4L = new CaptureV4L(v4l,camId);
   captureModule->addItem("Video 4 Linux");
-  settings->addChild( (VarType*) (v4l = new VarList("Video 4 Linux")));
+  v4l = new VarList("Video 4 Linux");
+  settings->addChild(v4l);
+  captureV4L = new CaptureV4L(v4l, camId);
 #endif
 
 #ifdef PYLON5
-  captureBasler = new CaptureBasler(basler);
   captureModule->addItem("Basler GigE");
-  settings->addChild( (VarType*) (basler = new VarList("Basler GigE")));
+  basler = new VarList("Basler GigE");
+  settings->addChild(basler);
+  captureBasler = new CaptureBasler(basler);
 #endif
 
 #ifdef FLYCAP
-  captureFlycap = new CaptureFlycap(flycap, camId);
+  flycap = new VarList("Flycapture");
   captureModule->addItem("Flycapture");
-  settings->addChild( (VarType*) (flycap = new VarList("Flycapture")));
+  settings->addChild(flycap);
+  captureFlycap = new CaptureFlycap(flycap, camId);
 #endif
 
 #ifdef MVIMPACT2
-  captureBlueFox2 = new CaptureBlueFox2(bluefox2,camId);
   captureModule->addItem("BlueFox2");
-  settings->addChild( (VarType*) (bluefox2 = new VarList("BlueFox2")));
+  bluefox2 = new VarList("BlueFox2");
+  settings->addChild(bluefox2);
+  captureBlueFox2 = new CaptureBlueFox2(bluefox2, camId);
 #endif
 
 #ifdef MVIMPACT3
   captureModule->addItem("BlueFox3");
-  settings->addChild( (VarType*) (bluefox3 = new VarList("BlueFox3")));
-  captureBlueFox3 = new CaptureBlueFox3(bluefox3,camId);
+  bluefox3 = new VarList("BlueFox3");
+  settings->addChild(bluefox3);
+  captureBlueFox3 = new CaptureBlueFox3(bluefox3, camId);
 #endif
 
 #ifdef SPINNAKER
-  captureSpinnaker = new CaptureSpinnaker(spinnaker,camId);
   captureModule->addItem("Spinnaker");
-  settings->addChild( (VarType*) (spinnaker = new VarList("Spinnaker")));
+  spinnaker = new VarList("Spinnaker");
+  settings->addChild(spinnaker);
+  captureSpinnaker = new CaptureSpinnaker(spinnaker, camId);
 #endif
 
 #ifdef CAMERA_SPLITTER
-  captureSplitter = new CaptureSplitter(splitter, cam_id);
+  splitter = new VarList("Splitter");
   captureModule->addItem("Splitter");
-  settings->addChild( (VarType*) (splitter = new VarList("Splitter")));
+  settings->addChild(splitter);
+  captureSplitter = new CaptureSplitter(splitter, camId);
 #endif
 
   selectCaptureMethod();
