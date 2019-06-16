@@ -78,6 +78,7 @@ public:
   _settings->addChild(_color_label = new VarString("Ball Color","Orange"));
 
   _settings->addChild(_filter_general = new VarList("Ball Properties"));
+  // Note: The z-Height is defined as 30mm intentionally, as this gave the best results, even though the ball radius is 21.5mm.
     _filter_general->addChild(_ball_z_height = new VarDouble("Ball Z-Height", 30.0));
     _filter_general->addChild(_ball_min_width = new VarInt("Min Width (pixels)", 3));
     _filter_general->addChild(_ball_max_width = new VarInt("Max Width (pixels)", 30));
