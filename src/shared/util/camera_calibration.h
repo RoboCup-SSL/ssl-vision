@@ -141,7 +141,6 @@ public:
       VarDouble* control_point_field_ys[kNumControlPoints];
 
       VarDouble* initial_distortion;
-      VarDouble* camera_height;
       VarDouble* line_search_corridor_width;
       VarDouble* image_boundary;
       VarDouble* max_feature_distance;
