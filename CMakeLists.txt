@@ -1,7 +1,6 @@
 project(ssl-vision)
 set(OpenGL_GL_PREFERENCE LEGACY)
 set(USE_QT5 FALSE CACHE BOOL "Use Qt5 instead of Qt4")
-set(USE_NEURAL_CALIBRATION FALSE CACHE BOOL "Enable neural network calibration (requires OpenCV 2, not compatible with later versions)")
 set(USE_DC1394 TRUE CACHE BOOL "Compile with DC1394 driver (firewire cameras)")
 set(USE_SPINNAKER FALSE CACHE BOOL "Compile with Spinnaker driver (FLIR cameras)")
 set(USE_mvIMPACT FALSE CACHE BOOL "Compile with mvImpact driver (bluefox USB2 + USB3 cameras)")
@@ -12,9 +11,6 @@ set(USE_SPLITTER FALSE CACHE BOOL "Compile with Camera splitter support (virtual
 
 if(USE_DC1394 AND USE_mvIMPACT)
 	message(FATAL_ERROR "DC1394 and mvImpact are not compatible: mvImpact crashes when creating device manager")
-endif()
-if(USE_NEURAL_CALIBRATION AND USE_mvIMPACT)
-	message(FATAL_ERROR "USE_NEURAL_CALIBRATION and USE_mvIMPACT are not compatible: They require different OpenCV versions")
 endif()
 
 if(USE_QT5)
@@ -148,21 +144,6 @@ else()
 	message(STATUS "DC1394 disabled")
 endif()
 
-if(USE_NEURAL_CALIBRATION)
-	message(FATAL_ERROR "Neural calibration currently not supported due to version mismatch for OpenCV")
-	find_package( OpenCV 2 REQUIRED)
-	if(OpenCV_FOUND)
-		include_directories(${OpenCV_INCLUDE_DIRS})
-		add_definitions(-D NEURAL_CALIBRATION)
-		set (OPTIONAL_SRCS ${OPTIONAL_SRCS} src/app/gui/neurowidget.cpp src/app/plugins/plugin_neuralcolorcalib.cpp)
-		set (OPTIONAL_HEADERS ${OPTIONAL_HEADERS} src/app/gui/neurowidget.h)
-		set (OPTIONAL_UI_SRCS ${OPTIONAL_UI_SRCS} src/app/gui/neurowidget.ui)
-		message(STATUS "OpenCV 2 found => Neural Calibration available")
-	else()
-		message(STATUS "OpenCV 2 NOT found => Neural Calibration not available")
-	endif()
-endif()
-
 if( USE_PYLON )
 	find_package( PYLON5 REQUIRED )
 	include_directories(SYSTEM ${PYLON5_INCLUDE_DIRS})
@@ -219,6 +200,7 @@ set (SRCS ${SRCS}
 	src/app/framedata.cpp
 	src/app/main.cpp
 
+	src/app/gui/automatedcolorcalibwidget.cpp
 	src/app/gui/cameracalibwidget.cpp
 	src/app/gui/colorpicker.cpp
 	src/app/gui/glLUTwidget.cpp
@@ -243,6 +225,7 @@ set (SRCS ${SRCS}
 	src/app/plugins/plugin_legacysslnetworkoutput.cpp
 	src/app/plugins/plugin_visualize.cpp
 	src/app/plugins/plugin_dvr.cpp
+	src/app/plugins/plugin_auto_color_calibration.cpp
 	src/app/plugins/visionplugin.cpp
 
 	src/app/stacks/multistack_robocup_ssl.cpp
@@ -256,6 +239,7 @@ set (SRCS ${SRCS}
 qt4_wrap_cpp (MOC_SRCS
 	src/app/capture_thread.h
 
+	src/app/gui/automatedcolorcalibwidget.h
 	src/app/gui/cameracalibwidget.h
 	src/app/gui/glLUTwidget.h
 	src/app/gui/glwidget.h
@@ -263,6 +247,7 @@ qt4_wrap_cpp (MOC_SRCS
 	src/app/gui/mainwindow.h
 	src/app/gui/videowidget.h
 	src/app/gui/jog_dial.h
+
 	src/shared/util/lut3d.h
 
 	src/app/plugins/plugin_dvr.h
@@ -271,6 +256,7 @@ qt4_wrap_cpp (MOC_SRCS
 	src/app/plugins/visionplugin.h
 	src/app/plugins/plugin_colorcalib.h
 	src/app/plugins/plugin_colorthreshold.h
+	src/app/plugins/plugin_auto_color_calibration.h
 
 	src/app/stacks/multistack_robocup_ssl.h
 
