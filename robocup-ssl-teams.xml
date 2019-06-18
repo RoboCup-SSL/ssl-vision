@@ -144,4 +144,12 @@
 			143.000000
 		</Var>
 	</Var>
+	<Var name="OP-AmP" type="list">
+		<Var name="Team Name" type="string">
+			OP-AmP
+		</Var>
+		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
+			147.000000
+		</Var>
+	</Var>
 </VarXML>
