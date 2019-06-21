@@ -101,7 +101,7 @@
 			NEUIslanders
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			148.000000
+			140.000000
 		</Var>
 	</Var>
 	<Var name="RoboFEI" type="list">
