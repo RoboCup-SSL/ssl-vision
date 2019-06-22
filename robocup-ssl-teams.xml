@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <VarXML>
 	<Var name="Default" type="list">
 		<Var name="Team Name" type="string">
@@ -61,7 +61,7 @@
 			TIGERs Mannheim
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			134.000000
+			146.000000
 		</Var>
 	</Var>
 	<Var name="UMass Minutebots" type="list">
@@ -88,12 +88,12 @@
 			150.000000
 		</Var>
 	</Var>
-	<Var name="AMC" type="list">
+	<Var name="NAMeC" type="list">
 		<Var name="Team Name" type="string">
-			AMC
+			NAMeC
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			150.000000
+			149.000000
 		</Var>
 	</Var>
 	<Var name="NEUIslanders" type="list">
@@ -125,7 +125,7 @@
 			RoboJackets
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			145.015000
+			150.000000
 		</Var>
 	</Var>
 	<Var name="UBC Thunderbots" type="list">
@@ -150,6 +150,14 @@
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
 			147.000000
+		</Var>
+	</Var>
+	<Var name="MCT Susano Logics" type="list">
+		<Var name="Team Name" type="string">
+			MCT Susano Logics
+		</Var>
+		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
+			148.000000
 		</Var>
 	</Var>
 	<Var name="RoboCIn" type="list">
