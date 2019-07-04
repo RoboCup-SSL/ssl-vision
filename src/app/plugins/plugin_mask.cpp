@@ -2,6 +2,8 @@
 #include <QTabWidget>
 #include <QStackedWidget>
 
+#include <iostream>
+
 PluginMask::PluginMask(FrameBuffer *buffer, ConvexHullImageMask &mask) :
   VisionPlugin(buffer), _widget(nullptr), _settings(nullptr),
   _v_enable(nullptr), _mask(mask) {
@@ -81,6 +83,7 @@ void PluginMask::_mouseEvent(QMouseEvent *event, const pixelloc loc) {
 
       int x = loc.x;
       int y = loc.y;
+
       // clean the click location
       {
 	if (x < 0)

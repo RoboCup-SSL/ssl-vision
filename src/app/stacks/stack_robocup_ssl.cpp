@@ -50,10 +50,15 @@ StackRoboCupSSL::StackRoboCupSSL(
   lut_yuv->addDerivedLUT(new RGBLUT(5,5,5,""));
 
   camera_parameters = new CameraParameters(_camera_id, global_field);
+  _image_mask = new ConvexHullImageMask(cam_settings_filename + "-mask.xml");
+  settings->addChild(_image_mask->getSettings());
 
   _global_plugin_publish_geometry->addCameraParameters(camera_parameters);
   _legacy_plugin_publish_geometry->addCameraParameters(camera_parameters);
 
+  // must come before all others
+  stack.push_back(new PluginMask(_fb, *_image_mask));
+  
   stack.push_back(new PluginDVR(_fb));
 
   auto *pluginColorCalibration = new PluginColorCalibration(_fb, lut_yuv, LUTChannelMode_Numeric);
@@ -62,7 +67,7 @@ StackRoboCupSSL::StackRoboCupSSL(
 
   stack.push_back(new PluginCameraCalibration(_fb,*camera_parameters, *global_field));
 
-  stack.push_back(new PluginColorThreshold(_fb,lut_yuv));
+  stack.push_back(new PluginColorThreshold(_fb,lut_yuv, *_image_mask));
 
   stack.push_back(new PluginRunlengthEncode(_fb));
 
@@ -89,7 +94,7 @@ StackRoboCupSSL::StackRoboCupSSL(
   stack.push_back(_global_plugin_publish_geometry);
   stack.push_back(_legacy_plugin_publish_geometry);
 
-  PluginVisualize * vis = new PluginVisualize(_fb,*camera_parameters,*global_field);
+  PluginVisualize * vis = new PluginVisualize(_fb,*camera_parameters,*global_field, *_image_mask);
   vis->setThresholdingLUT(lut_yuv);
   stack.push_back(vis);
 }
