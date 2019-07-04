@@ -24,6 +24,16 @@
 #include <x86intrin.h>
 #endif
 
+void applyMask(Image<raw8> *image, const ImageInterface *mask) {
+  int image_size = image->getNumPixels();
+  raw8 *image_pointer = image->getPixelData();
+  if (mask) {
+    unsigned char *mask_data = mask->getData();
+    for (int i = 0; i < image_size; i++)
+      image_pointer[i] = image_pointer[i].getIntensity() & mask_data[i];
+  }
+}
+
 CMVisionThreshold::CMVisionThreshold()
 {
 }
@@ -45,7 +55,7 @@ void CMVisionThreshold::colorizeImageFromThresholding(rgbImage & target, const I
   }
 }
 
-bool CMVisionThreshold::thresholdImageYUV422_UYVY(Image<raw8> * target, const RawImage * source, YUVLUT * lut) {
+bool CMVisionThreshold::thresholdImageYUV422_UYVY(Image<raw8> * target, const RawImage * source, YUVLUT * lut, const ImageInterface* mask) {
   if (source->getColorFormat()!=COLOR_YUV422_UYVY) {
     //TODO add YUV444 and maybe even 411 mode
     fprintf(stderr,"CMVision thresholdImageYUV422_UYVY assumes YUV422 as input, but found %s\n", Colors::colorFormatToString(source->getColorFormat()).c_str());
@@ -78,11 +88,13 @@ bool CMVisionThreshold::thresholdImageYUV422_UYVY(Image<raw8> * target, const Ra
     target_pointer[i+1] =  LUT[(((p.y2 >> X_SHIFT) << Z_AND_Y_BITS) | B | C)];
   }
   lut->unlock();
+
+    applyMask(target, mask);
   //printf("time: %f\n",t.time());
   return true;
 }
 
-bool CMVisionThreshold::thresholdImageYUV444(Image<raw8> * target, const ImageInterface * source, YUVLUT * lut) {
+bool CMVisionThreshold::thresholdImageYUV444(Image<raw8> * target, const ImageInterface * source, YUVLUT * lut, const ImageInterface* mask) {
   if (source->getColorFormat()!=COLOR_YUV444) {
     fprintf(stderr,"CMVision thresholdImageYUV444 assumes YUV444 as input, but found %s\n", Colors::colorFormatToString(source->getColorFormat()).c_str());
     return false;
@@ -112,12 +124,13 @@ bool CMVisionThreshold::thresholdImageYUV444(Image<raw8> * target, const ImageIn
   }
   lut->unlock();
 
+  applyMask(target, mask);  
   return true;
 }
 
 
 
-bool CMVisionThreshold::thresholdImageRGB(Image<raw8> * target, const ImageInterface * source, RGBLUT * lut) {
+bool CMVisionThreshold::thresholdImageRGB(Image<raw8> * target, const ImageInterface * source, RGBLUT * lut, const ImageInterface* mask) {
   if (source->getColorFormat()!=COLOR_RGB8) {
     fprintf(stderr,"CMVision RGB thresholding assumes RGB8 as input, but found %s\n", Colors::colorFormatToString(source->getColorFormat()).c_str());
     return false;
@@ -198,6 +211,7 @@ bool CMVisionThreshold::thresholdImageRGB(Image<raw8> * target, const ImageInter
   }
 #endif
 
+  applyMask(target, mask);
   return true;
 }
 
