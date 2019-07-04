@@ -249,6 +249,7 @@ qt4_wrap_cpp (MOC_SRCS
 	src/app/gui/jog_dial.h
 
 	src/shared/util/lut3d.h
+	src/shared/util/convex_hull_image_mask.h
 
 	src/app/plugins/plugin_dvr.h
 	src/app/plugins/plugin_publishgeometry.h

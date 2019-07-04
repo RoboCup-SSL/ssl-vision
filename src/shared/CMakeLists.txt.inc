@@ -96,6 +96,7 @@ set (SHARED_SRCS
   ${shared_dir}/util/field.cpp
 
 ${shared_dir}/util/convex_hull.cpp
+${shared_dir}/util/convex_hull_image_mask.cpp
 )
 
 #only ones that need to be moc'ed
