@@ -64,6 +64,8 @@ StackRoboCupSSL::StackRoboCupSSL(
 
   stack.push_back(new PluginColorThreshold(_fb,lut_yuv));
 
+  stack.push_back(new PluginGreyscale(_fb));
+
   stack.push_back(new PluginRunlengthEncode(_fb));
 
   stack.push_back(new PluginFindBlobs(_fb,lut_yuv));
