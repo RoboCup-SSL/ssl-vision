@@ -66,6 +66,10 @@ StackRoboCupSSL::StackRoboCupSSL(
 
   stack.push_back(new PluginGreyscale(_fb));
 
+#ifdef APRILTAG
+  stack.push_back(new PluginAprilTag(_fb));
+#endif
+
   stack.push_back(new PluginRunlengthEncode(_fb));
 
   stack.push_back(new PluginFindBlobs(_fb,lut_yuv));
