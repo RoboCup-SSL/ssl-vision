@@ -218,6 +218,7 @@ set (SRCS ${SRCS}
 	src/app/plugins/plugin_detect_balls.cpp
 	src/app/plugins/plugin_detect_robots.cpp
 	src/app/plugins/plugin_find_blobs.cpp
+	src/app/plugins/plugin_greyscale.cpp
 	src/app/plugins/plugin_publishgeometry.cpp
 	src/app/plugins/plugin_legacypublishgeometry.cpp
 	src/app/plugins/plugin_runlength_encode.cpp
