@@ -28,6 +28,7 @@
 #include "plugin_dvr.h"
 #include "plugin_colorcalib.h"
 #include "plugin_cameracalib.h"
+#include "plugin_greyscale.h"
 #include "plugin_visualize.h"
 #include "plugin_colorthreshold.h"
 #include "plugin_runlength_encode.h"
