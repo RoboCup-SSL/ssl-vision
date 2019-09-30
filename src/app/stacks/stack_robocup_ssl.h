@@ -29,6 +29,9 @@
 #include "plugin_colorcalib.h"
 #include "plugin_cameracalib.h"
 #include "plugin_greyscale.h"
+#ifdef APRILTAG
+#include "plugin_apriltag.h"
+#endif
 #include "plugin_visualize.h"
 #include "plugin_colorthreshold.h"
 #include "plugin_runlength_encode.h"
