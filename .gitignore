@@ -6,5 +6,6 @@
 /test-data/**
 /.idea
 /.dir-locals.el
+.ccls-cache
 *~
 cmake-build*
