@@ -19,6 +19,7 @@
 */
 //========================================================================
 #include "plugin_visualize.h"
+#include <apriltag.h>
 #include <opencv2/opencv.hpp>
 #include <sobel.h>
 
@@ -41,6 +42,9 @@ PluginVisualize::PluginVisualize(FrameBuffer *_buffer,
   _v_detected_edges = new VarBool("detected edges", false);
   _v_complete_sobel = new VarBool("complete edge detection", false);
   _v_complete_sobel->setBool(false);
+#ifdef APRILTAG
+  _v_detected_apriltags = new VarBool("detected AprilTags", false);
+#endif
 
   _settings = new VarList("Visualization");
   _settings->addChild(_v_enabled);
@@ -52,6 +56,9 @@ PluginVisualize::PluginVisualize(FrameBuffer *_buffer,
   _settings->addChild(_v_calibration_result);
   _settings->addChild(_v_detected_edges);
   _settings->addChild(_v_complete_sobel);
+#ifdef APRILTAG
+  _settings->addChild(_v_detected_apriltags);
+#endif
   _threshold_lut = 0;
   edge_image = 0;
   temp_grey_image = 0;
@@ -62,6 +69,10 @@ PluginVisualize::~PluginVisualize() {
     delete edge_image;
   if (temp_grey_image)
     delete temp_grey_image;
+
+#ifdef APRILTAG
+  delete _v_detected_apriltags;
+#endif
 }
 
 VarList *PluginVisualize::getSettings() { return _settings; }
@@ -103,7 +114,7 @@ void PluginVisualize::DrawCameraImage(FrameData *data,
     rgb *vis_ptr = vis_frame->data.getPixelData();
     raw8 *grey_ptr = img_greyscale->getPixelData();
     for (int i = 0; i < vis_frame->data.getNumPixels(); ++i) {
-      auto& color = vis_ptr[i];
+      auto &color = vis_ptr[i];
       color.r = color.g = color.b = grey_ptr[i].v;
     }
   }
@@ -367,6 +378,33 @@ void PluginVisualize::DrawSearchCorridors(FrameData *data,
   real_field.field_markings_mutex.unlock();
 }
 
+#ifdef APRILTAG
+void PluginVisualize::DrawDetectedAprilTags(FrameData *data,
+                                            VisualizationFrame *vis_frame) {
+  zarray_t *detections =
+      reinterpret_cast<zarray_t *>(data->map.get("apriltag_detections"));
+  if (detections == nullptr) {
+    return;
+  }
+
+  // std::cout << "Detected " << zarray_size(detections) << " tags\n";
+  for (int i = 0; i < zarray_size(detections); ++i) {
+    apriltag_detection_t *det;
+    zarray_get(detections, i, &det);
+
+    for (int from_index = 0; from_index < 4; ++from_index) {
+      int to_index = (from_index + 1) % 4;
+      vis_frame->data.drawFatLine(det->p[from_index][0], det->p[from_index][1],
+                                  det->p[to_index][0], det->p[to_index][1],
+                                  RGB::Cyan);
+    }
+
+    vis_frame->data.drawString(det->c[0], det->c[1], std::to_string(det->id),
+                               RGB::Pink);
+  }
+}
+#endif
+
 ProcessResult PluginVisualize::process(FrameData *data,
                                        RenderOptions *options) {
   if (data == 0)
@@ -427,6 +465,14 @@ ProcessResult PluginVisualize::process(FrameData *data,
     if (_v_detected_edges->getBool()) {
       DrawDetectedEdges(data, vis_frame);
     }
+
+#ifdef APRILTAG
+    // Result of apriltag detection
+    if (_v_detected_apriltags->getBool()) {
+      DrawDetectedAprilTags(data, vis_frame);
+    }
+#endif
+
     vis_frame->valid = true;
   } else {
     vis_frame->valid = false;
