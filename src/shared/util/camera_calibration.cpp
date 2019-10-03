@@ -25,7 +25,7 @@ CameraParameters::CameraParameters(int camera_index_, RoboCupField * field_) :
   tx = new VarDouble("tx", 0);
   ty = new VarDouble("ty", 1250);
 
-  tz = new VarDouble("tz", 3500, 0, 5000);
+  tz = new VarDouble("tz", 3500, 0, 6500);
   //do not overwrite min/max ranges with values from config file
   tz->addFlags(VARTYPE_FLAG_NOLOAD_ATTRIBUTES);
 
@@ -745,12 +745,9 @@ CameraParameters::AdditionalCalibrationInformation::
     }
 
   initial_distortion = new VarDouble("initial distortion", 1.0);
-  camera_height = new VarDouble("camera height", 4000.0);
-  line_search_corridor_width = new VarDouble("line search corridor width",
-                                             280.0);
+  line_search_corridor_width = new VarDouble("line search corridor width", 280.0);
   image_boundary = new VarDouble("Image boundary for edge detection", 10.0);
-  max_feature_distance = new VarDouble("Max distance of edge from camera",
-                                       9000.0);
+  max_feature_distance = new VarDouble("Max distance of edge from camera", 20000.0);
   convergence_timeout = new VarDouble("convergence timeout (s)", 10.0);
   cov_corner_x = new VarDouble("Cov corner measurement x", 1.0);
   cov_corner_y = new VarDouble("Cov corner measurement y", 1.0);
@@ -835,7 +832,6 @@ CameraParameters::AdditionalCalibrationInformation::~AdditionalCalibrationInform
   }
 
   delete initial_distortion;
-  delete camera_height;
   delete line_search_corridor_width;
   delete image_boundary;
   delete max_feature_distance;
@@ -855,7 +851,6 @@ void CameraParameters::AdditionalCalibrationInformation::addSettingsToList(
 
   list.addChild(camera_index);
   list.addChild(initial_distortion);
-  list.addChild(camera_height);
   list.addChild(line_search_corridor_width);
   list.addChild(image_boundary);
   list.addChild(max_feature_distance);

@@ -20,21 +20,25 @@
 //========================================================================
 #include "plugin_find_blobs.h"
 
-PluginFindBlobs::PluginFindBlobs(FrameBuffer * _buffer, YUVLUT * _lut, int _max_regions)
+PluginFindBlobs::PluginFindBlobs(FrameBuffer * _buffer, YUVLUT * _lut)
  : VisionPlugin(_buffer)
 {
   lut=_lut;
-  max_regions=_max_regions;
 
   _settings=new VarList("Blob Finding");
   _settings->addChild(_v_min_blob_area=new VarInt("min_blob_area", 5));
   _settings->addChild(_v_enable=new VarBool("enable", true));
+  _settings->addChild(v_max_regions=new VarInt("max regions", 50000, 10000, 1000000));
 
 }
 
 
 PluginFindBlobs::~PluginFindBlobs()
 {
+  delete _settings;
+  delete _v_min_blob_area;
+  delete _v_enable;
+  delete v_max_regions;
 }
 
 
@@ -43,23 +47,24 @@ ProcessResult PluginFindBlobs::process(FrameData * data, RenderOptions * options
   (void)options;
 
 
-  CMVision::RegionList * reglist;
-  if ((reglist=(CMVision::RegionList *)data->map.get("cmv_reglist")) == 0) {
-    reglist=(CMVision::RegionList *)data->map.insert("cmv_reglist",new CMVision::RegionList(max_regions));
+  CMVision::RegionList * reglist = (CMVision::RegionList *) data->map.get("cmv_reglist");
+  if (reglist == nullptr || reglist->getMaxRegions() != v_max_regions->getInt()) {
+    delete reglist;
+    reglist = (CMVision::RegionList *) data->map.update("cmv_reglist", new CMVision::RegionList(v_max_regions->getInt()));
   }
 
-  CMVision::ColorRegionList * colorlist;
-  if ((colorlist=(CMVision::ColorRegionList *)data->map.get("cmv_colorlist")) == 0) {
-    colorlist=(CMVision::ColorRegionList *)data->map.insert("cmv_colorlist",new CMVision::ColorRegionList(lut->getChannelCount()));
+  CMVision::ColorRegionList * colorlist = (CMVision::ColorRegionList *) data->map.get("cmv_colorlist");
+  if (colorlist == nullptr) {
+    colorlist = (CMVision::ColorRegionList *) data->map.insert("cmv_colorlist", new CMVision::ColorRegionList(lut->getChannelCount()));
   }
 
-  CMVision::RunList * runlist;
-  if ((runlist=(CMVision::RunList *)data->map.get("cmv_runlist")) == 0) {
+  CMVision::RunList * runlist = (CMVision::RunList *) data->map.get("cmv_runlist");
+  if (runlist == nullptr) {
     printf("Blob finder: no runlength-encoded input list was found!\n");
     return ProcessingFailed;
   }
 
-  if (_v_enable->getBool()==true) {
+  if (_v_enable->getBool()) {
     //Connect the components of the runlength map:
     CMVision::RegionProcessing::connectComponents(runlist);
   
@@ -67,7 +72,7 @@ ProcessResult PluginFindBlobs::process(FrameData * data, RenderOptions * options
     CMVision::RegionProcessing::extractRegions(reglist, runlist);
   
     if (reglist->getUsedRegions() == reglist->getMaxRegions()) {
-      printf("Warning: extract regions exceeded maximum number of %d regions\n",reglist->getMaxRegions());
+      printf("Warning: FindBlobs: extract regions exceeded maximum number of %d regions\n",reglist->getMaxRegions());
     }
   
     //Separate Regions by colors:

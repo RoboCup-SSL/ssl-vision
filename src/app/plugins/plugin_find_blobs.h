@@ -31,21 +31,21 @@ class PluginFindBlobs : public VisionPlugin
 {
 protected:
   YUVLUT * lut;
-  int max_regions;
 
   VarList * _settings;
   VarInt * _v_min_blob_area;
   VarBool * _v_enable;
+  VarInt * v_max_regions;
 public:
-    PluginFindBlobs(FrameBuffer * _buffer, YUVLUT * _lut, int _max_regions);
+    PluginFindBlobs(FrameBuffer * _buffer, YUVLUT * _lut);
 
-    ~PluginFindBlobs();
+    ~PluginFindBlobs() override;
 
-    virtual ProcessResult process(FrameData * data, RenderOptions * options);
+    ProcessResult process(FrameData * data, RenderOptions * options) override;
 
-    virtual VarList * getSettings();
+    VarList * getSettings() override;
 
-    virtual string getName();
+    string getName() override;
 };
 
 #endif

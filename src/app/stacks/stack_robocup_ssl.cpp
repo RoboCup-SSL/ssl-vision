@@ -34,7 +34,7 @@ StackRoboCupSSL::StackRoboCupSSL(
     RoboCupSSLServer * ds_udp_server_new,
     RoboCupSSLServer * ds_udp_server_old,
     string cam_settings_filename) :
-    VisionStack("RoboCup Image Processing",_opts),
+    VisionStack(_opts),
     _camera_id(camera_id),
     _cam_settings_filename(cam_settings_filename),
     global_field(_global_field),
@@ -56,27 +56,23 @@ StackRoboCupSSL::StackRoboCupSSL(
 
   stack.push_back(new PluginDVR(_fb));
 
-  stack.push_back(new PluginColorCalibration(_fb,lut_yuv, LUTChannelMode_Numeric));
-#ifdef OPENCV
-  stack.push_back(new PluginNeuralColorCalib(_fb,lut_yuv, LUTChannelMode_Numeric));
-#endif
+  auto *pluginColorCalibration = new PluginColorCalibration(_fb, lut_yuv, LUTChannelMode_Numeric);
+  stack.push_back(pluginColorCalibration);
   settings->addChild(lut_yuv->getSettings());
 
   stack.push_back(new PluginCameraCalibration(_fb,*camera_parameters, *global_field));
 
   stack.push_back(new PluginColorThreshold(_fb,lut_yuv));
 
-  //initialize the runlength encoder...
-  //we don't expect more than 50k runs per image
-  stack.push_back(new PluginRunlengthEncode(_fb,50000));
+  stack.push_back(new PluginRunlengthEncode(_fb));
 
-  //initialize the blob finder
-  //we don't expect more than 10k blobs per image
-  stack.push_back(new PluginFindBlobs(_fb,lut_yuv, 10000));
+  stack.push_back(new PluginFindBlobs(_fb,lut_yuv));
 
   stack.push_back(new PluginDetectRobots(_fb,lut_yuv,*camera_parameters,*global_field,global_team_selector_blue,global_team_selector_yellow, global_team_settings));
 
   stack.push_back(new PluginDetectBalls(_fb,lut_yuv,*camera_parameters,*global_field,global_ball_settings));
+
+  stack.push_back(new PluginAutoColorCalibration(_fb,lut_yuv, (LUTWidget*) pluginColorCalibration->getControlWidget()));
 
   stack.push_back(new PluginSSLNetworkOutput(
       _fb,

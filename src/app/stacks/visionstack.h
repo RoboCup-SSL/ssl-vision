@@ -33,19 +33,15 @@ using namespace std;
 */
 class VisionStack {
 protected:
-  string name;
   RenderOptions * opts;
   VarList * settings;
-  //double counter_proc;
-  //double counter_post_proc;
+  VarBool * _v_print_timings;
 public:
-    VisionStack(string _name, RenderOptions * _opts);
+    VisionStack(RenderOptions * _opts);
     virtual ~VisionStack();
     vector<VisionPlugin *> stack;
 
     VarList * getSettings();
-    virtual string getName();
-    virtual string getSettingsFileName();
 
     void process(FrameData * data);
     void postProcess(FrameData * data);

@@ -20,6 +20,7 @@
 //========================================================================
 #include "plugin_visualize.h"
 #include <sobel.h>
+#include <opencv2/opencv.hpp>
 
 namespace {
 typedef CameraParameters::AdditionalCalibrationInformation AddnlCalibInfo;
@@ -83,6 +84,10 @@ void PluginVisualize::DrawCameraImage(
         data->video.getData(),
         reinterpret_cast<unsigned char*>(vis_frame->data.getData()),
         data->video.getWidth(), data->video.getHeight());
+  } else if (source_format==COLOR_RAW8) {
+    cv::Mat src(data->video.getWidth(), data->video.getHeight(), CV_8UC1, data->video.getData());
+    cv::Mat dst(data->video.getWidth(), data->video.getHeight(), CV_8UC3, vis_frame->data.getData());
+    cvtColor(src, dst, cv::COLOR_BayerBG2BGR);
   } else {
     //blank it:
     vis_frame->data.fillBlack();

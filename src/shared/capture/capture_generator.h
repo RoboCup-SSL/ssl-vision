@@ -28,29 +28,19 @@
 #include "framecounter.h"
 #include "framelimiter.h"
 #include "image.h"
-#ifndef VDATA_NO_QT
   #include <QMutex>
-#else
-  #include <pthread.h>
-#endif
 
 
-#ifndef VDATA_NO_QT
   #include <QMutex>
   //if using QT, inherit QObject as a base
 class CaptureGenerator : public QObject, public CaptureInterface
-#else
-class CaptureGenerator : public CaptureInterface
-#endif
 {
-#ifndef VDATA_NO_QT
   Q_OBJECT
 /*   public slots: */
 /*   void changed(VarType * group); */
   protected:
   QMutex mutex;
   public:
-#endif
 
 protected:
   bool is_capturing;
@@ -68,12 +58,8 @@ protected:
   VarBool * v_test_image;
   
 public:
-#ifndef VDATA_NO_QT
   CaptureGenerator(VarList * _settings, QObject * parent=0);
   void mvc_connect(VarList * group);
-#else
-  CaptureGenerator(VarList * _settings);
-#endif
   ~CaptureGenerator();
     
   virtual bool startCapture();

@@ -38,9 +38,7 @@ namespace VarTypes {
 
   class VarList : public VarType
   {
-  #ifndef VDATA_NO_QT
     Q_OBJECT
-  #endif
   protected:
     vector<VarType *> list;
   signals:

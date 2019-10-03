@@ -88,12 +88,22 @@ int main(int argc, char *argv[])
   bool help=false;
   bool start=false;
   bool enforce_affinity=false;
+  QString camera_count;
   int ecode=0;
   opts.addSwitch("help",&help);
   opts.addShortOptSwitch( 'a',QString("Enforce Processor Affinity"),&enforce_affinity, false);
   opts.addShortOptSwitch( 's',QString("Start Capturing Immediately"),&start, false);
+  opts.addOptionalOption( 'c',QString("Camera Count"),&camera_count, QString("4"));
   if (!opts.parse()) {
     fprintf(stderr,"Invalid command line parameters!\n");
+    help=true;
+    ecode=1;
+  }
+
+  bool camera_count_ok = false;
+  int num_cameras = camera_count.toInt(&camera_count_ok);
+  if(!camera_count_ok) {
+    fprintf(stderr,"Invalid number of cameras!\n");
     help=true;
     ecode=1;
   }
@@ -102,13 +112,14 @@ int main(int argc, char *argv[])
     printf("SSL-Vision command line options:\n");
     printf(" -s        Start capture immediately\n");
     printf(" -a        Set Processor Affinity\n");
+    printf(" -c <n>    Set Number of Cameras\n");
     printf(" --help    Show this help\n");
     exit(ecode);
   }
 
   printPathWarning();
 
-  MainWindow mainWin(start, enforce_affinity);
+  MainWindow mainWin(start, enforce_affinity, num_cameras);
   mainWinPtr = &mainWin;
   mainWin.show();
   mainWin.init();

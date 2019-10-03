@@ -20,15 +20,19 @@
 //========================================================================
 #include "plugin_runlength_encode.h"
 
-PluginRunlengthEncode::PluginRunlengthEncode(FrameBuffer * _buffer, int max_runs)
+PluginRunlengthEncode::PluginRunlengthEncode(FrameBuffer * _buffer)
  : VisionPlugin(_buffer)
 {
-  _max_runs=max_runs;
+  settings=new VarList("Run length encode");
+  v_max_runs = new VarInt("max runs", 50000, 10000, 1000000);
+  settings->addChild(v_max_runs);
 }
 
 
 PluginRunlengthEncode::~PluginRunlengthEncode()
 {
+  delete settings;
+  delete v_max_runs;
 }
 
 
@@ -36,13 +40,14 @@ PluginRunlengthEncode::~PluginRunlengthEncode()
 ProcessResult PluginRunlengthEncode::process(FrameData * data, RenderOptions * options) {
   (void)options;
 
-  CMVision::RunList * runlist;
-  if ((runlist=(CMVision::RunList *)data->map.get("cmv_runlist")) == 0) {
-    runlist=(CMVision::RunList *)data->map.insert("cmv_runlist",new CMVision::RunList(_max_runs));
+  CMVision::RunList * runlist = (CMVision::RunList *) data->map.get("cmv_runlist");
+  if (runlist == nullptr || runlist->getMaxRuns() != v_max_runs->get()) {
+    delete runlist;
+    runlist = (CMVision::RunList *) data->map.update("cmv_runlist", new CMVision::RunList(v_max_runs->getInt()));
   }
 
-  Image<raw8> * img_thresholded = 0;
-  if ((img_thresholded=(Image<raw8> *)data->map.get("cmv_threshold")) == 0) {
+  Image<raw8> * img_thresholded = (Image<raw8> *) data->map.get("cmv_threshold");
+  if (img_thresholded == nullptr) {
     printf("Runlength encoder: no thresholded input image found!\n");
     return ProcessingFailed;
   }
@@ -58,7 +63,7 @@ ProcessResult PluginRunlengthEncode::process(FrameData * data, RenderOptions * o
 }
 
 VarList * PluginRunlengthEncode::getSettings() {
-  return 0;
+  return settings;
 }
 
 string PluginRunlengthEncode::getName() {

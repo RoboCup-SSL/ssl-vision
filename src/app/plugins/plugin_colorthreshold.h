@@ -24,6 +24,33 @@
 #include <visionplugin.h>
 #include "lut3d.h"
 #include "cmvision_threshold.h"
+#include <mutex>
+#include <QThread>
+#include <QObject>
+
+class PluginColorThresholdWorker : public QObject {
+Q_OBJECT
+public:
+    PluginColorThresholdWorker(int id, int totalThreads, YUVLUT * lut);
+    ~PluginColorThresholdWorker() override;
+    QThread* thread;
+    int id;
+    int totalThreads;
+    RawImage* imageIn = nullptr;
+    Image<raw8>* imageOut = nullptr;
+    YUVLUT * lut;
+    std::mutex doneMutex;
+
+    void start();
+    void wait();
+
+public slots:
+    void process();
+
+signals:
+    void startThresholding();
+
+};
 
 /**
 	@author Stefan Zickler
@@ -32,16 +59,22 @@ class PluginColorThreshold : public VisionPlugin
 {
 protected:
   YUVLUT * lut;
+  VarList * settings;
+  VarInt * numThreads;
 public:
     PluginColorThreshold(FrameBuffer * _buffer, YUVLUT * _lut);
 
-    ~PluginColorThreshold();
+    ~PluginColorThreshold() override;
 
-    virtual ProcessResult process(FrameData * data, RenderOptions * options);
+    ProcessResult process(FrameData * data, RenderOptions * options) override;
 
-    virtual VarList * getSettings();
+    VarList * getSettings() override;
 
-    virtual string getName();
+    string getName() override;
+private:
+    std::vector<PluginColorThresholdWorker*> workers;
+
+    void clearWorkers();
 };
 
 #endif

@@ -30,59 +30,44 @@
 #include <algorithm>
 #include "VarTypes.h"
 
-#ifndef VDATA_NO_QT
   #include <QMutex>
-#else
-  #include <pthread.h>
-#endif
 
 
-#ifndef VDATA_NO_QT
   #include <QMutex>
   //if using QT, inherit QObject as a base
 class CaptureFromFile : public QObject, public CaptureInterface
-#else
-class CaptureFromFile : public CaptureInterface
-#endif
 {
-#ifndef VDATA_NO_QT
   Q_OBJECT
 /*   public slots: */
 /*   void changed(VarType * group); */
   protected:
   QMutex mutex;
   public:
-#endif
 
 protected:
   bool is_capturing;
 
   //processing variables:
   VarStringEnum * v_colorout;
+  VarInt * v_raw_width;
+  VarInt * v_raw_height;
 
   //capture variables:
   VarString * v_cap_dir;
   VarList * capture_settings;
   VarList * conversion_settings;
 
-  unsigned char* frame;
   std::list<std::string> imgs_to_load;
-  std::list<std::string>::iterator imgs_it;
-  std::vector<rgba*> images;
-  std::vector<int> heights;
-  std::vector<int> widths;
+  std::vector<RawImage> images;
   unsigned int currentImageIndex;
   
   bool isImageFileName(const std::string& fileName);
+  std::string getFileExtension(const std::string &fileName);
   std::vector<std::string> validImageFileEndings;
   
 public:
-#ifndef VDATA_NO_QT
   CaptureFromFile(VarList * _settings, int default_camera_id, QObject * parent=0);
   void mvc_connect(VarList * group);
-#else
-  CaptureFromFile(VarList * _settings);
-#endif
   ~CaptureFromFile();
     
   virtual bool startCapture();

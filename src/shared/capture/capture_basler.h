@@ -16,9 +16,10 @@
 #include <sys/time.h>
 #include "VarTypes.h"
 
-#ifndef VDATA_NO_QT
+// Unset 'interface' from pylon/api_autoconf.h which conflicts with variables in ssl-vision
+#undef interface
+
 #include <QMutex>
-#endif
 
 class BaslerInitManager {
 public:
@@ -28,10 +29,6 @@ public:
 	static int count;
 };
 
-#ifdef VDATA_NO_QT
-class CaptureBasler: public CaptureInterface
-
-#else
 class CaptureBasler: public QObject, public CaptureInterface {
 public:
 	Q_OBJECT
@@ -40,15 +37,10 @@ public:
     void changed(VarType * group);
 private:
 	QMutex mutex;
-#endif
 
 public:
-#ifndef VDATA_NO_QT
 	CaptureBasler(VarList* _settings=0, QObject* parent=0);
     void mvc_connect(VarList * group);
-#else
-	CaptureBasler(VarList * _settings=0);
-#endif
 	~CaptureBasler();
 
 	bool startCapture();

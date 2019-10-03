@@ -25,6 +25,7 @@
 #include "capturefromfile.h"
 #include "capturev4l.h"
 #include "capture_generator.h"
+#include "capture_splitter.h"
 #include <QThread>
 #include "ringbuffer.h"
 #include "framedata.h"
@@ -33,8 +34,12 @@
 #include "capturestats.h"
 #include "affinity_manager.h"
 
-#ifdef MVIMPACT
+#ifdef MVIMPACT2
 #include "capture_bluefox2.h"
+#endif
+
+#ifdef MVIMPACT3
+#include "capture_bluefox3.h"
 #endif
 
 #ifdef FLYCAP
@@ -43,6 +48,10 @@
 
 #ifdef PYLON5
 #include "capture_basler.h"
+#endif
+
+#ifdef SPINNAKER
+#include "capture_spinnaker.h"
 #endif
 
 /*!
@@ -58,34 +67,40 @@ protected:
   QMutex capture_mutex; //this mutex protects multi-threaded operations on the capture control
   VisionStack * stack;
   FrameCounter * counter;
-  CaptureInterface * capture;
-  CaptureInterface * captureDC1394;
-  CaptureInterface * captureV4L;
-  CaptureInterface * captureBlueFox2;
-  CaptureInterface * captureFlycap;
-  CaptureInterface * captureFiles;
-  CaptureInterface * captureGenerator;
-  CaptureInterface * captureBasler;
+  CaptureInterface * capture = nullptr;
+  CaptureInterface * captureDC1394 = nullptr;
+  CaptureInterface * captureV4L = nullptr;
+  CaptureInterface * captureBlueFox2 = nullptr;
+  CaptureInterface * captureBlueFox3 = nullptr;
+  CaptureInterface * captureFlycap = nullptr;
+  CaptureInterface * captureFiles = nullptr;
+  CaptureInterface * captureGenerator = nullptr;
+  CaptureInterface * captureBasler = nullptr;
+  CaptureInterface * captureSpinnaker = nullptr;
+  CaptureInterface * captureSplitter = nullptr;
   AffinityManager * affinity;
   FrameBuffer * rb;
   bool _kill;
   int camId;
   VarList * settings;
-  VarList * dc1394;
-  VarList * v4l;
-  VarList * bluefox2;
-  VarList * flycap;
-  VarList * generator;
-  VarList * fromfile;
-  VarList * basler;
+  VarList * dc1394 = nullptr;
+  VarList * v4l = nullptr;
+  VarList * bluefox2 = nullptr;
+  VarList * bluefox3 = nullptr;
+  VarList * flycap = nullptr;
+  VarList * generator = nullptr;
+  VarList * fromfile = nullptr;
+  VarList * basler = nullptr;
+  VarList * spinnaker = nullptr;
+  VarList * splitter = nullptr;
   VarList * control;
   VarTrigger * c_start;
   VarTrigger * c_stop;
   VarTrigger * c_reset;
   VarTrigger * c_refresh;
   VarBool * c_auto_refresh;
+  VarBool * c_print_timings;
   VarStringEnum * captureModule;
-  Timer timer;
 
 public slots:
   bool init();
@@ -102,6 +117,7 @@ public:
   void kill();
   VarList * getSettings();
   void setAffinityManager(AffinityManager * _affinity);
+  CaptureInterface* getCaptureSplitter() {return captureSplitter;};
   CaptureThread(int cam_id);
   ~CaptureThread();
 

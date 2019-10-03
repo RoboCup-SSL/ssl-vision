@@ -19,72 +19,56 @@
 */
 //========================================================================
 #include "visionstack.h"
+#include <iomanip>
+#include <iostream>
+#include <chrono>
 
-VisionStack::VisionStack(string _name, RenderOptions * _opts) {
-  name=_name;
+VisionStack::VisionStack(RenderOptions * _opts) {
   opts=_opts;
-  //counter_proc=0.0;
-  //counter_post_proc=0.0;
   settings=new VarList("Global");
+  // timings should only be printed on demand for a short period of time by temporally activating this flag
+  _v_print_timings = new VarBool("print stack timings", false);
+  settings->addChild(_v_print_timings);
 }
 
 VisionStack::~VisionStack() {
   delete settings;
 }
 
-string VisionStack::getName() {
-  return name;
-}
-
 VarList * VisionStack::getSettings() {
   return settings;
 }
 
-string VisionStack::getSettingsFileName() {
-  //this can be done dynamically based on camera-id's etc...
-  return name;
-}
-
 void VisionStack::process(FrameData * data) {
-  double a=0.0;
-  double b=0.0;
-  unsigned int n=stack.size();
-  VisionPlugin * p;
-  double total=0.0;
-  bool show_timing = false;
-  if (show_timing) printf("----------\n");
-  for (unsigned int i=0;i<n;i++) {
-    p=stack[i];
-    p->lock();
-    a=GetTimeSec();
-    p->process(data,opts);
-    b=GetTimeSec();
-    p->setTimeProcessing(b-a);
-    total+=(p->getTimeProcessing());
-    if (show_timing) {
-      printf("Plugin %s: %fms\n",p->getName().c_str(),  p->getTimeProcessing() * 1000.0);
+  if(_v_print_timings->getBool()) {
+    auto totalStart = std::chrono::steady_clock::now();
+    for (auto p : stack) {
+      p->lock();
+      auto start = std::chrono::steady_clock::now();
+      p->process(data,opts);
+      auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start);
+      std::cout << std::setw(23) << std::left << p->getName()
+                << std::setw(5) << std::right << duration.count() << " μs" << std::endl;
+      p->unlock();
     }
-    p->unlock();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - totalStart);
+    std::cout << std::setw(23) << std::left << "All"
+              << std::setw(5) << std::right << duration.count() << " μs" << std::endl << std::endl;
+  } else {
+    for (auto p : stack) {
+      p->lock();
+      p->process(data,opts);
+      p->unlock();
+    }
   }
-  if (show_timing) printf("Total time: %fms\n",total * 1000.0);
-  //counter_proc+=1.0;
 }
 
 void VisionStack::postProcess(FrameData * data) {
-  unsigned int n=stack.size();
-  double a=0.0;
-  double b=0.0;
-  VisionPlugin * p;
-  for (unsigned int i=0;i<n;i++) {
-    p=stack[i];
+  for (auto p : stack) {
     p->lock();
-    a=GetTimeSec();
     p->postProcess(data,opts);
-    b=GetTimeSec();
-    p->setTimePostProcessing(b-a);
     p->unlock();
   }
-  //counter_post_proc+=1.0;
 }
 
 void VisionStack::updateTimingStatistics() {

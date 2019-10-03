@@ -21,18 +21,13 @@
 
 #include "capture_bluefox2.h"
 
-#ifndef VDATA_NO_QT
 CaptureBlueFox2::CaptureBlueFox2(VarList * _settings,int default_camera_id, QObject * parent) : QObject(parent), CaptureInterface(_settings)
-#else
-CaptureBlueFox2::CaptureBlueFox2(VarList * _settings,int default_camera_id) : CaptureInterface(_settings)
-#endif
 {
-  cam_id = default_camera_id;
+  cam_id = static_cast<unsigned int>(default_camera_id);
   is_capturing = false;
+  pDevMgr = nullptr;
   
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
 
   settings->addChild(capture_settings = new VarList("Capture Settings"));
   settings->addChild(dcam_parameters  = new VarList("Camera Parameters"));
@@ -109,13 +104,10 @@ CaptureBlueFox2::CaptureBlueFox2(VarList * _settings,int default_camera_id) : Ca
   dcam_parameters->addChild(v_gamma);
   dcam_parameters->addChild(v_color_twist_mode);
   
-  #ifndef VDATA_NO_QT
     mvc_connect(dcam_parameters);
     mutex.unlock();
-  #endif
 }
 
-#ifndef VDATA_NO_QT
 void CaptureBlueFox2::mvc_connect(VarList * group)
 {
   vector<VarType *> v=group->getChildren();
@@ -134,7 +126,6 @@ void CaptureBlueFox2::changed(VarType * group)
     readParameterValues( (VarList *)group );
   }
 }
-#endif
 
 void CaptureBlueFox2::readAllParameterValues()
 {
@@ -151,16 +142,12 @@ void CaptureBlueFox2::readParameterValues(VarList * item)
   if(item != dcam_parameters)
     return;
   
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
     
     // TODO: could do a read-out, but why?
 //   v_expose_us->setInt(pSettings->expose_us.read());
     
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
 }
 
 void CaptureBlueFox2::writeParameterValues(VarList * item)
@@ -168,9 +155,7 @@ void CaptureBlueFox2::writeParameterValues(VarList * item)
   if(item != dcam_parameters)
     return;
 
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
     
   pSettings->pixelClock_KHz.write(stringToPixelClock(v_pixel_clock->getString().c_str()));
 
@@ -272,26 +257,21 @@ void CaptureBlueFox2::writeParameterValues(VarList * item)
     pImageProc->colorTwistOutputCorrectionMatrixMode.write((TColorTwistOutputCorrectionMatrixMode)ct);
   }
 
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
 }
 
 CaptureBlueFox2::~CaptureBlueFox2()
 {
   capture_settings->deleteAllChildren();
   dcam_parameters->deleteAllChildren();
+  delete pDevMgr;
 }
 
 bool CaptureBlueFox2::resetBus()
 {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
 
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
     
   return true;
 }
@@ -324,27 +304,27 @@ bool CaptureBlueFox2::stopCapture()
 
 bool CaptureBlueFox2::startCapture()
 {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
+
+  if(pDevMgr == nullptr) {
+    pDevMgr = new DeviceManager();
+  }
     
   //grab current parameters:
-  cam_id = v_cam_bus->getInt();
+  cam_id = static_cast<unsigned int>(v_cam_bus->getInt());
   
-  const unsigned int devCnt = devMgr.deviceCount();
+  const unsigned int devCnt = pDevMgr->deviceCount();
   fprintf(stderr, "BlueFox2: Number of cams: %u\n", devCnt);
   
   if(cam_id >= devCnt)
   {
     fprintf(stderr, "BlueFox2: Invalid cam_id: %u\n", cam_id);
 
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #endif
     return false;
   }
-  
-  pDevice = devMgr[cam_id];
+
+  pDevice = (*pDevMgr)[cam_id];
   
   try
   {
@@ -354,9 +334,7 @@ bool CaptureBlueFox2::startCapture()
   {
     // this e.g. might happen if the same device is already opened in another process...
     fprintf(stderr, "BlueFox2: An error occurred while opening the device(error code: %d, '%s')\n", e.getErrorCode(), e.getErrorString().c_str());
-    #ifndef VDATA_NO_QT
       mutex.unlock();
-    #endif
     return false;
   }
   
@@ -392,9 +370,7 @@ bool CaptureBlueFox2::startCapture()
     
   dcam_parameters->removeFlags( VARTYPE_FLAG_HIDE_CHILDREN );
 
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
     
   printf("BlueFox2 Info: Restoring Previously Saved Camera Parameters\n");
   writeAllParameterValues();
@@ -405,9 +381,7 @@ bool CaptureBlueFox2::startCapture()
 
 bool CaptureBlueFox2::copyAndConvertFrame(const RawImage & src, RawImage & target)
 {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
     
   ColorFormat src_fmt = src.getColorFormat();
   
@@ -435,18 +409,14 @@ bool CaptureBlueFox2::copyAndConvertFrame(const RawImage & src, RawImage & targe
     }
   }
   
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
 
   return true;
 }
 
 RawImage CaptureBlueFox2::getFrame()
 {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
     
   RawImage result;
   result.setColorFormat(capture_format);
@@ -466,9 +436,7 @@ RawImage CaptureBlueFox2::getFrame()
       // If the error code is -2119(DEV_WAIT_FOR_REQUEST_FAILED), the documentation will provide
       // additional information under TDMR_ERROR in the interface reference
       fprintf(stderr, "imageRequestWaitFor failed (%d, %s)\n", requestNr, ImpactAcquireException::getErrorCodeAsString( requestNr ).c_str());
-      #ifndef VDATA_NO_QT
 	mutex.unlock();
-      #endif
       return result;
   }
 
@@ -495,24 +463,18 @@ RawImage CaptureBlueFox2::getFrame()
   
   lastRequestNr = requestNr;
   
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
   return result;
 }
 
 void CaptureBlueFox2::releaseFrame() 
 {
-  #ifndef VDATA_NO_QT
     mutex.lock();
-  #endif
     
   if(pFI->isRequestNrValid(lastRequestNr))
     pFI->imageRequestUnlock(lastRequestNr);
   
-  #ifndef VDATA_NO_QT
     mutex.unlock();
-  #endif
 }
 
 string CaptureBlueFox2::getCaptureMethodName() const 
