@@ -323,8 +323,8 @@ void CaptureBasler::writeParameterValues(VarList* vars) {
 	}
 	bool restart = is_capturing;
 	//if (restart) {
-    //	_stopCapture();
-    // }
+	// 	_stopCapture();
+    //}
 	MUTEX_LOCK;
 	try {
 		current_id = v_camera_id->get();
