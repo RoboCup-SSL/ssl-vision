@@ -1,6 +1,7 @@
 #ifndef PLUGIN_APRILTAG_H
 #define PLUGIN_APRILTAG_H
 
+#include "camera_calibration.h"
 #include <apriltag.h>
 #include <functional>
 #include <memory>
@@ -20,6 +21,7 @@ protected:
   std::unique_ptr<VarDouble> v_blur;
   std::unique_ptr<VarBool> v_refine_edges;
 
+  // april tags info
   std::unique_ptr<apriltag_family_t, std::function<void(apriltag_family_t *)>>
       tag_family;
   std::unique_ptr<apriltag_detector_t,
@@ -27,8 +29,10 @@ protected:
       tag_detector;
   std::unique_ptr<zarray_t, std::function<void(zarray_t *)>> detections;
 
+  const CameraParameters &camera_params;
+
 public:
-  PluginAprilTag(FrameBuffer *buffer);
+  PluginAprilTag(FrameBuffer *buffer, const CameraParameters &camera_params);
   ~PluginAprilTag() override = default;
 
   ProcessResult process(FrameData *data, RenderOptions *options) override;

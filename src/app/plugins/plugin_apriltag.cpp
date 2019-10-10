@@ -1,4 +1,7 @@
 #include "plugin_apriltag.h"
+#include "messages_robocup_ssl_detection.pb.h"
+#include <Eigen/Dense>
+#include <apriltag_pose.h>
 #include <array>
 #include <cstdio>
 #include <image.h>
@@ -8,13 +11,22 @@
 #include <tag36h11.h>
 #include <tagCircle21h7.h>
 #include <tagCircle49h12.h>
+#include <tagCustom20h7.h>
 #include <tagCustom48h12.h>
 #include <tagStandard41h12.h>
 #include <tagStandard52h13.h>
 
-using HammHist = std::array<int, 10>;
+#include <dbg.h>
 
-PluginAprilTag::PluginAprilTag(FrameBuffer *buffer)
+using HammHist = std::array<int, 10>;
+using Eigen::AngleAxisd;
+using Eigen::Isometry3d;
+using Eigen::Matrix3d;
+using Eigen::Quaterniond;
+using Eigen::Vector3d;
+
+PluginAprilTag::PluginAprilTag(FrameBuffer *buffer,
+                               const CameraParameters &camera_params)
     : VisionPlugin(buffer), settings(new VarList("AprilTag")),
       v_enable(new VarBool("enable", true)),
       v_quad_size(new VarDouble("quad size (mm)", 70.0)),
@@ -23,7 +35,8 @@ PluginAprilTag::PluginAprilTag(FrameBuffer *buffer)
       v_decimate(new VarDouble("decimate", 2.0)),
       v_blur(new VarDouble("blur", 0.0)),
       v_refine_edges(new VarBool("refine-edges", true)),
-      detections{nullptr, &apriltag_detections_destroy} {
+      detections{nullptr, &apriltag_detections_destroy},
+      camera_params(camera_params) {
 
   v_family.reset(new VarStringEnum("Tag Family", "tagCircle21h7"));
   v_family->addItem("tag36h11");
@@ -33,6 +46,7 @@ PluginAprilTag::PluginAprilTag(FrameBuffer *buffer)
   v_family->addItem("tagStandard41h12");
   v_family->addItem("tagStandard52h13");
   v_family->addItem("tagCustom48h12");
+  v_family->addItem("tagCustom20h7");
 
   settings->addChild(v_enable.get());
   settings->addChild(v_family.get());
@@ -74,7 +88,6 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
     }
   }
 
-  // TODO(dschwab): Add option for debug output
   tag_detector->quad_decimate = v_decimate->getDouble();
   tag_detector->quad_sigma = v_blur->getDouble();
   tag_detector->nthreads = v_threads->getInt();
@@ -102,16 +115,100 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
     detections.reset(apriltag_detector_detect(tag_detector.get(), &im));
     data->map.update("apriltag_detections", detections.get());
 
-    // std::cout << "Found " << zarray_size(detections.get()) << "
-    // detections\n"; for (int i = 0; i < zarray_size(detections.get()); ++i) {
-    //   apriltag_detection_t *det;
-    //   zarray_get(detections.get(), i, &det);
+    // add the detections to the robot list so that the positions will
+    // be published
+    SSL_DetectionFrame *detection_frame = 0;
+    detection_frame =
+        (SSL_DetectionFrame *)data->map.get("ssl_detection_frame");
+    if (detection_frame == 0)
+      detection_frame = (SSL_DetectionFrame *)data->map.insert(
+          "ssl_detection_frame", new SSL_DetectionFrame());
 
-    //   printf("detection %3d: id (%2dx%2d)-%-4d, hamming %d, margin %8.3f\n",
-    //   i,
-    //          det->family->nbits, det->family->h, det->id, det->hamming,
-    //          det->decision_margin);
-    // }
+    // add the detections to the detected robots list
+    Eigen::Matrix<double, 3, 4> ideal_tag_points;
+    ideal_tag_points << -1, 1, -1, 1, 1, 1, -1, -1, 1, 1, 1, 1;
+
+    for (int i = 0; i < zarray_size(detections.get()); ++i) {
+      apriltag_detection_t *det;
+      zarray_get(detections.get(), i, &det);
+
+      dbg(det->id);
+
+      Eigen::Map<const Eigen::Matrix3d> tag_homography(det->H->data);
+      dbg(tag_homography);
+
+      Eigen::Matrix<double, 3, 4> image_tag_points =
+          tag_homography.transpose() * ideal_tag_points;
+      image_tag_points.array().rowwise() /= image_tag_points.row(2).array();
+      dbg(image_tag_points);
+
+      dbg(det->c[0]);
+      dbg(det->c[1]);
+
+      // convert the points to field coordinates
+      //
+      // TODO(dschwab): Actually get the robot height from the
+      // configured team. For now, this is hardcoded to cmdragons size
+      vector3d p_top_left_field;
+      vector2d p_top_left_image(image_tag_points(0, 0), image_tag_points(1, 0));
+      camera_params.image2field(p_top_left_field, p_top_left_image, 140);
+
+      vector3d p_top_right_field;
+      vector2d p_top_right_image(image_tag_points(0, 1),
+                                 image_tag_points(1, 1));
+      camera_params.image2field(p_top_right_field, p_top_right_image, 140);
+
+      vector3d p_bottom_left_field;
+      vector2d p_bottom_left_image(image_tag_points(0, 2),
+                                   image_tag_points(1, 2));
+      camera_params.image2field(p_bottom_left_field, p_bottom_left_image, 140);
+
+      vector3d p_bottom_right_field;
+      vector2d p_bottom_right_image(image_tag_points(0, 3),
+                                    image_tag_points(1, 3));
+      camera_params.image2field(p_bottom_right_field, p_bottom_right_image,
+                                140);
+
+      vector3d p_center_field;
+      vector2d p_center_image(det->c[0], det->c[1]);
+      camera_params.image2field(p_center_field, p_center_image, 140);
+
+      // the quad in field coordinates may not be perfect due to
+      // detection errors, numerical errors and camera calibration. So
+      // get the angles from each face, and average to get a better
+      // estimate.
+      Eigen::RowVector4d angles = Eigen::RowVector4d::Zero();
+
+      angles(0) = atan2(p_top_right_field.x - p_top_left_field.x,
+                        p_top_left_field.y - p_top_right_field.y);
+
+      angles(1) = atan2(p_bottom_right_field.y - p_top_right_field.y,
+                        p_bottom_right_field.x - p_top_right_field.x);
+
+      angles(2) = atan2(p_bottom_right_field.x - p_bottom_left_field.x,
+                        p_bottom_left_field.y - p_bottom_right_field.y);
+
+      angles(3) = atan2(p_bottom_left_field.y - p_top_left_field.y,
+                        p_bottom_left_field.x - p_top_left_field.x);
+
+      dbg(angles);
+      dbg(angles.mean());
+
+      // TODO(dschwab): add all the detections to team blue for
+      // now. Should add a config option to assign id to teams and
+      // then use that info here.
+      auto robot_detection = detection_frame->add_robots_blue();
+      robot_detection->set_confidence(
+          det->decision_margin); // TODO(dschwab): What value should I put here?
+      robot_detection->set_robot_id(det->id);
+
+      robot_detection->set_x(p_center_field.x);
+      robot_detection->set_y(p_center_field.y);
+      robot_detection->set_orientation(angles.mean());
+      robot_detection->set_pixel_x(det->c[0]);
+      robot_detection->set_pixel_y(det->c[1]);
+      robot_detection->set_height(140); // TODO(dschwab): Use actual team height
+    }
   }
 
   return ProcessingOk;
@@ -155,6 +252,10 @@ void PluginAprilTag::makeTagFamily() {
     tag_family = std::unique_ptr<apriltag_family_t,
                                  std::function<void(apriltag_family_t *)>>{
         tagCustom48h12_create(), &tagCustom48h12_destroy};
+  } else if (tag_name == "tagCustom20h7") {
+    tag_family = std::unique_ptr<apriltag_family_t,
+                                 std::function<void(apriltag_family_t *)>>{
+        tagCustom20h7_create(), &tagCustom20h7_destroy};
   } else {
     std::cerr << "AprilTag: Failed to create apriltag family. Unknown family '"
               << tag_name << "'\n";
