@@ -67,7 +67,7 @@ StackRoboCupSSL::StackRoboCupSSL(
   stack.push_back(new PluginGreyscale(_fb));
 
 #ifdef APRILTAG
-  stack.push_back(new PluginAprilTag(_fb));
+  stack.push_back(new PluginAprilTag(_fb, *camera_parameters));
 #endif
 
   stack.push_back(new PluginRunlengthEncode(_fb));
