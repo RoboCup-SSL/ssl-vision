@@ -354,6 +354,9 @@ set (libs ${QT_LIBRARIES}
 	${SPINNAKER_LIBS}
 )
 target_link_libraries(sslvision ${libs})
+if(USE_APRILTAG)
+  target_link_libraries(sslvision apriltag)
+endif()
 if(USE_QT5)
 	qt5_use_modules(sslvision Widgets)
 endif()

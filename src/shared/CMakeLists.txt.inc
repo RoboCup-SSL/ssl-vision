@@ -12,6 +12,10 @@ include_directories(${shared_dir}/vartypes/enhanced)
 include_directories(${shared_dir}/vartypes/gui)
 include_directories(${shared_dir}/vartypes/xml)
 
+if(USE_APRILTAG)
+  include_directories(${shared_dir}/apriltag)
+endif()
+
 set (SHARED_SRCS
 	${shared_dir}/capture/capturefromfile.cpp
 	${shared_dir}/capture/capture_generator.cpp
@@ -96,6 +100,10 @@ set (SHARED_SRCS
   ${shared_dir}/util/field.cpp
 )
 
+if(USE_APRILTAG)
+  set(SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/apriltag/tagCustom20h7.c)
+endif()
+
 #only ones that need to be moc'ed
 set (SHARED_HEADERS
 	${shared_dir}/capture/capturefromfile.h
@@ -127,6 +135,11 @@ set (SHARED_HEADERS
 	${shared_dir}/vartypes/gui/VarTreeModel.h
 	${shared_dir}/vartypes/gui/VarTreeView.h
 )
+
+if(USE_APRILTAG)
+  set(SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/apriltag/tagCustom20h7.h)
+endif()
+
 
 set (SHARED_RC
 	${shared_dir}/vartypes/gui/icons/icons.qrc
