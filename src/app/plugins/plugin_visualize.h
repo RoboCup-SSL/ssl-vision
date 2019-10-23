@@ -62,9 +62,12 @@ protected:
   VarBool * _v_blobs;
   VarBool * _v_camera_calibration;
   VarBool * _v_calibration_result;
+  VarBool * _v_calibration_result_pillars;
+  VarDouble * _v_calibration_result_pillars_height;
   VarBool * _v_complete_sobel;
   VarBool * _v_detected_edges;
   VarBool * _v_mask_hull;
+  VarBool * _v_chessboard;
 
   const CameraParameters& camera_parameters;
   const RoboCupField& real_field;
@@ -108,16 +111,18 @@ protected:
   void DrawSearchCorridors(FrameData* data, VisualizationFrame* vis_frame);
 
   void DrawMaskHull(FrameData* data, VisualizationFrame* vis_frame);
+
+  static void DrawChessboard(FrameData* data, VisualizationFrame* vis_frame);
 public:
   PluginVisualize(FrameBuffer* _buffer, const CameraParameters& camera_params,
                   const RoboCupField& real_field, const ConvexHullImageMask &mask);
 
-  ~PluginVisualize();
+  ~PluginVisualize() override;
 
    void setThresholdingLUT(LUT3D * threshold_lut);
-   virtual ProcessResult process(FrameData * data, RenderOptions * options);
-   virtual VarList * getSettings();
-   virtual string getName();
+   ProcessResult process(FrameData * data, RenderOptions * options) override;
+   VarList * getSettings() override;
+   string getName() override;
 };
 
 #endif

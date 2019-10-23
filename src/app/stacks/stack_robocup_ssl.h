@@ -24,6 +24,7 @@
 #include "visionstack.h"
 #include "lut3d.h"
 #include "camera_calibration.h"
+#include "camera_parameters.h"
 #include "field.h"
 #include "plugin_dvr.h"
 #include "plugin_colorcalib.h"
@@ -84,7 +85,7 @@ class StackRoboCupSSL : public VisionStack {
                   RoboCupSSLServer* ds_udp_server_old,
                   string cam_settings_filename);
   virtual string getSettingsFileName();
-  virtual ~StackRoboCupSSL();
+  ~StackRoboCupSSL() override;
 };
 
 
