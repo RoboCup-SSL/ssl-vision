@@ -19,20 +19,18 @@
 */
 //========================================================================
 
+#ifndef CAMERA_CALIBRATION_H
+#define CAMERA_CALIBRATION_H
+
 #include <VarDouble.h>
 #include <VarList.h>
 #include <quaternion.h>
 #include <Eigen/Core>
 #include "field.h"
 #include "timer.h"
-
-#ifndef CAMERA_CALIBRATION_H
-#define CAMERA_CALIBRATION_H
+#include <opencv2/opencv.hpp>
+#include "camera_parameters.h"
 #include "messages_robocup_ssl_geometry.pb.h"
-
-
-//using namespace Eigen;
-//USING_PART_OF_NAMESPACE_EIGEN
 
 /*!
   \class CameraParameters
@@ -72,22 +70,25 @@ public:
   Eigen::VectorXd p_alpha;
   Quaternion<double> q_rotate180;
 
-  //Quaternion<double> q_field2cam;
-  //GVector::vector3d<double> translation;
-
   AdditionalCalibrationInformation* additional_calibration_information;
 
-  GVector::vector3d<double> getWorldLocation();
+  VarBool* use_opencv_model;
+  CameraIntrinsicParameters* intrinsic_parameters;
+  CameraExtrinsicParameters* extrinsic_parameters;
+
+  void quaternionFromOpenCVCalibration(double Q[]) const;
+  GVector::vector3d<double> getWorldLocation() const;
   void field2image(const GVector::vector3d<double> &p_f, GVector::vector2d<double> &p_i) const;
   void image2field(GVector::vector3d< double >& p_f, const GVector::vector2d< double >& p_i, double z) const;
   void calibrate(std::vector<GVector::vector3d<double> > &p_f, std::vector<GVector::vector2d<double> > &p_i, int cal_type);
+  void calibrateExtrinsicModel(std::vector<GVector::vector3d<double> > &p_f, std::vector<GVector::vector2d<double> > &p_i, int cal_type);
 
   double radialDistortion(double ru) const;  //apply radial distortion to (undistorted) radius ru and return distorted radius
   double radialDistortionInv(double rd) const;  //invert radial distortion from (distorted) radius rd and return undistorted radius
   void radialDistortionInv(GVector::vector2d<double> &pu, const GVector::vector2d<double> &pd) const;
-  void radialDistortion(const GVector::vector2d<double> pu, GVector::vector2d<double> &pd) const;
+  void radialDistortion(GVector::vector2d<double> pu, GVector::vector2d<double> &pd) const;
   double radialDistortion(double ru, double dist) const;
-  void radialDistortion(const GVector::vector2d<double> pu, GVector::vector2d<double> &pd, double dist) const;
+  void radialDistortion(GVector::vector2d<double> pu, GVector::vector2d<double> &pd, double dist) const;
 
   double calc_chisqr(std::vector<GVector::vector3d<double> > &p_f, std::vector<GVector::vector2d<double> > &p_i, Eigen::VectorXd &p, int);
   void field2image(GVector::vector3d<double> &p_f, GVector::vector2d<double> &p_i, Eigen::VectorXd &p);
@@ -155,6 +156,9 @@ public:
 
       VarInt* imageWidth;
       VarInt* imageHeight;
+      VarInt* grid_width;
+      VarInt* grid_height;
+      VarInt *global_camera_id;
   private:
       RoboCupField* field;
       std::vector<GVector::vector2d<double> >
