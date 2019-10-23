@@ -45,7 +45,6 @@ protected:
   rgbImage* rgb_image;
   int video_width;
   int video_height;
-  void mouseEvent ( QMouseEvent * event, pixelloc loc );
 
   bool doing_drag;
   VarDouble* drag_x;
