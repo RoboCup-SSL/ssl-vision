@@ -16,6 +16,7 @@
 #include <tagStandard41h12.h>
 #include <tagStandard52h13.h>
 
+#define DBG_MACRO_DISABLE
 #include <dbg.h>
 
 using HammHist = std::array<int, 10>;
@@ -25,8 +26,12 @@ using Eigen::Matrix3d;
 using Eigen::Quaterniond;
 using Eigen::Vector3d;
 
+enum class Team : int { None, Blue, Yellow };
+
 PluginAprilTag::PluginAprilTag(FrameBuffer *buffer,
-                               const CameraParameters &camera_params)
+                               const CameraParameters &camera_params,
+                               std::shared_ptr<TeamTags> blue_team_tags,
+                               std::shared_ptr<TeamTags> yellow_team_tags)
     : VisionPlugin(buffer), settings(new VarList("AprilTag")),
       v_enable(new VarBool("enable", true)),
       v_quad_size(new VarDouble("quad size (mm)", 70.0)),
@@ -36,7 +41,8 @@ PluginAprilTag::PluginAprilTag(FrameBuffer *buffer,
       v_blur(new VarDouble("blur", 0.0)),
       v_refine_edges(new VarBool("refine-edges", true)),
       detections{nullptr, &apriltag_detections_destroy},
-      camera_params(camera_params) {
+      camera_params(camera_params), blue_team_tags(blue_team_tags),
+      yellow_team_tags(yellow_team_tags) {
 
   v_family.reset(new VarStringEnum("Tag Family", "tagCircle21h7"));
   v_family->addItem("tag36h11");
@@ -134,6 +140,21 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
 
       dbg(det->id);
 
+      // check if tag in map
+      // if not then ignore it
+      Team tag_team = Team::None;
+      if ((*blue_team_tags)->count(det->id)) {
+        tag_team = Team::Blue;
+      }
+      if ((*yellow_team_tags)->count(det->id)) {
+        tag_team = Team::Yellow;
+      }
+
+      if (tag_team == Team::None) {
+        dbg("Tag not in set skipping");
+        continue;
+      }
+
       Eigen::Map<const Eigen::Matrix3d> tag_homography(det->H->data);
       dbg(tag_homography);
 
@@ -197,7 +218,12 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
       // TODO(dschwab): add all the detections to team blue for
       // now. Should add a config option to assign id to teams and
       // then use that info here.
-      auto robot_detection = detection_frame->add_robots_blue();
+      SSL_DetectionRobot *robot_detection = nullptr;
+      if (tag_team == Team::Blue) {
+        robot_detection = detection_frame->add_robots_blue();
+      } else {
+        robot_detection = detection_frame->add_robots_yellow();
+      }
       robot_detection->set_confidence(
           det->decision_margin); // TODO(dschwab): What value should I put here?
       robot_detection->set_robot_id(det->id);

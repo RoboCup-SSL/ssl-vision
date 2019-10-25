@@ -28,7 +28,9 @@
 #include "plugin_publishgeometry.h"
 #include "cmpattern_teamdetector.h"
 #include "robocup_ssl_server.h"
+#include "team_tags.h"
 #include "field.h"
+#include <memory>
 using namespace std;
 
 /*!
@@ -46,6 +48,10 @@ class MultiStackRoboCupSSL : public QObject, public MultiVisionStack {
   CMPattern::TeamDetectorSettings * global_team_settings;
   CMPattern::TeamSelector * global_team_selector_blue;
   CMPattern::TeamSelector * global_team_selector_yellow;
+#ifdef APRILTAG  
+  std::shared_ptr<TeamTags> global_blue_team_tags;
+  std::shared_ptr<TeamTags> global_yellow_team_tags;
+#endif /* APRILTAG */
   PluginSSLNetworkOutputSettings * global_network_output_settings;
   PluginLegacySSLNetworkOutputSettings * legacy_network_output_settings;
 
