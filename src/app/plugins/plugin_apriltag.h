@@ -2,6 +2,7 @@
 #define PLUGIN_APRILTAG_H
 
 #include "camera_calibration.h"
+#include "team_tags.h"
 #include <apriltag.h>
 #include <functional>
 #include <memory>
@@ -30,9 +31,13 @@ protected:
   std::unique_ptr<zarray_t, std::function<void(zarray_t *)>> detections;
 
   const CameraParameters &camera_params;
+  const std::shared_ptr<TeamTags> blue_team_tags;
+  const std::shared_ptr<TeamTags> yellow_team_tags;
 
 public:
-  PluginAprilTag(FrameBuffer *buffer, const CameraParameters &camera_params);
+  PluginAprilTag(FrameBuffer *buffer, const CameraParameters &camera_params,
+                 std::shared_ptr<TeamTags> blue_team_tags,
+                 std::shared_ptr<TeamTags> yellow_team_tags);
   ~PluginAprilTag() override = default;
 
   ProcessResult process(FrameData *data, RenderOptions *options) override;

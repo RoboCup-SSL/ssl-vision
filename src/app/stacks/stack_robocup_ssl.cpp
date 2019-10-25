@@ -31,6 +31,10 @@ StackRoboCupSSL::StackRoboCupSSL(
     CMPattern::TeamDetectorSettings* _global_team_settings,
     CMPattern::TeamSelector * _global_team_selector_blue,
     CMPattern::TeamSelector * _global_team_selector_yellow,
+#ifdef APRILTAG
+    std::shared_ptr<TeamTags> _global_blue_team_tags,
+    std::shared_ptr<TeamTags> _global_yellow_team_tags,
+#endif /* APRILTAG */
     RoboCupSSLServer * ds_udp_server_new,
     RoboCupSSLServer * ds_udp_server_old,
     string cam_settings_filename) :
@@ -42,6 +46,10 @@ StackRoboCupSSL::StackRoboCupSSL(
     global_team_settings(_global_team_settings),
     global_team_selector_blue(_global_team_selector_blue),
     global_team_selector_yellow(_global_team_selector_yellow),
+#ifdef APRILTAG    
+    global_blue_team_tags(_global_blue_team_tags),
+    global_yellow_team_tags(_global_yellow_team_tags),
+#endif /* APRILTAG */
     _ds_udp_server_new(ds_udp_server_new),
     _ds_udp_server_old(ds_udp_server_old) {
   (void)_fb;
@@ -67,7 +75,7 @@ StackRoboCupSSL::StackRoboCupSSL(
   stack.push_back(new PluginGreyscale(_fb));
 
 #ifdef APRILTAG
-  stack.push_back(new PluginAprilTag(_fb, *camera_parameters));
+  stack.push_back(new PluginAprilTag(_fb, *camera_parameters, _global_blue_team_tags, _global_yellow_team_tags));
 #endif
 
   stack.push_back(new PluginRunlengthEncode(_fb));
