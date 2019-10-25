@@ -16,9 +16,6 @@
 #include <tagStandard41h12.h>
 #include <tagStandard52h13.h>
 
-#define DBG_MACRO_DISABLE
-#include <dbg.h>
-
 using HammHist = std::array<int, 10>;
 using Eigen::AngleAxisd;
 using Eigen::Isometry3d;
@@ -142,8 +139,6 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
       apriltag_detection_t *det;
       zarray_get(detections.get(), i, &det);
 
-      dbg(det->id);
-
       // check if tag in map
       // if not then ignore it
       Team tag_team = Team::None;
@@ -160,20 +155,14 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
       }
 
       if (tag_team == Team::None) {
-        dbg("Tag not in set skipping");
         continue;
       }
 
       Eigen::Map<const Eigen::Matrix3d> tag_homography(det->H->data);
-      dbg(tag_homography);
 
       Eigen::Matrix<double, 3, 4> image_tag_points =
           tag_homography.transpose() * ideal_tag_points;
       image_tag_points.array().rowwise() /= image_tag_points.row(2).array();
-      dbg(image_tag_points);
-
-      dbg(det->c[0]);
-      dbg(det->c[1]);
 
       // convert the points to field coordinates
       vector3d p_top_left_field;
@@ -220,9 +209,6 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
 
       angles(3) = atan2(p_bottom_left_field.y - p_top_left_field.y,
                         p_bottom_left_field.x - p_top_left_field.x);
-
-      dbg(angles);
-      dbg(angles.mean());
 
       SSL_DetectionRobot *robot_detection = nullptr;
       if (tag_team == Team::Blue) {
