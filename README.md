@@ -112,7 +112,44 @@ cmake -DUSE_WHAT_SO_EVER=true ..
 cd ..
 make
 ```
-The `USE_*` parameters are cached, so they do not have to be passed in each time.
+The `USE_*` parameters are cached, so they do not have to be passed in
+each time.
+
+### Apriltags Support
+
+There is experimental support for detecting and tracking robots via
+[Apriltags](https://april.eecs.umich.edu/software/apriltag). The
+standard tag sets in the [Apriltags Imgs
+Repo](https://github.com/AprilRobotics/apriltag-imgs) are all
+supported along with two customized tag sets:
+
+- Custom20h7: 26 unique tags
+
+To generate the custom tag images you must use the
+[Apriltag-Generation
+Repo](https://github.com/AprilRobotics/apriltag-generation). Follow
+the instructions listed in the repo. The tag layouts are as follows:
+
+- Custom20h7
+
+  custom_xxddddxxxwwwwwwxdwbbbbwddwbddbwddwbddbwddwbbbbwdxwwwwwwxxxddddxx
+  
+The hamming distance used during generation are as follows:
+
+- Custom20h7: 7
+
+To enable you must set the `USE_APRILTAG` option to `ON`. e.g.:
+
+``` bash
+cd build
+cmake -DUSE_APRILTAG=ON ..
+cd ..
+make
+```
+
+This will add a new plugin to each camera that runs on every frame. At
+the moment the old robot detection patterns are detected in addition
+to the apriltag detection.
 
 ## Running
 
@@ -199,3 +236,40 @@ program refuses to start completely when parsing the XML files
 (this should normally never occur) then simply delete all
 XML files and restart. The program will restore its default
 settings.
+
+#### Apriltags
+
+Unlike the butterfly pattern, there are no colors in the apriltags. So
+you must manually assign tag ids to the different team colors. Under
+Global settings there are two settings list "Blue April Tags" and
+"Yellow April Tags". Expand each list and click "Add Tag" to create a
+new tag entry for the associated team color. Expand the new entry and
+edit the value to a valid tag id in order to begin detection.
+
+You must also configure the apriltag detection settings. The settings
+are per camera under the "AprilTag" settings in each thread. Select
+the tag family and configure the size in mm of the side of the
+Apriltag quad. See the apriltags repository for explanation of the
+other options and how they affect detection accuracy and speed.
+
+Apriltag detection takes place on a greyscale version of the image. To
+see this image enable "greyscale" un the Visualization plugin for the
+appropriate camera. If a tag is not detecting check the greyscale
+image contrast. Verify that the tag doesn't have a glare or a large
+contrast due to shadows.
+
+Under the Visualization plugin you can also enable the "detected
+AprilTags" option. This will draw a cyan border around the quad of the
+tag (i.e. the part you should measure and enter as quad size in the
+detector settings). It will also draw the tag id in magenta over the
+detected tag.
+
+##### Large Distortions
+
+Currently, the tag detection runs on a raw image provided by the
+camera to maximize performance. Fixes for distortion happen *AFTER*
+detection. However, the apriltag detector is designed to work on
+undistorted (aka rectified) images. If your camera lens has a large
+distortion (you can see this by the field lines and other image lines
+being highly curved), then the detection accuracy may be lower or even
+fail.
