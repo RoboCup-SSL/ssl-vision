@@ -31,7 +31,9 @@ enum class Team : int { None, Blue, Yellow };
 PluginAprilTag::PluginAprilTag(FrameBuffer *buffer,
                                const CameraParameters &camera_params,
                                std::shared_ptr<TeamTags> blue_team_tags,
-                               std::shared_ptr<TeamTags> yellow_team_tags)
+                               std::shared_ptr<TeamTags> yellow_team_tags,
+                               CMPattern::TeamSelector &blue_team_selector,
+                               CMPattern::TeamSelector &yellow_team_selector)
     : VisionPlugin(buffer), settings(new VarList("AprilTag")),
       v_enable(new VarBool("enable", true)),
       v_quad_size(new VarDouble("quad size (mm)", 70.0)),
@@ -42,7 +44,9 @@ PluginAprilTag::PluginAprilTag(FrameBuffer *buffer,
       v_refine_edges(new VarBool("refine-edges", true)),
       detections{nullptr, &apriltag_detections_destroy},
       camera_params(camera_params), blue_team_tags(blue_team_tags),
-      yellow_team_tags(yellow_team_tags) {
+      yellow_team_tags(yellow_team_tags),
+      blue_team_selector(blue_team_selector),
+      yellow_team_selector(yellow_team_selector) {
 
   v_family.reset(new VarStringEnum("Tag Family", "tagCircle21h7"));
   v_family->addItem("tag36h11");
@@ -143,11 +147,16 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
       // check if tag in map
       // if not then ignore it
       Team tag_team = Team::None;
+      double team_height;
       if ((*blue_team_tags)->count(det->id)) {
         tag_team = Team::Blue;
+        team_height =
+            blue_team_selector.getSelectedTeam()->_robot_height->getDouble();
       }
       if ((*yellow_team_tags)->count(det->id)) {
         tag_team = Team::Yellow;
+        team_height =
+            yellow_team_selector.getSelectedTeam()->_robot_height->getDouble();
       }
 
       if (tag_team == Team::None) {
@@ -167,32 +176,32 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
       dbg(det->c[1]);
 
       // convert the points to field coordinates
-      //
-      // TODO(dschwab): Actually get the robot height from the
-      // configured team. For now, this is hardcoded to cmdragons size
       vector3d p_top_left_field;
       vector2d p_top_left_image(image_tag_points(0, 0), image_tag_points(1, 0));
-      camera_params.image2field(p_top_left_field, p_top_left_image, 140);
+      camera_params.image2field(p_top_left_field, p_top_left_image,
+                                team_height);
 
       vector3d p_top_right_field;
       vector2d p_top_right_image(image_tag_points(0, 1),
                                  image_tag_points(1, 1));
-      camera_params.image2field(p_top_right_field, p_top_right_image, 140);
+      camera_params.image2field(p_top_right_field, p_top_right_image,
+                                team_height);
 
       vector3d p_bottom_left_field;
       vector2d p_bottom_left_image(image_tag_points(0, 2),
                                    image_tag_points(1, 2));
-      camera_params.image2field(p_bottom_left_field, p_bottom_left_image, 140);
+      camera_params.image2field(p_bottom_left_field, p_bottom_left_image,
+                                team_height);
 
       vector3d p_bottom_right_field;
       vector2d p_bottom_right_image(image_tag_points(0, 3),
                                     image_tag_points(1, 3));
       camera_params.image2field(p_bottom_right_field, p_bottom_right_image,
-                                140);
+                                team_height);
 
       vector3d p_center_field;
       vector2d p_center_image(det->c[0], det->c[1]);
-      camera_params.image2field(p_center_field, p_center_image, 140);
+      camera_params.image2field(p_center_field, p_center_image, team_height);
 
       // the quad in field coordinates may not be perfect due to
       // detection errors, numerical errors and camera calibration. So
@@ -215,9 +224,6 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
       dbg(angles);
       dbg(angles.mean());
 
-      // TODO(dschwab): add all the detections to team blue for
-      // now. Should add a config option to assign id to teams and
-      // then use that info here.
       SSL_DetectionRobot *robot_detection = nullptr;
       if (tag_team == Team::Blue) {
         robot_detection = detection_frame->add_robots_blue();
@@ -233,7 +239,7 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
       robot_detection->set_orientation(angles.mean());
       robot_detection->set_pixel_x(det->c[0]);
       robot_detection->set_pixel_y(det->c[1]);
-      robot_detection->set_height(140); // TODO(dschwab): Use actual team height
+      robot_detection->set_height(team_height);
     }
   }
 
