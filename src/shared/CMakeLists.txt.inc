@@ -99,8 +99,10 @@ set (SHARED_SRCS
   ${shared_dir}/util/helpers.cpp
   ${shared_dir}/util/field.cpp
 
-    ${shared_dir}/util/convex_hull.cpp
-    ${shared_dir}/util/convex_hull_image_mask.cpp
+  ${shared_dir}/util/convex_hull.cpp
+  ${shared_dir}/util/convex_hull_image_mask.cpp
+
+  ${shared_dir}/util/team_tags.cpp
 )
 
 if(USE_APRILTAG)
@@ -116,6 +118,7 @@ set (SHARED_HEADERS
 	${shared_dir}/cmpattern/cmpattern_teamdetector.h
 
 	${shared_dir}/util/field.h
+	${shared_dir}/util/team_tags.h
 
 	${shared_dir}/vartypes/VarNotifier.h
 
