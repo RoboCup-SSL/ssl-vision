@@ -75,7 +75,7 @@ StackRoboCupSSL::StackRoboCupSSL(
   stack.push_back(new PluginGreyscale(_fb));
 
 #ifdef APRILTAG
-  stack.push_back(new PluginAprilTag(_fb, *camera_parameters, _global_blue_team_tags, _global_yellow_team_tags));
+  stack.push_back(new PluginAprilTag(_fb, *camera_parameters, _global_blue_team_tags, _global_yellow_team_tags, *global_team_selector_blue, *global_team_selector_yellow));
 #endif
 
   stack.push_back(new PluginRunlengthEncode(_fb));
