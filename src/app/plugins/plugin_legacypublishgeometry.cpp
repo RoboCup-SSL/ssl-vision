@@ -114,7 +114,7 @@ void PluginLegacyPublishGeometry::sendGeometry() {
   for (unsigned int i = 0; i < params.size(); i++) {
     int camId = params[i]->additional_calibration_information->camera_index->get();
     if(camId < 0 || camId >= _field.num_cameras_total->get()) {
-      break;
+      continue;
     }
     SSL_GeometryCameraCalibration* ds_calib_old = ds_geodata_old.add_calib();
     params[i]->toProtoBuffer(*ds_calib_old);

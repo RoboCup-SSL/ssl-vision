@@ -13,7 +13,7 @@ CameraParameters::CameraParameters(int camera_index_, RoboCupField * field_) :
   focal_length = new VarDouble("focal length", 500.0);
   principal_point_x = new VarDouble("principal point x", 390.0);
   principal_point_y = new VarDouble("principal point y", 290.0);
-  distortion = new VarDouble("distortion", 0.0, 0.0, 2.0);
+  distortion = new VarDouble("distortion", 0.0, -1.0, 2.0);
   //do not overwrite min/max ranges with values from config file
   distortion->addFlags(VARTYPE_FLAG_NOLOAD_ATTRIBUTES);
 
