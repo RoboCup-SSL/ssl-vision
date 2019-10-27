@@ -433,6 +433,8 @@ void RoboCupField::toProtoBuffer(SSL_GeometryFieldSize& buffer) const {
   buffer.set_goal_width(goal_width->getDouble());
   buffer.set_goal_depth(goal_depth->getDouble());
   buffer.set_boundary_width(boundary_width->getDouble());
+  buffer.set_penalty_area_depth(penalty_area_depth->getDouble());
+  buffer.set_penalty_area_width(penalty_area_width->getDouble());
   for (size_t i = 0; i < field_lines.size(); ++i) {
     const FieldLine& line = *(field_lines[i]);
     SSL_FieldLineSegment proto_line;
