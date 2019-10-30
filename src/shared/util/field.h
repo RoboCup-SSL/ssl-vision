@@ -44,6 +44,7 @@ class FieldLine : public QObject {
 Q_OBJECT
 protected:
   FieldLine(VarString* name_,
+            VarStringEnum* type_,
             VarDouble* p1_x_,
             VarDouble* p1_y_,
             VarDouble* p2_x_,
@@ -55,6 +56,7 @@ private:
   const FieldLine& operator=(const FieldLine& other);
 public:
   VarString* name;
+  VarStringEnum* type;
   VarDouble* p1_x;
   VarDouble* p1_y;
   VarDouble* p2_x;
@@ -76,12 +78,15 @@ public:
 
 protected slots:
   void Rename();
+
+    void fillTypeEnum() const;
 };
 
 class FieldCircularArc : public QObject {
 Q_OBJECT
 protected:
   FieldCircularArc(VarString* name_,
+                   VarStringEnum* type_,
                    VarDouble* center_x_,
                    VarDouble* center_y_,
                    VarDouble* radius_,
@@ -96,6 +101,7 @@ private:
 
 public:
   VarString* name;
+  VarStringEnum* type;
   VarDouble* center_x;
   VarDouble* center_y;
   VarDouble* radius;
@@ -119,6 +125,7 @@ public:
 
 private slots:
   void Rename();
+  void fillTypeEnum() const;
 };
 
 class RoboCupField : public QObject {
@@ -153,6 +160,10 @@ public:
 
   RoboCupField();
   ~RoboCupField();
+
+private:
+  std::map<std::string, SSL_FieldShapeType> shapeTypeMap;
+  SSL_FieldShapeType parseShapeType(const VarStringEnum* value) const;
 
  public:
   signals:

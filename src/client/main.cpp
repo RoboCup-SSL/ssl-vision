@@ -118,6 +118,8 @@ int main(int argc, char *argv[])
                 printf("  -boundary_width=%d (mm)\n",field.boundary_width());
                 printf("  -goal_width=%d (mm)\n",field.goal_width());
                 printf("  -goal_depth=%d (mm)\n",field.goal_depth());
+                printf("  -penalty_area_depth=%d (mm)\n",field.penalty_area_depth());
+                printf("  -penalty_area_width=%d (mm)\n",field.penalty_area_width());
                 printf("  -field_lines_size=%d\n",field.field_lines_size());
                 printf("  -field_arcs_size=%d\n",field.field_arcs_size());
 

@@ -18,6 +18,8 @@ message SSL_FieldLineSegment {
   required Vector2f p2 = 3;
   // Thickness of the line segment.
   required float thickness = 4;
+  // The type of this shape
+  optional SSL_FieldShapeType type = 5;
 }
 
 // Represents a field marking as a circular arc segment represented by center point, a
@@ -35,6 +37,8 @@ message SSL_FieldCicularArc {
   required float a2 = 5;
   // Thickness of the arc.
   required float thickness = 6;
+  // The type of this shape
+  optional SSL_FieldShapeType type = 7;
 }
 
 message SSL_GeometryFieldSize {
@@ -45,6 +49,8 @@ message SSL_GeometryFieldSize {
   required int32 boundary_width = 5;
   repeated SSL_FieldLineSegment field_lines = 6;
   repeated SSL_FieldCicularArc field_arcs = 7;
+  optional int32 penalty_area_depth = 8;
+  optional int32 penalty_area_width = 9;
 }
 
 message SSL_GeometryCameraCalibration {
@@ -68,4 +74,21 @@ message SSL_GeometryCameraCalibration {
 message SSL_GeometryData {
   required SSL_GeometryFieldSize field = 1;
   repeated SSL_GeometryCameraCalibration calib = 2;
+}
+
+enum SSL_FieldShapeType {
+  Undefined = 0;
+  CenterCircle = 1;
+  TopTouchLine = 2;
+  BottomTouchLine = 3;
+  LeftGoalLine = 4;
+  RightGoalLine = 5;
+  HalfwayLine = 6;
+  CenterLine = 7;
+  LeftPenaltyStretch = 8;
+  RightPenaltyStretch = 9;
+  LeftFieldLeftPenaltyStretch = 10;
+  LeftFieldRightPenaltyStretch = 11;
+  RightFieldLeftPenaltyStretch = 12;
+  RightFieldRightPenaltyStretch = 13;
 }
