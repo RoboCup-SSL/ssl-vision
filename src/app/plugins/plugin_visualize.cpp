@@ -19,11 +19,14 @@
 */
 //========================================================================
 #include "plugin_visualize.h"
-#include <apriltag.h>
 #include <opencv2/opencv.hpp>
 #include "convex_hull.h"
 #include <mutex>
 #include <sobel.h>
+
+#ifdef APRILTAG
+#include <apriltag.h>
+#endif
 
 namespace {
 typedef CameraParameters::AdditionalCalibrationInformation AddnlCalibInfo;
