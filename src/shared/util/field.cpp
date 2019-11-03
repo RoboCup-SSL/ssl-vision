@@ -279,6 +279,7 @@ FieldCircularArc::FieldCircularArc(
 
 FieldCircularArc::FieldCircularArc(const string& marking_name) :
     name(new VarString("Name", marking_name)),
+    type(new VarStringEnum("type", "Undefined")),
     center_x(new VarDouble("Center.x")),
     center_y(new VarDouble("Center.y")),
     radius(new VarDouble("Radius")),
