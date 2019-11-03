@@ -37,7 +37,7 @@ CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id, QO
   //=======================CAPTURE SETTINGS==========================
   capture_settings->addChild(v_cam_bus = new VarInt("cam idx",default_camera_id));
 
-  v_convert_to_mode = new VarStringEnum("convert to mode", Colors::colorFormatToString(COLOR_RAW8));
+  v_convert_to_mode = new VarStringEnum("convert to mode", Colors::colorFormatToString(COLOR_RGB8));
   v_convert_to_mode->addItem(Colors::colorFormatToString(COLOR_RAW8));
   v_convert_to_mode->addItem(Colors::colorFormatToString(COLOR_RGB8));
   capture_settings->addChild(v_convert_to_mode);
@@ -49,20 +49,20 @@ CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id, QO
   v_expose_auto->addItem(toString(Spinnaker::ExposureAuto_Off));
   v_expose_auto->addItem(toString(Spinnaker::ExposureAuto_Once));
   v_expose_auto->addItem(toString(Spinnaker::ExposureAuto_Continuous));
-  v_expose_us = new VarDouble("Expose [us]", 2000, 10, 100000);
+  v_expose_us = new VarDouble("Expose [us]", 8000, 10, 100000);
 
   v_gain_auto = new VarStringEnum("Auto Gain", toString(Spinnaker::GainAuto_Off));
   v_gain_auto->addItem(toString(Spinnaker::GainAuto_Off));
   v_gain_auto->addItem(toString(Spinnaker::GainAuto_Once));
   v_gain_auto->addItem(toString(Spinnaker::GainAuto_Continuous));
-  v_gain_db = new VarDouble("Gain [dB]", 0.0, 0.0, 12.0);
+  v_gain_db = new VarDouble("Gain [dB]", 12.0, 0.0, 12.0);
 
   v_white_balance_auto = new VarStringEnum("Auto While Balance", toString(Spinnaker::BalanceWhiteAuto_Off));
   v_white_balance_auto->addItem(toString(Spinnaker::BalanceWhiteAuto_Off));
   v_white_balance_auto->addItem(toString(Spinnaker::BalanceWhiteAuto_Once));
   v_white_balance_auto->addItem(toString(Spinnaker::BalanceWhiteAuto_Continuous));
 
-  v_gamma = new VarDouble("Gamma", 0.8, 0.25, 4.0);
+  v_gamma = new VarDouble("Gamma", 0.4, 0.25, 4.0);
 
   v_stream_buffer_handling_mode = new VarStringEnum("Stream Buffer Handling Mode", toString(Spinnaker::StreamBufferHandlingMode_NewestOnly));
   v_stream_buffer_handling_mode->addItem(toString(Spinnaker::StreamBufferHandlingMode_OldestFirst));
