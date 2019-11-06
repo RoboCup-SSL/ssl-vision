@@ -180,8 +180,8 @@ FieldLine::~FieldLine() {
 
 FieldCircularArc* FieldCircularArc::FromVarList(VarList* list) {
   vector<VarType*> list_entries = list->getChildren();
-  if (list_entries.size() != static_cast<size_t>(7)) {
-    // The list should have exactly 7 entries.
+  if (list_entries.size() != static_cast<size_t>(8)) {
+      // The list should have exactly the expected number of entries.
     return NULL;
   }
   VarString* name = NULL;
@@ -232,7 +232,7 @@ FieldCircularArc::FieldCircularArc(
 
 FieldCircularArc::FieldCircularArc(const FieldCircularArc& other) :
     name(new VarString("Name", other.name->getString())),
-    type(new VarStringEnum("Type", "Undefined")),
+    type(new VarStringEnum("Type", other.type->getString())),
     center_x(new VarDouble("Center.x", other.center_x->getDouble())),
     center_y(new VarDouble("Center.y", other.center_y->getDouble())),
     radius(new VarDouble("Radius", other.radius->getDouble())),
@@ -301,6 +301,7 @@ FieldCircularArc::FieldCircularArc(const string& marking_name) :
 
 FieldCircularArc::~FieldCircularArc() {
   list->removeChild(thickness);
+  list->removeChild(type);
   list->removeChild(a2);
   list->removeChild(a1);
   list->removeChild(radius);
@@ -308,6 +309,7 @@ FieldCircularArc::~FieldCircularArc() {
   list->removeChild(center_x);
   list->removeChild(name);
   delete name;
+  delete type;
   delete center_x;
   delete center_y;
   delete radius;
@@ -568,7 +570,7 @@ void RoboCupField::ResizeFieldArcs() {
   }
   if (new_num_arcs > old_num_arcs) {
     for (size_t i = old_num_arcs; i < new_num_arcs; ++i) {
-      const string name = StringPrintf("Line %d", static_cast<int>(i));
+      const string name = StringPrintf("Arc %d", static_cast<int>(i));
       field_arcs.push_back(new FieldCircularArc(name));
       field_arcs_list->addChild(field_arcs[i]->list);
     }
