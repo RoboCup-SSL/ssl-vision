@@ -382,8 +382,6 @@ RoboCupField::RoboCupField() {
   connect(field_arcs_list, SIGNAL(XMLwasRead(VarType*)),
           this, SLOT(ProcessNewFieldArcs()));
 
-  updateFieldLinesAndArcs();
-
   shapeTypeMap["Undefined"] = Undefined;
   shapeTypeMap["CenterCircle"] = CenterCircle;
   shapeTypeMap["TopTouchLine"] = TopTouchLine;
