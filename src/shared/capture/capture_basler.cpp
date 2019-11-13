@@ -187,7 +187,7 @@ RawImage CaptureBasler::getFrame() {
 	try {
 		timeval tv;
 		gettimeofday(&tv, 0);
-		img.setTime((double) tv.tv_sec + (tv.tv_usec / 1000000));
+		img.setTime((double) tv.tv_sec + (tv.tv_usec / 1000000.0));
 
 		// Keep grabbing in case of partial grabs
 		int fail_count = 0;
