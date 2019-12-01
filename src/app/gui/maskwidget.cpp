@@ -1,8 +1,7 @@
 #include "maskwidget.h"
 #include <QListWidget>
-#include <QLabel>
 #include <QGroupBox>
-#include <QtGui/QVBoxLayout>
+#include <QVBoxLayout>
 
 MaskWidget::MaskWidget() {
   QGroupBox* maskBox = new QGroupBox(tr("Mask"));
