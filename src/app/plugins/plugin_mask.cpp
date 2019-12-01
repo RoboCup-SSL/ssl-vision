@@ -39,7 +39,7 @@ ProcessResult PluginMask::process(FrameData* data, RenderOptions* options) {
   // Until then we do not know the size of the image.
   if (_mask.getNumPixels() != data->video.getNumPixels())
     _mask.setSize(data->video.getWidth(), data->video.getHeight());
-  
+
   if (!_v_enable->getBool())
     _mask.reset();
 
@@ -61,7 +61,7 @@ void PluginMask::_removePoint(const int x, const int y) {
 }
 
 void PluginMask::_mouseEvent(QMouseEvent *event, const pixelloc loc) {
-  QTabWidget *tabw = (QTabWidget*) _widget->parentWidget()->parentWidget();  
+  QTabWidget *tabw = (QTabWidget*) _widget->parentWidget()->parentWidget();
   if (tabw->currentWidget() != _widget) {
     event->ignore();
     return;
@@ -74,35 +74,32 @@ void PluginMask::_mouseEvent(QMouseEvent *event, const pixelloc loc) {
   if (event->buttons() == Qt::LeftButton) {
     event->accept();
     fb->lockRead();
-    {
-      int fb_idx = fb->curRead();
-      FrameData *frame = fb->getPointer(fb_idx);
 
-      const int video_width = frame->video.getWidth();
-      const int video_height = frame->video.getHeight();
+    int fb_idx = fb->curRead();
+    FrameData *frame = fb->getPointer(fb_idx);
 
-      int x = loc.x;
-      int y = loc.y;
+    const int video_width = frame->video.getWidth();
+    const int video_height = frame->video.getHeight();
 
-      // clean the click location
-      {
-	if (x < 0)
-          x = 0;
-	else if (x >= video_width)
-	  x = video_width - 1;
-	if (y < 0)
-          y = 0;
-	else if (y >= video_height)
-	  y = video_height - 1;
-      }
-      // if (// frame->video.getNumPixels() > 1 &&  // when can this happen?
-      //     loc.x >= 0 && loc.x < video_width &&
-      //     loc.y >= 0 && loc.y < video_height) {
-      if (event->modifiers() == Qt::ShiftModifier)
-        _removePoint(x, y);
-      else
-        _addPoint(x, y);
-    }
+    int x = loc.x;
+    int y = loc.y;
+
+    // clean the click location
+    if (x < 0)
+      x = 0;
+    else if (x >= video_width)
+      x = video_width - 1;
+
+    if (y < 0)
+      y = 0;
+    else if (y >= video_height)
+      y = video_height - 1;
+
+    if (event->modifiers() == Qt::ShiftModifier)
+      _removePoint(x, y);
+    else
+      _addPoint(x, y);
+
     fb->unlockRead();
   }
 }

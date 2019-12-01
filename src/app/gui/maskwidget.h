@@ -1,7 +1,6 @@
 #ifndef MASKWIDGET_H
 #define MASKWIDGET_H
 #include <QWidget>
-//#include <camera_calibration.h>
 
 /*!
   \file    cameracalibwidget.h
@@ -12,7 +11,7 @@ class MaskWidget : public QWidget {
  Q_OBJECT
  public:
   MaskWidget();
-  ~MaskWidget();
+  ~MaskWidget() override = default;
 };
 
 #endif
