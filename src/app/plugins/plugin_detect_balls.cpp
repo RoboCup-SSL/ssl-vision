@@ -296,6 +296,7 @@ ProcessResult PluginDetectBalls::process ( FrameData * data, RenderOptions * opt
       ball->set_y ( field_pos_3d.y );
       ball->set_pixel_x ( it->reg->cen_x );
       ball->set_pixel_y ( it->reg->cen_y );
+      ball->set_z(z_height);
     }
 
   }
