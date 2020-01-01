@@ -98,5 +98,6 @@ message TrackedFrame {
     repeated TrackedRobot robots = 5;
 
     // Information about a kicked ball, if the ball was kicked by a robot and is still moving
+    // Note: This field is optional. Some source implementations might not set this at any time
     optional KickedBall kicked_ball = 6;
 }
