@@ -1,0 +1,14 @@
+syntax = "proto2";
+import "messages_robocup_ssl_detection_tracked.proto";
+
+// A wrapper packet containing meta data of the source
+// Also serves for the possibility to extend the protocol later
+message TrackerWrapperPacket {
+    // A random UUID of the source that is kept constant at the source while running
+    // If multiple sources are broadcasting to the same network, this id can be used to identify individual sources
+    required string uuid = 1;
+    // The name of the source software that is producing this messages.
+    optional string source_name = 2;
+    // The tracked frame
+    optional TrackedFrame tracked_frame = 3;
+}

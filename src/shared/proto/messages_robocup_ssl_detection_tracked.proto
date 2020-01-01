@@ -1,0 +1,87 @@
+syntax = "proto2";
+
+message Vector2 {
+    required float x = 1;
+    required float y = 2;
+}
+
+message Vector3 {
+    required float x = 1;
+    required float y = 2;
+    required float z = 3;
+}
+
+// A single tracked ball
+message TrackedBall {
+    // The quality of the detection
+    // A value between 0 (not visible) and 1 (visible)
+    // The exact implementation depends on the source software
+    optional float quality = 1;
+
+    // The position (x, y, height) [m] in the ssl-vision coordinate system
+    required Vector3 pos = 2;
+
+    // The velocity [m/s] in the ssl-vision coordinate system
+    optional Vector3 vel = 3;
+
+    // The initial (kick) speed [m/s], if the ball is moving
+    optional Vector3 initial_speed = 4;
+    // The time [s] until the ball will come to a stop
+    optional float stop_time = 5;
+    // The position [m] at which the ball will come to a stop
+    optional Vector2 stop_pos = 6;
+}
+
+// A single tracked robot
+message TrackedRobot {
+    // The team color of the robot
+    enum TeamColor {
+        UNKNOWN = 1;
+        YELLOW = 2;
+        BLUE = 3;
+    }
+
+    // The robot number
+    required uint32 id = 1;
+    // The team color
+    required TeamColor team_color = 2;
+
+    // The quality of the detection
+    // A value between 0 (not visible) and 1 (visible)
+    // The exact implementation depends on the source software
+    optional float quality = 3;
+
+    // The x-position [m] in the ssl-vision coordinate system
+    required float pos_x = 4;
+    // The y-position [m] in the ssl-vision coordinate system
+    required float pos_y = 5;
+    // The orientation [rad] in the ssl-vision coordinate system
+    required float orientation = 6;
+
+    // The x-velocity [m/s] in the ssl-vision coordinate system
+    optional float vel_x = 7;
+    // The y-velocity [m/s] in the ssl-vision coordinate system
+    optional float vel_y = 8;
+    // The angular velocity [rad/s] in the ssl-vision coordinate system
+    optional float vel_angular = 9;
+
+    // The robot height
+    required float height = 10;
+}
+
+// A frame that contains all currently tracked objects on the field
+message TrackedFrame {
+    // A monotonous increasing frame counter
+    required uint32 frame_number = 1;
+    // The unix timestamp in [s] of the data
+    // If timestamp is larger than timestamp_captured, the source has applied a prediction already
+    required double timestamp = 2;
+    // The unix timestamp in [s] of the source image as reported by ssl-vision
+    required double timestamp_captured = 3;
+    // The list of detected balls
+    // The first ball is the primary one
+    // Sources may add additional balls based on their capabilities
+    repeated TrackedBall balls = 4;
+    // The list of detected robots of both teams
+    repeated TrackedRobot robots = 5;
+}
