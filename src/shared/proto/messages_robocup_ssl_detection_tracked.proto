@@ -66,22 +66,18 @@ message TrackedRobot {
     // The exact implementation depends on the source software
     optional float quality = 2;
 
-    // The x-position [m] in the ssl-vision coordinate system
-    required float pos_x = 3;
-    // The y-position [m] in the ssl-vision coordinate system
-    required float pos_y = 4;
+    // The position [m] in the ssl-vision coordinate system
+    required Vector2 pos = 3;
     // The orientation [rad] in the ssl-vision coordinate system
-    required float orientation = 5;
+    required float orientation = 4;
 
-    // The x-velocity [m/s] in the ssl-vision coordinate system
-    optional float vel_x = 6;
-    // The y-velocity [m/s] in the ssl-vision coordinate system
-    optional float vel_y = 7;
+    // The velocity [m/s] in the ssl-vision coordinate system
+    optional Vector2 vel = 5;
     // The angular velocity [rad/s] in the ssl-vision coordinate system
-    optional float vel_angular = 8;
+    optional float vel_angular = 6;
 
     // The robot height
-    required float height = 9;
+    required float height = 7;
 }
 
 // A frame that contains all currently tracked objects on the field on all cameras
