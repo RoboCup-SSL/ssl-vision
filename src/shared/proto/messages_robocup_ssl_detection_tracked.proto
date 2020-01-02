@@ -37,6 +37,10 @@ message TrackedBall {
 
     // The velocity [m/s] in the ssl-vision coordinate system
     optional Vector3 vel = 3;
+
+    // The touch down location(s), if the ball is flying.
+    // Depending on the source implementation, the next or all touch down locations may be provided
+    repeated Vector2 touch_down_locations = 4;
 }
 
 // A ball kicked by a robot, including predictions when the ball will come to a stop
