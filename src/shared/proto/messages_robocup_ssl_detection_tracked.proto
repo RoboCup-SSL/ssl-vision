@@ -59,6 +59,9 @@ message KickedBall {
 
     // The robot that kicked the ball
     optional RobotId robot_id = 6;
+
+    // A flag to indicate if the ball was chipped initially
+    optional bool chipped = 7;
 }
 
 // A single tracked robot
