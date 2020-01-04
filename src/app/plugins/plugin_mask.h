@@ -9,8 +9,8 @@
 #include "maskwidget.h"
 #include "visionplugin.h"
 #include <algorithm>
-#include <src/app/gui/glLUTwidget.h>
-#include <src/app/gui/lutwidget.h>
+#include "glLUTwidget.h"
+#include "lutwidget.h"
 #include <vector>
 
 class PluginMask : public VisionPlugin
