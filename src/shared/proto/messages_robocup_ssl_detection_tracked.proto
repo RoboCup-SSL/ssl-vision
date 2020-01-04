@@ -25,6 +25,12 @@ message RobotId {
     required TeamColor team_color = 2;
 }
 
+enum ChipKickDetectionSupport {
+    UNSUPPORTED = 0;
+    FIRST_TOUCHDOWN_ONLY = 1;
+    ALL_TOUCHDOWNS = 2;
+}
+
 // A single tracked ball
 message TrackedBall {
     // The quality of the detection
@@ -38,9 +44,15 @@ message TrackedBall {
     // The velocity [m/s] in the ssl-vision coordinate system
     optional Vector3 vel = 3;
 
+    // The level of chip kick detection support by the source implementation
+    required ChipKickDetectionSupport chip_kick_detection_support = 4;
+
     // The touch down location(s), if the ball is flying.
     // Depending on the source implementation, the next or all touch down locations may be provided
-    repeated Vector2 touch_down_locations = 4;
+    // ChipKickDetectionSupport#UNSUPPORTED -> there are no valid touch down locations
+    // ChipKickDetectionSupport#FIRST_TOUCHDOWN_ONLY -> there is only one touch down location, although the ball may have more
+    // ChipKickDetectionSupport#ALL_TOUCHDOWNS -> all touch down locations are included
+    repeated Vector2 touch_down_locations = 5;
 }
 
 // A ball kicked by a robot, including predictions when the ball will come to a stop
