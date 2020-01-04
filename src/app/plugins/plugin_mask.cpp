@@ -8,7 +8,7 @@ PluginMask::PluginMask(FrameBuffer *buffer, ConvexHullImageMask &mask, LUTWidget
 
   _v_enable = new VarBool("enable", false);
 
-  _settings = new VarList("Mask");
+  _settings = new VarList("Image Mask");
   _settings->addChild(_v_enable);
 }
 

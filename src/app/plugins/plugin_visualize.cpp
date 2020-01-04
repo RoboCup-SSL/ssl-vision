@@ -45,8 +45,8 @@ PluginVisualize::PluginVisualize(
   _v_complete_sobel = new VarBool("complete edge detection", false);
   _v_complete_sobel->setBool(false);
 
-  _v_mask_hull = new VarBool("mask hull", false);
-  _v_mask = new VarBool("mask", false);
+  _v_mask_hull = new VarBool("image mask hull", false);
+  _v_mask = new VarBool("image mask", false);
 
   _settings = new VarList("Visualization");
   _settings->addChild(_v_enabled);
