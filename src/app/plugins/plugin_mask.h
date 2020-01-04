@@ -1,20 +1,22 @@
 #ifndef PLUGIN_MASK_H
 #define PLUGIN_MASK_H
 
-#include <vector>
-#include <algorithm>
-#include "framedata.h"
-#include "visionplugin.h"
-#include "maskwidget.h"
 #include "colors.h"
-#include "image.h"
-#include "gvector.h"
 #include "convex_hull_image_mask.h"
+#include "framedata.h"
+#include "gvector.h"
+#include "image.h"
+#include "maskwidget.h"
+#include "visionplugin.h"
+#include <algorithm>
+#include <src/app/gui/glLUTwidget.h>
+#include <src/app/gui/lutwidget.h>
+#include <vector>
 
 class PluginMask : public VisionPlugin
 {
  protected:
-  MaskWidget *_widget;
+  LUTWidget *_widget;
   VarList *_settings;
   VarBool *_v_enable;
   ConvexHullImageMask &_mask;
@@ -23,12 +25,11 @@ class PluginMask : public VisionPlugin
   virtual void _addPoint(const int x, const int y);
   virtual void _removePoint(const int x, const int y);
  public:
-  PluginMask(FrameBuffer *buffer, ConvexHullImageMask &mask);
+  PluginMask(FrameBuffer *buffer, ConvexHullImageMask &mask, LUTWidget *widget);
   ~PluginMask();
   virtual ProcessResult process(FrameData *data, RenderOptions *options);
   virtual VarList *getSettings();
   virtual std::string getName();
-  virtual QWidget *getControlWidget();
   virtual void mousePressEvent(QMouseEvent *event, pixelloc loc);
 };
 

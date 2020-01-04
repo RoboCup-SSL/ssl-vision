@@ -1,11 +1,9 @@
 #include "plugin_mask.h"
-#include <QTabWidget>
-#include <QStackedWidget>
 
 #include <iostream>
 
-PluginMask::PluginMask(FrameBuffer *buffer, ConvexHullImageMask &mask) :
-  VisionPlugin(buffer), _widget(nullptr), _settings(nullptr),
+PluginMask::PluginMask(FrameBuffer *buffer, ConvexHullImageMask &mask, LUTWidget *gllutWidget) :
+  VisionPlugin(buffer), _widget(gllutWidget), _settings(nullptr),
   _v_enable(nullptr), _mask(mask) {
 
   _v_enable = new VarBool("enable", false);
@@ -27,14 +25,8 @@ std::string PluginMask::getName() {
   return "Mask";
 }
 
-QWidget * PluginMask::getControlWidget() {
-  if (_widget==0)
-    _widget = new MaskWidget();
-
-  return (QWidget *) _widget;
-}
-
 ProcessResult PluginMask::process(FrameData* data, RenderOptions* options) {
+  (void) options;
   // We can only allocate _mask once we get the first frame.
   // Until then we do not know the size of the image.
   if (_mask.getNumPixels() != data->video.getNumPixels())
@@ -61,8 +53,7 @@ void PluginMask::_removePoint(const int x, const int y) {
 }
 
 void PluginMask::_mouseEvent(QMouseEvent *event, const pixelloc loc) {
-  QTabWidget *tabw = (QTabWidget*) _widget->parentWidget()->parentWidget();
-  if (tabw->currentWidget() != _widget) {
+  if (!_widget->getGLLUTWidget()->drawMaskEnabled()) {
     event->ignore();
     return;
   }

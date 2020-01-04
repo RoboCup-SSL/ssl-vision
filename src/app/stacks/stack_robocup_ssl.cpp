@@ -48,6 +48,7 @@ StackRoboCupSSL::StackRoboCupSSL(
   lut_yuv = new YUVLUT(4,6,6,cam_settings_filename + "-lut-yuv.xml");
   lut_yuv->loadRoboCupChannels(LUTChannelMode_Numeric);
   lut_yuv->addDerivedLUT(new RGBLUT(5,5,5,""));
+  settings->addChild(lut_yuv->getSettings());
 
   camera_parameters = new CameraParameters(_camera_id, global_field);
   _image_mask = new ConvexHullImageMask(cam_settings_filename + "-mask.xml");
@@ -56,14 +57,14 @@ StackRoboCupSSL::StackRoboCupSSL(
   _global_plugin_publish_geometry->addCameraParameters(camera_parameters);
   _legacy_plugin_publish_geometry->addCameraParameters(camera_parameters);
 
+  auto *pluginColorCalibration = new PluginColorCalibration(_fb, lut_yuv, LUTChannelMode_Numeric);
+
   // must come before all others
-  stack.push_back(new PluginMask(_fb, *_image_mask));
-  
+  stack.push_back(new PluginMask(_fb, *_image_mask, (LUTWidget*) pluginColorCalibration->getControlWidget()));
+
   stack.push_back(new PluginDVR(_fb));
 
-  auto *pluginColorCalibration = new PluginColorCalibration(_fb, lut_yuv, LUTChannelMode_Numeric);
   stack.push_back(pluginColorCalibration);
-  settings->addChild(lut_yuv->getSettings());
 
   stack.push_back(new PluginCameraCalibration(_fb,*camera_parameters, *global_field));
 
