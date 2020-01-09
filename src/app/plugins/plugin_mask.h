@@ -6,7 +6,6 @@
 #include "framedata.h"
 #include "gvector.h"
 #include "image.h"
-#include "maskwidget.h"
 #include "visionplugin.h"
 #include <algorithm>
 #include "glLUTwidget.h"
