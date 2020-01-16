@@ -53,7 +53,7 @@ void PluginMask::_removePoint(const int x, const int y) {
 }
 
 void PluginMask::_mouseEvent(QMouseEvent *event, const pixelloc loc) {
-  if (!_widget->getGLLUTWidget()->drawMaskEnabled()) {
+  if (!_widget->editMaskEnabled()) {
     event->ignore();
     return;
   }

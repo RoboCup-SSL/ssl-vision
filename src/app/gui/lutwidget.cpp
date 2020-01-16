@@ -21,6 +21,7 @@
 
 
 #include "lutwidget.h"
+#include <QGroupBox>
 
 LUTWidget::LUTWidget(LUT3D * lut, LUTChannelMode mode)
 {
@@ -42,6 +43,23 @@ LUTWidget::LUTWidget(LUT3D * lut, LUTChannelMode mode)
   label->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
   toolbar->setIconSize(QSize(16,16));
   toolbar->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
+
+  auto mask_group_box = new QGroupBox(tr("Vision Mask"));
+  auto maskLayout = new QVBoxLayout;
+  mask_group_box->setLayout(maskLayout);
+  edit_mask_button = new QPushButton(tr("Edit mask"));
+  auto mask_label = new QLabel(tr(
+      "Draw a mask around the field to exclude the area outside of the mask. "
+      "While the following button is pressed, you can add points to the image "
+      "that form a polygonal shape "
+      "that builds up the mask.\n"
+      "Hold Shift to remove a point. "
+      "Make sure to enable the plugin and the visualization in the config tree."));
+  mask_label->setWordWrap(true);
+  edit_mask_button->setCheckable(true);
+  maskLayout->addWidget(mask_label);
+  maskLayout->addWidget(edit_mask_button);
+
   vbox->setSpacing(2);
   vbox->setMargin(0);
   hbox->setSpacing(2);
@@ -51,10 +69,11 @@ LUTWidget::LUTWidget(LUT3D * lut, LUTChannelMode mode)
   vbox->addWidget(toolbar);
   vbox->addLayout(hbox);
   vbox->addWidget(label);
+  vbox->addWidget(mask_group_box);
   this->setLayout(vbox);
 
   addActions(gllut->actions());
-  
+
   toolbar->addActions(actions());
   //toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
                 //QList<QAction *> toolactions=gllut->actions();
@@ -73,6 +92,11 @@ void LUTWidget::selectChannel(int c) {
   if (c!=(-1)) {
     gllut->setChannel(c);
   }
+}
+
+bool LUTWidget::editMaskEnabled()
+{
+  return edit_mask_button->isChecked();
 }
 
 void LUTWidget::updateList(LUT3D * lut) {

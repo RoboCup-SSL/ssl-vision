@@ -200,7 +200,7 @@ set (SRCS ${SRCS}
 	src/app/framedata.cpp
 	src/app/main.cpp
 
-		src/app/gui/automatedcolorcalibwidget.cpp
+    src/app/gui/automatedcolorcalibwidget.cpp
 	src/app/gui/cameracalibwidget.cpp
 	src/app/gui/colorpicker.cpp
 	src/app/gui/glLUTwidget.cpp

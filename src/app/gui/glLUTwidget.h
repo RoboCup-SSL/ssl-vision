@@ -152,7 +152,6 @@ protected:
   QAction * actionExclusiveMode;
   QAction * actionViewToggleBackground;
   QAction * actionViewToggleOtherChannels;
-  QAction * actionMask;
   protected slots:
   void editUndo(); //performs an undo
   void editRedo(); //performs a redo
@@ -215,8 +214,6 @@ public:
   }
 
   void sampleImage(const RawImage & img);
-
-  bool drawMaskEnabled();
 
   GLLUTWidget(LUTChannelMode mode, QWidget *parent = 0);
   virtual ~GLLUTWidget();

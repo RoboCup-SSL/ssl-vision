@@ -498,15 +498,6 @@ GLLUTWidget::GLLUTWidget(LUTChannelMode mode, QWidget *parent) : QGLWidget(paren
   actionClearSampler->setToolTip("Clear Sampler");
   addAction(actionClearSampler);
 
-  actionMask = new QAction(this);
-  actionMask->setObjectName("actionMask");
-  actionMask->setIcon(QIcon(":/icons/trapezoid.png"));
-  actionMask->setShortcut(QKeySequence("m"));
-  actionMask->setShortcutContext(Qt::WidgetShortcut);
-  actionMask->setToolTip("Draw Mask");
-  actionMask->setCheckable(true);
-  addAction(actionMask);
-
   connect(actionViewToggleBackground, SIGNAL(triggered()), this, SLOT(redraw()));
   connect(actionViewToggleOtherChannels, SIGNAL(triggered()), this, SLOT(rebuildAndRedraw()));
   connect(actionSwitchMode, SIGNAL(triggered()), this, SLOT(switchMode()));
@@ -525,11 +516,6 @@ GLLUTWidget::GLLUTWidget(LUTChannelMode mode, QWidget *parent) : QGLWidget(paren
 GLLUTWidget::~GLLUTWidget()
 {
   //delete texture;
-}
-
-bool GLLUTWidget::drawMaskEnabled()
-{
-  return actionMask->isChecked();
 }
 
 void GLLUTWidget::initializeGL()
