@@ -20,11 +20,19 @@ enum TeamColor {
     BLUE = 3;
 }
 
+// A unique robot id with team information
 message RobotId {
     // The robot number
     required uint32 id = 1;
     // The team color
     required TeamColor team_color = 2;
+}
+
+// Capabilities that a source implementation can have
+enum Capability {
+    DETECT_FLYING_BALLS = 1;
+    DETECT_MULTIPLE_BALLS = 2;
+    DETECT_KICKED_BALLS = 3;
 }
 
 // A single tracked ball
@@ -102,4 +110,7 @@ message TrackedFrame {
     // Information about a kicked ball, if the ball was kicked by a robot and is still moving
     // Note: This field is optional. Some source implementations might not set this at any time
     optional KickedBall kicked_ball = 6;
+
+    // List of capabilities of the source implementation
+    repeated Capability capabilities = 7;
 }
