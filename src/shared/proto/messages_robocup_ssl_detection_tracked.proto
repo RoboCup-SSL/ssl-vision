@@ -1,10 +1,12 @@
 syntax = "proto2";
 
+// A vector with two dimensions
 message Vector2 {
     required float x = 1;
     required float y = 2;
 }
 
+// A vector with three dimensions
 message Vector3 {
     required float x = 1;
     required float y = 2;
@@ -25,34 +27,18 @@ message RobotId {
     required TeamColor team_color = 2;
 }
 
-enum ChipKickDetectionSupport {
-    UNSUPPORTED = 0;
-    FIRST_TOUCHDOWN_ONLY = 1;
-    ALL_TOUCHDOWNS = 2;
-}
-
 // A single tracked ball
 message TrackedBall {
-    // The quality of the detection
-    // A value between 0 (not visible) and 1 (visible)
-    // The exact implementation depends on the source software
-    optional float quality = 1;
-
     // The position (x, y, height) [m] in the ssl-vision coordinate system
-    required Vector3 pos = 2;
+    required Vector3 pos = 1;
 
     // The velocity [m/s] in the ssl-vision coordinate system
-    optional Vector3 vel = 3;
+    optional Vector3 vel = 2;
 
-    // The level of chip kick detection support by the source implementation
-    required ChipKickDetectionSupport chip_kick_detection_support = 4;
-
-    // The touch down location(s), if the ball is flying.
-    // Depending on the source implementation, the next or all touch down locations may be provided
-    // ChipKickDetectionSupport#UNSUPPORTED -> there are no valid touch down locations
-    // ChipKickDetectionSupport#FIRST_TOUCHDOWN_ONLY -> there is only one touch down location, although the ball may have more
-    // ChipKickDetectionSupport#ALL_TOUCHDOWNS -> all touch down locations are included
-    repeated Vector2 touch_down_locations = 5;
+    // The visibility of the ball
+    // A value between 0 (not visible) and 1 (visible)
+    // The exact implementation depends on the source software
+    optional float visibility = 3;
 }
 
 // A ball kicked by a robot, including predictions when the ball will come to a stop
@@ -62,41 +48,38 @@ message KickedBall {
     // The initial velocity [m/s] with which the ball was kicked
     required Vector3 vel = 2;
     // The unix timestamp [s] when the kick was performed
-    required double timestamp = 3;
+    required double start_timestamp = 3;
 
-    // The predicted time [s] that ball ball needs to come to a stop
-    optional float stop_time = 4;
+    // The predicted unix timestamp [s] when the ball comes to a stop
+    optional double stop_timestamp = 4;
     // The predicted position [m] at which the ball will come to a stop
     optional Vector2 stop_pos = 5;
 
     // The robot that kicked the ball
     optional RobotId robot_id = 6;
-
-    // A flag to indicate if the ball was chipped initially
-    optional bool chipped = 7;
 }
 
 // A single tracked robot
 message TrackedRobot {
     required RobotId robot_id = 1;
 
-    // The quality of the detection
-    // A value between 0 (not visible) and 1 (visible)
-    // The exact implementation depends on the source software
-    optional float quality = 2;
-
     // The position [m] in the ssl-vision coordinate system
-    required Vector2 pos = 3;
+    required Vector2 pos = 2;
     // The orientation [rad] in the ssl-vision coordinate system
-    required float orientation = 4;
+    required float orientation = 3;
 
     // The velocity [m/s] in the ssl-vision coordinate system
-    optional Vector2 vel = 5;
+    optional Vector2 vel = 4;
     // The angular velocity [rad/s] in the ssl-vision coordinate system
-    optional float vel_angular = 6;
+    optional float vel_angular = 5;
 
-    // The robot height
-    required float height = 7;
+    // The robot height [m]
+    required float height = 6;
+
+    // The visibility of the robot
+    // A value between 0 (not visible) and 1 (visible)
+    // The exact implementation depends on the source software
+    optional float visibility = 7;
 }
 
 // A frame that contains all currently tracked objects on the field on all cameras
