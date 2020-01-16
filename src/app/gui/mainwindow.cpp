@@ -57,7 +57,6 @@ MainWindow::MainWindow(bool start_capture, bool enforce_affinity, int num_camera
   stackvar->addChild(multi_stack->getSettings());
   //create tabs, GL visualizations and tool-panes for each capture thread in the multi-stack:
   for (unsigned int i=0;i<multi_stack->threads.size();i++) {
-    QSplitter * splitter2 = new QSplitter(Qt::Vertical);
     VisionStack * s = multi_stack->threads[i]->getStack();
     if (affinity!=0) multi_stack->threads[i]->setAffinityManager(affinity);
 
@@ -108,9 +107,6 @@ MainWindow::MainWindow(bool start_capture, bool enforce_affinity, int num_camera
             }
             right_tab->addTab(tmp_control,QString::fromStdString(p->getName()));
           }
-
-          QWidget * tmp_vis = p->getVisualizationWidget();
-          if (tmp_vis!=0) splitter2->addWidget(tmp_vis);
         }
 
       } else {
@@ -126,9 +122,7 @@ MainWindow::MainWindow(bool start_capture, bool enforce_affinity, int num_camera
     }
     stackvar->addChild(threadvar);
 
-    splitter2->addWidget(stack_widget);
-    splitter2->addWidget(new QWidget());
-    cam_tabs->addTab(splitter2, label);
+    cam_tabs->addTab(stack_widget, label);
   }
 
   if (affinity!=0) affinity->demandCore(multi_stack->threads.size());
