@@ -15,9 +15,12 @@ message Vector3 {
 
 // The team color of the robot
 enum TeamColor {
-    UNKNOWN = 1;
-    YELLOW = 2;
-    BLUE = 3;
+    // team not set
+    TEAM_COLOR_UNKNOWN = 0;
+    // yellow team
+    TEAM_COLOR_YELLOW = 1;
+    // blue team
+    TEAM_COLOR_BLUE = 2;
 }
 
 // A unique robot id with team information
@@ -30,9 +33,10 @@ message RobotId {
 
 // Capabilities that a source implementation can have
 enum Capability {
-    DETECT_FLYING_BALLS = 1;
-    DETECT_MULTIPLE_BALLS = 2;
-    DETECT_KICKED_BALLS = 3;
+    CAPABILITY_UNKNOWN = 0;
+    CAPABILITY_DETECT_FLYING_BALLS = 1;
+    CAPABILITY_DETECT_MULTIPLE_BALLS = 2;
+    CAPABILITY_DETECT_KICKED_BALLS = 3;
 }
 
 // A single tracked ball
