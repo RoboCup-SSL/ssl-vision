@@ -1,5 +1,7 @@
 syntax = "proto2";
 
+// Default network address: 224.5.23.2:10010
+
 // A vector with two dimensions
 message Vector2 {
     required float x = 1;
