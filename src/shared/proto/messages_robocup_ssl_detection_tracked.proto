@@ -85,13 +85,10 @@ message TrackedRobot {
     // The angular velocity [rad/s] in the ssl-vision coordinate system
     optional float vel_angular = 5;
 
-    // The robot height [m]
-    required float height = 6;
-
     // The visibility of the robot
     // A value between 0 (not visible) and 1 (visible)
     // The exact implementation depends on the source software
-    optional float visibility = 7;
+    optional float visibility = 6;
 }
 
 // A frame that contains all currently tracked objects on the field on all cameras
