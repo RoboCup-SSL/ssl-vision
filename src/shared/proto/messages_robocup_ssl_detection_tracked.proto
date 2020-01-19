@@ -56,7 +56,7 @@ message TrackedBall {
 // A ball kicked by a robot, including predictions when the ball will come to a stop
 message KickedBall {
     // The initial position [m] from which the ball was kicked
-    required Vector3 pos = 1;
+    required Vector2 pos = 1;
     // The initial velocity [m/s] with which the ball was kicked
     required Vector3 vel = 2;
     // The unix timestamp [s] when the kick was performed
