@@ -21,7 +21,7 @@
 //========================================================================
 /*!
  \file    capture_flycap.cpp
- \brief   C++ Interface: CaptureGigE
+ \brief   C++ Interface: CaptureFlycap
  \author  Spencer Lane, (C) 2016
  */
 //========================================================================
@@ -185,9 +185,11 @@ CaptureFlycap::CaptureFlycap(VarList * _settings,int default_camera_id, QObject 
 
     is_capturing = false;
     is_connected = false;
+
     currentFrame = NULL;
     camera = NULL;
     stored_image = NULL;
+    camera_type = FlyCapCamType::UNKNOWN;
     settings_changed = true;
     previous_id = v_cam_bus->getInt();
     if (previous_id >= 0) {
@@ -257,12 +259,14 @@ void CaptureFlycap::writeParameterValues(VarList * item) {
       if (param_name == "Video Mode") {
         if (is_connected && !is_capturing) {
           Mode mode = videoModeFromString(v_videomode->getString());
-          error = camera->SetGigEImagingMode(mode);
-          if (error != PGRERROR_OK) {
-            error.PrintErrorTrace();
-            mutex.unlock();
-            return;
-          }
+	  if (camera_type == FlyCapCamType::GIGE){
+            error = ((GigECamera*)camera)->SetGigEImagingMode(mode);
+            if (error != PGRERROR_OK) {
+              error.PrintErrorTrace();
+              mutex.unlock();
+              return;
+            }
+	  }
         }
       } else if (param_name == "Brightness") {
         is_property = true;
@@ -321,7 +325,7 @@ void CaptureFlycap::writeParameterValues(VarList * item) {
   }
 
   if (settings_changed) {
-    if (is_connected) {
+    if (is_connected && camera_type == FlyCapCamType::GIGE) {
       GigEImageSettings imageSettings;
       imageSettings.offsetX = v_xoffset->getInt();
       imageSettings.offsetY = v_yoffset->getInt();
@@ -329,7 +333,7 @@ void CaptureFlycap::writeParameterValues(VarList * item) {
       imageSettings.width = v_width->getInt();
       imageSettings.pixelFormat = colorFormatToPixelFormat(Colors::stringToColorFormat(v_colormode->getString().c_str()));
 
-      error = camera->SetGigEImageSettings(&imageSettings);
+      error = ((GigECamera*)camera)->SetGigEImageSettings(&imageSettings);
       if (error != PGRERROR_OK) {
         error.PrintErrorTrace();
         mutex.unlock();
@@ -437,7 +441,6 @@ bool CaptureFlycap::startCapture() {
     return false;
   }
 
-  camera = new GigECamera();
   error = busMgr.GetCameraFromIndex(v_cam_bus->getInt(), &guid);
   if (error != PGRERROR_OK) {
     error.PrintErrorTrace();
@@ -448,13 +451,29 @@ bool CaptureFlycap::startCapture() {
     return false;
   }
 
+  // First try to connect as if this is a GigE camera
+  camera = new GigECamera();
+
   error = camera->Connect(&guid);
   if (error != PGRERROR_OK) {
     error.PrintErrorTrace();
     delete camera;
-    mutex.unlock();
-    cam_id_mutex.unlock();
-    return false;
+
+    // If we cannot connect as a GigE camera, fall back to using a
+    // normal camera
+    camera = new Camera();
+    error = camera->Connect(&guid);
+    if (error != PGRERROR_OK){
+      error.PrintErrorTrace();
+      delete camera;
+      mutex.unlock();
+      cam_id_mutex.unlock();
+      return false;
+    } else {
+      camera_type = FlyCapCamType::GENERIC;
+    }
+  } else {
+    camera_type = FlyCapCamType::GIGE;
   }
 
   fprintf(stderr,"Connected");
