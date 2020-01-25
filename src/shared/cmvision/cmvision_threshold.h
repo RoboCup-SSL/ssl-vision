@@ -38,19 +38,9 @@ public:
 
     ~CMVisionThreshold();
 
-  static bool thresholdImageYUV422_UYVY(Image<raw8> * target, const RawImage * source, YUVLUT * lut, const ImageInterface* mask = nullptr);
-  static bool thresholdImageYUV444(Image<raw8> * target, const ImageInterface * source, YUVLUT * lut, const ImageInterface* mask = nullptr);
-  static bool thresholdImageRGB(Image<raw8> * target, const ImageInterface * source, RGBLUT * lut, const ImageInterface* mask = nullptr);
-
-    static void colorizeImageFromThresholding(rgbImage & target, const Image<raw8> & source, LUT3D * lut);
-
-    //static void thresholdImage(Image * target, const Image<yuv> * source, const YUVLUT * lut);
-
-    //static void thresholdImage(Image * target, const Image<yuvy> * source, const YUVLUT * lut);
-
-    //static void thresholdImage(Image * target, const Image<uyvy> * source, const LUT3D * lut);
-
-
+  static bool thresholdImageYUV422_UYVY(Image<raw8> * target, const RawImage * source, YUVLUT * lut, const ImageInterface* mask);
+  static bool thresholdImageYUV444(Image<raw8> * target, const ImageInterface * source, YUVLUT * lut, const ImageInterface* mask);
+  static bool thresholdImageRGB(Image<raw8> * target, const ImageInterface * source, RGBLUT * lut, const ImageInterface* mask);
 };
 
 #endif
