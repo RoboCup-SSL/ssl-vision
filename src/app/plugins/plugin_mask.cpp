@@ -2,58 +2,45 @@
 
 #include <iostream>
 
-PluginMask::PluginMask(FrameBuffer *buffer, ConvexHullImageMask &mask, LUTWidget *gllutWidget) :
-  VisionPlugin(buffer), _widget(gllutWidget), _settings(nullptr),
-  _v_enable(nullptr), _mask(mask) {
-
-  _v_enable = new VarBool("enable", false);
+PluginMask::PluginMask(FrameBuffer *buffer, ConvexHullImageMask &mask)
+    : VisionPlugin(buffer), _mask(mask) {
 
   _settings = new VarList("Image Mask");
-  _settings->addChild(_v_enable);
+  _widget = new MaskWidget();
 }
 
-PluginMask::~PluginMask() {
-  delete _settings;
-  delete _v_enable;
-}
+PluginMask::~PluginMask() { delete _settings; }
 
-VarList *PluginMask::getSettings() {
-  return _settings;
-}
+QWidget *PluginMask::getControlWidget() { return (QWidget *)_widget; }
 
-std::string PluginMask::getName() {
-  return "Mask";
-}
+VarList *PluginMask::getSettings() { return _settings; }
 
-ProcessResult PluginMask::process(FrameData* data, RenderOptions* options) {
-  (void) options;
+std::string PluginMask::getName() { return "Mask"; }
+
+ProcessResult PluginMask::process(FrameData *data, RenderOptions *options) {
+  (void)options;
   // We can only allocate _mask once we get the first frame.
   // Until then we do not know the size of the image.
   if (_mask.getNumPixels() != data->video.getNumPixels())
     _mask.setSize(data->video.getWidth(), data->video.getHeight());
 
-  if (!_v_enable->getBool())
+  if (_widget->clear_mask_button->isChecked()) {
     _mask.reset();
+    _widget->clear_mask_button->setChecked(false);
+  }
 
   return ProcessingOk;
 }
 
-void PluginMask::_addPoint(const int x, const int y) {
-  if (!_v_enable->getBool())
-    return;
-
-  _mask.addPoint(x, y);
-}
+void PluginMask::_addPoint(const int x, const int y) { _mask.addPoint(x, y); }
 
 void PluginMask::_removePoint(const int x, const int y) {
-  if (!_v_enable->getBool())
-    return;
-
   _mask.removePoint(x, y, 5);
 }
 
 void PluginMask::_mouseEvent(QMouseEvent *event, const pixelloc loc) {
-  if (!_widget->editMaskEnabled()) {
+  auto tabw = (QTabWidget*) _widget->parentWidget()->parentWidget();
+  if (tabw->currentWidget() != _widget) {
     event->ignore();
     return;
   }

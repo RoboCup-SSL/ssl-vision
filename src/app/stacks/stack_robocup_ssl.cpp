@@ -59,10 +59,10 @@ StackRoboCupSSL::StackRoboCupSSL(
 
   auto *pluginColorCalibration = new PluginColorCalibration(_fb, lut_yuv, LUTChannelMode_Numeric);
 
-  // must come before all others
-  stack.push_back(new PluginMask(_fb, *_image_mask, (LUTWidget*) pluginColorCalibration->getControlWidget()));
-
   stack.push_back(new PluginDVR(_fb));
+
+  // must come before all others
+  stack.push_back(new PluginMask(_fb, *_image_mask));
 
   stack.push_back(pluginColorCalibration);
 

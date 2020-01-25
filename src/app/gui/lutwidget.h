@@ -39,10 +39,8 @@ protected:
     QBoxLayout  * vbox;
     QBoxLayout  * hbox;
     QListWidget * list;
-    QLabel      * label;
     GLLUTWidget * gllut;
     QToolBar * toolbar;
-    QPushButton * edit_mask_button;
     void updateList(LUT3D * lut);
     LUTChannelMode _mode;
 protected slots:
@@ -53,7 +51,6 @@ public:
     void add_del_Pixel(yuv color, bool add, bool continuing_undo);
     void sampleImage(const RawImage & img);
     void focusInEvent ( QFocusEvent * event );
-    bool editMaskEnabled();
     LUTWidget(LUT3D * lut, LUTChannelMode mode);
     ~LUTWidget();
 };
