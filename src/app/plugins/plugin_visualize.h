@@ -65,7 +65,6 @@ protected:
   VarBool * _v_complete_sobel;
   VarBool * _v_detected_edges;
   VarBool * _v_mask_hull;
-  VarBool * _v_mask;
 
   const CameraParameters& camera_parameters;
   const RoboCupField& real_field;

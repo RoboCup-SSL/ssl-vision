@@ -46,7 +46,6 @@ PluginVisualize::PluginVisualize(
   _v_complete_sobel->setBool(false);
 
   _v_mask_hull = new VarBool("image mask hull", false);
-  _v_mask = new VarBool("image mask", false);
 
   _settings = new VarList("Visualization");
   _settings->addChild(_v_enabled);
@@ -59,7 +58,6 @@ PluginVisualize::PluginVisualize(
   _settings->addChild(_v_detected_edges);
   _settings->addChild(_v_complete_sobel);
   _settings->addChild(_v_mask_hull);
-  _settings->addChild(_v_mask);
   _threshold_lut=0;
   edge_image = 0;
   temp_grey_image = 0;
@@ -116,20 +114,6 @@ void PluginVisualize::DrawCameraImage(
       vis_ptr[i] = color;
     }
   }
-
-  if (_v_mask->getBool()) {
-    unsigned int n = vis_frame->data.getNumPixels();
-    rgb * vis_ptr = vis_frame->data.getPixelData();
-    rgb color;
-
-    _image_mask.lock();
-    for (unsigned int i = 0; i < n; i++) {
-      vis_ptr[i].r &= _image_mask.getMask().getPixel(i).getIntensity();
-      vis_ptr[i].g &= _image_mask.getMask().getPixel(i).getIntensity();
-      vis_ptr[i].b &= _image_mask.getMask().getPixel(i).getIntensity();
-    }
-    _image_mask.unlock();
-   }
 }
 
 void PluginVisualize::DrawThresholdedImage(
