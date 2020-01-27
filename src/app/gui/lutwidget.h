@@ -39,7 +39,6 @@ protected:
     QBoxLayout  * vbox;
     QBoxLayout  * hbox;
     QListWidget * list;
-    QLabel      * label;
     GLLUTWidget * gllut;
     QToolBar * toolbar;
     void updateList(LUT3D * lut);

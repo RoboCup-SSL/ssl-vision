@@ -33,19 +33,7 @@ CMVisionThreshold::~CMVisionThreshold()
 {
 }
 
-
-void CMVisionThreshold::colorizeImageFromThresholding(rgbImage & target, const Image<raw8> & source, LUT3D * lut) {
-  target.allocate(source.getWidth(),source.getHeight());
-  int n = source.getNumPixels();
-
-  rgb * vis_ptr = target.getPixelData();
-  raw8 * seg_ptr = source.getPixelData();
-  for (int i=0;i<n;i++) {
-    vis_ptr[i]=lut->getChannel(seg_ptr[i].getIntensity()).draw_color;
-  }
-}
-
-bool CMVisionThreshold::thresholdImageYUV422_UYVY(Image<raw8> * target, const RawImage * source, YUVLUT * lut) {
+bool CMVisionThreshold::thresholdImageYUV422_UYVY(Image<raw8> * target, const RawImage * source, YUVLUT * lut, const ImageInterface* mask) {
   if (source->getColorFormat()!=COLOR_YUV422_UYVY) {
     //TODO add YUV444 and maybe even 411 mode
     fprintf(stderr,"CMVision thresholdImageYUV422_UYVY assumes YUV422 as input, but found %s\n", Colors::colorFormatToString(source->getColorFormat()).c_str());
@@ -57,6 +45,7 @@ bool CMVisionThreshold::thresholdImageYUV422_UYVY(Image<raw8> * target, const Ra
   register unsigned int          target_size    = target->getNumPixels();
   register uyvy *       source_pointer = (uyvy*)(source->getData());
   register raw8 *      target_pointer = target->getPixelData();
+  register unsigned char *      mask_pointer = mask->getData();
 
   if (target->getNumPixels() != source->getNumPixels()) {
     fprintf(stderr, "CMVision YUV422_UYVY thresholding: source (num=%d  w=%d  h=%d) and target (num=%d w=%d h=%d) pixel counts do not match!\n", source->getNumPixels(),source->getWidth(),source->getHeight(), target->getNumPixels(),target->getWidth(),target->getHeight());
@@ -74,15 +63,14 @@ bool CMVisionThreshold::thresholdImageYUV422_UYVY(Image<raw8> * target, const Ra
     p=source_pointer[(i >> 0x01)];
     register int B=((p.u >> Y_SHIFT) << Z_BITS);
     register int C=(p.v >> Z_SHIFT);
-    target_pointer[i] =  LUT[(((p.y1 >> X_SHIFT) << Z_AND_Y_BITS) | B | C)];
-    target_pointer[i+1] =  LUT[(((p.y2 >> X_SHIFT) << Z_AND_Y_BITS) | B | C)];
+    target_pointer[i] =  mask_pointer[i] & LUT[(((p.y1 >> X_SHIFT) << Z_AND_Y_BITS) | B | C)];
+    target_pointer[i+1] =  mask_pointer[i+1] & LUT[(((p.y2 >> X_SHIFT) << Z_AND_Y_BITS) | B | C)];
   }
   lut->unlock();
-  //printf("time: %f\n",t.time());
   return true;
 }
 
-bool CMVisionThreshold::thresholdImageYUV444(Image<raw8> * target, const ImageInterface * source, YUVLUT * lut) {
+bool CMVisionThreshold::thresholdImageYUV444(Image<raw8> * target, const ImageInterface * source, YUVLUT * lut, const ImageInterface* mask) {
   if (source->getColorFormat()!=COLOR_YUV444) {
     fprintf(stderr,"CMVision thresholdImageYUV444 assumes YUV444 as input, but found %s\n", Colors::colorFormatToString(source->getColorFormat()).c_str());
     return false;
@@ -93,11 +81,12 @@ bool CMVisionThreshold::thresholdImageYUV444(Image<raw8> * target, const ImageIn
   register unsigned int          target_size    = target->getNumPixels();
   register yuv  *                source_pointer = (yuv*)(source->getData());
   register raw8 *                target_pointer = target->getPixelData();
+  register unsigned char *       mask_pointer = mask->getData();
 
   if (target->getNumPixels() != source->getNumPixels()) {
      fprintf(stderr, "CMVision YUV444 thresholding: source (num=%d  w=%d  h=%d) and target (num=%d w=%d h=%d) pixel counts do not match!\n", source->getNumPixels(),source->getWidth(),source->getHeight(), target->getNumPixels(),target->getWidth(),target->getHeight());
     return false;
-  } 
+  }
 
   lut->lock();
   int X_SHIFT=lut->X_SHIFT;
@@ -108,7 +97,7 @@ bool CMVisionThreshold::thresholdImageYUV444(Image<raw8> * target, const ImageIn
   yuv p;
   for (unsigned int i=0;i<target_size;i++) {
     p=source_pointer[i];
-    target_pointer[i] =  LUT[(((p.y >> X_SHIFT) << Z_AND_Y_BITS) | ((p.u >> Y_SHIFT) << Z_BITS) | (p.v >> Z_SHIFT))];
+    target_pointer[i] =  mask_pointer[i] & LUT[(((p.y >> X_SHIFT) << Z_AND_Y_BITS) | ((p.u >> Y_SHIFT) << Z_BITS) | (p.v >> Z_SHIFT))];
   }
   lut->unlock();
 
@@ -117,7 +106,7 @@ bool CMVisionThreshold::thresholdImageYUV444(Image<raw8> * target, const ImageIn
 
 
 
-bool CMVisionThreshold::thresholdImageRGB(Image<raw8> * target, const ImageInterface * source, RGBLUT * lut) {
+bool CMVisionThreshold::thresholdImageRGB(Image<raw8> * target, const ImageInterface * source, RGBLUT * lut, const ImageInterface* mask) {
   if (source->getColorFormat()!=COLOR_RGB8) {
     fprintf(stderr,"CMVision RGB thresholding assumes RGB8 as input, but found %s\n", Colors::colorFormatToString(source->getColorFormat()).c_str());
     return false;
@@ -127,6 +116,7 @@ bool CMVisionThreshold::thresholdImageRGB(Image<raw8> * target, const ImageInter
   int source_size    = source->getNumPixels();
   const rgb * source_pointer = (const rgb*)(source->getData());
   auto * target_pointer = (uint8_t*) target->getPixelData();
+  auto * mask_pointer = mask->getData();
 
   if (target->getNumPixels() != source->getNumPixels()) {
     fprintf(stderr, "CMVision RGB thresholding: source (num=%d  w=%d  h=%d) and target (num=%d w=%d h=%d) pixel counts do not match!\n", source->getNumPixels(),source->getWidth(),source->getHeight(), target->getNumPixels(),target->getWidth(),target->getHeight());
@@ -187,25 +177,16 @@ bool CMVisionThreshold::thresholdImageRGB(Image<raw8> * target, const ImageInter
 
 #pragma GCC unroll 16
     for(int j=0; j<16; j++) {
-      target_pointer[i+j] = LUT[idx[j]];
+      target_pointer[i+j] = mask_pointer[i] & LUT[idx[j]];
     }
   }
 #else
   #pragma GCC unroll 4
   for (int i=0; i<source_size; i++) {
     rgb p=source_pointer[i];
-    target_pointer[i] =  LUT[(((p.r >> X_SHIFT) << Z_AND_Y_BITS) | ((p.g >> Y_SHIFT) << Z_BITS) | (p.b >> Z_SHIFT))];
+    target_pointer[i] = mask_pointer[i] & LUT[(((p.r >> X_SHIFT) << Z_AND_Y_BITS) | ((p.g >> Y_SHIFT) << Z_BITS) | (p.b >> Z_SHIFT))];
   }
 #endif
 
   return true;
 }
-
-//static void thresholdImage(Image * target, const Image<yuv> * source, const YUVLUT * lut);
-
-//static void thresholdImage(Image * target, const Image<yuvy> * source, const YUVLUT * lut);
-
-//static void thresholdImage(Image * target, const Image<uyvy> * source, const LUT3D * lut);
-
-//typedef ColorYUYV<uint8_t,COLOR_YUV422_UYVY> yuyv;
-//typedef ColorUYVY<uint8_t,COLOR_YUV422_UYVY> uyvy;

@@ -21,6 +21,8 @@
 #include "plugin_visualize.h"
 #include <sobel.h>
 #include <opencv2/opencv.hpp>
+#include "convex_hull.h"
+#include <mutex>
 
 namespace {
 typedef CameraParameters::AdditionalCalibrationInformation AddnlCalibInfo;
@@ -28,9 +30,10 @@ typedef CameraParameters::AdditionalCalibrationInformation AddnlCalibInfo;
 
 PluginVisualize::PluginVisualize(
     FrameBuffer* _buffer, const CameraParameters& camera_params,
-    const RoboCupField& real_field) :
+    const RoboCupField& real_field, const ConvexHullImageMask& mask) :
     VisionPlugin(_buffer), camera_parameters(camera_params),
-    real_field(real_field) {
+    real_field(real_field),
+    _image_mask(mask){
   _v_enabled = new VarBool("enable", true);
   _v_image = new VarBool("image", true);
   _v_greyscale = new VarBool("greyscale", false);
@@ -42,6 +45,8 @@ PluginVisualize::PluginVisualize(
   _v_complete_sobel = new VarBool("complete edge detection", false);
   _v_complete_sobel->setBool(false);
 
+  _v_mask_hull = new VarBool("image mask hull", false);
+
   _settings = new VarList("Visualization");
   _settings->addChild(_v_enabled);
   _settings->addChild(_v_image);
@@ -52,6 +57,7 @@ PluginVisualize::PluginVisualize(
   _settings->addChild(_v_calibration_result);
   _settings->addChild(_v_detected_edges);
   _settings->addChild(_v_complete_sobel);
+  _settings->addChild(_v_mask_hull);
   _threshold_lut=0;
   edge_image = 0;
   temp_grey_image = 0;
@@ -101,6 +107,7 @@ void PluginVisualize::DrawCameraImage(
     unsigned int n = vis_frame->data.getNumPixels();
     rgb * vis_ptr = vis_frame->data.getPixelData();
     rgb color;
+
     for (unsigned int i = 0; i < n; i++) {
       color = vis_ptr[i];
       color.r = color.g = color.b = ((color.r + color.g + color.b)/3);
@@ -363,6 +370,21 @@ void PluginVisualize::DrawSearchCorridors(
   real_field.field_markings_mutex.unlock();
 }
 
+void PluginVisualize::DrawMaskHull(
+    FrameData* data, VisualizationFrame* vis_frame) {
+  _image_mask.lock();
+  auto mask_ch = _image_mask.getConvexHull();
+  for (auto it = mask_ch.begin(); it != mask_ch.end(); ++it) {
+    const GVector::vector2d<int> &a = *it;
+    vis_frame->data.drawFatBox(a.x - 3, a.y - 3, 7, 7, RGB::Orange);
+
+    const GVector::vector2d<int> &b =
+      std::next(it) != mask_ch.end() ? *std::next(it) : *mask_ch.begin();
+    vis_frame->data.drawLine(a.x, a.y, b.x, b.y, RGB::Orange);
+  }
+  _image_mask.unlock();
+}
+
 ProcessResult PluginVisualize::process(
     FrameData* data, RenderOptions* options) {
   if (data == 0) return ProcessingFailed;
@@ -421,6 +443,9 @@ ProcessResult PluginVisualize::process(
     // Result of edge detection for second calibration step
     if (_v_detected_edges->getBool()) {
       DrawDetectedEdges(data, vis_frame);
+    }
+    if(_v_mask_hull->getBool()) {
+      DrawMaskHull(data, vis_frame);
     }
     vis_frame->valid = true;
   } else {
