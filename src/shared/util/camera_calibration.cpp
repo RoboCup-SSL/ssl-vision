@@ -80,7 +80,7 @@ void CameraParameters::toProtoBuffer(SSL_GeometryCameraCalibration &buffer) cons
 
 }
 
-GVector::vector3d< double > CameraParameters::getWorldLocation() {
+GVector::vector3d< double > CameraParameters::getWorldLocation() const {
   Quaternion<double> q;
   q.set(q0->getDouble(),q1->getDouble(),q2->getDouble(),q3->getDouble());
   q.invert();

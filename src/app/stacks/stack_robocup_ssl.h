@@ -28,6 +28,11 @@
 #include "plugin_dvr.h"
 #include "plugin_colorcalib.h"
 #include "plugin_cameracalib.h"
+#include "plugin_greyscale.h"
+#ifdef APRILTAG
+#include "plugin_apriltag.h"
+#include "team_tags.h"
+#endif
 #include "plugin_visualize.h"
 #include "plugin_colorthreshold.h"
 #include "plugin_runlength_encode.h"
@@ -65,6 +70,10 @@ class StackRoboCupSSL : public VisionStack {
   CMPattern::TeamDetectorSettings * global_team_settings;
   CMPattern::TeamSelector * global_team_selector_blue;
   CMPattern::TeamSelector * global_team_selector_yellow;
+#ifdef APRILTAG
+  std::shared_ptr<TeamTags> global_blue_team_tags;
+  std::shared_ptr<TeamTags> global_yellow_team_tags;
+#endif /* APRILTAG */
   // UDP Server for Double-Sized field, new protobuf format.
   RoboCupSSLServer * _ds_udp_server_new;
   // UDP Server for Double-Sized field, old protobuf format.
@@ -80,6 +89,10 @@ class StackRoboCupSSL : public VisionStack {
                   CMPattern::TeamDetectorSettings* _global_team_settings,
                   CMPattern::TeamSelector* _global_team_selector_blue,
                   CMPattern::TeamSelector* _global_team_selector_yellow,
+#ifdef APRILTAG
+		  std::shared_ptr<TeamTags> _global_blue_team_tags,
+		  std::shared_ptr<TeamTags> _global_yellow_team_tags,
+#endif /* APRILTAG */		  
                   RoboCupSSLServer* ds_udp_server_new,
                   RoboCupSSLServer* ds_udp_server_old,
                   string cam_settings_filename);

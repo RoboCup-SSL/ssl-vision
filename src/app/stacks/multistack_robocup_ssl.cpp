@@ -42,6 +42,14 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions *_opts, int num_normal_
   global_team_selector_yellow = new CMPattern::TeamSelector("Yellow Team", global_team_settings);
   settings->addChild(global_team_selector_yellow->getSettings());
 
+#ifdef APRILTAG
+  global_blue_team_tags = std::make_shared<TeamTags>("Blue");
+  settings->addChild(global_blue_team_tags->getSettings());
+
+  global_yellow_team_tags = std::make_shared<TeamTags>("Yellow");
+  settings->addChild(global_yellow_team_tags->getSettings());
+#endif /* APRILTAG */
+
   global_network_output_settings = new PluginSSLNetworkOutputSettings();
   settings->addChild(global_network_output_settings->getSettings());
   connect(global_network_output_settings->multicast_port,
@@ -108,6 +116,10 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions *_opts, int num_normal_
             global_team_settings,
             global_team_selector_blue,
             global_team_selector_yellow,
+#ifdef APRILTAG
+	    global_blue_team_tags,
+	    global_yellow_team_tags,
+#endif /* APRILTAG */
             ds_udp_server_new,
             ds_udp_server_old,
             "robocup-ssl-cam-" + QString::number(i).toStdString()));

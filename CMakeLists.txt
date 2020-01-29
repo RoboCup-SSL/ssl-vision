@@ -8,6 +8,7 @@ set(USE_PYLON FALSE CACHE BOOL "Compile with pylon driver (Basler cameras)")
 set(USE_FLYCAP FALSE CACHE BOOL "Compile with flycap driver (FLIR cameras, predecessor of Spinnaker)")
 set(USE_V4L FALSE CACHE BOOL "Compile with Video4Linux support (generic webcams)")
 set(USE_SPLITTER FALSE CACHE BOOL "Compile with Camera splitter support (virtual cameras with part of a full image)")
+set(USE_APRILTAG FALSE CACHE BOOL "Compile with apriltag detection for robots")
 
 if(USE_DC1394 AND USE_mvIMPACT)
 	message(FATAL_ERROR "DC1394 and mvImpact are not compatible: mvImpact crashes when creating device manager")
@@ -190,6 +191,15 @@ else()
 	message(STATUS "Camera splitter disabled")
 endif()
 
+if(USE_APRILTAG)
+  find_package(apriltag REQUIRED)
+  add_definitions(-DAPRILTAG)
+  set(SRCS ${SRCS} src/app/plugins/plugin_apriltag.cpp)
+  message(STATUS "apriltag enabled")
+else()
+  message(STATUS "apriltag disabled")
+endif()
+
 include_directories(${PROJECT_SOURCE_DIR}/src/app)
 include_directories(${PROJECT_SOURCE_DIR}/src/app/gui)
 include_directories(${PROJECT_SOURCE_DIR}/src/app/plugins)
@@ -220,6 +230,7 @@ set (SRCS ${SRCS}
 	src/app/plugins/plugin_detect_balls.cpp
 	src/app/plugins/plugin_detect_robots.cpp
 	src/app/plugins/plugin_find_blobs.cpp
+	src/app/plugins/plugin_greyscale.cpp
 	src/app/plugins/plugin_publishgeometry.cpp
 	src/app/plugins/plugin_legacypublishgeometry.cpp
 	src/app/plugins/plugin_runlength_encode.cpp
@@ -347,6 +358,9 @@ set (libs ${QT_LIBRARIES}
 	${SPINNAKER_LIBS}
 )
 target_link_libraries(sslvision ${libs})
+if(USE_APRILTAG)
+  target_link_libraries(sslvision apriltag)
+endif()
 if(USE_QT5)
 	qt5_use_modules(sslvision Widgets)
 endif()
@@ -356,6 +370,9 @@ set (libs ${libs} sslvision)
 set (target vision)
 add_executable(${target} ${UI_SRCS} ${MOC_SRCS} ${RC_SRCS} ${SRCS})
 target_link_libraries(${target} ${libs})
+if (USE_APRILTAG)
+  target_link_libraries(${target} apriltag)
+endif()
 if(USE_QT5)
 	qt5_use_modules(${target} Widgets OpenGL)
 endif()

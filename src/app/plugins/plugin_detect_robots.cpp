@@ -126,14 +126,14 @@ ProcessResult PluginDetectRobots::process(FrameData * data, RenderOptions * opti
       color_id=color_id_blue;
       team=global_team_selector_blue->getSelectedTeam();
       num_robots=global_team_selector_blue->getNumberRobots();
-      detection_frame->clear_robots_blue();
+      // detection_frame->clear_robots_blue();
       robotlist=detection_frame->mutable_robots_blue();
       detector=team_detector_blue;
     } else {
       color_id=color_id_yellow;
       team=global_team_selector_yellow->getSelectedTeam();
       num_robots=global_team_selector_yellow->getNumberRobots();
-      detection_frame->clear_robots_yellow();
+      // detection_frame->clear_robots_yellow();
       robotlist=detection_frame->mutable_robots_yellow();
       detector=team_detector_yellow;
     }

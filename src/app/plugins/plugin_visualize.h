@@ -65,6 +65,9 @@ protected:
   VarBool * _v_complete_sobel;
   VarBool * _v_detected_edges;
   VarBool * _v_mask_hull;
+#ifdef APRILTAG
+  VarBool * _v_detected_apriltags;
+#endif
 
   const CameraParameters& camera_parameters;
   const RoboCupField& real_field;
@@ -108,6 +111,9 @@ protected:
   void DrawSearchCorridors(FrameData* data, VisualizationFrame* vis_frame);
 
   void DrawMaskHull(FrameData* data, VisualizationFrame* vis_frame);
+#ifdef APRILTAG  
+  void DrawDetectedAprilTags(FrameData* data, VisualizationFrame* vis_frame);
+#endif
 public:
   PluginVisualize(FrameBuffer* _buffer, const CameraParameters& camera_params,
                   const RoboCupField& real_field, const ConvexHullImageMask &mask);

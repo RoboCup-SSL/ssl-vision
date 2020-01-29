@@ -181,7 +181,7 @@ TeamDetector::~TeamDetector()
 void TeamDetector::update(::google::protobuf::RepeatedPtrField< ::SSL_DetectionRobot >* robots, int team_color_id, int max_robots, const Image<raw8> * image, CMVision::ColorRegionList * colorlist, CMVision::RegionTree & reg_tree) {
   color_id_team=team_color_id;
   _max_robots=max_robots;
-  robots->Clear();
+  // robots->Clear();
 
   if (_unique_patterns) {
     findRobotsByModel(robots,team_color_id,image,colorlist,reg_tree);

@@ -12,6 +12,10 @@ include_directories(${shared_dir}/vartypes/enhanced)
 include_directories(${shared_dir}/vartypes/gui)
 include_directories(${shared_dir}/vartypes/xml)
 
+if(USE_APRILTAG)
+  include_directories(${shared_dir}/apriltag)
+endif()
+
 set (SHARED_SRCS
 	${shared_dir}/capture/capturefromfile.cpp
 	${shared_dir}/capture/capture_generator.cpp
@@ -95,9 +99,15 @@ set (SHARED_SRCS
   ${shared_dir}/util/helpers.cpp
   ${shared_dir}/util/field.cpp
 
-    ${shared_dir}/util/convex_hull.cpp
-    ${shared_dir}/util/convex_hull_image_mask.cpp
+  ${shared_dir}/util/convex_hull.cpp
+  ${shared_dir}/util/convex_hull_image_mask.cpp
+
+  ${shared_dir}/util/team_tags.cpp
 )
+
+if(USE_APRILTAG)
+  set(SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/apriltag/tagCustom20h7.c)
+endif()
 
 #only ones that need to be moc'ed
 set (SHARED_HEADERS
@@ -108,6 +118,7 @@ set (SHARED_HEADERS
 	${shared_dir}/cmpattern/cmpattern_teamdetector.h
 
 	${shared_dir}/util/field.h
+	${shared_dir}/util/team_tags.h
 
 	${shared_dir}/vartypes/VarNotifier.h
 
@@ -130,6 +141,11 @@ set (SHARED_HEADERS
 	${shared_dir}/vartypes/gui/VarTreeModel.h
 	${shared_dir}/vartypes/gui/VarTreeView.h
 )
+
+if(USE_APRILTAG)
+  set(SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/apriltag/tagCustom20h7.h)
+endif()
+
 
 set (SHARED_RC
 	${shared_dir}/vartypes/gui/icons/icons.qrc
