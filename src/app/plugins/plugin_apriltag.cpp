@@ -15,6 +15,7 @@
 #include <tagCustom48h12.h>
 #include <tagStandard41h12.h>
 #include <tagStandard52h13.h>
+#include <opencv2/opencv.hpp>
 
 using HammHist = std::array<int, 10>;
 using Eigen::AngleAxisd;
@@ -30,7 +31,7 @@ PluginAprilTag::PluginAprilTag(FrameBuffer *buffer,
                                std::shared_ptr<TeamTags> blue_team_tags,
                                std::shared_ptr<TeamTags> yellow_team_tags,
                                CMPattern::TeamSelector &blue_team_selector,
-                               CMPattern::TeamSelector &yellow_team_selector)
+                               CMPattern::TeamSelector &yellow_team_selector, ConvexHullImageMask& mask)
     : VisionPlugin(buffer), settings(new VarList("AprilTag")),
       v_enable(new VarBool("enable", true)),
       v_quad_size(new VarDouble("quad size (mm)", 70.0)),
@@ -43,7 +44,8 @@ PluginAprilTag::PluginAprilTag(FrameBuffer *buffer,
       camera_params(camera_params), blue_team_tags(blue_team_tags),
       yellow_team_tags(yellow_team_tags),
       blue_team_selector(blue_team_selector),
-      yellow_team_selector(yellow_team_selector) {
+      yellow_team_selector(yellow_team_selector),
+      image_mask(mask){
 
   v_family.reset(new VarStringEnum("Tag Family", "tagCircle21h7"));
   v_family->addItem("tag36h11");
@@ -74,11 +76,13 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
   if (!v_enable->getBool()) {
     return ProcessingOk;
   }
+  image_mask.lock();  
   if (!tag_family || v_family->getString() != tag_family->name) {
     makeTagFamily();
     if (!tag_family) {
       std::cerr << "AprilTag: Failed to create tag family '"
                 << v_family->getString() << "'\n";
+      image_mask.unlock();
       return ProcessingFailed;
     }
 
@@ -91,6 +95,7 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
     makeTagDetector();
     if (!tag_detector) {
       std::cerr << "AprilTag: Failed to create tag detector\n";
+      image_mask.unlock();
       return ProcessingFailed;
     }
   }
@@ -104,7 +109,42 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
       reinterpret_cast<Image<raw8> *>(data->map.get("greyscale"));
   if (img_greyscale == nullptr) {
     std::cerr << "AprilTag: No greyscale image in frame data\n";
+    image_mask.unlock();
     return ProcessingFailed;
+  }
+
+  Image<raw8> *img_masked;
+  if ((img_masked = reinterpret_cast<Image<raw8> *>(
+           data->map.get("masked"))) == nullptr) {
+    img_masked = reinterpret_cast<Image<raw8> *>(
+        data->map.insert("masked", new Image<raw8>()));
+  }
+  img_masked->allocate(img_greyscale->getWidth(), img_greyscale->getHeight());
+
+  // TODO(dschwab): In the interest of speed on hi-res images, it
+  // might be useful to compute the bounding box of the convex hull
+  // and if it is x% smaller than original image, apply the mask and
+  // then crop the image so that the detection needs to work with less
+  // pixels.
+  
+  Image<raw8> *input_image = img_greyscale;
+  const auto& hull = image_mask.getConvexHull();
+  // there must be at least 3 points in the convex hull for the mask to have restricted
+  // the image size. If there are less than 3 skip masking the
+  // greyscale image.  
+  if (hull.getNumPoints() >= 3) {
+    const auto &mask = image_mask.getMask();
+    cv::Mat cv_mask(mask.getHeight(), mask.getWidth(), CV_8UC1, mask.getData());
+    cv::Mat cv_greyscale(img_greyscale->getHeight(), img_greyscale->getWidth(),
+                         CV_8UC1, img_greyscale->getData());
+    cv::Mat cv_masked(img_masked->getHeight(), img_masked->getWidth(), CV_8UC1, img_masked->getData());
+        
+    cv::Mat& input1 = cv_mask;
+    cv::Mat& input2 = cv_greyscale;
+    cv::Mat& output = cv_masked;
+    cv::bitwise_and(input1, input2, output);
+
+    input_image = img_masked;
   }
 
   const int maxiters = v_iters->getInt();
@@ -114,10 +154,10 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
     }
 
     // zero-copy. Just use the already allocated buffer data.
-    image_u8_t im{.width = img_greyscale->getWidth(),
-                  .height = img_greyscale->getHeight(),
-                  .stride = img_greyscale->getWidth(),
-                  .buf = img_greyscale->getData()};
+    image_u8_t im{.width = input_image->getWidth(),
+                  .height = input_image->getHeight(),
+                  .stride = input_image->getWidth(),
+                  .buf = input_image->getData()};
 
     detections.reset(apriltag_detector_detect(tag_detector.get(), &im));
     data->map.update("apriltag_detections", detections.get());
@@ -229,6 +269,7 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
     }
   }
 
+  image_mask.unlock();
   return ProcessingOk;
 }
 

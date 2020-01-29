@@ -1,6 +1,7 @@
 #ifndef PLUGIN_APRILTAG_H
 #define PLUGIN_APRILTAG_H
 
+#include "convex_hull_image_mask.h"
 #include "camera_calibration.h"
 #include "cmpattern_teamdetector.h"
 #include "team_tags.h"
@@ -36,13 +37,15 @@ protected:
   const std::shared_ptr<TeamTags> yellow_team_tags;
   CMPattern::TeamSelector &blue_team_selector;
   CMPattern::TeamSelector &yellow_team_selector;
+  ConvexHullImageMask& image_mask;
 
 public:
   PluginAprilTag(FrameBuffer *buffer, const CameraParameters &camera_params,
                  std::shared_ptr<TeamTags> blue_team_tags,
                  std::shared_ptr<TeamTags> yellow_team_tags,
                  CMPattern::TeamSelector &blue_team_selector,
-                 CMPattern::TeamSelector &yellow_team_selector);
+                 CMPattern::TeamSelector &yellow_team_selector,
+		 ConvexHullImageMask& mask);
   ~PluginAprilTag() override = default;
 
   ProcessResult process(FrameData *data, RenderOptions *options) override;
@@ -52,6 +55,7 @@ public:
   std::string getName() override;
 
 private:
+
   void makeTagFamily();
   void makeTagDetector();
 };
