@@ -408,6 +408,7 @@ void ImageProcessor::processYUV422_UYVY(const RawImage * image, int min_blob_are
   img_thresholded->allocate(image->getWidth(),image->getHeight());
   Image<raw8> mask;
   mask.allocate(image->getWidth(),image->getHeight());
+  memset(mask.getData(),-1,mask.getNumBytes());
   CMVisionThreshold::thresholdImageYUV422_UYVY(img_thresholded,image,lut,&mask);
   processThresholded(img_thresholded,min_blob_area);
 }
@@ -416,6 +417,7 @@ void ImageProcessor::processYUV444(const ImageInterface * image, int min_blob_ar
   img_thresholded->allocate(image->getWidth(),image->getHeight());
   Image<raw8> mask;
   mask.allocate(image->getWidth(),image->getHeight());
+  memset(mask.getData(),-1,mask.getNumBytes());
   CMVisionThreshold::thresholdImageYUV444(img_thresholded,image,lut,&mask);
   processThresholded(img_thresholded,min_blob_area);
 }
