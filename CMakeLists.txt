@@ -1,6 +1,6 @@
 project(ssl-vision)
 set(OpenGL_GL_PREFERENCE LEGACY)
-set(USE_QT5 FALSE CACHE BOOL "Use Qt5 instead of Qt4")
+set(USE_QT5 TRUE CACHE BOOL "Use Qt5 instead of Qt4")
 set(USE_DC1394 TRUE CACHE BOOL "Compile with DC1394 driver (firewire cameras)")
 set(USE_SPINNAKER FALSE CACHE BOOL "Compile with Spinnaker driver (FLIR cameras)")
 set(USE_mvIMPACT FALSE CACHE BOOL "Compile with mvImpact driver (bluefox USB2 + USB3 cameras)")
