@@ -559,7 +559,7 @@ void GLSoccerView::updateFieldGeometry(const SSL_GeometryFieldSize& fieldSize) {
   for (int i = 0; i < fieldSize.field_lines_size(); ++i) {
     const SSL_FieldLineSegment& line = fieldSize.field_lines(i);
     fieldDim.lines.push_back(new FieldLine(
-        line.name(), line.p1().x(), line.p1().y(), 
+        line.name(), line.p1().x(), line.p1().y(),
         line.p2().x(), line.p2().y(), line.thickness()));
   }
   for (size_t i = 0; i < fieldDim.arcs.size(); ++i) {
@@ -567,7 +567,7 @@ void GLSoccerView::updateFieldGeometry(const SSL_GeometryFieldSize& fieldSize) {
   }
   fieldDim.arcs.clear();
   for (int i = 0; i < fieldSize.field_arcs_size(); ++i) {
-    const SSL_FieldCicularArc& arc = fieldSize.field_arcs(i);
+    const SSL_FieldCircularArc& arc = fieldSize.field_arcs(i);
     fieldDim.arcs.push_back(new FieldCircularArc(
         arc.name(), arc.center().x(), arc.center().y(),  arc.radius(),
         arc.a1(), arc.a2(), arc.thickness()));
