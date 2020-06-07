@@ -6,6 +6,11 @@
 void computeMask(const ConvexHull &convex_hull, Image<raw8> &mask) {
   const auto WHITE = raw8(255);
 
+  if(convex_hull._points.empty()) {
+    mask.fillColor(WHITE);
+    return;
+  }
+
   mask.fillBlack();
   for (auto it = convex_hull.begin(); it != convex_hull.end(); ++it) {
     const GVector::vector2d<int> &a = *it;
@@ -77,7 +82,7 @@ void ConvexHullImageMask::reset() {
   lock();
   
   _convex_hull.clear();
-  _mask.fillColor(raw8(255));
+  computeMask(_convex_hull, _mask);
   _v_list->resetToDefault();
   
   unlock();
@@ -135,7 +140,6 @@ void ConvexHullImageMask::removePoint(const int x, const int y, const int margin
 void ConvexHullImageMask::setSize(const int w, const int h) {
   lock();
   _mask.allocate(w, h);
-  _mask.fillColor(raw8(255));
   computeMask(_convex_hull, _mask);
   unlock();
 }
