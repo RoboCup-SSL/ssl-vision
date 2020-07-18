@@ -1,0 +1,117 @@
+syntax = "proto2";
+
+// Default network address: 224.5.23.2:10010
+
+// A vector with two dimensions
+message Vector2 {
+    required float x = 1;
+    required float y = 2;
+}
+
+// A vector with three dimensions
+message Vector3 {
+    required float x = 1;
+    required float y = 2;
+    required float z = 3;
+}
+
+// The team color of the robot
+enum TeamColor {
+    // team not set
+    TEAM_COLOR_UNKNOWN = 0;
+    // yellow team
+    TEAM_COLOR_YELLOW = 1;
+    // blue team
+    TEAM_COLOR_BLUE = 2;
+}
+
+// A unique robot id with team information
+message RobotId {
+    // The robot number
+    required uint32 id = 1;
+    // The team color
+    required TeamColor team_color = 2;
+}
+
+// Capabilities that a source implementation can have
+enum Capability {
+    CAPABILITY_UNKNOWN = 0;
+    CAPABILITY_DETECT_FLYING_BALLS = 1;
+    CAPABILITY_DETECT_MULTIPLE_BALLS = 2;
+    CAPABILITY_DETECT_KICKED_BALLS = 3;
+}
+
+// A single tracked ball
+message TrackedBall {
+    // The position (x, y, height) [m] in the ssl-vision coordinate system
+    required Vector3 pos = 1;
+
+    // The velocity [m/s] in the ssl-vision coordinate system
+    optional Vector3 vel = 2;
+
+    // The visibility of the ball
+    // A value between 0 (not visible) and 1 (visible)
+    // The exact implementation depends on the source software
+    optional float visibility = 3;
+}
+
+// A ball kicked by a robot, including predictions when the ball will come to a stop
+message KickedBall {
+    // The initial position [m] from which the ball was kicked
+    required Vector2 pos = 1;
+    // The initial velocity [m/s] with which the ball was kicked
+    required Vector3 vel = 2;
+    // The unix timestamp [s] when the kick was performed
+    required double start_timestamp = 3;
+
+    // The predicted unix timestamp [s] when the ball comes to a stop
+    optional double stop_timestamp = 4;
+    // The predicted position [m] at which the ball will come to a stop
+    optional Vector2 stop_pos = 5;
+
+    // The robot that kicked the ball
+    optional RobotId robot_id = 6;
+}
+
+// A single tracked robot
+message TrackedRobot {
+    required RobotId robot_id = 1;
+
+    // The position [m] in the ssl-vision coordinate system
+    required Vector2 pos = 2;
+    // The orientation [rad] in the ssl-vision coordinate system
+    required float orientation = 3;
+
+    // The velocity [m/s] in the ssl-vision coordinate system
+    optional Vector2 vel = 4;
+    // The angular velocity [rad/s] in the ssl-vision coordinate system
+    optional float vel_angular = 5;
+
+    // The visibility of the robot
+    // A value between 0 (not visible) and 1 (visible)
+    // The exact implementation depends on the source software
+    optional float visibility = 6;
+}
+
+// A frame that contains all currently tracked objects on the field on all cameras
+message TrackedFrame {
+    // A monotonous increasing frame counter
+    required uint32 frame_number = 1;
+    // The unix timestamp in [s] of the data
+    // If timestamp is larger than timestamp_captured, the source has applied a prediction already
+    required double timestamp = 2;
+
+    // The list of detected balls
+    // The first ball is the primary one
+    // Sources may add additional balls based on their capabilities
+    repeated TrackedBall balls = 3;
+    // The list of detected robots of both teams
+    repeated TrackedRobot robots = 4;
+
+    // Information about a kicked ball, if the ball was kicked by a robot and is still moving
+    // Note: This field is optional. Some source implementations might not set this at any time
+    optional KickedBall kicked_ball = 5;
+
+    // List of capabilities of the source implementation
+    repeated Capability capabilities = 6;
+}

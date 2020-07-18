@@ -75,7 +75,7 @@ void RegionProcessing::encodeRuns(Image<raw8> * tmap, CMVision::RunList * runlis
       while(x != width && row[x] == m) x++;
 
       if(m != clear || x==width) {
-        r.color = m; 
+        r.color = m;
         r.width = x - l;
         r.parent = j;
         runs[j++] = r;
@@ -406,17 +406,19 @@ ImageProcessor::~ImageProcessor() {
 
 void ImageProcessor::processYUV422_UYVY(const RawImage * image, int min_blob_area) {
   img_thresholded->allocate(image->getWidth(),image->getHeight());
-  CMVisionThreshold::thresholdImageYUV422_UYVY(img_thresholded,image,lut);
+  Image<raw8> mask;
+  mask.allocate(image->getWidth(),image->getHeight());
+  memset(mask.getData(),-1,mask.getNumBytes());
+  CMVisionThreshold::thresholdImageYUV422_UYVY(img_thresholded,image,lut,&mask);
   processThresholded(img_thresholded,min_blob_area);
 }
 
 void ImageProcessor::processYUV444(const ImageInterface * image, int min_blob_area) {
   img_thresholded->allocate(image->getWidth(),image->getHeight());
-  CMVisionThreshold::thresholdImageYUV444(img_thresholded,image,lut);
-  /*DEBUG OUTPUT: rgbImage out;
-  CMVisionThreshold::colorizeImageFromThresholding(out, *img_thresholded,  lut);
-  out.save("output.jpg");
-  //exit(0);*/
+  Image<raw8> mask;
+  mask.allocate(image->getWidth(),image->getHeight());
+  memset(mask.getData(),-1,mask.getNumBytes());
+  CMVisionThreshold::thresholdImageYUV444(img_thresholded,image,lut,&mask);
   processThresholded(img_thresholded,min_blob_area);
 }
 

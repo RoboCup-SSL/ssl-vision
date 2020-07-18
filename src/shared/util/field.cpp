@@ -450,7 +450,7 @@ void RoboCupField::toProtoBuffer(SSL_GeometryFieldSize& buffer) const {
   }
   for (size_t i = 0; i < field_arcs.size(); ++i) {
     const FieldCircularArc& arc = *(field_arcs[i]);
-    SSL_FieldCicularArc proto_arc;
+    SSL_FieldCircularArc proto_arc;
     proto_arc.set_name(arc.name->getString());
     proto_arc.set_type(parseShapeType(arc.type));
     proto_arc.mutable_center()->set_x(arc.center_x->getDouble());

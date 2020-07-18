@@ -53,6 +53,13 @@ typedef struct {
     unsigned int width, height;
 } ApplicationData;
 
+enum class FlyCapCamType { 
+    GIGE,
+    GENERIC,
+    UNKNOWN
+};
+
+
 ColorFormat pixelFormatToColorFormat(FlyCapture2::PixelFormat format);
 
 //if using QT, inherit QObject as a base
@@ -175,7 +182,8 @@ protected:
     VarList * conversion_settings;
 
     // Capture Variables
-    FlyCapture2::GigECamera * camera;
+    FlyCapCamType camera_type;
+    FlyCapture2::CameraBase * camera;
     FlyCapture2::PGRGuid guid;
     FlyCapture2::Image * stored_image;
 

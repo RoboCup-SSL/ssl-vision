@@ -21,6 +21,7 @@
 
 
 #include "lutwidget.h"
+#include <QGroupBox>
 
 LUTWidget::LUTWidget(LUT3D * lut, LUTChannelMode mode)
 {
@@ -29,7 +30,6 @@ LUTWidget::LUTWidget(LUT3D * lut, LUTChannelMode mode)
   vbox=new QBoxLayout(QBoxLayout::TopToBottom);
   hbox=new QBoxLayout(QBoxLayout::LeftToRight);
   list=new QListWidget();
-  label=new QLabel();
   gllut=new GLLUTWidget(mode,this);
   gllut->setLUT(lut);
   updateList(lut);
@@ -39,9 +39,9 @@ LUTWidget::LUTWidget(LUT3D * lut, LUTChannelMode mode)
   list->setFocusPolicy(Qt::NoFocus);
   setFocusPolicy(Qt::StrongFocus);
   gllut->setSizePolicy ( QSizePolicy::Expanding, QSizePolicy::Expanding );
-  label->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
   toolbar->setIconSize(QSize(16,16));
   toolbar->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
+
   vbox->setSpacing(2);
   vbox->setMargin(0);
   hbox->setSpacing(2);
@@ -50,11 +50,10 @@ LUTWidget::LUTWidget(LUT3D * lut, LUTChannelMode mode)
   hbox->addWidget(list);
   vbox->addWidget(toolbar);
   vbox->addLayout(hbox);
-  vbox->addWidget(label);
   this->setLayout(vbox);
 
   addActions(gllut->actions());
-  
+
   toolbar->addActions(actions());
   //toolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
                 //QList<QAction *> toolactions=gllut->actions();
@@ -105,7 +104,6 @@ void LUTWidget::sampleImage(const RawImage & img) {
 LUTWidget::~LUTWidget()
 {
   delete gllut;
-  delete label;
   delete list;
   delete hbox;
   delete vbox;

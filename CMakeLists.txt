@@ -1,6 +1,6 @@
 project(ssl-vision)
 set(OpenGL_GL_PREFERENCE LEGACY)
-set(USE_QT5 FALSE CACHE BOOL "Use Qt5 instead of Qt4")
+set(USE_QT5 TRUE CACHE BOOL "Use Qt5 instead of Qt4")
 set(USE_DC1394 TRUE CACHE BOOL "Compile with DC1394 driver (firewire cameras)")
 set(USE_SPINNAKER FALSE CACHE BOOL "Compile with Spinnaker driver (FLIR cameras)")
 set(USE_mvIMPACT FALSE CACHE BOOL "Compile with mvImpact driver (bluefox USB2 + USB3 cameras)")
@@ -210,6 +210,7 @@ set (SRCS ${SRCS}
 	src/app/framedata.cpp
 	src/app/main.cpp
 
+    src/app/gui/maskwidget.cpp
 	src/app/gui/automatedcolorcalibwidget.cpp
 	src/app/gui/cameracalibwidget.cpp
 	src/app/gui/colorpicker.cpp
@@ -222,6 +223,7 @@ set (SRCS ${SRCS}
 	src/app/gui/videowidget.cpp
 	src/app/gui/jog_dial.cpp
 
+	src/app/plugins/plugin_mask.cpp
 	src/app/plugins/plugin_cameracalib.cpp
 	src/app/plugins/plugin_colorcalib.cpp
 	src/app/plugins/plugin_colorthreshold.cpp
@@ -250,6 +252,7 @@ set (SRCS ${SRCS}
 qt4_wrap_cpp (MOC_SRCS
 	src/app/capture_thread.h
 
+	src/app/gui/maskwidget.h
 	src/app/gui/automatedcolorcalibwidget.h
 	src/app/gui/cameracalibwidget.h
 	src/app/gui/glLUTwidget.h
@@ -260,6 +263,7 @@ qt4_wrap_cpp (MOC_SRCS
 	src/app/gui/jog_dial.h
 
 	src/shared/util/lut3d.h
+	src/shared/util/convex_hull_image_mask.h
 
 	src/app/plugins/plugin_dvr.h
 	src/app/plugins/plugin_publishgeometry.h

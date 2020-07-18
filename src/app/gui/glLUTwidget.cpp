@@ -268,7 +268,7 @@ void GLLUTWidget::setChannel(int c) {
 
 void GLLUTWidget::drawEvent ( QMouseEvent * event )
 {
-  
+
  //get coordinates
   int x;
   int y;
@@ -277,7 +277,7 @@ void GLLUTWidget::drawEvent ( QMouseEvent * event )
     if ((event->button() == Qt::RightButton)) {
       //if right mouse button:
       //FIXME: add a (if direct statement)
-      
+
         if (state.continuing_undo==false) editStore();
         _lut->maskFillYZ(state.slice_idx, x,y,
                           (_mode==LUTChannelMode_Numeric) ? state.channel : (((event->modifiers() & Qt::AltModifier) != 0x00) ? (~(0x00)) : (0x01 << state.channel)),
@@ -306,7 +306,7 @@ void GLLUTWidget::drawEvent ( QMouseEvent * event )
     //update texture
     slices[state.slice_idx]->selection_update_pending=true;
     _lut->unlock();
-    
+
     this->redraw();
   }
 }
@@ -464,7 +464,7 @@ GLLUTWidget::GLLUTWidget(LUTChannelMode mode, QWidget *parent) : QGLWidget(paren
   addAction(actionUndo);
 
   actionRedo = new QAction(this);
-  actionUndo->setEnabled(false);
+  actionRedo->setEnabled(false);
   actionRedo->setObjectName("actionRedo");
   actionRedo->setIcon(QIcon(":/icons/redo.png"));
   actionRedo->setShortcut(QKeySequence("Insert"));
@@ -501,13 +501,13 @@ GLLUTWidget::GLLUTWidget(LUTChannelMode mode, QWidget *parent) : QGLWidget(paren
   connect(actionViewToggleBackground, SIGNAL(triggered()), this, SLOT(redraw()));
   connect(actionViewToggleOtherChannels, SIGNAL(triggered()), this, SLOT(rebuildAndRedraw()));
   connect(actionSwitchMode, SIGNAL(triggered()), this, SLOT(switchMode()));
-  
+
   connect(actionRedo, SIGNAL(triggered()), this, SLOT(editRedo()));
   connect(actionUndo, SIGNAL(triggered()), this, SLOT(editUndo()));
   connect(actionClearSampler, SIGNAL(triggered()), this, SLOT(clearSampler()));
   //connect(actionSave, SIGNAL(triggered()), this, SLOT(saveImage()));
   connect(actionHelp, SIGNAL(triggered()), this, SLOT(callHelp()));
-  
+
   connect(actionZoomNormal, SIGNAL(triggered()), this, SLOT(callZoomNormal()));
 
   editClearAll();
@@ -517,7 +517,6 @@ GLLUTWidget::~GLLUTWidget()
 {
   //delete texture;
 }
-
 
 void GLLUTWidget::initializeGL()
 {
@@ -562,10 +561,10 @@ void GLLUTWidget::paintGL()
   setupProjection();
 
   //setup lens:
-  
+
   //switch to modelview mode
   glMatrixMode( GL_MODELVIEW );
-  
+
   glLoadIdentity();
 
   glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
@@ -595,7 +594,7 @@ void GLLUTWidget::paintGL()
     }
   }
 
-  
+
   //let's draw a slice
   //glColor3f(0.0,0.0,0.0);
   if (view_mode==VIEW_SINGLE) {
@@ -648,7 +647,7 @@ void GLLUTWidget::paintGL()
     }
   } else if (view_mode==VIEW_CUBE) {
 
-      
+
 
       glTranslatef(-0.5,-0.5,-0.5);
       glColor3f(0.7,0.7,0.7);
@@ -706,7 +705,7 @@ void GLLUTWidget::paintGL()
       }*/
       glDrawSlice(slices[i]);
       glBindTexture(GL_TEXTURE_2D,0);
-      
+
 
 
       glColor3f(1.0,1.0,1.0);
@@ -899,10 +898,10 @@ void GLLUTWidget::setLUT(LUT3D * lut) {
 
 bool GLLUTWidget::copyLUT(lut_mask_t *pDataLUT, int size_copy, int color_index) {
     //edit snapshot
-    editStore();                            
+    editStore();
     m.lock();
     //perform actual copy
-    bool bSuccess = _lut->copyLUT(pDataLUT, size_copy, color_index);  
+    bool bSuccess = _lut->copyLUT(pDataLUT, size_copy, color_index);
     m.unlock();
     if (bSuccess) rebuildAndRedraw();
     return bSuccess;
@@ -1001,7 +1000,7 @@ void GLLUTWidget::keyPressEvent ( QKeyEvent * event )
     event->accept();
   } else if (event->key()==Qt::Key_C) {
     signalKeyPressEvent(event);
-    event->accept();    
+    event->accept();
   } else if (event->key()==Qt::Key_Z) {
     if (state.slice_idx > 0) state.slice_idx--;
     this->redraw(); //upgl
@@ -1042,7 +1041,7 @@ void GLLUTWidget::samplePixel(const yuv & color) {
     slices[i]->sampler_update_pending=true;
     redraw();
   }
-  
+
 }
 
 void GLLUTWidget::drawSample(int i, int x, int y) {
@@ -1063,12 +1062,12 @@ void GLLUTWidget::drawSample(int i, int x, int y) {
 void GLLUTWidget::sampleImage(const RawImage & img) {
   //compute slice it sits on:
   ColorFormat source_format=img.getColorFormat();
-  
+
   int n=img.getNumPixels();
-  
+
   yuv color;
   int i=0;
-  
+
   if (img.getWidth() > 1 && img.getHeight() > 1) {
     if (source_format==COLOR_RGB8) {
       rgbImage rgb_img(img);
@@ -1103,7 +1102,7 @@ void GLLUTWidget::sampleImage(const RawImage & img) {
           color_uyvy_tmp=(*color_uyvy);
           color.u=color_uyvy_tmp.u;
           color.v=color_uyvy_tmp.v;
-  
+
           color.y=color_uyvy_tmp.y1;
           i=_lut->norm2lutX(color.y);
           if (i >= 0 && i < (int)slices.size()) {
@@ -1111,7 +1110,7 @@ void GLLUTWidget::sampleImage(const RawImage & img) {
             drawSample(i,_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v));
             slices[i]->sampler_update_pending=true;
           }
-  
+
           color.y=color_uyvy_tmp.y2;
           i=_lut->norm2lutX(color.y);
           if (i >= 0 && i < (int)slices.size()) {

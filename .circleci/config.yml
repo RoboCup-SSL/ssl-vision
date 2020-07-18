@@ -19,80 +19,45 @@ jobs:
     steps:
       - run: apt-get update -qq && apt-get install -qq git
       - checkout
-      - run:
-          name: "Install dependencies"
-          command: |
-            DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
-      - run:
-          name: "Configure"
-          command: |
-            mkdir -p build
-            cmake -B build -DUSE_V4L=true .
-      - run:
-          name: "Build"
-          command: make
+      - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
+      - run: mkdir -p build
+      - run: cmake -B build -DUSE_V4L=true .
+      - run: make
   build-splitter:
     docker:
       - image: ubuntu:18.04
     steps:
       - run: apt-get update -qq && apt-get install -qq git
       - checkout
-      - run:
-          name: "Install dependencies"
-          command: |
-            DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
-      - run:
-          name: "Configure"
-          command: |
-            mkdir -p build
-            cmake -B build -DUSE_SPLITTER=true .
-      - run:
-          name: "Build"
-          command: make
-  build-qt5:
+      - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
+      - run: mkdir -p build
+      - run: cmake -B build -DUSE_SPLITTER=true .
+      - run: make
+  build-qt4:
     docker:
       - image: ubuntu:18.04
     steps:
       - run: apt-get update -qq && apt-get install -qq git
       - checkout
-      - run:
-          name: "Install dependencies"
-          command: |
-            DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
-            apt-get install -qq qtdeclarative5-dev
-      - run:
-          name: "Configure"
-          command: |
-            mkdir -p build
-            cmake -B build -DUSE_QT5=true .
-      - run:
-          name: "Build"
-          command: make
-  build-apriltag:
+      - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
+      - run: apt-get install -qq libqt4-dev
+      - run: mkdir -p build
+      - run: cmake -B build -DUSE_QT5=true .
+      - run: make
+  build-apriltags:
     docker:
       - image: ubuntu:18.04
     steps:
       - run: apt-get update -qq && apt-get install -qq git
       - checkout
-      - run:
-          name: "Install dependencies"
-          command: |
-            DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
-      - run:
-          name: "Install april tag"
-          command: |
-            git clone https://github.com/AprilRobotics/apriltag.git
-            cd apriltag
-            cmake .
-            make install
-      - run:
-          name: "Configure"
-          command: |
-            mkdir -p build
-            cmake -B build -DUSE_APRILTAG=true .
-      - run:
-          name: "Build"
-          command: make
+      - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
+      - run: git clone https://github.com/AprilRobotics/apriltag.git
+      - run: cd apriltag
+      - run: cmake .
+      - run: make install
+      - run: mkdir -p build
+      - run: cmake -B build -DUSE_APRILTAG=true .
+      - run: make
 
 workflows:
   version: 2
@@ -101,5 +66,5 @@ workflows:
       - build
       - build-v4l
       - build-splitter
-      - build-qt5
-      - build-apriltag
+      - build-qt4
+      - build-apriltags

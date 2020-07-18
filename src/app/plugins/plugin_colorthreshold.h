@@ -27,6 +27,7 @@
 #include <mutex>
 #include <QThread>
 #include <QObject>
+#include "convex_hull_image_mask.h"
 
 class PluginColorThresholdWorker : public QObject {
 Q_OBJECT
@@ -37,6 +38,7 @@ public:
     int id;
     int totalThreads;
     RawImage* imageIn = nullptr;
+    const ImageInterface* maskImageIn = nullptr;
     Image<raw8>* imageOut = nullptr;
     YUVLUT * lut;
     std::mutex doneMutex;
@@ -59,10 +61,11 @@ class PluginColorThreshold : public VisionPlugin
 {
 protected:
   YUVLUT * lut;
+  ConvexHullImageMask& _image_mask;
   VarList * settings;
   VarInt * numThreads;
 public:
-    PluginColorThreshold(FrameBuffer * _buffer, YUVLUT * _lut);
+  PluginColorThreshold(FrameBuffer * _buffer, YUVLUT * _lut, ConvexHullImageMask& mask);
 
     ~PluginColorThreshold() override;
 

@@ -20,17 +20,17 @@
 //========================================================================
 #include "plugin_colorthreshold.h"
 
-static void thresholdImage(RawImage *imagePartIn, Image<raw8> *imagePartOut, YUVLUT * lut) {
+static void thresholdImage(RawImage *imagePartIn, Image<raw8> *imagePartOut, YUVLUT * lut, const ImageInterface* mask = nullptr) {
   if (imagePartIn->getColorFormat() == COLOR_YUV422_UYVY) {
-    CMVisionThreshold::thresholdImageYUV422_UYVY(imagePartOut, imagePartIn, lut);
+    CMVisionThreshold::thresholdImageYUV422_UYVY(imagePartOut, imagePartIn, lut, mask);
   } else if (imagePartIn->getColorFormat() == COLOR_YUV444) {
-    CMVisionThreshold::thresholdImageYUV444(imagePartOut, imagePartIn, lut);
+    CMVisionThreshold::thresholdImageYUV444(imagePartOut, imagePartIn, lut, mask);
   } else if (imagePartIn->getColorFormat() == COLOR_RGB8) {
     auto *rgblut = (RGBLUT *) lut->getDerivedLUT(CSPACE_RGB);
     if (rgblut == nullptr) {
       printf("WARNING: No RGB LUT has been defined. You need to create a derived RGB LUT by calling e.g. \"lut_yuv->addDerivedLUT(new RGBLUT(5,5,5,\"\"))\" in the stack constructor!\n");
     } else {
-      CMVisionThreshold::thresholdImageRGB(imagePartOut, imagePartIn, rgblut);
+      CMVisionThreshold::thresholdImageRGB(imagePartOut, imagePartIn, rgblut, mask);
     }
   } else {
     fprintf(stderr, "ColorThresholding needs YUV422, YUV444, or RGB8 as input image, but found: %s\n",
@@ -65,6 +65,13 @@ void PluginColorThresholdWorker::process() {
   int offsetBytesIn = id * imageIn->getNumBytes() / totalThreads;
   imagePartIn.setData(imageIn->getData() + offsetBytesIn);
 
+  RawImage maskImagePartIn;
+  maskImagePartIn.setColorFormat(maskImageIn->getColorFormat());
+  maskImagePartIn.setHeight(maskImageIn->getHeight()/totalThreads);
+  maskImagePartIn.setWidth(maskImageIn->getWidth());
+  int maskOffsetBytesIn = id * maskImageIn->getNumBytes() /  totalThreads;
+  maskImagePartIn.setData(maskImageIn->getData() + maskOffsetBytesIn);
+
   RawImage rawImageOut;
   rawImageOut.setColorFormat(imageOut->getColorFormat());
   rawImageOut.setHeight(imageOut->getHeight()/totalThreads);
@@ -73,8 +80,8 @@ void PluginColorThresholdWorker::process() {
   rawImageOut.setData(imageOut->getData() + offsetBytesOut);
   Image<raw8> imagePartOut;
   imagePartOut.fromRawImage(rawImageOut);
-
-  thresholdImage(&imagePartIn, &imagePartOut, lut);
+  
+  thresholdImage(&imagePartIn, &imagePartOut, lut, &maskImagePartIn);
 
   doneMutex.unlock();
 }
@@ -92,8 +99,8 @@ void PluginColorThresholdWorker::wait() {
 }
 
 
-PluginColorThreshold::PluginColorThreshold(FrameBuffer * _buffer, YUVLUT * _lut)
- : VisionPlugin(_buffer)
+PluginColorThreshold::PluginColorThreshold(FrameBuffer * _buffer, YUVLUT * _lut, ConvexHullImageMask &mask)
+  : VisionPlugin(_buffer), _image_mask(mask)
 {
   lut=_lut;
 
@@ -118,8 +125,9 @@ void PluginColorThreshold::clearWorkers() {
 
 
 ProcessResult PluginColorThreshold::process(FrameData * data, RenderOptions * options) {
+  _image_mask.lock();
   (void)options;
-  
+
   Image<raw8> * img_thresholded;
 
   if ((img_thresholded=(Image<raw8> *)data->map.get("cmv_threshold")) == nullptr) {
@@ -138,10 +146,11 @@ ProcessResult PluginColorThreshold::process(FrameData * data, RenderOptions * op
   }
 
   if(workers.empty()) {
-    thresholdImage(&data->video, img_thresholded, lut);
+    thresholdImage(&data->video, img_thresholded, lut, &_image_mask.getMask());
   } else {
     for (auto worker : workers) {
       worker->imageIn = &data->video;
+      worker->maskImageIn = &_image_mask.getMask();
       worker->imageOut = img_thresholded;
       worker->start();
     }
@@ -150,7 +159,8 @@ ProcessResult PluginColorThreshold::process(FrameData * data, RenderOptions * op
       worker->wait();
     }
   }
-  
+
+  _image_mask.unlock();
   return ProcessingOk;
 }
 

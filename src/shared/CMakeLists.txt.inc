@@ -99,6 +99,9 @@ set (SHARED_SRCS
   ${shared_dir}/util/helpers.cpp
   ${shared_dir}/util/field.cpp
   ${shared_dir}/util/team_tags.cpp
+
+  ${shared_dir}/util/convex_hull.cpp
+  ${shared_dir}/util/convex_hull_image_mask.cpp
 )
 
 if(USE_APRILTAG)

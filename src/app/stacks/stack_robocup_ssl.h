@@ -47,6 +47,8 @@
 #include "plugin_dvr.h"
 #include "cmpattern_teamdetector.h"
 #include "robocup_ssl_server.h"
+#include "convex_hull_image_mask.h"
+#include "plugin_mask.h"
 
 using namespace std;
 
@@ -63,6 +65,7 @@ class StackRoboCupSSL : public VisionStack {
   string _cam_settings_filename;
   CameraParameters* camera_parameters;
   RoboCupField * global_field;
+  ConvexHullImageMask *_image_mask;
   PluginDetectBallsSettings * global_ball_settings;
   CMPattern::TeamDetectorSettings * global_team_settings;
   CMPattern::TeamSelector * global_team_selector_blue;
