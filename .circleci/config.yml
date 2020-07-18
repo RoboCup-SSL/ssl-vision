@@ -51,10 +51,12 @@ jobs:
       - run: apt-get update -qq && apt-get install -qq git
       - checkout
       - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
-      - run: git clone https://github.com/AprilRobotics/apriltag.git
-      - run: cd apriltag
-      - run: cmake .
-      - run: make install
+      - run:
+          command: |
+            git clone https://github.com/AprilRobotics/apriltag.git
+            cd apriltag
+            cmake .
+            make install
       - run: mkdir -p build
       - run: cmake -B build -DUSE_APRILTAG=true .
       - run: make
