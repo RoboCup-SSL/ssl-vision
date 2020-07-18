@@ -1,6 +1,5 @@
 #include "camera_calibration.h"
 #include <Eigen/Cholesky>
-#include <Eigen/Dense>
 #include <iostream>
 #include <algorithm>
 #include <limits>
@@ -33,6 +32,10 @@ CameraParameters::CameraParameters(int camera_index_, RoboCupField * field_) :
       new AdditionalCalibrationInformation(camera_index_, field_);
 
   q_rotate180 = Quaternion<double>(0, 0, 1.0,0);
+
+  intrinsic_parameters = new CameraIntrinsicParameters();
+  extrinsic_parameters = new CameraExtrinsicParameters();
+  use_opencv_model = new VarBool("use openCV camera model", false);
 }
 
 CameraParameters::~CameraParameters() {
@@ -50,37 +53,89 @@ CameraParameters::~CameraParameters() {
   delete additional_calibration_information;
 }
 
-void CameraParameters::toProtoBuffer(SSL_GeometryCameraCalibration &buffer) const {
-  buffer.set_focal_length(focal_length->getDouble());
-  buffer.set_principal_point_x(principal_point_x->getDouble());
-  buffer.set_principal_point_y(principal_point_y->getDouble());
-  buffer.set_distortion(distortion->getDouble());
-  buffer.set_q0(q0->getDouble());
-  buffer.set_q1(q1->getDouble());
-  buffer.set_q2(q2->getDouble());
-  buffer.set_q3(q3->getDouble());
-  buffer.set_tx(tx->getDouble());
-  buffer.set_ty(ty->getDouble());
-  buffer.set_tz(tz->getDouble());
-  buffer.set_camera_id(additional_calibration_information->camera_index->getInt());
+/**
+ * Convert the rotational vector from extrinsic parameters to a Quaternion.
+ * Taken from: https://gist.github.com/shubh-agrawal/76754b9bfb0f4143819dbd146d15d4c8
+ */
+void CameraParameters::quaternionFromOpenCVCalibration(double Q[]) const
+{
+  cv::Mat R;
+  cv::Rodrigues(extrinsic_parameters->rvec, R);
+  double trace = R.at<double>(0,0) + R.at<double>(1,1) + R.at<double>(2,2);
 
-  //--Set derived parameters:
-  //compute camera world coordinates:
-  Quaternion<double> q;
-  q.set(q0->getDouble(),q1->getDouble(),q2->getDouble(),q3->getDouble());
-  q.invert();
+  if (trace > 0.0)
+  {
+    double s = sqrt(trace + 1.0);
+    Q[3] = (s * 0.5);
+    s = 0.5 / s;
+    Q[0] = ((R.at<double>(2,1) - R.at<double>(1,2)) * s);
+    Q[1] = ((R.at<double>(0,2) - R.at<double>(2,0)) * s);
+    Q[2] = ((R.at<double>(1,0) - R.at<double>(0,1)) * s);
+  }
+  else
+  {
+    int i = R.at<double>(0,0) < R.at<double>(1,1) ? (R.at<double>(1,1) < R.at<double>(2,2) ? 2 : 1) : (R.at<double>(0,0) < R.at<double>(2,2) ? 2 : 0);
+    int j = (i + 1) % 3;
+    int k = (i + 2) % 3;
 
-  GVector::vector3d<double> v_in(tx->getDouble(),ty->getDouble(),tz->getDouble());
-  v_in=(-(v_in));
+    double s = sqrt(R.at<double>(i, i) - R.at<double>(j,j) - R.at<double>(k,k) + 1.0);
+    Q[i] = s * 0.5;
+    s = 0.5 / s;
 
-  GVector::vector3d<double> v_out = q.rotateVectorByQuaternion(v_in);
-  buffer.set_derived_camera_world_tx(v_out.x);
-  buffer.set_derived_camera_world_ty(v_out.y);
-  buffer.set_derived_camera_world_tz(v_out.z);
-
+    Q[3] = (R.at<double>(k,j) - R.at<double>(j,k)) * s;
+    Q[j] = (R.at<double>(j,i) + R.at<double>(i,j)) * s;
+    Q[k] = (R.at<double>(k,i) + R.at<double>(i,k)) * s;
+  }
 }
 
-GVector::vector3d< double > CameraParameters::getWorldLocation() {
+void CameraParameters::toProtoBuffer(SSL_GeometryCameraCalibration &buffer) const {
+  buffer.set_camera_id(additional_calibration_information->camera_index->getInt());
+  if (use_opencv_model->getBool()) {
+    buffer.set_focal_length((float) (intrinsic_parameters->focal_length_x->getDouble() + intrinsic_parameters->focal_length_y->getDouble()) / 2.0f);
+    buffer.set_principal_point_x((float) intrinsic_parameters->principal_point_x->getDouble());
+    buffer.set_principal_point_y((float) intrinsic_parameters->principal_point_y->getDouble());
+    buffer.set_distortion((float) intrinsic_parameters->dist_coeff_k1->getDouble());
+    double Q[4];
+    quaternionFromOpenCVCalibration(Q);
+    buffer.set_q0((float) Q[0]);
+    buffer.set_q1((float) Q[1]);
+    buffer.set_q2((float) Q[2]);
+    buffer.set_q3((float) Q[3]);
+    buffer.set_tx((float) extrinsic_parameters->tvec.at<double>(0, 0));
+    buffer.set_ty((float) extrinsic_parameters->tvec.at<double>(0, 1));
+    buffer.set_tz((float) extrinsic_parameters->tvec.at<double>(0, 2));
+  } else {
+    buffer.set_focal_length((float) focal_length->getDouble());
+    buffer.set_principal_point_x((float) principal_point_x->getDouble());
+    buffer.set_principal_point_y((float) principal_point_y->getDouble());
+    buffer.set_distortion((float) distortion->getDouble());
+    buffer.set_q0((float) q0->getDouble());
+    buffer.set_q1((float) q1->getDouble());
+    buffer.set_q2((float) q2->getDouble());
+    buffer.set_q3((float) q3->getDouble());
+    buffer.set_tx((float) tx->getDouble());
+    buffer.set_ty((float) ty->getDouble());
+    buffer.set_tz((float) tz->getDouble());
+  }
+
+  GVector::vector3d< double > world = getWorldLocation();
+  buffer.set_derived_camera_world_tx(world.x);
+  buffer.set_derived_camera_world_ty(world.y);
+  buffer.set_derived_camera_world_tz(world.z);
+}
+
+GVector::vector3d< double > CameraParameters::getWorldLocation() const {
+  if (use_opencv_model->getBool()) {
+    cv::Mat R;
+    cv::Rodrigues(extrinsic_parameters->rvec, R);
+    R = R.t();
+    cv::Mat t = -R * extrinsic_parameters->tvec;
+    GVector::vector3d<double> v_out;
+    v_out.x = t.at<double>(0, 0);
+    v_out.y = t.at<double>(0, 1);
+    v_out.z = t.at<double>(0, 2);
+    return v_out;
+  }
   Quaternion<double> q;
   q.set(q0->getDouble(),q1->getDouble(),q2->getDouble(),q3->getDouble());
   q.invert();
@@ -91,6 +146,9 @@ GVector::vector3d< double > CameraParameters::getWorldLocation() {
 }
 
 void CameraParameters::addSettingsToList(VarList& list) {
+  list.addChild(intrinsic_parameters->settings);
+  list.addChild(extrinsic_parameters->settings);
+  list.addChild(use_opencv_model);
   list.addChild(focal_length);
   list.addChild(principal_point_x);
   list.addChild(principal_point_y);
@@ -158,28 +216,40 @@ void CameraParameters::radialDistortion(
 void CameraParameters::field2image(
     const GVector::vector3d<double> &p_f,
     GVector::vector2d<double> &p_i) const {
-  Quaternion<double> q_field2cam = Quaternion<double>(
-      q0->getDouble(),q1->getDouble(),q2->getDouble(),q3->getDouble());
-  q_field2cam.norm();
-  GVector::vector3d<double> translation = GVector::vector3d<double>(
-      tx->getDouble(),ty->getDouble(),tz->getDouble());
 
-  // First transform the point from the field into the coordinate system of the
-  // camera
-  GVector::vector3d<double> p_c =
-      q_field2cam.rotateVectorByQuaternion(p_f) + translation;
-  GVector::vector2d<double> p_un =
-      GVector::vector2d<double>(p_c.x/p_c.z, p_c.y/p_c.z);
+  if(use_opencv_model->getBool()) {
+    cv::Mat src(1, 3, CV_32FC1);
+    cv::Mat dst(1, 2, CV_32FC1);
+    src.ptr<cv::Point3f>(0)->x = p_f.x;
+    src.ptr<cv::Point3f>(0)->y = p_f.y;
+    src.ptr<cv::Point3f>(0)->z = p_f.z;
+    cv::projectPoints(src, extrinsic_parameters->rvec, extrinsic_parameters->tvec, intrinsic_parameters->camera_mat, intrinsic_parameters->dist_coeffs, dst);
+    p_i.x = dst.at<float>(0);
+    p_i.y = dst.at<float>(1);
+  } else {
+    Quaternion<double> q_field2cam = Quaternion<double>(
+        q0->getDouble(),q1->getDouble(),q2->getDouble(),q3->getDouble());
+    q_field2cam.norm();
+    GVector::vector3d<double> translation = GVector::vector3d<double>(
+        tx->getDouble(),ty->getDouble(),tz->getDouble());
 
-  // Apply distortion
-  GVector::vector2d<double> p_d;
-  radialDistortion(p_un,p_d);
+    // First transform the point from the field into the coordinate system of the
+    // camera
+    GVector::vector3d<double> p_c =
+        q_field2cam.rotateVectorByQuaternion(p_f) + translation;
+    GVector::vector2d<double> p_un =
+        GVector::vector2d<double>(p_c.x/p_c.z, p_c.y/p_c.z);
 
-  // Then project from the camera coordinate system onto the image plane using
-  // the instrinsic parameters
-  p_i = focal_length->getDouble() * p_d +
-      GVector::vector2d<double>(principal_point_x->getDouble(),
-                                principal_point_y->getDouble());
+    // Apply distortion
+    GVector::vector2d<double> p_d;
+    radialDistortion(p_un,p_d);
+
+    // Then project from the camera coordinate system onto the image plane using
+    // the instrinsic parameters
+    p_i = focal_length->getDouble() * p_d +
+          GVector::vector2d<double>(principal_point_x->getDouble(),
+                                    principal_point_y->getDouble());
+  }
 }
 
 void CameraParameters::field2image(
@@ -220,40 +290,69 @@ void CameraParameters::field2image(
 void CameraParameters::image2field(
     GVector::vector3d<double> &p_f, const GVector::vector2d<double> &p_i,
     double z) const {
-  // Undo scaling and offset
-  GVector::vector2d<double> p_d(
-      (p_i.x - principal_point_x->getDouble()) / focal_length->getDouble(),
-      (p_i.y - principal_point_y->getDouble()) / focal_length->getDouble());
+  if(use_opencv_model->getBool()) {
+    cv::Mat p_i_mat(3, 1, CV_64FC1);
 
-  // Compensate for distortion (undistort)
-  GVector::vector2d<double> p_un;
-  radialDistortionInv(p_un,p_d);
+    p_i_mat.ptr<cv::Point3d>(0)->x = p_i.x;
+    p_i_mat.ptr<cv::Point3d>(0)->y = p_i.y;
+    p_i_mat.ptr<cv::Point3d>(0)->z = 1;
 
-  // Now we got a ray on the z axis
-  GVector::vector3d<double> v(p_un.x, p_un.y, 1);
+    /**
+     * Calculation is based on:
+     * https://stackoverflow.com/questions/12299870/computing-x-y-coordinate-3d-from-image-point
+     */
 
-  // Transform this ray into world coordinates
-  Quaternion<double> q_field2cam = Quaternion<double>(
-      q0->getDouble(),q1->getDouble(),q2->getDouble(),q3->getDouble());
-  q_field2cam.norm();
-  GVector::vector3d<double> translation =
-    GVector::vector3d<double>(tx->getDouble(),ty->getDouble(),tz->getDouble());
+    const cv::Mat &tvec = extrinsic_parameters->tvec;
+    const cv::Mat &rotation_mat_inv = extrinsic_parameters->rotation_mat_inv;
+    const cv::Mat &camera_mat_inv = intrinsic_parameters->camera_mat_inv;
+    const cv::Mat &right_side_mat = extrinsic_parameters->right_side_mat;
+    const cv::Mat left_side_mat = rotation_mat_inv * camera_mat_inv * p_i_mat;
 
-  Quaternion<double> q_field2cam_inv = q_field2cam;
-  q_field2cam_inv.invert();
-  GVector::vector3d<double> v_in_w =
-      q_field2cam_inv.rotateVectorByQuaternion(v);
-  GVector::vector3d<double> zero_in_w =
-      q_field2cam_inv.rotateVectorByQuaternion(
-          GVector::vector3d<double>(0,0,0) - translation);
+    double right_side_mat_z = right_side_mat.at<double>(2, 0);
+    double left_side_mat_z = left_side_mat.at<double>(2, 0);
+    double s = (z + right_side_mat_z) / left_side_mat_z;
 
-  // Compute the the point where the rays intersects the field
-  double t = GVector::ray_plane_intersect(
-      GVector::vector3d<double>(0,0,z), GVector::vector3d<double>(0,0,1).norm(),
-      zero_in_w, v_in_w.norm());
+    cv::Mat p_f_mat = rotation_mat_inv * (s * camera_mat_inv * p_i_mat - tvec);
 
-  // Set p_f
-  p_f = zero_in_w + v_in_w.norm() * t;
+    p_f.x = p_f_mat.at<cv::Point3d>(0).x;
+    p_f.y = p_f_mat.at<cv::Point3d>(0).y;
+    p_f.z = p_f_mat.at<cv::Point3d>(0).z;
+  } else {
+    // Undo scaling and offset
+    GVector::vector2d<double> p_d(
+        (p_i.x - principal_point_x->getDouble()) / focal_length->getDouble(),
+        (p_i.y - principal_point_y->getDouble()) / focal_length->getDouble());
+
+    // Compensate for distortion (undistort)
+    GVector::vector2d<double> p_un;
+    radialDistortionInv(p_un, p_d);
+
+    // Now we got a ray on the z axis
+    GVector::vector3d<double> v(p_un.x, p_un.y, 1);
+
+    // Transform this ray into world coordinates
+    Quaternion<double> q_field2cam = Quaternion<double>(
+        q0->getDouble(),q1->getDouble(),q2->getDouble(),q3->getDouble());
+    q_field2cam.norm();
+    GVector::vector3d<double> translation =
+        GVector::vector3d<double>(tx->getDouble(),ty->getDouble(),tz->getDouble());
+
+    Quaternion<double> q_field2cam_inv = q_field2cam;
+    q_field2cam_inv.invert();
+    GVector::vector3d<double> v_in_w =
+        q_field2cam_inv.rotateVectorByQuaternion(v);
+    GVector::vector3d<double> zero_in_w =
+        q_field2cam_inv.rotateVectorByQuaternion(
+            GVector::vector3d<double>(0,0,0) - translation);
+
+    // Compute the the point where the rays intersects the field
+    double t = GVector::ray_plane_intersect(
+        GVector::vector3d<double>(0,0,z), GVector::vector3d<double>(0,0,1).norm(),
+        zero_in_w, v_in_w.norm());
+
+    // Set p_f
+    p_f = zero_in_w + v_in_w.norm() * t;
+  }
 }
 
 
@@ -332,8 +431,11 @@ void CameraParameters::do_calibration(int cal_type) {
   std::vector<GVector::vector3d<double> > p_f;
   std::vector<GVector::vector2d<double> > p_i;
 
-  AdditionalCalibrationInformation* aci = additional_calibration_information;
+  if(use_opencv_model->getBool() && cal_type & FULL_ESTIMATION) {
+    optimizeControlPoints();
+  }
 
+  AdditionalCalibrationInformation* aci = additional_calibration_information;
   for (int i = 0; i < AdditionalCalibrationInformation::kNumControlPoints;
       ++i) {
     p_i.push_back(GVector::vector2d<double>(
@@ -344,7 +446,11 @@ void CameraParameters::do_calibration(int cal_type) {
       aci->control_point_field_ys[i]->getDouble(), 0.0));
   }
 
-  calibrate(p_f, p_i, cal_type);
+  if(use_opencv_model->getBool()) {
+    calibrateExtrinsicModel(p_f, p_i);
+  } else {
+    calibrate(p_f, p_i, cal_type);
+  }
 }
 
 void CameraParameters::reset() {
@@ -359,6 +465,132 @@ void CameraParameters::reset() {
   q1->resetToDefault();
   q2->resetToDefault();
   q3->resetToDefault();
+}
+
+bool intersection(cv::Vec4f l1, cv::Vec4f l2, cv::Point2f &r)
+{
+  cv::Point2f o1;
+  cv::Point2f x;
+  cv::Point2f d1;
+  cv::Point2f d2;
+
+  o1.x = l1[2];
+  o1.y = l1[3];
+  x.x = l2[2] - l1[2];
+  x.y = l2[3] - l1[3];
+  d1.x = l1[0];
+  d1.y = l1[1];
+  d2.x = l2[0];
+  d2.y = l2[1];
+
+  float cross = d1.x*d2.y - d1.y*d2.x;
+  if (abs(cross) < 1e-8)
+    return false;
+
+  double t1 = (x.x * d2.y - x.y * d2.x)/cross;
+  r = o1 + d1 * t1;
+  return true;
+}
+
+void CameraParameters::optimizeControlPoints() {
+  for (int i = 0; i < additional_calibration_information->kNumControlPoints; ++i) {
+    cv::Point2d fieldCorner;
+    fieldCorner.x = additional_calibration_information->control_point_field_xs[i]->getDouble();
+    fieldCorner.y = additional_calibration_information->control_point_field_ys[i]->getDouble();
+    cv::Point2d fieldCorner_img;
+    fieldCorner_img.x = additional_calibration_information->control_point_image_xs[i]->getDouble();
+    fieldCorner_img.y = additional_calibration_information->control_point_image_ys[i]->getDouble();
+
+    std::vector<CalibrationData> cornerCalibrationSegments;
+    for(auto calibrationData : calibrationSegments) {
+      if((abs(calibrationData.p1.x - fieldCorner.x) < 0.1
+          && abs(calibrationData.p1.y - fieldCorner.y) < 0.1)
+         ||
+         (abs(calibrationData.p2.x - fieldCorner.x) < 0.1
+          && abs(calibrationData.p2.y - fieldCorner.y) < 0.1)) {
+        cornerCalibrationSegments.push_back(calibrationData);
+      }
+    }
+
+    if(cornerCalibrationSegments.size() == 2) {
+      std::vector<cv::Vec4f> lines;
+      for(auto calibrationData : cornerCalibrationSegments) {
+        std::vector<cv::Point2d> points;
+        for(auto imgPt : calibrationData.imgPts) {
+          if(!imgPt.second) {
+            continue;
+          }
+          GVector::vector3d<double> pField;
+          image2field(pField, imgPt.first, 0.0);
+          cv::Point2d pField2d;
+          pField2d.x = pField.x;
+          pField2d.y = pField.y;
+          points.push_back(pField2d);
+        }
+        if(points.size() > 1) {
+          cv::Vec4f line;
+          cv::fitLine(points, line, cv::DIST_L2, 0, 0.01, 0.01);
+          lines.push_back(line);
+        }
+      }
+      if(lines.size() == 2) {
+        cv::Point2f intersect;
+        bool found = intersection(lines[0], lines[1], intersect);
+        if(!found) {
+          std::cerr << "Could not find an intersection between " << lines[0] << " and " << lines[1] << std::endl;
+          continue;
+        }
+        GVector::vector3d<double> p_field;
+        p_field.x = intersect.x;
+        p_field.y = intersect.y;
+        p_field.z = 0;
+        GVector::vector2d<double> intersect_img;
+        field2image(p_field, intersect_img);
+        cv::Point2f diff_field;
+        diff_field.x = fieldCorner.x - intersect.x;
+        diff_field.y = fieldCorner.y - intersect.y;
+        cv::Point2f diff_img;
+        diff_img.x = intersect_img.x - fieldCorner_img.x;
+        diff_img.y = intersect_img.y - fieldCorner_img.y;
+        double alpha = 0.8;
+        cv::Point2f new_img;
+        new_img.x = fieldCorner_img.x + diff_img.x * alpha;
+        new_img.y = fieldCorner_img.y + diff_img.y * alpha;
+        additional_calibration_information->control_point_image_xs[i]->setDouble(new_img.x);
+        additional_calibration_information->control_point_image_ys[i]->setDouble(new_img.y);
+      }
+    } else {
+      std::cerr << "Expected two calibration segments, but got " << cornerCalibrationSegments.size() << std::endl;
+    }
+  }
+}
+
+void CameraParameters::calibrateExtrinsicModel(
+    std::vector<GVector::vector3d<double> > &p_f,
+    std::vector<GVector::vector2d<double> > &p_i) {
+  std::vector<cv::Point3d> objectPoints(p_f.size());
+  std::vector<cv::Point2d> imagePoints(p_i.size());
+  for (int i = 0; i < p_f.size(); i++) {
+    objectPoints[i].x = p_f[i].x;
+    objectPoints[i].y = p_f[i].y;
+    objectPoints[i].z = p_f[i].z;
+    imagePoints[i].x = p_i[i].x;
+    imagePoints[i].y = p_i[i].y;
+  }
+
+  bool useExtrinsicGuess = false;
+  bool solved = cv::solvePnP(objectPoints, imagePoints,
+                   intrinsic_parameters->camera_mat,
+                   intrinsic_parameters->dist_coeffs,
+                   extrinsic_parameters->rvec,
+                   extrinsic_parameters->tvec, useExtrinsicGuess,
+                   cv::SOLVEPNP_ITERATIVE);
+  extrinsic_parameters->updateConfigValues();
+
+  std::cout << "Solved: " << (solved ? "yes" : "no") << std::endl
+            << "rvec: " << extrinsic_parameters->rvec << std::endl
+            << " tvec: " << extrinsic_parameters->tvec
+            << std::endl;
 }
 
 void CameraParameters::calibrate(
@@ -560,7 +792,7 @@ void CameraParameters::calibrate(
     // the right call at compile time
 #ifdef EIGEN_WORLD_VERSION
     // alpha.llt().solve(-beta, &new_p); -- modify 1/15/16
-    //  -- move to Eigen3 structure - 
+    //  -- move to Eigen3 structure -
     //  -- http://eigen.tuxfamily.org/dox/Eigen2ToEigen3.html
     new_p = alpha.llt().solve(-beta);
 #else
@@ -754,6 +986,10 @@ CameraParameters::AdditionalCalibrationInformation::
   cov_ls_x = new VarDouble("Cov line segment measurement x", 1.0);
   cov_ls_y = new VarDouble("Cov line segment measurement y", 1.0);
   pointSeparation = new VarDouble("Points separation", 150);
+  grid_width = new VarInt("grid width", 7);
+  grid_height = new VarInt("grid height", 9);
+  global_camera_id = new VarInt("global camera id", camera_index_, 0, 7);
+  global_camera_id->setFlags(VARTYPE_FLAG_HIDDEN);
 }
 
 void CameraParameters::AdditionalCalibrationInformation::updateControlPoints() {
@@ -860,4 +1096,7 @@ void CameraParameters::AdditionalCalibrationInformation::addSettingsToList(
   list.addChild(cov_ls_x);
   list.addChild(cov_ls_y);
   list.addChild(pointSeparation);
+  list.addChild(grid_height);
+  list.addChild(grid_width);
+  list.addChild(global_camera_id);
 }

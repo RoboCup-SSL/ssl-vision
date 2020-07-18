@@ -6,3 +6,7 @@
 /test-data/**
 /.idea
 cmake-build*
+/.dir-locals.el
+.ccls-cache
+*~
+/compile_commands.json

@@ -222,7 +222,7 @@ bool CaptureSpinnaker::resetBus()
     mutex.lock();
 
     mutex.unlock();
-    
+
   return true;
 }
 
@@ -242,12 +242,12 @@ bool CaptureSpinnaker::stopCapture()
       fprintf(stderr, "Spinnaker: An error occurred while closing the device (error code: %d, '%s')\n", e.GetError(), e.GetFullErrorMessage());
     }
   }
-  
+
   vector<VarType *> tmp = capture_settings->getChildren();
   for (auto &i : tmp) {
     i->removeFlags( VARTYPE_FLAG_READONLY );
   }
-  
+
   return true;
 }
 
@@ -265,7 +265,7 @@ bool CaptureSpinnaker::startCapture()
 
   CameraList camList = pSystem->GetCameras();
   fprintf(stderr, "Spinnaker: Number of cams: %u\n", camList.GetSize());
-  
+
   if(cam_id >= camList.GetSize())
   {
     fprintf(stderr, "Spinnaker: Invalid cam_id: %u\n", cam_id);
@@ -344,7 +344,7 @@ bool CaptureSpinnaker::startCapture()
   for (auto &i : tmp) {
     i->addFlags( VARTYPE_FLAG_READONLY );
   }
-    
+
     mutex.unlock();
 
   writeAllParameterValues();
@@ -406,7 +406,7 @@ RawImage CaptureSpinnaker::getFrame()
     mutex.unlock();
     return result;
   }
-  
+
   timeval tv{};
   gettimeofday(&tv, nullptr);
   result.setTime((double)tv.tv_sec + tv.tv_usec*(1.0E-6));

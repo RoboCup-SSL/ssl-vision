@@ -187,7 +187,7 @@ public:
     assert(number >= 0 && number < (width*height));
     return(*(data+number));
   }
-  
+
   PIXEL getPixel (int x,int y) const
   {
     assert(x >= 0 && y >=0 && x<width && y<height);
@@ -206,10 +206,17 @@ public:
       (*(data+(width*y)+x))=val;
     }
   }
-  
+
 
   void drawLine (int x0, int y0, int x1, int y1 , PIXEL val)
   {
+    if(abs((long) x0) > 50000L ||
+       abs((long) y0) > 50000L ||
+       abs((long) x1) > 50000L ||
+       abs((long) y1) > 50000L) {
+      // sanity check to avoid endless or very long loops
+      return;
+    }
 
   int x, y, dx, dy, sx, sy, ax, ay, decy, decx;
   x = x0;
@@ -264,6 +271,13 @@ public:
 
 void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
 {
+  if(abs((long) x0) > 50000L ||
+     abs((long) y0) > 50000L ||
+     abs((long) x1) > 50000L ||
+     abs((long) y1) > 50000L) {
+    // sanity check to avoid endless or very long loops
+    return;
+  }
 
   int x, y, dx, dy, sx, sy, ax, ay, decy, decx;
   x = x0;
@@ -360,7 +374,7 @@ void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
    	return false;
    }
   }
-  
+
   bool save(string filename) {
    if (PIXEL::getColorFormat()==COLOR_RGB8) {
    	 return ImageIO::writeRGB(getPixelData(), getWidth() , getHeight() ,filename.c_str());
@@ -415,7 +429,7 @@ void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
       }
     }
   }
-  
+
   void convertToIntensity() {
       register PIXEL * a=getPixelData();
       register unsigned int i;
@@ -425,7 +439,7 @@ void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
         a++;
       }
   }
-  
+
   void binarizeGreyImage(unsigned int threshold) {
       register PIXEL * a=getPixelData();
       register unsigned int i;
@@ -451,7 +465,7 @@ void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
   }
 
   void drawChar(int x, int y, char c, PIXEL val)
-  { 
+  {
     int charWidth(8), charHeight(8), charSize(8);
     int x0=x;
     unsigned char* charpos(gfxPrimitivesFontdata + (unsigned char) c * charSize);
@@ -472,13 +486,13 @@ void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
       y++;
     }
   }
-  
+
   void drawString(int x, int y, std::string s, PIXEL val)
   {
     for (unsigned int i=0; i < s.length(); i++)
       drawChar(x+8*i, y, s[i], val);
   }
-  
+
 };
 
 /*!
@@ -550,7 +564,7 @@ public:
     } else {
       fprintf(stderr,"Cannot convert image of different sizes\n");
     }
-  }  
+  }
   static void convert(const rgbImage & a, greyImage & b) {
     if (a.getNumPixels()==b.getNumPixels()) {
       rgb * p1=a.getPixelData();
@@ -611,7 +625,7 @@ public:
       fprintf(stderr,"Cannot convert image of different sizes\n");
     }
   }
-  
+
 };
 
 

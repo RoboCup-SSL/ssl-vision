@@ -270,12 +270,6 @@ void PluginCameraCalibration::detectEdgesOnSingleArc(
   }
 }
 
-void PluginCameraCalibration::mouseEvent( QMouseEvent * event, pixelloc loc)
-{
-  (void) event;
-  (void) loc;
-}
-
 void PluginCameraCalibration::keyPressEvent ( QKeyEvent * event )
 {
   (void) event;

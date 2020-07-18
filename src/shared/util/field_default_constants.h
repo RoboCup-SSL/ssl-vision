@@ -39,7 +39,7 @@ namespace FieldConstantsRoboCup2018A {
     const double kPenaltyAreaDepth = 1200.0;
     const double kPenaltyAreaWidth = 2400.0;
     const double kCenterCircleRadius = 500.0;
-    const int kNumCamerasTotal = 8;
-    const int kNumCamerasLocal = 4;
+    const int kNumCamerasTotal = 2;
+    const int kNumCamerasLocal = 1;
 }
 #endif // FIELD_H
