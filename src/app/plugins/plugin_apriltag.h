@@ -4,7 +4,7 @@
 #include "camera_calibration.h"
 #include "cmpattern_teamdetector.h"
 #include "team_tags.h"
-#include <apriltag.h>
+#include <apriltag/apriltag.h>
 #include <functional>
 #include <memory>
 #include <string>

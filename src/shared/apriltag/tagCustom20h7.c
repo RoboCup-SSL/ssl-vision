@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "apriltag.h"
+#include "tagCustom20h7.h"
 
 apriltag_family_t *tagCustom20h7_create()
 {

@@ -1,20 +1,20 @@
 #include "plugin_apriltag.h"
 #include "messages_robocup_ssl_detection.pb.h"
 #include <Eigen/Dense>
-#include <apriltag_pose.h>
+#include <apriltag/apriltag_pose.h>
 #include <array>
 #include <cstdio>
 #include <image.h>
 #include <iostream>
-#include <tag16h5.h>
-#include <tag25h9.h>
-#include <tag36h11.h>
-#include <tagCircle21h7.h>
-#include <tagCircle49h12.h>
+#include <apriltag/tag16h5.h>
+#include <apriltag/tag25h9.h>
+#include <apriltag/tag36h11.h>
+#include <apriltag/tagCircle21h7.h>
+#include <apriltag/tagCircle49h12.h>
 #include <tagCustom20h7.h>
-#include <tagCustom48h12.h>
-#include <tagStandard41h12.h>
-#include <tagStandard52h13.h>
+#include <apriltag/tagCustom48h12.h>
+#include <apriltag/tagStandard41h12.h>
+#include <apriltag/tagStandard52h13.h>
 
 using HammHist = std::array<int, 10>;
 using Eigen::AngleAxisd;
