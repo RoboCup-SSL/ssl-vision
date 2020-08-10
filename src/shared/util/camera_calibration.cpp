@@ -105,7 +105,6 @@ void CameraParameters::addSettingsToList(VarList& list) {
   list.addChild(tx);
   list.addChild(ty);
   list.addChild(tz);
-
 }
 
 double CameraParameters::radialDistortion(double ru) const {
