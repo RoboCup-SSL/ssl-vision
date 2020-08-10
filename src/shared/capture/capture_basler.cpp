@@ -102,7 +102,16 @@ bool CaptureBasler::_buildCamera() {
         printf("Opening camera %d...\n", current_id);
 		camera->Open();
         printf("Setting interpacket delay...\n");
-		camera->GevSCPD.SetValue(600);
+		camera->GevSCPD.SetValue(600); //TODO: check effect of changing this
+		if(GenApi::IsWritable(camera->ChunkModeActive)){
+            camera->ChunkModeActive.SetValue(true);
+            camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Timestamp);
+            camera->ChunkEnable.SetValue(true);
+            camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Framecounter);
+            camera->ChunkEnable.SetValue(true);
+        }else{
+		    return false; //Camera does not support accurate timings
+		}
         printf("Done!\n");
 		is_capturing = true;
 		return true;
@@ -138,6 +147,7 @@ bool CaptureBasler::startCapture() {
 
 bool CaptureBasler::_stopCapture() {
 	if (is_capturing) {
+	    camera->ChunkModeActive.SetValue(false);
 		camera->StopGrabbing();
 		camera->Close();
 		is_capturing = false;
@@ -185,10 +195,6 @@ RawImage CaptureBasler::getFrame() {
 	img.setHeight(0);
 	img.setColorFormat(COLOR_RGB8);
 	try {
-		timeval tv;
-		gettimeofday(&tv, 0);
-		img.setTime((double) tv.tv_sec + (tv.tv_usec / 1000000.0));
-
 		// Keep grabbing in case of partial grabs
 		int fail_count = 0;
 		while (fail_count < 10
@@ -221,6 +227,10 @@ RawImage CaptureBasler::getFrame() {
 			MUTEX_UNLOCK;
 			return img;
 		}
+        timeval tv;
+        gettimeofday(&tv, 0);
+        img.setTime((double) tv.tv_sec + (tv.tv_usec / 1000000.0));
+
 		Pylon::CPylonImage capture;
 
 		// Convert to RGB8 format
@@ -231,8 +241,21 @@ RawImage CaptureBasler::getFrame() {
 		unsigned char* buf = (unsigned char*) malloc(capture.GetImageSize());
 		memcpy(buf, capture.GetBuffer(), capture.GetImageSize());
 		img.setData(buf);
-
 		last_buf = buf;
+
+		if(Pylon::PayloadType_ChunkData != grab_result->GetPayloadType()){
+		    std::cerr<<" Unexpected payload type received"<<std::endl;
+		}
+		if(GenApi::IsReadable(grab_result->ChunkTimestamp)){
+		    std::cout<<"Basler timestamp: "<<grab_result->ChunkTimestamp.GetValue()<<std::endl;
+		}else{
+		    std::cerr<<"Could not read TimeStamp!"<<std::endl;
+		}
+		if(GenApi::IsReadable(grab_result->ChunkFramecounter)){
+		    std::cout<<"Basler framecount: "<<grab_result->ChunkFramecounter.GetValue()<<std::endl;
+		}else{
+		    std::cerr<<"Could not read FrameCount"<<std::endl;
+		}
 
 		// Original buffer is not needed anymore, it has been copied to img
 		grab_result.Release();

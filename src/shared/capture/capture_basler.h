@@ -65,7 +65,7 @@ private:
 	bool is_capturing;
 	bool ignore_capture_failure;
 	Pylon::CBaslerGigEInstantCamera* camera;
-	Pylon::CGrabResultPtr grab_result;
+	Pylon::CBaslerGigEGrabResultPtr grab_result;
 	Pylon::CImageFormatConverter converter;
 	int current_id;
   	unsigned char* last_buf;
