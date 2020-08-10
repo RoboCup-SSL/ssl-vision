@@ -153,6 +153,8 @@ public:
 
       VarDouble* pointSeparation;
 
+      VarInt* imageWidth;
+      VarInt* imageHeight;
   private:
       RoboCupField* field;
       std::vector<GVector::vector2d<double> >
