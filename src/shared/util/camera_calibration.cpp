@@ -78,8 +78,8 @@ void CameraParameters::toProtoBuffer(SSL_GeometryCameraCalibration &buffer) cons
   buffer.set_derived_camera_world_ty(v_out.y);
   buffer.set_derived_camera_world_tz(v_out.z);
 
-  buffer.set_pixel_image_width(imageWidth->getInt());
-  buffer.set_pixel_image_height(imageHeight->getInt());
+  buffer.set_pixel_image_width(additional_calibration_information->imageWidth->getInt());
+  buffer.set_pixel_image_height(additional_calibration_information->imageHeight->getInt());
 
 }
 
@@ -105,8 +105,7 @@ void CameraParameters::addSettingsToList(VarList& list) {
   list.addChild(tx);
   list.addChild(ty);
   list.addChild(tz);
-  list.addChild(imageWidth);
-  list.addChild(imageHeight);
+
 }
 
 double CameraParameters::radialDistortion(double ru) const {
