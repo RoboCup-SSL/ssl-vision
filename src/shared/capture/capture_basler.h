@@ -80,7 +80,7 @@ private:
   	VarInt* v_balance_ratio_green;
   	VarInt* v_balance_ratio_blue;
   	VarBool* v_auto_gain;
-  	VarDouble* v_gain;
+  	VarInt* v_gain;
   	VarBool* v_gamma_enable;
   	VarDouble* v_gamma;
   	VarDouble* v_black_level;

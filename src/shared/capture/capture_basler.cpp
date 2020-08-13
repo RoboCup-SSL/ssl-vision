@@ -59,13 +59,13 @@ CaptureBasler::CaptureBasler(VarList* _settings, QObject* parent) :
 	v_auto_gain = new VarBool("auto gain", true);
 	vars->addChild(v_auto_gain);
 
-	v_gain = new VarDouble("gain", 300, 0, 542);
+	v_gain = new VarInt("gain", 300, 0, 542);
 	vars->addChild(v_gain);
 
 	v_gamma_enable = new VarBool("enable gamma correction", true);
 	vars->addChild(v_gamma_enable);
 
-	v_gamma = new VarDouble("gamma", 0.5, 0, 1);
+	v_gamma = new VarDouble("gamma", 0.5, 0, 1.0);
 	vars->addChild(v_gamma);
 
 	v_black_level = new VarDouble("black level", 64, 0, 1000);
@@ -102,7 +102,8 @@ bool CaptureBasler::_buildCamera() {
         printf("Opening camera %d...\n", current_id);
 		camera->Open();
         printf("Setting interpacket delay...\n");
-		camera->GevSCPD.SetValue(0); //TODO: check effect of changing this: higher values lower framerate slightly. 0 seems fine, actually.
+        camera->GammaSelector.SetValue(Basler_GigECamera::GammaSelector_User);
+        camera->GevSCPD.SetValue(0); //TODO: check effect of changing this: higher values lower framerate slightly. 0 seems fine, actually.
 		//Might want to leave this to the Pylon API? has not been tested when there's multiple camera's.
 		if(GenApi::IsWritable(camera->ChunkModeActive)){
             camera->ChunkModeActive.SetValue(true);
@@ -324,10 +325,9 @@ void CaptureBasler::readAllParameterValues() {
 
 		v_auto_gain->setBool(camera->GainAuto.GetValue() == Basler_GigECamera::GainAuto_Continuous);
 		v_gain->setDouble(camera->GainRaw.GetValue());
-//		v_gamma_enable->setBool(camera->GammaEnable.GetValue());
-//		if(v_gamma_enable) {
-//            v_gamma->setDouble(camera->Gamma.GetValue());
-//        }
+		v_gamma_enable->setBool(camera->GammaEnable.GetValue());
+		v_gamma->setDouble(camera->Gamma.GetValue());
+
 		v_auto_exposure->setBool(camera->ExposureAuto.GetValue() == Basler_GigECamera::ExposureAuto_Continuous);
 		v_manual_exposure->setDouble(camera->ExposureTimeAbs.GetValue());
 	} catch (const Pylon::GenericException& e) {
@@ -395,12 +395,12 @@ void CaptureBasler::writeParameterValues(VarList* vars) {
                 camera->GainRaw.SetValue(v_gain->getInt());
             }
 
-//            if (v_gamma_enable->getBool()) {
-//                camera->GammaEnable.SetValue(true);
-//                camera->Gamma.SetValue(v_gamma->getDouble());
-//            } else {
-//                camera->GammaEnable.SetValue(false);
-//            }
+            if (v_gamma_enable->getBool()) {
+                camera->GammaEnable.SetValue(true);
+                camera->Gamma.SetValue(v_gamma->getDouble());
+            } else {
+                camera->GammaEnable.SetValue(false);
+            }
 
             if (v_auto_exposure->getBool()) {
                 camera->ExposureAuto.SetValue(
