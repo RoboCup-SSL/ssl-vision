@@ -70,6 +70,9 @@ private:
 	int current_id;
   	unsigned char* last_buf;
 
+  	double lastCaptureTime;
+  	int lastBaslerCaptureTime;
+
   	VarList* vars;
   	VarInt* v_camera_id;
   	VarInt* v_balance_ratio_red;

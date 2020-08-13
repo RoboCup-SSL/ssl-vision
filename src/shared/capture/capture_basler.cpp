@@ -248,7 +248,12 @@ RawImage CaptureBasler::getFrame() {
 		}
 		if(GenApi::IsReadable(grab_result->ChunkTimestamp)){
 		    std::cout<<"Basler timestamp: "<<grab_result->ChunkTimestamp.GetValue()<<std::endl;
-		}else{
+		    std::cout<<"Old Image Timestamp: "<<img.getTime()<<std::endl;
+            std::cout<<"Basler diff: "<<grab_result->ChunkTimestamp.GetValue()-lastBaslerCaptureTime<<std::endl;
+            std::cout<<"Image diff: "<<img.getTime()-lastCaptureTime<<std::endl;
+            lastCaptureTime = img.getTime();
+            lastBaslerCaptureTime = grab_result->ChunkTimestamp.GetValue();
+        }else{
 		    std::cerr<<"Could not read TimeStamp!"<<std::endl;
 		}
 		if(GenApi::IsReadable(grab_result->ChunkFramecounter)){
