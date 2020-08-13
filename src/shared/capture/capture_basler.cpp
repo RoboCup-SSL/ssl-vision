@@ -10,8 +10,8 @@
 #include <vector>
 #include <string>
 
-#define MUTEX_LOCK mutex.lock()
-#define MUTEX_UNLOCK mutex.unlock()
+#define MUTEX_LOCK std::cout<<"lock mutex"<<std::endl; mutex.lock()
+#define MUTEX_UNLOCK std::cout<<"unlock mutex"<<std::endl; mutex.unlock()
 
 int BaslerInitManager::count = 0;
 
@@ -133,6 +133,7 @@ bool CaptureBasler::startCapture() {
 		if (camera == NULL) {
 			if (!_buildCamera()) {
                 // Did not make a camera!
+                MUTEX_UNLOCK;
                 return false;
             }
 		}
@@ -361,6 +362,7 @@ void CaptureBasler::writeParameterValues(VarList* vars) {
 	//if (restart) {
 	//	_stopCapture();
 	//}
+
 	MUTEX_LOCK;
 	try {
 		if(current_id != v_camera_id->get()){
