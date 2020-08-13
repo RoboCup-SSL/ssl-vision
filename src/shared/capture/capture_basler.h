@@ -72,7 +72,7 @@ private:
 
   	double initialOffset;
   	double lastCaptureTime;
-  	int lastBaslerCaptureTime;
+  	long int lastBaslerCaptureTime;
 
   	VarList* vars;
   	VarInt* v_camera_id;

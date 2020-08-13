@@ -59,10 +59,10 @@ CaptureBasler::CaptureBasler(VarList* _settings, QObject* parent) :
 	v_auto_gain = new VarBool("auto gain", true);
 	vars->addChild(v_auto_gain);
 
-	v_gain = new VarDouble("gain", 300, 200, 1000);
+	v_gain = new VarDouble("gain", 300, 0, 542);
 	vars->addChild(v_gain);
 
-	v_gamma_enable = new VarBool("enable gamma correction", false);
+	v_gamma_enable = new VarBool("enable gamma correction", true);
 	vars->addChild(v_gamma_enable);
 
 	v_gamma = new VarDouble("gamma", 0.5, 0, 1);
@@ -102,7 +102,7 @@ bool CaptureBasler::_buildCamera() {
         printf("Opening camera %d...\n", current_id);
 		camera->Open();
         printf("Setting interpacket delay...\n");
-		camera->GevSCPD.SetValue(600); //TODO: check effect of changing this
+		camera->GevSCPD.SetValue(0); //TODO: check effect of changing this: Doesn't seem to matter much
 		if(GenApi::IsWritable(camera->ChunkModeActive)){
             camera->ChunkModeActive.SetValue(true);
             camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Timestamp);
@@ -151,7 +151,6 @@ bool CaptureBasler::startCapture() {
 
 bool CaptureBasler::_stopCapture() {
 	if (is_capturing) {
-	    camera->ChunkModeActive.SetValue(false);
 		camera->StopGrabbing();
 		camera->Close();
 		is_capturing = false;
@@ -253,20 +252,18 @@ RawImage CaptureBasler::getFrame() {
 		if(GenApi::IsReadable(grab_result->ChunkTimestamp)){
 		    long int freq =camera->GevTimestampTickFrequency.GetValue();
 		    double period = 1.0 / (double) freq;
-		    std::cout<<"Basler timestamp: "<<grab_result->ChunkTimestamp.GetValue()*period<<std::endl;
-		    std::cout<<"Old Image Timestamp: "<<img.getTime()-initialOffset<<std::endl;
-            std::cout<<"Basler diff: "<<(grab_result->ChunkTimestamp.GetValue()-lastBaslerCaptureTime)*period<<std::endl;
-            std::cout<<"Image diff: "<<img.getTime()-lastCaptureTime<<std::endl;
-            std::cout<< "Frequency: " <<freq <<std::endl;
+		    long unsigned int timeStamp = grab_result->ChunkTimestamp.GetValue();
+            double baslerDiff = (timeStamp-lastBaslerCaptureTime)*period;
+            double imageDiff = img.getTime()-lastCaptureTime;
+            if(abs(baslerDiff-imageDiff)*1000>4.0){
+                std::cout<<"Basler diff: "<<baslerDiff<<std::endl;
+                std::cout<<"Basler timestamp: "<<timeStamp<<" "<<timeStamp*period<<std::endl;
+                std::cout<<"Image diff: "<<imageDiff<<std::endl;
+            }
             lastCaptureTime = img.getTime();
-            lastBaslerCaptureTime = grab_result->ChunkTimestamp.GetValue();
+            lastBaslerCaptureTime = timeStamp;
         }else{
-		    std::cerr<<"Could not read TimeStamp!"<<std::endl;
-		}
-		if(GenApi::IsReadable(grab_result->ChunkFramecounter)){
-		    std::cout<<"Basler framecount: "<<grab_result->ChunkFramecounter.GetValue()<<std::endl;
-		}else{
-		    std::cerr<<"Could not read FrameCount"<<std::endl;
+            //throw error?
 		}
 
 		// Original buffer is not needed anymore, it has been copied to img
@@ -305,6 +302,7 @@ bool CaptureBasler::copyAndConvertFrame(const RawImage & src,
 }
 
 void CaptureBasler::readAllParameterValues() {
+    std::cerr<<"Read Parameters"<<std::endl;
 	MUTEX_LOCK;
 	try {
 		if (!camera)
@@ -325,20 +323,24 @@ void CaptureBasler::readAllParameterValues() {
 
 		v_auto_gain->setBool(camera->GainAuto.GetValue() == Basler_GigECamera::GainAuto_Continuous);
 		v_gain->setDouble(camera->GainRaw.GetValue());
-		v_gamma_enable->setBool(camera->GammaEnable.GetValue());
-		v_gamma->setDouble(camera->Gamma.GetValue());
-
+//		v_gamma_enable->setBool(camera->GammaEnable.GetValue());
+//		if(v_gamma_enable) {
+//            v_gamma->setDouble(camera->Gamma.GetValue());
+//        }
 		v_auto_exposure->setBool(camera->ExposureAuto.GetValue() == Basler_GigECamera::ExposureAuto_Continuous);
 		v_manual_exposure->setDouble(camera->ExposureTimeAbs.GetValue());
 	} catch (const Pylon::GenericException& e) {
 		fprintf(stderr, "Exception reading parameter values: %s\n", e.what());
 		MUTEX_UNLOCK;
+		std::cout<<"End Read Parameters pylon exception"<<std::endl;
 		return;
 	} catch (...) {
 		MUTEX_UNLOCK;
+		std::cout<<"End Read Parameters general exception"<<std::endl;
 		throw;
 	}
 	MUTEX_UNLOCK;
+	std::cout<<"End Read Parameters"<<std::endl;
 }
 
 void CaptureBasler::resetCamera(unsigned int new_id) {
@@ -353,6 +355,7 @@ void CaptureBasler::resetCamera(unsigned int new_id) {
 }
 
 void CaptureBasler::writeParameterValues(VarList* vars) {
+    std::cerr<<"WriteParameterValues"<<std::endl;
 	if (vars != this->settings) {
 		return;
 	}
@@ -391,12 +394,12 @@ void CaptureBasler::writeParameterValues(VarList* vars) {
                 camera->GainRaw.SetValue(v_gain->getInt());
             }
 
-            if (v_gamma_enable->getBool()) {
-                camera->GammaEnable.SetValue(true);
-                camera->Gamma.SetValue(v_gamma->getDouble());
-            } else {
-                camera->GammaEnable.SetValue(false);
-            }
+//            if (v_gamma_enable->getBool()) {
+//                camera->GammaEnable.SetValue(true);
+//                camera->Gamma.SetValue(v_gamma->getDouble());
+//            } else {
+//                camera->GammaEnable.SetValue(false);
+//            }
 
             if (v_auto_exposure->getBool()) {
                 camera->ExposureAuto.SetValue(
