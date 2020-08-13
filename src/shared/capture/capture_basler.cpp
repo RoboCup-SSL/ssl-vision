@@ -109,6 +109,7 @@ bool CaptureBasler::_buildCamera() {
             camera->ChunkEnable.SetValue(true);
             camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Framecounter);
             camera->ChunkEnable.SetValue(true);
+            camera->GevTimestampControlReset.Execute(); //Reset the internal time stamp counter of the camera to 0
         }else{
 		    return false; //Camera does not support accurate timings
 		}
@@ -251,6 +252,7 @@ RawImage CaptureBasler::getFrame() {
 		    std::cout<<"Old Image Timestamp: "<<img.getTime()<<std::endl;
             std::cout<<"Basler diff: "<<grab_result->ChunkTimestamp.GetValue()-lastBaslerCaptureTime<<std::endl;
             std::cout<<"Image diff: "<<img.getTime()-lastCaptureTime<<std::endl;
+            std::cout<< camera->GevTimestampTickFrequency.GetValue()<<std::endl;
             lastCaptureTime = img.getTime();
             lastBaslerCaptureTime = grab_result->ChunkTimestamp.GetValue();
         }else{
@@ -363,6 +365,7 @@ void CaptureBasler::writeParameterValues(VarList* vars) {
 
         if (camera != NULL) {
             camera->Open();
+
 
             camera->BalanceRatioSelector.SetValue(
                     Basler_GigECamera::BalanceRatioSelector_Red);
