@@ -47,6 +47,9 @@ CaptureBasler::CaptureBasler(VarList* _settings, QObject* parent) :
 
 	vars->addChild(v_camera_id = new VarInt("Camera ID", 0, 0, 3));
 
+	v_framerate = new VarDouble("Max Framerate",100.0,0.0,100.0);
+	vars->addChild(v_framerate);
+
 	v_balance_ratio_red = new VarInt("Balance Ratio Red", 64, 0, 255);
 	vars->addChild(v_balance_ratio_red);
 
@@ -103,6 +106,7 @@ bool CaptureBasler::_buildCamera() {
 		camera->Open();
         printf("Setting interpacket delay...\n");
         camera->GammaSelector.SetValue(Basler_GigECamera::GammaSelector_User);
+        camera->AcquisitionFrameRateEnable.SetValue(true); //Turn on capped framerates
         camera->GevSCPD.SetValue(0); //TODO: check effect of changing this: higher values lower framerate slightly. 0 seems fine, actually.
 		//Might want to leave this to the Pylon API? has not been tested when there's multiple camera's.
 		if(GenApi::IsWritable(camera->ChunkModeActive)){
@@ -112,10 +116,7 @@ bool CaptureBasler::_buildCamera() {
             camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Framecounter);
             camera->ChunkEnable.SetValue(true);
             camera->GevTimestampControlReset.Execute(); //Reset the internal time stamp counter of the camera to 0
-            timeval tv;
-            gettimeofday(&tv,nullptr);
-            double computerTime = (double) tv.tv_sec + (tv.tv_usec / 1000000.0);
-            addOffset(computerTime); //We assume for the first offset that it's roughly 0
+
         }else{
 		    return false; //Camera does not support accurate timings
 		}
@@ -253,9 +254,8 @@ RawImage CaptureBasler::getFrame() {
 		    std::cerr<<" Unexpected payload type received"<<std::endl;
 		}
 		if(GenApi::IsReadable(grab_result->ChunkTimestamp)){
-		    //const unsigned long int freq =camera->GevTimestampTickFrequency.GetValue();
-		    // This should always be 125 MHz for Basler-ace-1300-75gc
-		    const unsigned long int freq = 125000000;
+		    //const unsigned long int freq =camera->GevTimestampTickFrequency.GetValue(); // This should always be 125 MHz for Basler-ace-1300-75gc
+		    const unsigned long int freq = 125000000; //avoid expensive (over ethernet) call from above
 		    const double period = 1.0 / (double) freq;
 		    long unsigned int timeStamp = grab_result->ChunkTimestamp.GetValue();
 		    double baslerTime = period* (double) timeStamp;
@@ -310,6 +310,7 @@ void CaptureBasler::readAllParameterValues() {
 		if (!was_open) {
 			camera->Open();
 		}
+		v_framerate->setDouble(camera->AcquisitionFrameRateAbs.GetValue());
 		camera->BalanceRatioSelector.SetValue(
 				Basler_GigECamera::BalanceRatioSelector_Red);
 		v_balance_ratio_red->setInt(camera->BalanceRatioRaw.GetValue());
@@ -330,7 +331,6 @@ void CaptureBasler::readAllParameterValues() {
 	} catch (const Pylon::GenericException& e) {
 		fprintf(stderr, "Exception reading parameter values: %s\n", e.what());
 		MUTEX_UNLOCK;
-		std::cout<<"End Read Parameters pylon exception"<<std::endl;
 		return;
 	} catch (...) {
 		MUTEX_UNLOCK;
@@ -363,15 +363,16 @@ void CaptureBasler::writeParameterValues(VarList* vars) {
 	//}
 	MUTEX_LOCK;
 	try {
-		current_id = v_camera_id->get();
-
-		MUTEX_UNLOCK;
-		resetCamera(v_camera_id->get()); // locks itself
-		MUTEX_LOCK;
+		if(current_id != v_camera_id->get()){
+            MUTEX_UNLOCK;
+            resetCamera(v_camera_id->get()); // locks itself
+            MUTEX_LOCK;
+		}
 
         if (camera != NULL) {
             camera->Open();
 
+            camera->AcquisitionFrameRateAbs.SetValue(v_framerate->getDouble());
 
             camera->BalanceRatioSelector.SetValue(
                     Basler_GigECamera::BalanceRatioSelector_Red);
@@ -437,7 +438,7 @@ writeParameterValues(dynamic_cast<VarList*>(group));
 
 void CaptureBasler::addOffset(double offset) {
     //keeps track of a running average.
-    if(size<10){
+    if(size<offSetsCircularBuffer.size()){
         ++size;
     }else{
         totalOffSets-= offSetsCircularBuffer[currentWriteIndex];

@@ -79,6 +79,7 @@ private:
 
   	VarList* vars;
   	VarInt* v_camera_id;
+  	VarDouble* v_framerate;
   	VarInt* v_balance_ratio_red;
   	VarInt* v_balance_ratio_green;
   	VarInt* v_balance_ratio_blue;
