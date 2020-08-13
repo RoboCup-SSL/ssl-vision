@@ -102,7 +102,8 @@ bool CaptureBasler::_buildCamera() {
         printf("Opening camera %d...\n", current_id);
 		camera->Open();
         printf("Setting interpacket delay...\n");
-		camera->GevSCPD.SetValue(0); //TODO: check effect of changing this: Doesn't seem to matter much
+		camera->GevSCPD.SetValue(0); //TODO: check effect of changing this: higher values lower framerate slightly. 0 seems fine, actually.
+		//Might want to leave this to the Pylon API? has not been tested when there's multiple camera's.
 		if(GenApi::IsWritable(camera->ChunkModeActive)){
             camera->ChunkModeActive.SetValue(true);
             camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Timestamp);
