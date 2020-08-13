@@ -70,9 +70,12 @@ private:
 	int current_id;
   	unsigned char* last_buf;
 
-  	double initialOffset;
-  	double lastCaptureTime;
-  	long int lastBaslerCaptureTime;
+  	void addOffset(double offSet);
+  	double getAverageOffset() const;
+  	std::array<double,10> offSetsCircularBuffer;
+  	double totalOffSets = 0;
+  	unsigned long currentWriteIndex = 0;
+  	int size = 0;
 
   	VarList* vars;
   	VarInt* v_camera_id;

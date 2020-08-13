@@ -56,7 +56,7 @@ CaptureBasler::CaptureBasler(VarList* _settings, QObject* parent) :
 	v_balance_ratio_blue = new VarInt("Balance Ratio Blue", 64, 0, 255);
 	vars->addChild(v_balance_ratio_blue);
 
-	v_auto_gain = new VarBool("auto gain", true);
+	v_auto_gain = new VarBool("auto gain", false);
 	vars->addChild(v_auto_gain);
 
 	v_gain = new VarInt("gain", 300, 0, 542);
@@ -113,8 +113,9 @@ bool CaptureBasler::_buildCamera() {
             camera->ChunkEnable.SetValue(true);
             camera->GevTimestampControlReset.Execute(); //Reset the internal time stamp counter of the camera to 0
             timeval tv;
-            gettimeofday(&tv, 0);
-            initialOffset = tv.tv_sec + (tv.tv_usec / 1000000.0);
+            gettimeofday(&tv,nullptr);
+            double computerTime = (double) tv.tv_sec + (tv.tv_usec / 1000000.0);
+            addOffset(computerTime); //We assume for the first offset that it's roughly 0
         }else{
 		    return false; //Camera does not support accurate timings
 		}
@@ -234,7 +235,7 @@ RawImage CaptureBasler::getFrame() {
 		}
         timeval tv;
         gettimeofday(&tv, 0);
-        img.setTime((double) tv.tv_sec + (tv.tv_usec / 1000000.0));
+        double computerTime = (double) tv.tv_sec + (tv.tv_usec / 1000000.0);
 
 		Pylon::CPylonImage capture;
 
@@ -252,20 +253,16 @@ RawImage CaptureBasler::getFrame() {
 		    std::cerr<<" Unexpected payload type received"<<std::endl;
 		}
 		if(GenApi::IsReadable(grab_result->ChunkTimestamp)){
-		    long int freq =camera->GevTimestampTickFrequency.GetValue();
-		    double period = 1.0 / (double) freq;
+		    //const unsigned long int freq =camera->GevTimestampTickFrequency.GetValue();
+		    // This should always be 125 MHz for Basler-ace-1300-75gc
+		    const unsigned long int freq = 125000000;
+		    const double period = 1.0 / (double) freq;
 		    long unsigned int timeStamp = grab_result->ChunkTimestamp.GetValue();
-            double baslerDiff = (timeStamp-lastBaslerCaptureTime)*period;
-            double imageDiff = img.getTime()-lastCaptureTime;
-            if(abs(baslerDiff-imageDiff)*1000>4.0){
-                std::cout<<"Basler diff: "<<baslerDiff<<std::endl;
-                std::cout<<"Basler timestamp: "<<timeStamp<<" "<<timeStamp*period<<std::endl;
-                std::cout<<"Image diff: "<<imageDiff<<std::endl;
-            }
-            lastCaptureTime = img.getTime();
-            lastBaslerCaptureTime = timeStamp;
+		    double baslerTime = period* (double) timeStamp;
+		    addOffset(computerTime-baslerTime);
+		    img.setTime(getAverageOffset()+baslerTime);
         }else{
-            //throw error?
+		    img.setTime(computerTime);
 		}
 
 		// Original buffer is not needed anymore, it has been copied to img
@@ -436,4 +433,21 @@ void CaptureBasler::changed(VarType * group) {
 if (group->getType() == VARTYPE_ID_LIST) {
 writeParameterValues(dynamic_cast<VarList*>(group));
 }
+}
+
+void CaptureBasler::addOffset(double offset) {
+    //keeps track of a running average.
+    if(size<10){
+        ++size;
+    }else{
+        totalOffSets-= offSetsCircularBuffer[currentWriteIndex];
+    }
+    offSetsCircularBuffer[currentWriteIndex] = offset;
+    totalOffSets += offset;
+    currentWriteIndex = (currentWriteIndex+1) % offSetsCircularBuffer.size();
+
+}
+
+double CaptureBasler::getAverageOffset() const {
+    return totalOffSets / size;
 }
