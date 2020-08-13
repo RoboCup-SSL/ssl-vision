@@ -70,6 +70,7 @@ private:
 	int current_id;
   	unsigned char* last_buf;
 
+  	double initialOffset;
   	double lastCaptureTime;
   	int lastBaslerCaptureTime;
 

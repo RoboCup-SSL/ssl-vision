@@ -110,6 +110,9 @@ bool CaptureBasler::_buildCamera() {
             camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Framecounter);
             camera->ChunkEnable.SetValue(true);
             camera->GevTimestampControlReset.Execute(); //Reset the internal time stamp counter of the camera to 0
+            timeval tv;
+            gettimeofday(&tv, 0);
+            initialOffset = tv.tv_sec + (tv.tv_usec / 1000000.0);
         }else{
 		    return false; //Camera does not support accurate timings
 		}
@@ -248,11 +251,13 @@ RawImage CaptureBasler::getFrame() {
 		    std::cerr<<" Unexpected payload type received"<<std::endl;
 		}
 		if(GenApi::IsReadable(grab_result->ChunkTimestamp)){
-		    std::cout<<"Basler timestamp: "<<grab_result->ChunkTimestamp.GetValue()<<std::endl;
-		    std::cout<<"Old Image Timestamp: "<<img.getTime()<<std::endl;
-            std::cout<<"Basler diff: "<<grab_result->ChunkTimestamp.GetValue()-lastBaslerCaptureTime<<std::endl;
+		    long int freq =camera->GevTimestampTickFrequency.GetValue();
+		    double period = 1.0 / (double) freq;
+		    std::cout<<"Basler timestamp: "<<grab_result->ChunkTimestamp.GetValue()*period<<std::endl;
+		    std::cout<<"Old Image Timestamp: "<<img.getTime()-initialOffset<<std::endl;
+            std::cout<<"Basler diff: "<<(grab_result->ChunkTimestamp.GetValue()-lastBaslerCaptureTime)*period<<std::endl;
             std::cout<<"Image diff: "<<img.getTime()-lastCaptureTime<<std::endl;
-            std::cout<< camera->GevTimestampTickFrequency.GetValue()<<std::endl;
+            std::cout<< "Frequency: " <<freq <<std::endl;
             lastCaptureTime = img.getTime();
             lastBaslerCaptureTime = grab_result->ChunkTimestamp.GetValue();
         }else{
