@@ -10,8 +10,8 @@
 #include <vector>
 #include <string>
 
-#define MUTEX_LOCK std::cout<<"lock mutex"<<std::endl; mutex.lock()
-#define MUTEX_UNLOCK std::cout<<"unlock mutex"<<std::endl; mutex.unlock()
+#define MUTEX_LOCK mutex.lock()
+#define MUTEX_UNLOCK mutex.unlock()
 
 int BaslerInitManager::count = 0;
 
@@ -30,11 +30,11 @@ void BaslerInitManager::unregister_capture() {
 CaptureBasler::CaptureBasler(VarList* _settings, QObject* parent) :
 		QObject(parent), CaptureInterface(_settings) {
 	is_capturing = false;
-	camera = NULL;
+	camera = nullptr;
 	ignore_capture_failure = false;
 	converter.OutputPixelFormat = Pylon::PixelType_RGB8packed;
 	//camera.PixelFormat.SetValue(Basler_GigECamera::PixelFormat_YUV422Packed, true);
-	last_buf = NULL;
+	last_buf = nullptr;
 
 	settings->addChild(vars = new VarList("Capture Settings"));
 	settings->removeFlags(VARTYPE_FLAG_HIDE_CHILDREN);
@@ -105,10 +105,10 @@ bool CaptureBasler::_buildCamera() {
         printf("Opening camera %d...\n", current_id);
 		camera->Open();
         printf("Setting interpacket delay...\n");
-        camera->GammaSelector.SetValue(Basler_GigECamera::GammaSelector_User);
+        camera->GammaSelector.SetValue(Basler_GigECamera::GammaSelector_User); //Necessary for interface to work
         camera->AcquisitionFrameRateEnable.SetValue(true); //Turn on capped framerates
-        camera->GevSCPD.SetValue(0); //TODO: check effect of changing this: higher values lower framerate slightly. 0 seems fine, actually.
-		//Might want to leave this to the Pylon API? has not been tested when there's multiple camera's.
+        camera->GevSCPD.SetValue(0); // TODO: check this for multiple camera's
+        //let camera send timestamps and FrameCounts.
 		if(GenApi::IsWritable(camera->ChunkModeActive)){
             camera->ChunkModeActive.SetValue(true);
             camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Timestamp);
@@ -116,7 +116,6 @@ bool CaptureBasler::_buildCamera() {
             camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Framecounter);
             camera->ChunkEnable.SetValue(true);
             camera->GevTimestampControlReset.Execute(); //Reset the internal time stamp counter of the camera to 0
-
         }else{
 		    return false; //Camera does not support accurate timings
 		}
@@ -130,7 +129,7 @@ bool CaptureBasler::_buildCamera() {
 bool CaptureBasler::startCapture() {
 	MUTEX_LOCK;
 	try {
-		if (camera == NULL) {
+		if (camera == nullptr) {
 			if (!_buildCamera()) {
                 // Did not make a camera!
                 MUTEX_UNLOCK;
@@ -141,7 +140,7 @@ bool CaptureBasler::startCapture() {
 	} catch (Pylon::GenericException& e) {
         printf("Pylon exception: %s", e.what());
         delete camera;
-        camera = NULL;
+        camera = nullptr;
         current_id = -1;
 		MUTEX_UNLOCK;
         return false;
@@ -171,7 +170,7 @@ bool CaptureBasler::stopCapture() {
 		stopped = _stopCapture();
 		if (stopped) {
 			delete camera;
-			camera = 0;
+			camera = nullptr;
 			BaslerInitManager::unregister_capture();
 		}
 	} catch (...) {
@@ -187,7 +186,7 @@ void CaptureBasler::releaseFrame() {
 	try {
 		if (last_buf) {
 			free(last_buf);
-			last_buf = NULL;
+			last_buf = nullptr;
 		}
 	} catch (...) {
 		MUTEX_UNLOCK;
@@ -251,10 +250,8 @@ RawImage CaptureBasler::getFrame() {
 		img.setData(buf);
 		last_buf = buf;
 
-		if(Pylon::PayloadType_ChunkData != grab_result->GetPayloadType()){
-		    std::cerr<<" Unexpected payload type received"<<std::endl;
-		}
-		if(GenApi::IsReadable(grab_result->ChunkTimestamp)){
+		if(grab_result->GetPayloadType() == Pylon::PayloadType_ChunkData &&
+		GenApi::IsReadable(grab_result->ChunkTimestamp)){
 		    //const unsigned long int freq =camera->GevTimestampTickFrequency.GetValue(); // This should always be 125 MHz for Basler-ace-1300-75gc
 		    const unsigned long int freq = 125000000; //avoid expensive (over ethernet) call from above
 		    const double period = 1.0 / (double) freq;
@@ -302,7 +299,6 @@ bool CaptureBasler::copyAndConvertFrame(const RawImage & src,
 }
 
 void CaptureBasler::readAllParameterValues() {
-    std::cerr<<"Read Parameters"<<std::endl;
 	MUTEX_LOCK;
 	try {
 		if (!camera)
@@ -353,12 +349,11 @@ void CaptureBasler::resetCamera(unsigned int new_id) {
 	}
 }
 
-void CaptureBasler::writeParameterValues(VarList* vars) {
-    std::cerr<<"WriteParameterValues"<<std::endl;
-	if (vars != this->settings) {
+void CaptureBasler::writeParameterValues(VarList* varList) {
+	if (varList != this->settings) {
 		return;
 	}
-	bool restart = is_capturing;
+	//bool restart = is_capturing;
 	//if (restart) {
 	//	_stopCapture();
 	//}
@@ -371,7 +366,7 @@ void CaptureBasler::writeParameterValues(VarList* vars) {
             MUTEX_LOCK;
 		}
 
-        if (camera != NULL) {
+        if (camera != nullptr) {
             camera->Open();
 
             camera->AcquisitionFrameRateAbs.SetValue(v_framerate->getDouble());
@@ -426,8 +421,8 @@ void CaptureBasler::writeParameterValues(VarList* vars) {
 
 void CaptureBasler::mvc_connect(VarList * group) {
 	vector<VarType *> v = group->getChildren();
-	for (unsigned int i = 0; i < v.size(); i++) {
-	connect(v[i],SIGNAL(wasEdited(VarType *)),group,SLOT(mvcEditCompleted()));
+	for (auto & i : v) {
+	connect(i,SIGNAL(wasEdited(VarType *)),group,SLOT(mvcEditCompleted()));
 }
 connect(group,SIGNAL(wasEdited(VarType *)),this,SLOT(changed(VarType *)));
 }

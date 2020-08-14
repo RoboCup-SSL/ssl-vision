@@ -59,7 +59,7 @@ public:
 
 	void readAllParameterValues();
 
-	void writeParameterValues(VarList* vars);
+	void writeParameterValues(VarList* varList);
 
 private:
 	bool is_capturing;
@@ -67,12 +67,12 @@ private:
 	Pylon::CBaslerGigEInstantCamera* camera;
 	Pylon::CBaslerGigEGrabResultPtr grab_result;
 	Pylon::CImageFormatConverter converter;
-	int current_id;
+	unsigned int current_id;
   	unsigned char* last_buf;
 
   	void addOffset(double offSet);
   	double getAverageOffset() const;
-  	std::array<double,10> offSetsCircularBuffer;
+  	std::array<double,10> offSetsCircularBuffer = {};
   	double totalOffSets = 0;
   	unsigned long currentWriteIndex = 0;
   	int size = 0;
