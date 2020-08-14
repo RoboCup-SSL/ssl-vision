@@ -138,8 +138,8 @@ int main(int argc, char *argv[])
                     printf("  -tx=%.2f\n",calib.tx());
                     printf("  -ty=%.2f\n",calib.ty());
                     printf("  -tz=%.2f\n",calib.tz());
-                    printf( " -pixel_image_width=%d\n",calib.pixel_image_width());
-                    printf(" -pixel_image_height=%d\n",calib.pixel_image_height());
+                    printf("  -pixel_image_width=%u\n",calib.pixel_image_width());
+                    printf("  -pixel_image_height=%u\n",calib.pixel_image_height());
 
                     if (calib.has_derived_camera_world_tx() && calib.has_derived_camera_world_ty() && calib.has_derived_camera_world_tz()) {
                       printf("  -derived_camera_world_tx=%.f\n",calib.derived_camera_world_tx());
