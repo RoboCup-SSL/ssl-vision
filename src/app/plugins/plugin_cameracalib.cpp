@@ -104,6 +104,11 @@ ProcessResult PluginCameraCalibration::process(
     FrameData* data, RenderOptions* options) {
   video_width=data->video.getWidth();
   video_height=data->video.getHeight();
+  if(camera_parameters.additional_calibration_information->imageWidth->getInt() != video_width ||
+     camera_parameters.additional_calibration_information->imageHeight->getInt() != video_height){
+      camera_parameters.additional_calibration_information->imageWidth->setInt(video_width);
+      camera_parameters.additional_calibration_information->imageHeight->setInt(video_height);
+  }
   (void)options;
   if(ccw) {
     if(ccw->getDetectEdges()) {
