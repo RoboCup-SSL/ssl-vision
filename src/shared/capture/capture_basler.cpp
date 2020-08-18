@@ -109,18 +109,17 @@ bool CaptureBasler::_buildCamera() {
         camera_frequency = camera->GevTimestampTickFrequency.GetValue();;
 
         //let camera send timestamps and FrameCounts.
-        if (GenApi::IsWritable(camera->ChunkModeActive)) {
-            camera->ChunkModeActive.SetValue(true);
-            camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Timestamp);
-            camera->ChunkEnable.SetValue(true);
-            camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Framecounter);
-            camera->ChunkEnable.SetValue(true);
-            camera->GevTimestampControlReset.Execute(); //Reset the internal time stamp counter of the camera to 0
-
-        } else {
-            std::cout << "Failed, camera model does not support accurate timings!" << std::endl;
-            return false; //Camera does not support accurate timings
-        }
+	if (GenApi::IsWritable(camera->ChunkModeActive)) {
+		camera->ChunkModeActive.SetValue(true);
+		camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Timestamp);
+		camera->ChunkEnable.SetValue(true);
+		camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Framecounter);
+		camera->ChunkEnable.SetValue(true);
+		camera->GevTimestampControlReset.Execute(); //Reset the internal time stamp counter of the camera to 0
+	} else {
+		std::cout << "Failed, camera model does not support accurate timings!" << std::endl;
+		return false; //Camera does not support accurate timings
+	}
         printf("Done!\n");
 		is_capturing = true;
 		return true;
