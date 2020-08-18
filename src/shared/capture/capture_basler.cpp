@@ -96,31 +96,31 @@ bool CaptureBasler::_buildCamera() {
 	Pylon::DeviceInfoList devices;
 	int amt = Pylon::CTlFactory::GetInstance().EnumerateDevices(devices);
 	current_id = v_camera_id->get();
-    printf("Current camera id: %d\n", current_id);
+	printf("Current camera id: %d\n", current_id);
 	if (amt > current_id) {
 		Pylon::CDeviceInfo info = devices[current_id];
 
 		camera = new Pylon::CBaslerGigEInstantCamera(
 				Pylon::CTlFactory::GetInstance().CreateDevice(info));
-        printf("Opening camera %d...\n", current_id);
+        	printf("Opening camera %d...\n", current_id);
 		camera->Open();
-        camera->GammaSelector.SetValue(Basler_GigECamera::GammaSelector_User); //Necessary for interface to work
-        camera->AcquisitionFrameRateEnable.SetValue(true); //Turn on capped framerates
-        camera_frequency = camera->GevTimestampTickFrequency.GetValue();;
+        	camera->GammaSelector.SetValue(Basler_GigECamera::GammaSelector_User); //Necessary for interface to work
+        	camera->AcquisitionFrameRateEnable.SetValue(true); //Turn on capped framerates
+        	camera_frequency = camera->GevTimestampTickFrequency.GetValue();;
 
-        //let camera send timestamps and FrameCounts.
-	if (GenApi::IsWritable(camera->ChunkModeActive)) {
-		camera->ChunkModeActive.SetValue(true);
-		camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Timestamp);
-		camera->ChunkEnable.SetValue(true);
-		camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Framecounter);
-		camera->ChunkEnable.SetValue(true);
-		camera->GevTimestampControlReset.Execute(); //Reset the internal time stamp counter of the camera to 0
-	} else {
-		std::cout << "Failed, camera model does not support accurate timings!" << std::endl;
-		return false; //Camera does not support accurate timings
-	}
-        printf("Done!\n");
+        	//let camera send timestamps and FrameCounts.
+		if (GenApi::IsWritable(camera->ChunkModeActive)) {
+			camera->ChunkModeActive.SetValue(true);
+			camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Timestamp);
+			camera->ChunkEnable.SetValue(true);
+			camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Framecounter);
+			camera->ChunkEnable.SetValue(true);
+			camera->GevTimestampControlReset.Execute(); //Reset the internal time stamp counter of the camera to 0
+		} else {
+			std::cout << "Failed, camera model does not support accurate timings!" << std::endl;
+			return false; //Camera does not support accurate timings
+		}
+        	printf("Done!\n");
 		is_capturing = true;
 		return true;
 	}
@@ -258,7 +258,7 @@ RawImage CaptureBasler::getFrame() {
 		    double baslerTime = period* (double) timeStamp;
 		    addOffset(computerTime-baslerTime);
 		    img.setTime(getAverageOffset()+baslerTime);
-        }else{
+		}else{
 		    img.setTime(computerTime);
 		}
 
