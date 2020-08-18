@@ -69,6 +69,8 @@ message SSL_GeometryCameraCalibration {
   optional float derived_camera_world_tx = 13;
   optional float derived_camera_world_ty = 14;
   optional float derived_camera_world_tz = 15;
+  optional uint32 pixel_image_width = 16;
+  optional uint32 pixel_image_height = 17;
 }
 
 message SSL_GeometryData {
