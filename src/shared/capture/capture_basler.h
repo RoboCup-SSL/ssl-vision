@@ -72,10 +72,10 @@ private:
 
   	void addOffset(double offSet);
   	double getAverageOffset() const;
-  	std::array<double,10> offSetsCircularBuffer = {};
+  	std::array<double,100> offSetsCircularBuffer = {};
   	double totalOffSets = 0;
   	unsigned long currentWriteIndex = 0;
-  	int size = 0;
+  	unsigned int size = 0;
 
   	VarList* vars;
   	VarInt* v_camera_id;
