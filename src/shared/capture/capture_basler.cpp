@@ -104,10 +104,8 @@ bool CaptureBasler::_buildCamera() {
 				Pylon::CTlFactory::GetInstance().CreateDevice(info));
         printf("Opening camera %d...\n", current_id);
 		camera->Open();
-        printf("Setting interpacket delay...\n");
         camera->GammaSelector.SetValue(Basler_GigECamera::GammaSelector_User); //Necessary for interface to work
         camera->AcquisitionFrameRateEnable.SetValue(true); //Turn on capped framerates
-        camera->GevSCPD.SetValue(0); // TODO: check this for multiple camera's
         //let camera send timestamps and FrameCounts.
 		if(GenApi::IsWritable(camera->ChunkModeActive)){
             camera->ChunkModeActive.SetValue(true);
@@ -117,6 +115,7 @@ bool CaptureBasler::_buildCamera() {
             camera->ChunkEnable.SetValue(true);
             camera->GevTimestampControlReset.Execute(); //Reset the internal time stamp counter of the camera to 0
         }else{
+		    std::cout<<"Failed, camera model does not support accurate timings!"<<std::endl;
 		    return false; //Camera does not support accurate timings
 		}
         printf("Done!\n");
@@ -331,11 +330,9 @@ void CaptureBasler::readAllParameterValues() {
 		return;
 	} catch (...) {
 		MUTEX_UNLOCK;
-		std::cout<<"End Read Parameters general exception"<<std::endl;
 		throw;
 	}
 	MUTEX_UNLOCK;
-	std::cout<<"End Read Parameters"<<std::endl;
 }
 
 void CaptureBasler::resetCamera(unsigned int new_id) {
