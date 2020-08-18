@@ -53,7 +53,7 @@ Then build with the corresponding option:
  * `-DUSE_FLYCAP=true`
  * `-DUSE_V4L=true`
  
-Example for a release build: `cd build; cmake -DUSE_SPINNAKER=true -DCMAKE_BUILD_TYPE=Release ..`.
+Example for a release build: `cd build; cmake -DUSE_SPINNAKER=true ..`.
  As these are cached cmake options, you only need to run this once and can build with `make` afterwards.
 
 ### Virtual Splitter cameras

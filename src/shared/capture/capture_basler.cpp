@@ -106,18 +106,21 @@ bool CaptureBasler::_buildCamera() {
 		camera->Open();
         camera->GammaSelector.SetValue(Basler_GigECamera::GammaSelector_User); //Necessary for interface to work
         camera->AcquisitionFrameRateEnable.SetValue(true); //Turn on capped framerates
+        camera_frequency = camera->GevTimestampTickFrequency.GetValue();;
+
         //let camera send timestamps and FrameCounts.
-		if(GenApi::IsWritable(camera->ChunkModeActive)){
+        if (GenApi::IsWritable(camera->ChunkModeActive)) {
             camera->ChunkModeActive.SetValue(true);
             camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Timestamp);
             camera->ChunkEnable.SetValue(true);
             camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Framecounter);
             camera->ChunkEnable.SetValue(true);
             camera->GevTimestampControlReset.Execute(); //Reset the internal time stamp counter of the camera to 0
-        }else{
-		    std::cout<<"Failed, camera model does not support accurate timings!"<<std::endl;
-		    return false; //Camera does not support accurate timings
-		}
+
+        } else {
+            std::cout << "Failed, camera model does not support accurate timings!" << std::endl;
+            return false; //Camera does not support accurate timings
+        }
         printf("Done!\n");
 		is_capturing = true;
 		return true;
@@ -251,9 +254,7 @@ RawImage CaptureBasler::getFrame() {
 
 		if(grab_result->GetPayloadType() == Pylon::PayloadType_ChunkData &&
 		GenApi::IsReadable(grab_result->ChunkTimestamp)){
-		    //const unsigned long int freq =camera->GevTimestampTickFrequency.GetValue(); // This should always be 125 MHz for Basler-ace-1300-75gc
-		    const unsigned long int freq = 125000000; //avoid expensive (over ethernet) call from above
-		    const double period = 1.0 / (double) freq;
+		    const double period = 1.0 / (double) camera_frequency;// freq should always be 125 MHz for Basler-ace-1300-75gc
 		    long unsigned int timeStamp = grab_result->ChunkTimestamp.GetValue();
 		    double baslerTime = period* (double) timeStamp;
 		    addOffset(computerTime-baslerTime);
@@ -350,11 +351,6 @@ void CaptureBasler::writeParameterValues(VarList* varList) {
 	if (varList != this->settings) {
 		return;
 	}
-	//bool restart = is_capturing;
-	//if (restart) {
-	//	_stopCapture();
-	//}
-
 	MUTEX_LOCK;
 	try {
 		if(current_id != v_camera_id->get()){
@@ -411,9 +407,6 @@ void CaptureBasler::writeParameterValues(VarList* varList) {
 		throw;
 	}
 	MUTEX_UNLOCK;
-	//if (restart) {
-	//	startCapture();
-	//}
 }
 
 void CaptureBasler::mvc_connect(VarList * group) {
