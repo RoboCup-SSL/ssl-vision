@@ -59,24 +59,33 @@ public:
 
 	void readAllParameterValues();
 
-	void writeParameterValues(VarList* vars);
+	void writeParameterValues(VarList* varList);
 
 private:
 	bool is_capturing;
 	bool ignore_capture_failure;
 	Pylon::CBaslerGigEInstantCamera* camera;
-	Pylon::CGrabResultPtr grab_result;
+	Pylon::CBaslerGigEGrabResultPtr grab_result;
 	Pylon::CImageFormatConverter converter;
-	int current_id;
+	unsigned int current_id;
   	unsigned char* last_buf;
+
+  	int camera_frequency = 125000000;
+  	void addOffset(double offSet);
+  	double getAverageOffset() const;
+  	std::array<double,100> offSetsCircularBuffer = {};
+  	double totalOffSets = 0;
+  	unsigned long currentWriteIndex = 0;
+  	unsigned int size = 0;
 
   	VarList* vars;
   	VarInt* v_camera_id;
+  	VarDouble* v_framerate;
   	VarInt* v_balance_ratio_red;
   	VarInt* v_balance_ratio_green;
   	VarInt* v_balance_ratio_blue;
   	VarBool* v_auto_gain;
-  	VarDouble* v_gain;
+  	VarInt* v_gain;
   	VarBool* v_gamma_enable;
   	VarDouble* v_gamma;
   	VarDouble* v_black_level;
