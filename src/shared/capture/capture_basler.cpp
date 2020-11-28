@@ -235,9 +235,6 @@ RawImage CaptureBasler::getFrame() {
 			MUTEX_UNLOCK;
 			return img;
 		}
-        timeval tv;
-        gettimeofday(&tv, 0);
-        double computerTime = (double) tv.tv_sec + (tv.tv_usec / 1000000.0);
 
 		Pylon::CPylonImage capture;
 
@@ -253,13 +250,15 @@ RawImage CaptureBasler::getFrame() {
 
 		if(grab_result->GetPayloadType() == Pylon::PayloadType_ChunkData &&
 		GenApi::IsReadable(grab_result->ChunkTimestamp)){
-		    const double period = 1.0 / (double) camera_frequency;// freq should always be 125 MHz for Basler-ace-1300-75gc
-		    long unsigned int timeStamp = grab_result->ChunkTimestamp.GetValue();
-		    double baslerTime = period* (double) timeStamp;
-		    addOffset(computerTime-baslerTime);
-		    img.setTime(getAverageOffset()+baslerTime);
-		}else{
-		    img.setTime(computerTime);
+                    uint64_t  image_timestamp = grab_result->ChunkTimestamp.GetValue();
+                    timeSync.update(image_timestamp);
+                    double time = timeSync.sync(image_timestamp) / 1e9;
+		    img.setTime(time);
+		} else {
+                  timeval tv = {};
+                  gettimeofday(&tv, nullptr);
+                  double systemTime = (double) tv.tv_sec + (tv.tv_usec / 1000000.0);
+                  img.setTime(systemTime);
 		}
 
 		// Original buffer is not needed anymore, it has been copied to img
@@ -420,21 +419,4 @@ void CaptureBasler::changed(VarType * group) {
 if (group->getType() == VARTYPE_ID_LIST) {
 writeParameterValues(dynamic_cast<VarList*>(group));
 }
-}
-
-void CaptureBasler::addOffset(double offset) {
-    //keeps track of a running average.
-    if(size<offSetsCircularBuffer.size()){
-        ++size;
-    }else{
-        totalOffSets-= offSetsCircularBuffer[currentWriteIndex];
-    }
-    offSetsCircularBuffer[currentWriteIndex] = offset;
-    totalOffSets += offset;
-    currentWriteIndex = (currentWriteIndex+1) % offSetsCircularBuffer.size();
-
-}
-
-double CaptureBasler::getAverageOffset() const {
-    return totalOffSets / size;
 }
