@@ -30,6 +30,7 @@
 #include <spinnaker/SystemPtr.h>
 #include <spinnaker/CameraPtr.h>
 #include <spinnaker/ImagePtr.h>
+#include "TimeSync.h"
 
 // Unset 'interface' from spinnaker/SpinGenApi/Types.h which conflicts with variables in ssl-vision
 #undef interface
@@ -54,17 +55,18 @@
 class CaptureSpinnaker : public QObject, public CaptureInterface
 {
   Q_OBJECT
-  
+
   public slots:
   void changed(VarType * group);
-  
+
   protected:
   QMutex mutex;
-  
+
   public:
 
 protected:
   bool is_capturing;
+  TimeSync timeSync;
 
   //capture variables:
   VarInt    * v_cam_bus;
@@ -86,7 +88,7 @@ protected:
 
   VarList * capture_settings;
   VarList * dcam_parameters;
-  
+
   // Spinnaker specific data
   Spinnaker::SystemPtr pSystem;
   Spinnaker::CameraPtr pCam;
