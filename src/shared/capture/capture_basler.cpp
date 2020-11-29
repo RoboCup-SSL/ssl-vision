@@ -250,7 +250,8 @@ RawImage CaptureBasler::getFrame() {
 
 		if(grab_result->GetPayloadType() == Pylon::PayloadType_ChunkData &&
 		GenApi::IsReadable(grab_result->ChunkTimestamp)){
-                    uint64_t  image_timestamp = grab_result->ChunkTimestamp.GetValue();
+                    double period = 1e9 / camera_frequency;
+                    uint64_t image_timestamp = period * grab_result->ChunkTimestamp.GetValue();
                     timeSync.update(image_timestamp);
                     double time = timeSync.sync(image_timestamp) / 1e9;
 		    img.setTime(time);

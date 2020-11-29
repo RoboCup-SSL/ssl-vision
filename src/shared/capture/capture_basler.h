@@ -72,6 +72,8 @@ private:
 	unsigned int current_id;
   	unsigned char* last_buf;
 
+        // freq should always be 125 MHz for Basler-ace-1300-75gc
+        int camera_frequency = 125e6;
   	VarList* vars;
   	VarInt* v_camera_id;
   	VarDouble* v_framerate;
