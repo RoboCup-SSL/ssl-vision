@@ -73,9 +73,27 @@ message SSL_GeometryCameraCalibration {
   optional uint32 pixel_image_height = 17;
 }
 
+message SSL_BallModelStraightTwoPhase {
+  required double acc_slide = 1;
+  required double acc_roll = 2;
+  required double k_switch = 3;
+}
+
+message SSL_BallModelChipFixedLossPlusRolling {
+  required double chip_damping_xy_first_hop = 1;
+  required double chip_damping_xy_other_hops = 2;
+  required double chip_damping_z = 3;
+}
+
+message SSL_GeometryBallModels {
+  optional SSL_BallModelStraightTwoPhase straight_two_phase = 1;
+  optional SSL_BallModelChipFixedLossPlusRolling chip_fixed_loss_plus_rolling = 2;
+}
+
 message SSL_GeometryData {
   required SSL_GeometryFieldSize field = 1;
   repeated SSL_GeometryCameraCalibration calib = 2;
+  optional SSL_GeometryBallModels ball_models = 3;
 }
 
 enum SSL_FieldShapeType {
