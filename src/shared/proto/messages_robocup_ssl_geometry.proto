@@ -90,22 +90,22 @@ message SSL_BallModelStraightTwoPhase {
 // Uses fixed damping factors for xy and z direction per hop.
 message SSL_BallModelChipFixedLoss {
   // Chip kick velocity damping factor in XY direction for the first hop
-  required double chip_damping_xy_first_hop = 1;
+  required double damping_xy_first_hop = 1;
   // Chip kick velocity damping factor in XY direction for all following hops
-  required double chip_damping_xy_other_hops = 2;
+  required double damping_xy_other_hops = 2;
   // Chip kick velocity damping factor in Z direction for all hops
-  required double chip_damping_z = 3;
+  required double damping_z = 3;
 }
 
-message SSL_GeometryBallModels {
+message SSL_GeometryModels {
   optional SSL_BallModelStraightTwoPhase straight_two_phase = 1;
-  optional SSL_BallModelChipFixedLoss chip_fixed_loss_plus_rolling = 2;
+  optional SSL_BallModelChipFixedLoss chip_fixed_loss = 2;
 }
 
 message SSL_GeometryData {
   required SSL_GeometryFieldSize field = 1;
   repeated SSL_GeometryCameraCalibration calib = 2;
-  optional SSL_GeometryBallModels ball_models = 3;
+  optional SSL_GeometryModels models = 3;
 }
 
 enum SSL_FieldShapeType {

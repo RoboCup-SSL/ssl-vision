@@ -357,6 +357,9 @@ RoboCupField::RoboCupField() {
   field_lines_list = new VarList("Field Lines");
   field_arcs_list = new VarList("Field Arcs");
 
+  field_models = new RoboCupFieldModels();
+
+  settings->addChild(field_models->settings);
   settings->addChild(field_length);
   settings->addChild(field_width);
   settings->addChild(goal_width);
@@ -461,6 +464,19 @@ void RoboCupField::toProtoBuffer(SSL_GeometryFieldSize& buffer) const {
     proto_arc.set_thickness(arc.thickness->getDouble());
     *(buffer.add_field_arcs()) = proto_arc;
   }
+  field_markings_mutex.unlock();
+}
+
+void RoboCupField::toProtoBuffer(SSL_GeometryModels& buffer) const {
+  field_markings_mutex.lockForRead();
+  auto straightTwoPhase = buffer.mutable_straight_two_phase();
+  straightTwoPhase->set_acc_roll(field_models->ballModelStraightTwoPhase.accRoll->getDouble());
+  straightTwoPhase->set_acc_slide(field_models->ballModelStraightTwoPhase.accSlide->getDouble());
+  straightTwoPhase->set_k_switch(field_models->ballModelStraightTwoPhase.kSwitch->getDouble());
+  auto chipFixLoss = buffer.mutable_chip_fixed_loss();
+  chipFixLoss->set_damping_xy_first_hop(field_models->ballModelChipFixLoss.dampingXyFirstHop->getDouble());
+  chipFixLoss->set_damping_xy_other_hops(field_models->ballModelChipFixLoss.dampingXyOtherHops->getDouble());
+  chipFixLoss->set_damping_z(field_models->ballModelChipFixLoss.dampingZ->getDouble());
   field_markings_mutex.unlock();
 }
 
@@ -633,4 +649,48 @@ void RoboCupField::updateFieldLinesAndArcs() {
       field_arcs_list->addChild(field_arcs[i]->list);
     }
     field_markings_mutex.unlock();
+}
+
+BallModelStraightTwoPhase::BallModelStraightTwoPhase() {
+  accSlide = new VarDouble("Sliding acceleration [m/s^2]", -3.0, -20, 0);
+  accRoll = new VarDouble("Rolling acceleration [m/s^2]", -0.4, -20, 0);
+  kSwitch = new VarDouble("Switch factor", 0.7, 0, 1);
+  settings = new VarList("Straight Two-Phase");
+  settings->addChild(accSlide);
+  settings->addChild(accRoll);
+  settings->addChild(kSwitch);
+}
+
+BallModelStraightTwoPhase::~BallModelStraightTwoPhase() {
+  delete accSlide;
+  delete accRoll;
+  delete kSwitch;
+  delete settings;
+}
+
+BallModelChipFixLoss::BallModelChipFixLoss() {
+  dampingXyFirstHop = new VarDouble("Damping (xy) on first hop", 0.6, 0, 1);
+  dampingXyOtherHops = new VarDouble("Damping (xy) on other hops", 0.95, 0, 1);
+  dampingZ = new VarDouble("Damping (z)", 0.7, 0, 1);
+  settings = new VarList("Chip fix loss");
+  settings->addChild(dampingXyFirstHop);
+  settings->addChild(dampingXyOtherHops);
+  settings->addChild(dampingZ);
+}
+
+BallModelChipFixLoss::~BallModelChipFixLoss() {
+  delete dampingXyFirstHop;
+  delete dampingXyOtherHops;
+  delete dampingZ;
+  delete settings;
+}
+
+RoboCupFieldModels::RoboCupFieldModels() {
+  settings = new VarList("Models");
+  settings->addChild(ballModelStraightTwoPhase.settings);
+  settings->addChild(ballModelChipFixLoss.settings);
+}
+
+RoboCupFieldModels::~RoboCupFieldModels() {
+  delete settings;
 }

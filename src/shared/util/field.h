@@ -128,6 +128,38 @@ private slots:
   void fillTypeEnum() const;
 };
 
+class BallModelStraightTwoPhase : public QObject {
+Q_OBJECT
+public:
+  VarDouble* accSlide;
+  VarDouble* accRoll;
+  VarDouble* kSwitch;
+  VarList* settings;
+  BallModelStraightTwoPhase();
+  ~BallModelStraightTwoPhase();
+};
+
+class BallModelChipFixLoss : public QObject {
+Q_OBJECT
+public:
+  VarDouble* dampingXyFirstHop;
+  VarDouble* dampingXyOtherHops;
+  VarDouble* dampingZ;
+  VarList* settings;
+  BallModelChipFixLoss();
+  ~BallModelChipFixLoss();
+};
+
+class RoboCupFieldModels : public QObject {
+  Q_OBJECT
+public:
+  BallModelStraightTwoPhase ballModelStraightTwoPhase;
+  BallModelChipFixLoss ballModelChipFixLoss;
+  VarList* settings;
+  RoboCupFieldModels();
+  ~RoboCupFieldModels();
+};
+
 class RoboCupField : public QObject {
 Q_OBJECT
 protected:
@@ -138,7 +170,8 @@ public:
     return settings;
   }
 
-  void toProtoBuffer(SSL_GeometryFieldSize& buffer) const ;
+  void toProtoBuffer(SSL_GeometryFieldSize& buffer) const;
+  void toProtoBuffer(SSL_GeometryModels& buffer) const;
 
   mutable QReadWriteLock field_markings_mutex;
   VarDouble* field_length;
@@ -157,6 +190,7 @@ public:
   VarList* field_arcs_list;
   vector<FieldLine*> field_lines;
   vector<FieldCircularArc*> field_arcs;
+  RoboCupFieldModels* field_models;
 
   RoboCupField();
   ~RoboCupField();
