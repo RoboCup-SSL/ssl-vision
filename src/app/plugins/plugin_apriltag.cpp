@@ -39,6 +39,15 @@ PluginAprilTag::PluginAprilTag(FrameBuffer *buffer,
       v_decimate(new VarDouble("decimate", 2.0)),
       v_blur(new VarDouble("blur", 0.0)),
       v_refine_edges(new VarBool("refine-edges", true)),
+      v_decode_sharpening(new VarDouble("decode_sharpening", 0.25)),
+      // quad thresh params
+      v_quad_thresh_params(new VarList("quad_thresh_params")),
+      v_min_cluster_pixels(new VarInt("min_cluster_pixels", 5)),
+      v_max_nmaxima(new VarInt("max_nmaxima", 10)),
+      v_cos_critical_rad(new VarDouble("cos_critical_rad", std::cos(10.0 * M_PI/180.0))),
+      v_max_line_fit_mse(new VarDouble("max_line_fit_mse", 10.0)),
+      v_min_white_black_diff(new VarInt("min_white_black_diff", 5, 0, 255)),
+      v_deglitch(new VarBool("deglitch", false)),
       detections{nullptr, &apriltag_detections_destroy},
       camera_params(camera_params), blue_team_tags(blue_team_tags),
       yellow_team_tags(yellow_team_tags),
@@ -64,6 +73,16 @@ PluginAprilTag::PluginAprilTag(FrameBuffer *buffer,
   settings->addChild(v_decimate.get());
   settings->addChild(v_blur.get());
   settings->addChild(v_refine_edges.get());
+  settings->addChild(v_decode_sharpening.get());
+
+  v_quad_thresh_params->addChild(v_min_cluster_pixels.get());
+  v_quad_thresh_params->addChild(v_max_nmaxima.get());
+  v_quad_thresh_params->addChild(v_cos_critical_rad.get());
+  v_quad_thresh_params->addChild(v_max_line_fit_mse.get());
+  v_quad_thresh_params->addChild(v_min_white_black_diff.get());
+  v_quad_thresh_params->addChild(v_deglitch.get());
+
+  settings->addChild(v_quad_thresh_params.get());
 
   // construct apriltag detector with these settings
   makeTagFamily();
@@ -99,6 +118,13 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
   tag_detector->quad_sigma = v_blur->getDouble();
   tag_detector->nthreads = v_threads->getInt();
   tag_detector->refine_edges = v_refine_edges->getBool();
+  tag_detector->decode_sharpening = v_decode_sharpening->getDouble();
+  tag_detector->qtp.min_cluster_pixels = v_min_cluster_pixels->getInt();
+  tag_detector->qtp.max_nmaxima = v_max_nmaxima->getInt();
+  tag_detector->qtp.cos_critical_rad = v_cos_critical_rad->getDouble();
+  tag_detector->qtp.max_line_fit_mse = v_max_line_fit_mse->getDouble();
+  tag_detector->qtp.min_white_black_diff = v_min_white_black_diff->getInt();
+  tag_detector->qtp.deglitch = v_deglitch->getBool() ? 1 : 0;
 
   Image<raw8> *img_greyscale =
       reinterpret_cast<Image<raw8> *>(data->map.get("greyscale"));

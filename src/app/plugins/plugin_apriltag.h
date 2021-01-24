@@ -22,6 +22,15 @@ protected:
   std::unique_ptr<VarDouble> v_decimate;
   std::unique_ptr<VarDouble> v_blur;
   std::unique_ptr<VarBool> v_refine_edges;
+  std::unique_ptr<VarDouble> v_decode_sharpening;
+  // quad thresh params
+  std::unique_ptr<VarList> v_quad_thresh_params;
+  std::unique_ptr<VarInt> v_min_cluster_pixels;
+  std::unique_ptr<VarInt> v_max_nmaxima;
+  std::unique_ptr<VarDouble> v_cos_critical_rad;
+  std::unique_ptr<VarDouble> v_max_line_fit_mse;
+  std::unique_ptr<VarInt> v_min_white_black_diff;
+  std::unique_ptr<VarBool> v_deglitch;
 
   // april tags info
   std::unique_ptr<apriltag_family_t, std::function<void(apriltag_family_t *)>>
