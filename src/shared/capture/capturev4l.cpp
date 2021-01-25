@@ -60,6 +60,32 @@
 #include <sys/stat.h>
 #include <fcntl.h>      //open
 #include <unistd.h>     //close
+#include <jpeglib.h>
+
+namespace {
+uint32_t stringToPixelFormat(const std::string &format) {
+  if (format == "YUYV") {
+    return V4L2_PIX_FMT_YUYV;
+  } else if (format == "MJPEG") {
+    return V4L2_PIX_FMT_MJPEG;
+  } else {
+    // TODO(dschwab): If we update to c++14/17 then we can return a nullopt
+    // and let the caller decide what the default type should be.
+    return V4L2_PIX_FMT_YUYV;
+  }
+}
+
+std::string pixelFormatToString(const uint32_t format) {
+  switch (format) {
+  case V4L2_PIX_FMT_YUYV:
+    return "YUYV";
+  case V4L2_PIX_FMT_MJPEG:
+    return "MJPEG";
+  default:
+    return "UNKNOWN";
+  }
+}
+} // namespace
 
 //======================= Singleton Manager =======================
 
@@ -234,7 +260,7 @@ int GlobalV4Linstance::xioctl(int fd,int request,void *data,
     return(ret);
 }
 
-bool GlobalV4Linstance::captureFrame(RawImage *pImage, int iMaxSpin)
+bool GlobalV4Linstance::captureFrame(RawImage *pImage, uint32_t pixel_format, int iMaxSpin)
 {
     const image_t *_img = captureFrame(iMaxSpin);       //low-level fetch
     if (!_img || _img->data==NULL) return false;
@@ -248,25 +274,22 @@ bool GlobalV4Linstance::captureFrame(RawImage *pImage, int iMaxSpin)
                         szDevice);
             }
             lock();
-            
+
             //mid-level copy to RGB
-            if (_img->data &&
-                    getImageRgb(reinterpret_cast<GlobalV4Linstance::yuyv *>(_img->data),
-                             pImage->getWidth(), pImage->getHeight(),
-                             reinterpret_cast<GlobalV4Linstance::rgb **>(&pDest)) )
-            {
-                // just copy timestamp from v4l buffer
-                // http://www.linuxtv.org/downloads/v4l-dvb-apis/buffer.html
-                // http://linux.die.net/man/2/gettimeofday
-                /*
-                timeval tv;
-                pImage->setTime(0.0);
-                //TODO: we could copy the timestamp from the tempbuf/image itself
-                gettimeofday(&tv,NULL);
-                pImage->setTime((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
-                */
-                pImage->setTime((double)_img->timestamp.tv_sec + _img->timestamp.tv_usec*(1.0E-6));
-                bSuccess = true;
+            if (_img->data && getImage(*_img, pixel_format, pImage)) {
+              // just copy timestamp from v4l buffer
+              // http://www.linuxtv.org/downloads/v4l-dvb-apis/buffer.html
+              // http://linux.die.net/man/2/gettimeofday
+              /*
+              timeval tv;
+              pImage->setTime(0.0);
+              //TODO: we could copy the timestamp from the tempbuf/image itself
+              gettimeofday(&tv,NULL);
+              pImage->setTime((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
+              */
+              pImage->setTime((double)_img->timestamp.tv_sec +
+                              _img->timestamp.tv_usec * (1.0E-6));
+              bSuccess = true;
             }
             unlock();
         }
@@ -330,7 +353,7 @@ bool GlobalV4Linstance::waitForFrame(int max_msec)
     return(n==1 && (pollset.revents & POLLIN)!=0);
 }
 
-bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, int iInputIdx)
+bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, uint32_t pixel_format, int iInputIdx)
 {
     struct v4l2_requestbuffers req;
     
@@ -339,7 +362,7 @@ bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, int iInputIdx)
     mzero(fmt);
     fmt.fmt.pix.width       = iWidth_;
     fmt.fmt.pix.height      = iHeight_;
-    fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;        //see note at top of file
+    fmt.fmt.pix.pixelformat = pixel_format;
     fmt.fmt.pix.field       = V4L2_FIELD_ALTERNATE;
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if (!xioctl(VIDIOC_S_FMT, &fmt, "SetFormat")) {
@@ -536,6 +559,42 @@ bool GlobalV4Linstance::getImageRgb(GlobalV4Linstance::yuyv *pSrc, int width, in
     return true;
 }
 
+bool GlobalV4Linstance::getImageFromJPEG(
+    const GlobalV4Linstance::image_t &in_img, RawImage *out_img) {
+  struct jpeg_decompress_struct dinfo;
+  struct jpeg_error_mgr jerr;
+  dinfo.err = jpeg_std_error(&jerr);
+  jpeg_create_decompress(&dinfo);
+  jpeg_mem_src(&dinfo, in_img.data, in_img.length);
+  jpeg_read_header(&dinfo, true);
+  dinfo.output_components = 3;
+  jpeg_start_decompress(&dinfo);
+
+  int row_stride = out_img->getWidth() * 3;
+  for (int row = 0; row < out_img->getHeight(); ++row) {
+    JSAMPROW row_ptr = &out_img->getData()[row_stride * row];
+    jpeg_read_scanlines(&dinfo, &row_ptr, 1);
+  }
+  return true;
+}
+
+bool GlobalV4Linstance::getImage(const GlobalV4Linstance::image_t &in_img,
+                                 const uint32_t pixel_format,
+                                 RawImage *out_img) {
+  switch (pixel_format) {
+  case V4L2_PIX_FMT_YUYV: {
+    unsigned char *pDest = out_img->getData();
+    return getImageRgb(reinterpret_cast<GlobalV4Linstance::yuyv *>(in_img.data),
+                       out_img->getWidth(), out_img->getHeight(),
+                       reinterpret_cast<GlobalV4Linstance::rgb **>(&pDest));
+  }
+  case V4L2_PIX_FMT_MJPEG:
+    return getImageFromJPEG(in_img, out_img);
+  default:
+    return 0;
+  };
+}
+
 GlobalV4Linstance::rgb GlobalV4Linstance::yuv2rgb(GlobalV4Linstance::yuv p)
 {
     GlobalV4Linstance::rgb r;
@@ -621,10 +680,11 @@ CaptureV4L::CaptureV4L(VarList * _settings,int default_camera_id, QObject * pare
 //    v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV422_UYVY));
 //    v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV422_YUYV));
 //    v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV444));
-//    capture_settings->addChild(v_format           = new VarStringEnum("capture format",captureModeToString(CAPTURE_MODE_MIN)));
-//    for (int i = CAPTURE_MODE_MIN; i <= CAPTURE_MODE_MAX; i++) {
-//        v_format->addItem(captureModeToString((CaptureMode)i));
-//    }
+
+    v_format.reset(new VarStringEnum("pixel format", pixelFormatToString(V4L2_PIX_FMT_YUYV)));
+    v_format->addItem(pixelFormatToString(V4L2_PIX_FMT_YUYV));
+    v_format->addItem(pixelFormatToString(V4L2_PIX_FMT_MJPEG));
+    capture_settings->addChild(v_format.get());
     capture_settings->addChild(v_buffer_size      = new VarInt("ringbuffer size",V4L_STREAMBUFS));
     v_buffer_size->addFlags(VARTYPE_FLAG_READONLY);
 
@@ -1069,6 +1129,7 @@ bool CaptureV4L::startCapture()
     left=v_left->getInt();
     top=v_top->getInt();
     capture_format=Colors::stringToColorFormat(v_colormode->getString().c_str());
+    pixel_format = stringToPixelFormat(v_format->getString());
     int fps=v_fps->getInt();
     //CaptureMode mode=stringToCaptureMode(v_format->getString().c_str());
     ring_buffer_size=v_buffer_size->getInt();
@@ -1280,7 +1341,7 @@ bool CaptureV4L::startCapture()
     //TODO: map cature_format to VFL format
     //  http://linuxtv.org/downloads/v4l-dvb-apis/yuv-formats.html
     
-    if (!camera_instance->startStreaming(width, height)) {
+    if (!camera_instance->startStreaming(width, height, pixel_format)) {
         fprintf(stderr,"CaptureV4L Error: unable to setup capture. Maybe selected combination of Format/Resolution is not supported?\n");
         mutex.unlock();
         cleanup();
@@ -1382,7 +1443,7 @@ RawImage CaptureV4L::getFrame()
     mutex.lock();
     // capture a frame and write it
     rawFrame.ensure_allocation(capture_format, width, height);
-    if (!camera_instance || !is_capturing || !camera_instance->captureFrame(&rawFrame)) {
+    if (!camera_instance || !is_capturing || !camera_instance->captureFrame(&rawFrame, pixel_format)) {
         fprintf (stderr, "CaptureV4L Warning: Frame not ready, camera %d\n", cam_id);
         mutex.unlock();
         RawImage badImage;
