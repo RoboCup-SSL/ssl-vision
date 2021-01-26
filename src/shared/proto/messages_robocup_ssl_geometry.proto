@@ -77,6 +77,8 @@ message SSL_GeometryCameraCalibration {
 // There are two phases with different accelerations during the ball kicks:
 // 1. Sliding
 // 2. Rolling
+// The full model is described in the TDP of ER-Force from 2016, which can be found here:
+// https://ssl.robocup.org/wp-content/uploads/2019/01/2016_ETDP_ER-Force.pdf
 message SSL_BallModelStraightTwoPhase {
   // Ball sliding acceleration [m/s^2] (should be negative)
   required double acc_slide = 1;
