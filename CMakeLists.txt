@@ -172,8 +172,10 @@ if( USE_V4L )
 	set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capturev4l.cpp)
 	set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capturev4l.h)
 	message(STATUS "Video 4 Linux enabled")
+  set(V4L_LIBS jpeg)
 else()
 	message(STATUS "Video 4 Linux disabled")
+  set(V4L_LIBS)
 endif()
 
 if( USE_SPLITTER )
@@ -345,6 +347,7 @@ set (libs ${QT_LIBRARIES}
 	${OpenCV_LIBS}
 	${FLYCAP_LIBS}
 	${SPINNAKER_LIBS}
+  ${V4L_LIBS}
 )
 target_link_libraries(sslvision ${libs})
 if(USE_QT5)
