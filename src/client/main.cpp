@@ -122,6 +122,15 @@ int main(int argc, char *argv[])
                 printf("  -penalty_area_width=%d (mm)\n",field.penalty_area_width());
                 printf("  -field_lines_size=%d\n",field.field_lines_size());
                 printf("  -field_arcs_size=%d\n",field.field_arcs_size());
+                
+                const SSL_GeometryModels & models = geom.models();
+                printf("Field Models:\n");
+                printf("  -straight_two_phase:acc_roll=%f\n",models.straight_two_phase().acc_roll());
+                printf("  -straight_two_phase:acc_slide=%f\n",models.straight_two_phase().acc_slide());
+                printf("  -straight_two_phase:k_switch=%f\n",models.straight_two_phase().k_switch());
+                printf("  -chip_fixed_loss:damping_xy_first_hop=%f\n",models.chip_fixed_loss().damping_xy_first_hop());
+                printf("  -chip_fixed_loss:damping_xy_other_hops=%f\n",models.chip_fixed_loss().damping_xy_other_hops());
+                printf("  -chip_fixed_loss:damping_z=%f\n",models.chip_fixed_loss().damping_z());
 
                 int calib_n = geom.calib_size();
                 for (int i=0; i< calib_n; i++) {

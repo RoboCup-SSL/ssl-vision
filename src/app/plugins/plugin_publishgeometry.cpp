@@ -56,8 +56,8 @@ string PluginPublishGeometry::getName() {
 
 void PluginPublishGeometry::sendGeometry() {
   SSL_GeometryData geodata;
-  SSL_GeometryFieldSize * gfield = geodata.mutable_field();
-  _field.toProtoBuffer(*gfield);
+  _field.toProtoBuffer(*geodata.mutable_field());
+  _field.toProtoBuffer(*geodata.mutable_models());
   for (unsigned int i = 0; i < params.size(); i++) {
     int camId = params[i]->additional_calibration_information->camera_index->get();
     if(camId < 0 || camId >= _field.num_cameras_total->get()) {
