@@ -373,7 +373,7 @@ void CaptureBasler::writeParameterValues(VarList* varList) {
                     Basler_GigECamera::BalanceRatioSelector_Blue);
             camera->BalanceRatioRaw.SetValue(v_balance_ratio_blue->get());
             camera->BalanceWhiteAuto.SetValue(
-                    Basler_GigECamera::BalanceWhiteAuto_Once);
+                    Basler_GigECamera::BalanceWhiteAuto_Off);
 
             if (v_auto_gain->getBool()) {
                 camera->GainAuto.SetValue(Basler_GigECamera::GainAuto_Continuous);
