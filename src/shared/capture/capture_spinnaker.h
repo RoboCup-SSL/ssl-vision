@@ -27,9 +27,9 @@
 #include <stdlib.h>
 #include <string>
 #include "VarTypes.h"
-#include <spinnaker/SystemPtr.h>
-#include <spinnaker/CameraPtr.h>
-#include <spinnaker/ImagePtr.h>
+#include <SystemPtr.h>
+#include <CameraPtr.h>
+#include <ImagePtr.h>
 #include "TimeSync.h"
 
 // Unset 'interface' from spinnaker/SpinGenApi/Types.h which conflicts with variables in ssl-vision
