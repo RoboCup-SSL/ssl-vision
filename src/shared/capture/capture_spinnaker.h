@@ -22,21 +22,18 @@
 #ifndef CAPTURE_SPINNAKER_H
 #define CAPTURE_SPINNAKER_H
 #include "captureinterface.h"
-#include <sys/time.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
 #include "VarTypes.h"
-#include <spinnaker/SystemPtr.h>
-#include <spinnaker/CameraPtr.h>
-#include <spinnaker/ImagePtr.h>
+#include "Spinnaker.h"
 #include "TimeSync.h"
+
+#include <ctime>
+#include <cstdio>
+#include <cstdlib>
+#include <string>
+#include <QMutex>
 
 // Unset 'interface' from spinnaker/SpinGenApi/Types.h which conflicts with variables in ssl-vision
 #undef interface
-
-  #include <QMutex>
-
 
 /*!
   \class  CaptureSpinnaker
@@ -50,8 +47,6 @@
   please inform the author, as we are aiming for complete camera
   coverage.
 */
-  #include <QMutex>
-  //if using QT, inherit QObject as a base
 class CaptureSpinnaker : public QObject, public CaptureInterface
 {
   Q_OBJECT
