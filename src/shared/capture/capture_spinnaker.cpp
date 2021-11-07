@@ -363,6 +363,10 @@ bool CaptureSpinnaker::startCapture()
 bool CaptureSpinnaker::copyAndConvertFrame(const RawImage & src, RawImage & target)
 {
   mutex.lock();
+  if (src.getTime() == 0) {
+    mutex.unlock();
+    return false;
+  }
   target.setTime(src.getTime());
 
   ColorFormat src_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
@@ -381,8 +385,7 @@ bool CaptureSpinnaker::copyAndConvertFrame(const RawImage & src, RawImage & targ
     return false;
   }
 
-    mutex.unlock();
-
+  mutex.unlock();
   return true;
 }
 
@@ -409,7 +412,8 @@ RawImage CaptureSpinnaker::getFrame()
 
   if (pImage->IsIncomplete())
   {
-    fprintf(stderr, "Spinnaker: Image incomplete. Image Status: %d\n", pImage->GetImageStatus());
+    auto description = Spinnaker::Image::GetImageStatusDescription(pImage->GetImageStatus());
+    fprintf(stderr, "Spinnaker: Image incomplete: %s\n", description);
     mutex.unlock();
     return result;
   }
@@ -422,7 +426,7 @@ RawImage CaptureSpinnaker::getFrame()
   result.setHeight((int) pImage->GetHeight());
   result.setData((unsigned char*) pImage->GetData());
 
-    mutex.unlock();
+  mutex.unlock();
   return result;
 }
 
