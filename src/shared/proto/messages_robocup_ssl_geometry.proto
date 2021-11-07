@@ -51,6 +51,7 @@ message SSL_GeometryFieldSize {
   repeated SSL_FieldCircularArc field_arcs = 7;
   optional int32 penalty_area_depth = 8;
   optional int32 penalty_area_width = 9;
+  optional int32 center_circle_radius = 10;
 }
 
 message SSL_GeometryCameraCalibration {

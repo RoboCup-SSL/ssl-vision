@@ -120,6 +120,7 @@ int main(int argc, char *argv[])
                 printf("  -goal_depth=%d (mm)\n",field.goal_depth());
                 printf("  -penalty_area_depth=%d (mm)\n",field.penalty_area_depth());
                 printf("  -penalty_area_width=%d (mm)\n",field.penalty_area_width());
+                printf("  -center_circle_radius=%d (mm)\n",field.center_circle_radius());
                 printf("  -field_lines_size=%d\n",field.field_lines_size());
                 printf("  -field_arcs_size=%d\n",field.field_arcs_size());
                 

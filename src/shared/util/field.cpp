@@ -439,6 +439,7 @@ void RoboCupField::toProtoBuffer(SSL_GeometryFieldSize& buffer) const {
   buffer.set_boundary_width(boundary_width->getDouble());
   buffer.set_penalty_area_depth(penalty_area_depth->getDouble());
   buffer.set_penalty_area_width(penalty_area_width->getDouble());
+  buffer.set_center_circle_radius(FieldConstantsRoboCup2018A::kCenterCircleRadius);
   for (size_t i = 0; i < field_lines.size(); ++i) {
     const FieldLine& line = *(field_lines[i]);
     SSL_FieldLineSegment proto_line;
