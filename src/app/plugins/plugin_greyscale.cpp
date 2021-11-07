@@ -1,7 +1,6 @@
 #include "plugin_greyscale.h"
 #include <colors.h>
 #include <image.h>
-#include <iostream>
 #include <opencv2/opencv.hpp>
 
 PluginGreyscale::PluginGreyscale(FrameBuffer *buffer)

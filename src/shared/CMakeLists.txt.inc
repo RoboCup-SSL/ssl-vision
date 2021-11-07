@@ -146,7 +146,6 @@ if(USE_APRILTAG)
   set(SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/apriltag/tagCustom20h7.h)
 endif()
 
-
 set (SHARED_RC
 	${shared_dir}/vartypes/gui/icons/icons.qrc
 )

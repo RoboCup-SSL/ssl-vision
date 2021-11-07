@@ -16,7 +16,6 @@
 #include <apriltag/tagStandard41h12.h>
 #include <apriltag/tagStandard52h13.h>
 
-using HammHist = std::array<int, 10>;
 using Eigen::AngleAxisd;
 using Eigen::Isometry3d;
 using Eigen::Matrix3d;
@@ -242,8 +241,7 @@ ProcessResult PluginAprilTag::process(FrameData *data, RenderOptions *options) {
       } else {
         robot_detection = detection_frame->add_robots_yellow();
       }
-      robot_detection->set_confidence(
-          det->decision_margin); // TODO(dschwab): What value should I put here?
+      robot_detection->set_confidence(det->decision_margin);
       robot_detection->set_robot_id(det->id);
 
       robot_detection->set_x(p_center_field.x);

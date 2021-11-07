@@ -6,13 +6,8 @@ jobs:
     steps:
       - run: apt-get update -qq && apt-get install -qq git
       - checkout
-      - run:
-          name: "Install dependencies"
-          command: |
-            DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
-      - run:
-          name: "Build"
-          command: make
+      - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
+      - run: make
   build-v4l:
     docker:
       - image: ubuntu:18.04

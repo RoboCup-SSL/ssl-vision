@@ -141,13 +141,6 @@ void CaptureBlueFox2::readParameterValues(VarList * item)
 {
   if(item != dcam_parameters)
     return;
-  
-    mutex.lock();
-    
-    // TODO: could do a read-out, but why?
-//   v_expose_us->setInt(pSettings->expose_us.read());
-    
-    mutex.unlock();
 }
 
 void CaptureBlueFox2::writeParameterValues(VarList * item)
@@ -155,7 +148,7 @@ void CaptureBlueFox2::writeParameterValues(VarList * item)
   if(item != dcam_parameters)
     return;
 
-    mutex.lock();
+  mutex.lock();
     
   pSettings->pixelClock_KHz.write(stringToPixelClock(v_pixel_clock->getString().c_str()));
 

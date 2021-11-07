@@ -397,7 +397,6 @@ void PluginVisualize::DrawDetectedAprilTags(FrameData *data,
     return;
   }
 
-  // std::cout << "Detected " << zarray_size(detections) << " tags\n";
   for (int i = 0; i < zarray_size(detections); ++i) {
     apriltag_detection_t *det;
     zarray_get(detections, i, &det);
