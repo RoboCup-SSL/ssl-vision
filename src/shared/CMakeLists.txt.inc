@@ -50,6 +50,7 @@ set (SHARED_SRCS
 	${shared_dir}/util/texture.cpp
   ${shared_dir}/util/framelimiter.cpp
 	${shared_dir}/util/initial_color_calibrator.cpp
+	${shared_dir}/util/TimeSync.cpp
 
 	${shared_dir}/vartypes/VarBase64.cpp
 	${shared_dir}/vartypes/VarNotifier.cpp

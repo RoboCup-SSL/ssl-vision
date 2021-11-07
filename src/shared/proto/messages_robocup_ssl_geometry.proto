@@ -69,11 +69,45 @@ message SSL_GeometryCameraCalibration {
   optional float derived_camera_world_tx = 13;
   optional float derived_camera_world_ty = 14;
   optional float derived_camera_world_tz = 15;
+  optional uint32 pixel_image_width = 16;
+  optional uint32 pixel_image_height = 17;
+}
+
+// Two-Phase model for straight-kicked balls.
+// There are two phases with different accelerations during the ball kicks:
+// 1. Sliding
+// 2. Rolling
+// The full model is described in the TDP of ER-Force from 2016, which can be found here:
+// https://ssl.robocup.org/wp-content/uploads/2019/01/2016_ETDP_ER-Force.pdf
+message SSL_BallModelStraightTwoPhase {
+  // Ball sliding acceleration [m/s^2] (should be negative)
+  required double acc_slide = 1;
+  // Ball rolling acceleration [m/s^2] (should be negative)
+  required double acc_roll = 2;
+  // Fraction of the initial velocity where the ball starts to roll
+  required double k_switch = 3;
+}
+
+// Fixed-Loss model for chipped balls.
+// Uses fixed damping factors for xy and z direction per hop.
+message SSL_BallModelChipFixedLoss {
+  // Chip kick velocity damping factor in XY direction for the first hop
+  required double damping_xy_first_hop = 1;
+  // Chip kick velocity damping factor in XY direction for all following hops
+  required double damping_xy_other_hops = 2;
+  // Chip kick velocity damping factor in Z direction for all hops
+  required double damping_z = 3;
+}
+
+message SSL_GeometryModels {
+  optional SSL_BallModelStraightTwoPhase straight_two_phase = 1;
+  optional SSL_BallModelChipFixedLoss chip_fixed_loss = 2;
 }
 
 message SSL_GeometryData {
   required SSL_GeometryFieldSize field = 1;
   repeated SSL_GeometryCameraCalibration calib = 2;
+  optional SSL_GeometryModels models = 3;
 }
 
 enum SSL_FieldShapeType {

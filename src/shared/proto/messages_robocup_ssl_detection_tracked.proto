@@ -98,7 +98,6 @@ message TrackedFrame {
     // A monotonous increasing frame counter
     required uint32 frame_number = 1;
     // The unix timestamp in [s] of the data
-    // If timestamp is larger than timestamp_captured, the source has applied a prediction already
     required double timestamp = 2;
 
     // The list of detected balls

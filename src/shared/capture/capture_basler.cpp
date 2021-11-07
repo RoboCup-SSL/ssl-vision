@@ -30,11 +30,11 @@ void BaslerInitManager::unregister_capture() {
 CaptureBasler::CaptureBasler(VarList* _settings, QObject* parent) :
 		QObject(parent), CaptureInterface(_settings) {
 	is_capturing = false;
-	camera = NULL;
+	camera = nullptr;
 	ignore_capture_failure = false;
 	converter.OutputPixelFormat = Pylon::PixelType_RGB8packed;
 	//camera.PixelFormat.SetValue(Basler_GigECamera::PixelFormat_YUV422Packed, true);
-	last_buf = NULL;
+	last_buf = nullptr;
 
 	settings->addChild(vars = new VarList("Capture Settings"));
 	settings->removeFlags(VARTYPE_FLAG_HIDE_CHILDREN);
@@ -47,6 +47,9 @@ CaptureBasler::CaptureBasler(VarList* _settings, QObject* parent) :
 
 	vars->addChild(v_camera_id = new VarInt("Camera ID", 0, 0, 3));
 
+	v_framerate = new VarDouble("Max Framerate",100.0,0.0,100.0);
+	vars->addChild(v_framerate);
+
 	v_balance_ratio_red = new VarInt("Balance Ratio Red", 64, 0, 255);
 	vars->addChild(v_balance_ratio_red);
 
@@ -56,16 +59,16 @@ CaptureBasler::CaptureBasler(VarList* _settings, QObject* parent) :
 	v_balance_ratio_blue = new VarInt("Balance Ratio Blue", 64, 0, 255);
 	vars->addChild(v_balance_ratio_blue);
 
-	v_auto_gain = new VarBool("auto gain", true);
+	v_auto_gain = new VarBool("auto gain", false);
 	vars->addChild(v_auto_gain);
 
-	v_gain = new VarDouble("gain", 300, 200, 1000);
+	v_gain = new VarInt("gain", 300, 0, 542);
 	vars->addChild(v_gain);
 
-	v_gamma_enable = new VarBool("enable gamma correction", false);
+	v_gamma_enable = new VarBool("enable gamma correction", true);
 	vars->addChild(v_gamma_enable);
 
-	v_gamma = new VarDouble("gamma", 0.5, 0, 1);
+	v_gamma = new VarDouble("gamma", 0.5, 0, 1.0);
 	vars->addChild(v_gamma);
 
 	v_black_level = new VarDouble("black level", 64, 0, 1000);
@@ -93,17 +96,31 @@ bool CaptureBasler::_buildCamera() {
 	Pylon::DeviceInfoList devices;
 	int amt = Pylon::CTlFactory::GetInstance().EnumerateDevices(devices);
 	current_id = v_camera_id->get();
-    printf("Current camera id: %d\n", current_id);
+	printf("Current camera id: %d\n", current_id);
 	if (amt > current_id) {
 		Pylon::CDeviceInfo info = devices[current_id];
 
 		camera = new Pylon::CBaslerGigEInstantCamera(
 				Pylon::CTlFactory::GetInstance().CreateDevice(info));
-        printf("Opening camera %d...\n", current_id);
+        	printf("Opening camera %d...\n", current_id);
 		camera->Open();
-        printf("Setting interpacket delay...\n");
-		camera->GevSCPD.SetValue(600);
-        printf("Done!\n");
+        	camera->GammaSelector.SetValue(Basler_GigECamera::GammaSelector_User); //Necessary for interface to work
+        	camera->AcquisitionFrameRateEnable.SetValue(true); //Turn on capped framerates
+        	camera_frequency = camera->GevTimestampTickFrequency.GetValue();;
+
+        	//let camera send timestamps and FrameCounts.
+		if (GenApi::IsWritable(camera->ChunkModeActive)) {
+			camera->ChunkModeActive.SetValue(true);
+			camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Timestamp);
+			camera->ChunkEnable.SetValue(true);
+			camera->ChunkSelector.SetValue(Basler_GigECamera::ChunkSelector_Framecounter);
+			camera->ChunkEnable.SetValue(true);
+			camera->GevTimestampControlReset.Execute(); //Reset the internal time stamp counter of the camera to 0
+		} else {
+			std::cout << "Failed, camera model does not support accurate timings!" << std::endl;
+			return false; //Camera does not support accurate timings
+		}
+        	printf("Done!\n");
 		is_capturing = true;
 		return true;
 	}
@@ -113,9 +130,10 @@ bool CaptureBasler::_buildCamera() {
 bool CaptureBasler::startCapture() {
 	MUTEX_LOCK;
 	try {
-		if (camera == NULL) {
+		if (camera == nullptr) {
 			if (!_buildCamera()) {
                 // Did not make a camera!
+                MUTEX_UNLOCK;
                 return false;
             }
 		}
@@ -123,7 +141,7 @@ bool CaptureBasler::startCapture() {
 	} catch (Pylon::GenericException& e) {
         printf("Pylon exception: %s", e.what());
         delete camera;
-        camera = NULL;
+        camera = nullptr;
         current_id = -1;
 		MUTEX_UNLOCK;
         return false;
@@ -153,7 +171,7 @@ bool CaptureBasler::stopCapture() {
 		stopped = _stopCapture();
 		if (stopped) {
 			delete camera;
-			camera = 0;
+			camera = nullptr;
 			BaslerInitManager::unregister_capture();
 		}
 	} catch (...) {
@@ -169,7 +187,7 @@ void CaptureBasler::releaseFrame() {
 	try {
 		if (last_buf) {
 			free(last_buf);
-			last_buf = NULL;
+			last_buf = nullptr;
 		}
 	} catch (...) {
 		MUTEX_UNLOCK;
@@ -185,10 +203,6 @@ RawImage CaptureBasler::getFrame() {
 	img.setHeight(0);
 	img.setColorFormat(COLOR_RGB8);
 	try {
-		timeval tv;
-		gettimeofday(&tv, 0);
-		img.setTime((double) tv.tv_sec + (tv.tv_usec / 1000000.0));
-
 		// Keep grabbing in case of partial grabs
 		int fail_count = 0;
 		while (fail_count < 10
@@ -221,6 +235,7 @@ RawImage CaptureBasler::getFrame() {
 			MUTEX_UNLOCK;
 			return img;
 		}
+
 		Pylon::CPylonImage capture;
 
 		// Convert to RGB8 format
@@ -231,8 +246,21 @@ RawImage CaptureBasler::getFrame() {
 		unsigned char* buf = (unsigned char*) malloc(capture.GetImageSize());
 		memcpy(buf, capture.GetBuffer(), capture.GetImageSize());
 		img.setData(buf);
-
 		last_buf = buf;
+
+		if(grab_result->GetPayloadType() == Pylon::PayloadType_ChunkData &&
+		GenApi::IsReadable(grab_result->ChunkTimestamp)){
+                    double period = 1e9 / camera_frequency;
+                    uint64_t image_timestamp = period * grab_result->ChunkTimestamp.GetValue();
+                    timeSync.update(image_timestamp);
+                    double time = timeSync.sync(image_timestamp) / 1e9;
+		    img.setTime(time);
+		} else {
+                  timeval tv = {};
+                  gettimeofday(&tv, nullptr);
+                  double systemTime = (double) tv.tv_sec + (tv.tv_usec / 1000000.0);
+                  img.setTime(systemTime);
+		}
 
 		// Original buffer is not needed anymore, it has been copied to img
 		grab_result.Release();
@@ -278,6 +306,7 @@ void CaptureBasler::readAllParameterValues() {
 		if (!was_open) {
 			camera->Open();
 		}
+		v_framerate->setDouble(camera->AcquisitionFrameRateAbs.GetValue());
 		camera->BalanceRatioSelector.SetValue(
 				Basler_GigECamera::BalanceRatioSelector_Red);
 		v_balance_ratio_red->setInt(camera->BalanceRatioRaw.GetValue());
@@ -317,24 +346,22 @@ void CaptureBasler::resetCamera(unsigned int new_id) {
 	}
 }
 
-void CaptureBasler::writeParameterValues(VarList* vars) {
-	if (vars != this->settings) {
+void CaptureBasler::writeParameterValues(VarList* varList) {
+	if (varList != this->settings) {
 		return;
 	}
-	bool restart = is_capturing;
-	//if (restart) {
-	//	_stopCapture();
-	//}
 	MUTEX_LOCK;
 	try {
-		current_id = v_camera_id->get();
+		if(current_id != v_camera_id->get()){
+            MUTEX_UNLOCK;
+            resetCamera(v_camera_id->get()); // locks itself
+            MUTEX_LOCK;
+		}
 
-		MUTEX_UNLOCK;
-		resetCamera(v_camera_id->get()); // locks itself
-		MUTEX_LOCK;
-
-        if (camera != NULL) {
+        if (camera != nullptr) {
             camera->Open();
+
+            camera->AcquisitionFrameRateAbs.SetValue(v_framerate->getDouble());
 
             camera->BalanceRatioSelector.SetValue(
                     Basler_GigECamera::BalanceRatioSelector_Red);
@@ -346,7 +373,7 @@ void CaptureBasler::writeParameterValues(VarList* vars) {
                     Basler_GigECamera::BalanceRatioSelector_Blue);
             camera->BalanceRatioRaw.SetValue(v_balance_ratio_blue->get());
             camera->BalanceWhiteAuto.SetValue(
-                    Basler_GigECamera::BalanceWhiteAuto_Once);
+                    Basler_GigECamera::BalanceWhiteAuto_Off);
 
             if (v_auto_gain->getBool()) {
                 camera->GainAuto.SetValue(Basler_GigECamera::GainAuto_Continuous);
@@ -379,15 +406,12 @@ void CaptureBasler::writeParameterValues(VarList* vars) {
 		throw;
 	}
 	MUTEX_UNLOCK;
-	//if (restart) {
-	//	startCapture();
-	//}
 }
 
 void CaptureBasler::mvc_connect(VarList * group) {
 	vector<VarType *> v = group->getChildren();
-	for (unsigned int i = 0; i < v.size(); i++) {
-	connect(v[i],SIGNAL(wasEdited(VarType *)),group,SLOT(mvcEditCompleted()));
+	for (auto & i : v) {
+	connect(i,SIGNAL(wasEdited(VarType *)),group,SLOT(mvcEditCompleted()));
 }
 connect(group,SIGNAL(wasEdited(VarType *)),this,SLOT(changed(VarType *)));
 }

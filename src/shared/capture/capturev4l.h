@@ -113,11 +113,11 @@ public:
     bool setControl(int ctrl_id,long s);
     bool checkControl(int ctrl_id, bool *bEnabled=NULL, bool *bReadOnly=NULL,
                       long *lDefault=NULL, long *lMin=NULL, long *lMax=NULL);
-    bool startStreaming(int iWidth_, int iHeight_, int iInput=0);
+    bool startStreaming(int iWidth_, int iHeight_, uint32_t pixel_format, int iInput=0);
     bool stopStreaming();
     
     void captureWarm(int iMaxSpin=1);
-    bool captureFrame(RawImage *pImage, int iMaxSpin=1);
+    bool captureFrame(RawImage *pImage, uint32_t pixel_format, int iMaxSpin=1);
     const image_t *captureFrame(int iMaxSpin=1);
     bool releaseFrame(const image_t *_img);
     
@@ -144,6 +144,8 @@ public:
     static bool writeRgbPPM(GlobalV4Linstance::rgb *imgbuf, int width, int height, const char *filename);
 private:
     static bool getImageRgb(GlobalV4Linstance::yuyv *pSrc, int width, int height, GlobalV4Linstance::rgb **rgbbuf);
+    static bool getImageFromJPEG(const image_t& in_img, RawImage* out_img);
+  static bool getImage(const image_t& in_img, const uint32_t pixel_format, RawImage* out_img);
     static GlobalV4Linstance::rgb yuv2rgb(GlobalV4Linstance::yuv p);
     
 };
@@ -228,7 +230,7 @@ protected:
     VarInt    * v_left;
     VarInt    * v_top;
     VarStringEnum * v_colormode;
-    VarStringEnum * v_format;
+    std::unique_ptr<VarStringEnum> v_format;
     VarInt    * v_buffer_size;
     
     int cam_id;
@@ -237,6 +239,7 @@ protected:
     int top;
     int left;
     ColorFormat capture_format;
+    uint32_t pixel_format;
     int ring_buffer_size;
     int cam_list[MAX_CAM_SCAN];
     int cam_count;

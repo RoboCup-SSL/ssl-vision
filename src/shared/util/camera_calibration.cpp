@@ -78,6 +78,9 @@ void CameraParameters::toProtoBuffer(SSL_GeometryCameraCalibration &buffer) cons
   buffer.set_derived_camera_world_ty(v_out.y);
   buffer.set_derived_camera_world_tz(v_out.z);
 
+  buffer.set_pixel_image_width(additional_calibration_information->imageWidth->getInt());
+  buffer.set_pixel_image_height(additional_calibration_information->imageHeight->getInt());
+
 }
 
 GVector::vector3d< double > CameraParameters::getWorldLocation() const {
@@ -754,6 +757,11 @@ CameraParameters::AdditionalCalibrationInformation::
   cov_ls_x = new VarDouble("Cov line segment measurement x", 1.0);
   cov_ls_y = new VarDouble("Cov line segment measurement y", 1.0);
   pointSeparation = new VarDouble("Points separation", 150);
+
+  imageWidth = new VarInt("Image width",0,0);
+  imageWidth->addFlags(VARTYPE_FLAG_NOLOAD_ATTRIBUTES);
+  imageHeight = new VarInt("Image height",0,0);
+  imageHeight->addFlags(VARTYPE_FLAG_NOLOAD_ATTRIBUTES);
 }
 
 void CameraParameters::AdditionalCalibrationInformation::updateControlPoints() {
@@ -841,6 +849,8 @@ CameraParameters::AdditionalCalibrationInformation::~AdditionalCalibrationInform
   delete cov_ls_x;
   delete cov_ls_y;
   delete pointSeparation;
+  delete imageWidth;
+  delete imageHeight;
 }
 
 void CameraParameters::AdditionalCalibrationInformation::addSettingsToList(
@@ -860,4 +870,6 @@ void CameraParameters::AdditionalCalibrationInformation::addSettingsToList(
   list.addChild(cov_ls_x);
   list.addChild(cov_ls_y);
   list.addChild(pointSeparation);
+  list.addChild(imageWidth);
+  list.addChild(imageHeight);
 }

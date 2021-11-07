@@ -15,6 +15,7 @@
 #include <pylon/gige/BaslerGigEInstantCamera.h>
 #include <sys/time.h>
 #include "VarTypes.h"
+#include "TimeSync.h"
 
 // Unset 'interface' from pylon/api_autoconf.h which conflicts with variables in ssl-vision
 #undef interface
@@ -59,24 +60,28 @@ public:
 
 	void readAllParameterValues();
 
-	void writeParameterValues(VarList* vars);
+	void writeParameterValues(VarList* varList);
 
 private:
 	bool is_capturing;
-	bool ignore_capture_failure;
+        TimeSync timeSync;
+        bool ignore_capture_failure;
 	Pylon::CBaslerGigEInstantCamera* camera;
-	Pylon::CGrabResultPtr grab_result;
+	Pylon::CBaslerGigEGrabResultPtr grab_result;
 	Pylon::CImageFormatConverter converter;
-	int current_id;
+	unsigned int current_id;
   	unsigned char* last_buf;
 
+        // freq should always be 125 MHz for Basler-ace-1300-75gc
+        int camera_frequency = 125e6;
   	VarList* vars;
   	VarInt* v_camera_id;
+  	VarDouble* v_framerate;
   	VarInt* v_balance_ratio_red;
   	VarInt* v_balance_ratio_green;
   	VarInt* v_balance_ratio_blue;
   	VarBool* v_auto_gain;
-  	VarDouble* v_gain;
+  	VarInt* v_gain;
   	VarBool* v_gamma_enable;
   	VarDouble* v_gamma;
   	VarDouble* v_black_level;
