@@ -52,6 +52,11 @@ message SSL_GeometryFieldSize {
   optional int32 penalty_area_depth = 8;
   optional int32 penalty_area_width = 9;
   optional int32 center_circle_radius = 10;
+  optional int32 line_thickness = 11;
+  optional int32 goal_center_to_penalty_mark = 12;
+  optional int32 goal_height = 13;
+  optional float ball_radius = 14;
+  optional float robot_radius = 15;
 }
 
 message SSL_GeometryCameraCalibration {

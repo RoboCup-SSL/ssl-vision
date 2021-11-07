@@ -178,10 +178,15 @@ public:
   VarDouble* field_width;
   VarDouble* goal_width;
   VarDouble* goal_depth;
+  VarDouble* goal_height;
   VarDouble* boundary_width;
   VarDouble* line_thickness;
   VarDouble* penalty_area_depth;
   VarDouble* penalty_area_width;
+  VarDouble* center_circle_radius;
+  VarDouble*goal_center_to_penalty_mark;
+  VarDouble* ball_radius;
+  VarDouble* robot_radius;
   VarInt* num_cameras_total;
   VarInt* num_cameras_local;
   VarInt* var_num_lines;
