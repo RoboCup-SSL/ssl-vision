@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
                 printf("  -line_thickness=%d (mm)\n",field.line_thickness());
                 printf("  -goal_line_to_penalty_mark=%d (mm)\n",field.goal_center_to_penalty_mark());
                 printf("  -ball_radius=%.1f (mm)\n",field.ball_radius());
-                printf("  -robot_radius=%.1f (mm)\n",field.robot_radius());
+                printf("  -max_robot_radius=%.1f (mm)\n",field.max_robot_radius());
                 printf("  -field_lines_size=%d\n",field.field_lines_size());
                 printf("  -field_arcs_size=%d\n",field.field_arcs_size());
                 

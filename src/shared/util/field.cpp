@@ -354,8 +354,8 @@ RoboCupField::RoboCupField() {
       "Center Circle Radius", FieldConstantsRoboCup2018A::kCenterCircleRadius);
   ball_radius = new VarDouble(
       "Ball Radius", FieldConstantsRoboCup2018A::kBallRadius);
-  robot_radius = new VarDouble(
-      "Robot Radius", FieldConstantsRoboCup2018A::kRobotRadius);
+  max_robot_radius = new VarDouble(
+      "Max Robot Radius", FieldConstantsRoboCup2018A::kMaxRobotRadius);
   num_cameras_total = new VarInt(
        "Total Number of Cameras", FieldConstantsRoboCup2018A::kNumCamerasTotal);
   num_cameras_local = new VarInt(
@@ -382,7 +382,7 @@ RoboCupField::RoboCupField() {
   settings->addChild(goal_center_to_penalty_mark);
   settings->addChild(center_circle_radius);
   settings->addChild(ball_radius);
-  settings->addChild(robot_radius);
+  settings->addChild(max_robot_radius);
   settings->addChild(num_cameras_total);
   settings->addChild(num_cameras_local);
   settings->addChild(var_num_lines);
@@ -433,7 +433,7 @@ RoboCupField::~RoboCupField() {
   delete goal_center_to_penalty_mark;
   delete center_circle_radius;
   delete ball_radius;
-  delete robot_radius;
+  delete max_robot_radius;
   delete num_cameras_total;
   delete num_cameras_local;
   delete var_num_lines;
@@ -471,7 +471,7 @@ void RoboCupField::toProtoBuffer(SSL_GeometryFieldSize& buffer) const {
   buffer.set_goal_center_to_penalty_mark((int)goal_center_to_penalty_mark->getDouble());
   buffer.set_goal_height((int) goal_height->getDouble());
   buffer.set_ball_radius((float) ball_radius->getDouble());
-  buffer.set_robot_radius((float) robot_radius->getDouble());
+  buffer.set_max_robot_radius((float) max_robot_radius->getDouble());
   
   for (size_t i = 0; i < field_lines.size(); ++i) {
     const FieldLine& line = *(field_lines[i]);

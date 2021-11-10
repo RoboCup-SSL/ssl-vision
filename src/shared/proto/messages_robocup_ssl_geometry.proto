@@ -56,7 +56,7 @@ message SSL_GeometryFieldSize {
   optional int32 goal_center_to_penalty_mark = 12;
   optional int32 goal_height = 13;
   optional float ball_radius = 14;
-  optional float robot_radius = 15;
+  optional float max_robot_radius = 15;
 }
 
 message SSL_GeometryCameraCalibration {

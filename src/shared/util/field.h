@@ -186,7 +186,7 @@ public:
   VarDouble* center_circle_radius;
   VarDouble*goal_center_to_penalty_mark;
   VarDouble* ball_radius;
-  VarDouble* robot_radius;
+  VarDouble* max_robot_radius;
   VarInt* num_cameras_total;
   VarInt* num_cameras_local;
   VarInt* var_num_lines;

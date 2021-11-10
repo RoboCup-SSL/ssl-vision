@@ -42,7 +42,7 @@ namespace FieldConstantsRoboCup2018A {
     const double kCenterCircleRadius = 500.0;
     const double kGoalLineToPenaltyMark = 8000.0;
     const double kBallRadius = 21.5;
-    const double kRobotRadius = 90.0;
+    const double kMaxRobotRadius = 90.0;
     const int kNumCamerasTotal = 2;
     const int kNumCamerasLocal = 2;
 }
