@@ -1,7 +1,9 @@
 syntax = "proto2";
 // A 2D float vector.
 message Vector2f {
+  // X-coordinate in mm
   required float x = 1;
+  // Y-coordinate in mm
   required float y = 2;
 }
 
@@ -42,15 +44,36 @@ message SSL_FieldCircularArc {
 }
 
 message SSL_GeometryFieldSize {
+  // Field length (distance between goal lines) in mm
   required int32 field_length = 1;
+  // Field width (distance between touch lines) in mm
   required int32 field_width = 2;
+  // Goal width (distance between inner edges of goal posts) in mm
   required int32 goal_width = 3;
+  // Goal depth (distance from outer goal line edge to inner goal back) in mm
   required int32 goal_depth = 4;
+  // Boundary width (distance from touch/goal line centers to boundary walls) in mm
   required int32 boundary_width = 5;
+  // Generated line segments based on the other parameters 
   repeated SSL_FieldLineSegment field_lines = 6;
+  // Generated circular arcs based on the other parameters
   repeated SSL_FieldCircularArc field_arcs = 7;
+  // Depth of the penalty/defense area (measured between line centers) in mm
   optional int32 penalty_area_depth = 8;
+  // Width of the penalty/defense area (measured between line centers) in mm
   optional int32 penalty_area_width = 9;
+  // Radius of the center circle (measured between line centers) in mm
+  optional int32 center_circle_radius = 10;
+  // Thickness/width of the lines on the field in mm
+  optional int32 line_thickness = 11;
+  // Distance between the goal center and the center of the penalty mark in mm 
+  optional int32 goal_center_to_penalty_mark = 12;
+  // Goal height in mm
+  optional int32 goal_height = 13;
+  // Ball radius in mm (note that this is a float type to represent sub-mm precision)
+  optional float ball_radius = 14;
+  // Max allowed robot radius in mm (note that this is a float type to represent sub-mm precision)
+  optional float max_robot_radius = 15;
 }
 
 message SSL_GeometryCameraCalibration {

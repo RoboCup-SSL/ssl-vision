@@ -118,8 +118,14 @@ int main(int argc, char *argv[])
                 printf("  -boundary_width=%d (mm)\n",field.boundary_width());
                 printf("  -goal_width=%d (mm)\n",field.goal_width());
                 printf("  -goal_depth=%d (mm)\n",field.goal_depth());
+                printf("  -goal_height=%d (mm)\n",field.goal_height());
                 printf("  -penalty_area_depth=%d (mm)\n",field.penalty_area_depth());
                 printf("  -penalty_area_width=%d (mm)\n",field.penalty_area_width());
+                printf("  -center_circle_radius=%d (mm)\n",field.center_circle_radius());
+                printf("  -line_thickness=%d (mm)\n",field.line_thickness());
+                printf("  -goal_line_to_penalty_mark=%d (mm)\n",field.goal_center_to_penalty_mark());
+                printf("  -ball_radius=%.1f (mm)\n",field.ball_radius());
+                printf("  -max_robot_radius=%.1f (mm)\n",field.max_robot_radius());
                 printf("  -field_lines_size=%d\n",field.field_lines_size());
                 printf("  -field_arcs_size=%d\n",field.field_arcs_size());
                 
