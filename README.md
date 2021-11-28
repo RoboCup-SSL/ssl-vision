@@ -127,6 +127,12 @@ Run the software using the following command:
 
 You can automatically start capturing with the `-s` option.
 
+If all `.` turn into `,` in robocup-ssl-teams.xml, you can change this by running
+```shell
+export LC_NUMERIC=en_US.UTF-8
+```
+before running `vision`. This is not required, though.
+
 ### Starting to Capture and Setting Parameters
 
 Once the software is running, you should see some empty capture frames
