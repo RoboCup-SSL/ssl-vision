@@ -21,7 +21,6 @@
 
 #include "capture_spinnaker.h"
 #include <memory>
-#include <iostream>
 #include <opencv2/opencv.hpp>
 
 CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id, QObject * parent) : QObject(parent), CaptureInterface(_settings)
@@ -63,6 +62,7 @@ CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id, QO
   v_white_balance_auto->addItem(toString(Spinnaker::BalanceWhiteAuto_Continuous));
 
   v_gamma = new VarDouble("Gamma", 0.4, 0.25, 4.0);
+  v_gamma_enabled = new VarBool("Gamma enabled", false);
 
   v_stream_buffer_handling_mode = new VarStringEnum("Stream Buffer Handling Mode", toString(Spinnaker::StreamBufferHandlingMode_NewestOnly));
   v_stream_buffer_handling_mode->addItem(toString(Spinnaker::StreamBufferHandlingMode_OldestFirst));
@@ -87,6 +87,7 @@ CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id, QO
   dcam_parameters->addChild(v_gain_auto);
   dcam_parameters->addChild(v_gain_db);
   dcam_parameters->addChild(v_gamma);
+  dcam_parameters->addChild(v_gamma_enabled);
   dcam_parameters->addChild(v_white_balance_auto);
   dcam_parameters->addChild(v_stream_buffer_handling_mode);
   dcam_parameters->addChild(v_stream_buffer_count_mode);
@@ -148,7 +149,10 @@ void CaptureSpinnaker::readParameterValues(VarList * item)
 
     v_white_balance_auto->setString(toString(pCam->BalanceWhiteAuto.GetValue()));
 
-    v_gamma->setDouble(pCam->Gamma.GetValue());
+    v_gamma_enabled->setBool(pCam->GammaEnable.GetValue());
+    if (IsReadable(pCam->Gamma)) {
+      v_gamma->setDouble(pCam->Gamma.GetValue());
+    }
 
     v_stream_buffer_handling_mode->setString(toString(pCam->TLStream.StreamBufferHandlingMode.GetValue()));
     Spinnaker::StreamBufferCountModeEnum countMode = pCam->TLStream.StreamBufferCountMode.GetValue();
@@ -199,7 +203,10 @@ void CaptureSpinnaker::writeParameterValues(VarList * item)
 
     pCam->BalanceWhiteAuto.SetValue(stringToBalanceWhiteAuto(v_white_balance_auto->getString().c_str()));
 
-    pCam->Gamma.SetValue(v_gamma->getDouble());
+    pCam->GammaEnable.SetValue(v_gamma_enabled->getBool());
+    if (IsWritable(pCam->Gamma)) {
+      pCam->Gamma.SetValue(v_gamma->getDouble());
+    }
 
     // reference: https://www.ptgrey.com/tan/11174
     pCam->TLStream.StreamBufferHandlingMode.SetValue(stringToStreamBufferHandlingMode(v_stream_buffer_handling_mode->getString().c_str()));
