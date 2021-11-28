@@ -79,6 +79,7 @@ protected:
   VarStringEnum* v_stream_buffer_handling_mode;
   VarStringEnum* v_stream_buffer_count_mode;
   VarInt* v_stream_buffer_count;
+  VarBool* v_use_camera_time;
   VarDouble* v_frame_rate;
   VarDouble* v_frame_rate_result;
 
