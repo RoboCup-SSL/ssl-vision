@@ -75,7 +75,7 @@ CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id, QO
   v_stream_buffer_count_mode->addItem(toString(Spinnaker::StreamBufferCountMode_Auto));
 
   v_stream_buffer_count = new VarInt("Stream Buffer Count", 3);
-  
+
   v_use_camera_time = new VarBool("Use camera time", true);
 
   v_frame_rate = new VarDouble("Frame Rate", 0.0);
@@ -321,6 +321,10 @@ bool CaptureSpinnaker::startCapture()
 
     pCam->TLStream.StreamBufferCountMode.SetValue(Spinnaker::StreamBufferCountMode_Manual);
     pCam->TLStream.StreamBufferCountManual.SetValue(3);
+
+    if (IsWritable(pCam->GevSCPSPacketSize)) {
+      pCam->GevSCPSPacketSize.SetValue(9000);
+    }
 
     ColorFormat out_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
     if(out_color == COLOR_RAW8)
