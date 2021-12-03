@@ -76,6 +76,8 @@ CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id, QO
 
   v_stream_buffer_count = new VarInt("Stream Buffer Count", 3);
 
+  v_use_camera_time = new VarBool("Use camera time", true);
+
   v_frame_rate = new VarDouble("Frame Rate", 0.0);
   v_frame_rate->addFlags(VARTYPE_FLAG_READONLY);
   v_frame_rate_result = new VarDouble("Resulting Frame Rate", 0.0);
@@ -92,6 +94,7 @@ CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id, QO
   dcam_parameters->addChild(v_stream_buffer_handling_mode);
   dcam_parameters->addChild(v_stream_buffer_count_mode);
   dcam_parameters->addChild(v_stream_buffer_count);
+  dcam_parameters->addChild(v_use_camera_time);
   dcam_parameters->addChild(v_frame_rate);
   dcam_parameters->addChild(v_frame_rate_result);
 
@@ -319,6 +322,10 @@ bool CaptureSpinnaker::startCapture()
     pCam->TLStream.StreamBufferCountMode.SetValue(Spinnaker::StreamBufferCountMode_Manual);
     pCam->TLStream.StreamBufferCountManual.SetValue(3);
 
+    if (IsWritable(pCam->GevSCPSPacketSize)) {
+      pCam->GevSCPSPacketSize.SetValue(9000);
+    }
+
     ColorFormat out_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
     if(out_color == COLOR_RAW8)
     {
@@ -363,6 +370,10 @@ bool CaptureSpinnaker::startCapture()
 bool CaptureSpinnaker::copyAndConvertFrame(const RawImage & src, RawImage & target)
 {
   mutex.lock();
+  if (src.getTime() == 0) {
+    mutex.unlock();
+    return false;
+  }
   target.setTime(src.getTime());
 
   ColorFormat src_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
@@ -381,8 +392,7 @@ bool CaptureSpinnaker::copyAndConvertFrame(const RawImage & src, RawImage & targ
     return false;
   }
 
-    mutex.unlock();
-
+  mutex.unlock();
   return true;
 }
 
@@ -409,20 +419,27 @@ RawImage CaptureSpinnaker::getFrame()
 
   if (pImage->IsIncomplete())
   {
-    fprintf(stderr, "Spinnaker: Image incomplete. Image Status: %d\n", pImage->GetImageStatus());
+    auto description = Spinnaker::Image::GetImageStatusDescription(pImage->GetImageStatus());
+    fprintf(stderr, "Spinnaker: Image incomplete: %s\n", description);
     mutex.unlock();
     return result;
   }
 
-  uint64_t  image_timestamp = pImage->GetTimeStamp();
-  timeSync.update(image_timestamp);
-  double time = timeSync.sync(image_timestamp) / 1e9;
-  result.setTime(time);
+  if (v_use_camera_time->getBool()) {
+    uint64_t image_timestamp = pImage->GetTimeStamp();
+    timeSync.update(image_timestamp);
+    double time = (double) timeSync.sync(image_timestamp) / 1e9;
+    result.setTime(time);
+  } else {
+    timeval tv{};
+    gettimeofday(&tv, nullptr);
+    result.setTime((double)tv.tv_sec + (double)tv.tv_usec * (1.0E-6));
+  }
   result.setWidth((int) pImage->GetWidth());
   result.setHeight((int) pImage->GetHeight());
   result.setData((unsigned char*) pImage->GetData());
 
-    mutex.unlock();
+  mutex.unlock();
   return result;
 }
 
