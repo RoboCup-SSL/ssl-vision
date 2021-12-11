@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: ubuntu:18.04
+      - image: ubuntu:20.04
     steps:
       - run: apt-get update -qq && apt-get install -qq git
       - checkout
@@ -10,7 +10,7 @@ jobs:
       - run: make
   build-v4l:
     docker:
-        - image: ubuntu:18.04
+        - image: ubuntu:20.04
     steps:
       - run: apt-get update -qq && apt-get install -qq git
       - checkout
@@ -20,7 +20,7 @@ jobs:
       - run: make
   build-splitter:
     docker:
-      - image: ubuntu:18.04
+      - image: ubuntu:20.04
     steps:
       - run: apt-get update -qq && apt-get install -qq git
       - checkout
@@ -37,7 +37,7 @@ jobs:
       - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
       - run: apt-get install -qq libqt4-dev
       - run: mkdir -p build
-      - run: cmake -B build -DUSE_QT5=true .
+      - run: cmake -B build -DUSE_QT5=false .
       - run: make
 
 workflows:
