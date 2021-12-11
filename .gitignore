@@ -3,7 +3,8 @@
 /robocup-*
 /settings.xml
 /backup
-/test-data/**
+/test-data/*
+!/test-data/rc2019
 /.idea
 cmake-build*
 /.dir-locals.el

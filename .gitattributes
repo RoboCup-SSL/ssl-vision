@@ -1,0 +1,16 @@
+test-data/rc2019/0/cam1/00002.png filter=lfs diff=lfs merge=lfs -text
+test-data/rc2019/1/cam0/00003.png filter=lfs diff=lfs merge=lfs -text
+test-data/rc2019/1/cam1/00000.png filter=lfs diff=lfs merge=lfs -text
+test-data/rc2019/1/cam1/00001.png filter=lfs diff=lfs merge=lfs -text
+test-data/rc2019/1/cam1/00002.png filter=lfs diff=lfs merge=lfs -text
+test-data/rc2019/0/cam1/00000.png filter=lfs diff=lfs merge=lfs -text
+test-data/rc2019/0/cam0/00001.png filter=lfs diff=lfs merge=lfs -text
+test-data/rc2019/0/cam0/00002.png filter=lfs diff=lfs merge=lfs -text
+test-data/rc2019/0/cam1/00003.png filter=lfs diff=lfs merge=lfs -text
+test-data/rc2019/1/cam0/00000.png filter=lfs diff=lfs merge=lfs -text
+test-data/rc2019/1/cam0/00001.png filter=lfs diff=lfs merge=lfs -text
+test-data/rc2019/0/cam0/00000.png filter=lfs diff=lfs merge=lfs -text
+test-data/rc2019/0/cam1/00001.png filter=lfs diff=lfs merge=lfs -text
+test-data/rc2019/0/cam0/00003.png filter=lfs diff=lfs merge=lfs -text
+test-data/rc2019/1/cam1/00003.png filter=lfs diff=lfs merge=lfs -text
+test-data/rc2019/1/cam0/00002.png filter=lfs diff=lfs merge=lfs -text
