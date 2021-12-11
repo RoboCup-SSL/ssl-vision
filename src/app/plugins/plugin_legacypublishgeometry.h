@@ -63,9 +63,6 @@ public:
 
   virtual string getName();
   virtual ProcessResult process(FrameData * data, RenderOptions * options);
-  float GetFieldCircularArcRadius(const string& arc_name);
-  float GetFieldLineLength(const string& line_name);
-  float GetFieldLineThickness(const string& line_name);
 };
 
 #endif

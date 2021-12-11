@@ -96,7 +96,7 @@ void PluginLegacyPublishGeometry::sendGeometry() {
   ds_field_old.set_goal_width(field.goal_width());
   ds_field_old.set_goal_depth(field.goal_depth());
   ds_field_old.set_boundary_width(field.boundary_width());
-  ds_field_old.set_center_circle_radius(GetFieldCircularArcRadius("CenterCircle"));
+  ds_field_old.set_center_circle_radius(_field.center_circle_radius->getDouble() + 0.5*_field.line_thickness->getDouble());
   ds_field_old.set_defense_radius(_field.penalty_area_depth->getDouble());
   ds_field_old.set_defense_stretch(_field.penalty_area_width->getDouble() - 2*_field.penalty_area_depth->getDouble());
   // The following fields no longer exist in ssl-vision, and are hard-coded
@@ -121,28 +121,6 @@ void PluginLegacyPublishGeometry::sendGeometry() {
   }
 
   _ds_udp_server_old->sendLegacyMessage(ds_geodata_old);
-}
-
-float PluginLegacyPublishGeometry::GetFieldLineLength(const string& line_name) {
-  const FieldLine* line = GetFieldLine(line_name, _field.field_lines);
-  if (line == NULL) return 0;
-  return (sqrt(sq(line->p1_x->getDouble() - line->p2_x->getDouble())
-  		+ sq(line->p1_y->getDouble() - line->p2_y->getDouble())));
-}
-
-float PluginLegacyPublishGeometry::GetFieldLineThickness(
-    const string& line_name) {
-  const FieldLine* line = GetFieldLine(line_name, _field.field_lines);
-  if (line == NULL) return 0;
-  return (line->thickness->getDouble());
-}
-
-float PluginLegacyPublishGeometry::GetFieldCircularArcRadius(
-    const string& arc_name) {
-  const FieldCircularArc* arc =
-      GetFieldCircularArc(arc_name, _field.field_arcs);
-  if (arc == NULL) return 0;
-  return (arc->radius->getDouble() + 0.5 * arc->thickness->getDouble());
 }
 
 void PluginLegacyPublishGeometry::slotPublishTriggered() {
