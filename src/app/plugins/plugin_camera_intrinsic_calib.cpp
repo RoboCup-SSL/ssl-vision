@@ -29,7 +29,11 @@ PluginCameraIntrinsicCalibration::PluginCameraIntrinsicCalibration(FrameBuffer *
   settings->addChild(corner_sub_pixel_list);
   settings->addChild(worker->fixFocalLength);
   settings->addChild(worker->fixPrinciplePoint);
-  settings->addChild(worker->initializeCameraMatrix);
+  settings->addChild(worker->fixTangentialDistortion);
+  settings->addChild(worker->fixK1);
+  settings->addChild(worker->fixK2);
+  settings->addChild(worker->fixK3);
+  settings->addChild(worker->useIntrinsicGuess);
 
   connect(this, SIGNAL(startLoadImages()), worker, SLOT(loadImages()));
   connect(this, SIGNAL(startCalibration()), worker, SLOT(calibrate()));
@@ -118,7 +122,11 @@ PluginCameraIntrinsicCalibrationWorker::PluginCameraIntrinsicCalibrationWorker(C
   reduced_image_width = new VarDouble("reduced image width for chessboard detection", 900.0);
   fixFocalLength = new VarBool("Fix focal length", true);
   fixPrinciplePoint = new VarBool("Fix principle point", true);
-  initializeCameraMatrix = new VarBool("Initialize camera matrix", true);
+  fixTangentialDistortion = new VarBool("Fix tangential distortion", false);
+  fixK1 = new VarBool("Fix k1", false);
+  fixK2 = new VarBool("Fix k2", false);
+  fixK3 = new VarBool("Fix k3", false);
+  useIntrinsicGuess = new VarBool("Use intrinsic guess", true);
 
   image_storage = new ImageStorage(widget);
 
@@ -140,7 +148,11 @@ PluginCameraIntrinsicCalibrationWorker::~PluginCameraIntrinsicCalibrationWorker(
   delete reduced_image_width;
   delete fixFocalLength;
   delete fixPrinciplePoint;
-  delete initializeCameraMatrix;
+  delete fixTangentialDistortion;
+  delete fixK1;
+  delete fixK2;
+  delete fixK3;
+  delete useIntrinsicGuess;
 }
 
 void PluginCameraIntrinsicCalibrationWorker::calibrate() {
@@ -158,7 +170,19 @@ void PluginCameraIntrinsicCalibrationWorker::calibrate() {
   if (fixPrinciplePoint->getBool()) {
     flags |= cv::CALIB_FIX_PRINCIPAL_POINT;
   }
-  if (!initializeCameraMatrix->getBool()) {
+  if (fixTangentialDistortion->getBool()) {
+    flags |=cv::CALIB_FIX_TANGENT_DIST;
+  }
+  if (fixK1->getBool()) {
+    flags |=cv::CALIB_FIX_K1;
+  }
+  if (fixK2->getBool()) {
+    flags |=cv::CALIB_FIX_K2;
+  }
+  if (fixK3->getBool()) {
+    flags |=cv::CALIB_FIX_K3;
+  }
+  if (useIntrinsicGuess->getBool()) {
     flags |= cv::CALIB_USE_INTRINSIC_GUESS;
   }
 
