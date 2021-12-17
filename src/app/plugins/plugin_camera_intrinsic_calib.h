@@ -63,7 +63,11 @@ public:
   VarDouble *reduced_image_width;
   VarBool *fixFocalLength;
   VarBool *fixPrinciplePoint;
-  VarBool *initializeCameraMatrix;
+  VarBool *fixTangentialDistortion;
+  VarBool *fixK1;
+  VarBool *fixK2;
+  VarBool *fixK3;
+  VarBool *useIntrinsicGuess;
 
   void detectChessboard(const cv::Mat &greyscale_mat,
                         Chessboard *chessboard) const;
