@@ -113,6 +113,7 @@ protected:
   void DrawMaskHull(FrameData* data, VisualizationFrame* vis_frame);
 
   static void DrawChessboard(FrameData* data, VisualizationFrame* vis_frame);
+  static void DrawChessboardCalibrationPoints(FrameData* data, VisualizationFrame* vis_frame);
 public:
   PluginVisualize(FrameBuffer* _buffer, const CameraParameters& camera_params,
                   const RoboCupField& real_field, const ConvexHullImageMask &mask);

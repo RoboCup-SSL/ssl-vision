@@ -68,6 +68,10 @@ ProcessResult PluginCameraIntrinsicCalibration::process(FrameData *data, RenderO
     chessboard = reinterpret_cast<Chessboard *>(data->map.insert("chessboard", new Chessboard()));
   }
 
+  if (data->map.get("chessboard_img_points") == nullptr) {
+    data->map.insert("chessboard_img_points", &worker->image_points);
+  }
+
   // cv expects row major order and image stores col major.
   // height and width are swapped intentionally!
   cv::Mat greyscale_mat(img_calibration->getHeight(), img_calibration->getWidth(), CV_8UC1, img_calibration->getData());
