@@ -123,6 +123,7 @@ void PluginVisualize::DrawCameraImage(
   }
   if (_v_chessboard->getBool()) {
     DrawChessboard(data, vis_frame);
+    DrawChessboardCalibrationPoints(data, vis_frame);
   }
 }
 
@@ -546,9 +547,9 @@ void PluginVisualize::drawFieldLine(
 void PluginVisualize::DrawChessboard(FrameData *data,
                                      VisualizationFrame *vis_frame) {
   Chessboard *chessboard;
-  if ((chessboard = reinterpret_cast<Chessboard*>(
-      data->map.get("chessboard"))) == nullptr) {
+  if ((chessboard = reinterpret_cast<Chessboard*>(data->map.get("chessboard"))) == nullptr) {
     std::cerr << "chessboard_found key missing from data map.\n";
+    return;
   }
 
   cv::Mat chessboard_img(vis_frame->data.getHeight(),
@@ -557,4 +558,21 @@ void PluginVisualize::DrawChessboard(FrameData *data,
 
   cv::drawChessboardCorners(chessboard_img, chessboard->pattern_size, chessboard->corners,
                             chessboard->pattern_was_found);
+}
+
+void PluginVisualize::DrawChessboardCalibrationPoints(FrameData *data, VisualizationFrame *vis_frame) {
+  std::vector<std::vector<cv::Point2f>> *chessboard_img_points;
+  if ((chessboard_img_points = reinterpret_cast<std::vector<std::vector<cv::Point2f>> *>(data->map.get("chessboard_img_points"))) == nullptr) {
+    return;
+  }
+
+  int size = 3;
+  const rgb color = RGB::Blue;
+  for (const auto &points : *chessboard_img_points) {
+    for (const auto &point : points) {
+      int x = (int) point.x - size/2;
+      int y = (int) point.y - size/2;
+      vis_frame->data.drawBox(x, y, size, size, color);
+    }
+  }
 }
