@@ -358,6 +358,14 @@ void ImageStorage::saveImage(cv::Mat &image) const {
   cv::imwrite(filename.toStdString(), image);
 }
 
+static bool hasEnding (std::string const &fullString, std::string const &ending) {
+  if (fullString.length() >= ending.length()) {
+    return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
+  } else {
+    return false;
+  }
+}
+
 void ImageStorage::readImages(std::vector<cv::Mat> &images) const {
   DIR *dp;
   if ((dp = opendir(image_dir->getString().c_str())) == nullptr) {
@@ -368,7 +376,7 @@ void ImageStorage::readImages(std::vector<cv::Mat> &images) const {
   std::list<std::string> imgs_to_load(0);
   while ((dirp = readdir(dp))) {
     std::string file_name(dirp->d_name);
-    if (file_name[0] != '.') {  // not a hidden file or one of '..' or '.'
+    if (file_name[0] != '.' && hasEnding(file_name, ".png")) {  // not a hidden file or one of '..' or '.'
       imgs_to_load.push_back(image_dir->getString() + "/" + file_name);
     }
   }
