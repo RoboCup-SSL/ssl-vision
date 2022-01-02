@@ -80,10 +80,10 @@ class CameraParameters {
   GVector::vector3d<double> getWorldLocation() const;
   void field2image(const GVector::vector3d<double>& p_f, GVector::vector2d<double>& p_i) const;
   void image2field(GVector::vector3d<double>& p_f, const GVector::vector2d<double>& p_i, double z) const;
-  void calibrate(std::vector<GVector::vector3d<double> >& p_f,
+  double calibrate(std::vector<GVector::vector3d<double> >& p_f,
                  std::vector<GVector::vector2d<double> >& p_i,
                  int cal_type);
-  void calibrateExtrinsicModel(std::vector<GVector::vector3d<double> >& p_f,
+  double calibrateExtrinsicModel(std::vector<GVector::vector3d<double> >& p_f,
                                std::vector<GVector::vector2d<double> >& p_i,
                                int cal_type);
 
@@ -201,7 +201,7 @@ class CameraParameters {
   };
 
  public:
-  void do_calibration(int cal_type);
+  double do_calibration(int cal_type);
   void reset() const;
 };
 

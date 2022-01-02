@@ -51,7 +51,7 @@ CameraCalibrationWidget::CameraCalibrationWidget(CameraParameters &_cp) : camera
   connect(camera_parameters.additional_calibration_information->global_camera_id, SIGNAL(hasChanged(VarType*)),
       this, SLOT(global_camera_id_vartype_changed()));
 
-  openCvCalibrationCheckBox = new QCheckBox("Use OpenCV calibration separate intrinsic and extrinsic model");
+  openCvCalibrationCheckBox = new QCheckBox("Use OpenCV calibration with separate intrinsic and extrinsic model");
   openCvCalibrationCheckBox->setChecked(camera_parameters.use_opencv_model->getBool());
   connect(openCvCalibrationCheckBox, SIGNAL(stateChanged(int)), this, SLOT(opencvCalibrationTypeChanged(int)));
   connect(camera_parameters.use_opencv_model, SIGNAL(hasChanged(VarType *)), this, SLOT(opencvCalibrationTypeChangedVarType()));
@@ -66,6 +66,9 @@ CameraCalibrationWidget::CameraCalibrationWidget(CameraParameters &_cp) : camera
   connect(additionalPointsButton, SIGNAL(clicked()), SLOT(edges_is_clicked()));
   QPushButton* resetButton = new QPushButton(tr("Reset"));
   connect(resetButton, SIGNAL(clicked()), SLOT(is_clicked_reset()));
+
+  auto errorDescriptionLabel = new QLabel("Root Mean Squared Error (RMSE): ");
+  errorValueLabel = new QLabel("");
 
   QGroupBox* calibrationParametersBox = new QGroupBox(tr("Calibration Parameters"));
   // The slider for the width of the line search corridor:
@@ -105,6 +108,11 @@ CameraCalibrationWidget::CameraCalibrationWidget(CameraParameters &_cp) : camera
   hbox->addWidget(updateControlPointsButton);
   hbox->addStretch(1);
 
+  auto errorLayout = new QHBoxLayout;
+  errorLayout->addWidget(errorDescriptionLabel);
+  errorLayout->addWidget(errorValueLabel);
+  errorLayout->addStretch(1);
+
   QVBoxLayout *vbox = new QVBoxLayout;
   vbox->addLayout(hbox);
   vbox->addWidget(openCvCalibrationCheckBox);
@@ -112,6 +120,7 @@ CameraCalibrationWidget::CameraCalibrationWidget(CameraParameters &_cp) : camera
   vbox->addWidget(additionalPointsButton);
   vbox->addWidget(fullCalibrationButton);
   vbox->addWidget(resetButton);
+  vbox->addLayout(errorLayout);
   vbox->addStretch(1);
   calibrationStepsBox->setLayout(vbox);
   // Layout for calibration parameters
@@ -158,13 +167,15 @@ void CameraCalibrationWidget::is_clicked_update_control_points()
 
 void CameraCalibrationWidget::is_clicked_initial()
 {
-  camera_parameters.do_calibration(CameraParameters::FOUR_POINT_INITIAL);
+  double rmse = camera_parameters.do_calibration(CameraParameters::FOUR_POINT_INITIAL);
+  errorValueLabel->setText(QString::number(rmse));
   set_slider_from_vars();
 }
 
 void CameraCalibrationWidget::is_clicked_full()
 {
-  camera_parameters.do_calibration(CameraParameters::FULL_ESTIMATION);
+  double rmse = camera_parameters.do_calibration(CameraParameters::FULL_ESTIMATION);
+  errorValueLabel->setText(QString::number(rmse));
   set_slider_from_vars();
 }
 
