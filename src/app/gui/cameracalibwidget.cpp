@@ -181,6 +181,7 @@ void CameraCalibrationWidget::is_clicked_full()
 
 void CameraCalibrationWidget::is_clicked_reset()
 {
+  camera_parameters.calibrationSegments.clear();
   if(camera_parameters.use_opencv_model->getBool()) {
     camera_parameters.extrinsic_parameters->reset();
   } else {

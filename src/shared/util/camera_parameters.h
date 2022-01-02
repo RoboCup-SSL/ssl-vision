@@ -52,6 +52,8 @@ class CameraExtrinsicParameters : public QObject {
   VarDouble *tvec_y;
   VarDouble *tvec_z;
 
+  VarList* calibrationPoints;
+
  public:
   CameraExtrinsicParameters();
   ~CameraExtrinsicParameters() override;
@@ -61,6 +63,13 @@ class CameraExtrinsicParameters : public QObject {
 
   VarList *settings;
 
+  VarBool *fixFocalLength;
+  VarBool *fixPrinciplePoint;
+  VarBool *fixTangentialDistortion;
+  VarBool *fixK1;
+  VarBool *fixK2;
+  VarBool *fixK3;
+
   cv::Mat rvec;
   cv::Mat tvec;
 
@@ -68,10 +77,16 @@ class CameraExtrinsicParameters : public QObject {
   cv::Mat rotation_mat_inv;
   cv::Mat right_side_mat;
 
-  std::vector<cv::Point3d> calib_field_points;
-  std::vector<cv::Point2d> calib_image_points;
+  void addCalibrationPointSet(cv::Point2d image, cv::Point3d field);
+  void clearCalibrationPoints();
+  vector<cv::Point2d> getCalibImagePoints();
+  vector<cv::Point3d> getCalibFieldPoints();
+  int getCalibrationPointSize();
+  VarDouble* getCalibImageValueX(int index);
+  VarDouble* getCalibImageValueY(int index);
 
  public slots:
   void updateRVec();
   void updateTVec();
+  void addNewCalibrationPointSet();
 };
