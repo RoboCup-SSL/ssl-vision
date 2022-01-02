@@ -221,7 +221,7 @@ void PluginVisualize::DrawCameraCalibration(
     int size = 3;
     int sizeFat = 11;
     const rgb color = RGB::Pink;
-    for (const auto &point : camera_parameters.extrinsic_parameters->calib_image_points) {
+    for (const auto &point : camera_parameters.extrinsic_parameters->getCalibImagePoints()) {
       int px = (int) point.x - size/2;
       int py = (int) point.y - size/2;
       vis_frame->data.drawBox(px, py, size, size, color);
