@@ -85,7 +85,7 @@ class CameraParameters {
                  int cal_type);
   double calibrateExtrinsicModel(std::vector<GVector::vector3d<double> >& p_f,
                                std::vector<GVector::vector2d<double> >& p_i,
-                               int cal_type);
+                               int cal_type) const;
 
   /** apply radial distortion to (undistorted) radius ru and return distorted radius */
   double radialDistortion(double ru) const;
@@ -203,6 +203,7 @@ class CameraParameters {
  public:
   double do_calibration(int cal_type);
   void reset() const;
+  void detectCalibrationCorners();
 };
 
 #endif

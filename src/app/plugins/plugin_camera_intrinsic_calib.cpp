@@ -124,13 +124,13 @@ PluginCameraIntrinsicCalibrationWorker::PluginCameraIntrinsicCalibrationWorker(C
   corner_sub_pixel_epsilon = new VarDouble("epsilon", 0.1, 1e-10);
   corner_diff_sq_threshold = new VarDouble("corner sq_diff threshold", 500);
   reduced_image_width = new VarDouble("reduced image width for chessboard detection", 900.0);
-  fixFocalLength = new VarBool("Fix focal length", true);
-  fixPrinciplePoint = new VarBool("Fix principle point", true);
-  fixTangentialDistortion = new VarBool("Fix tangential distortion", false);
+  fixFocalLength = new VarBool("Fix focal length", false);
+  fixPrinciplePoint = new VarBool("Fix principle point", false);
+  fixTangentialDistortion = new VarBool("Fix tangential distortion", true);
   fixK1 = new VarBool("Fix k1", false);
   fixK2 = new VarBool("Fix k2", false);
   fixK3 = new VarBool("Fix k3", false);
-  useIntrinsicGuess = new VarBool("Use intrinsic guess", true);
+  useIntrinsicGuess = new VarBool("Use intrinsic guess", false);
 
   image_storage = new ImageStorage(widget);
 

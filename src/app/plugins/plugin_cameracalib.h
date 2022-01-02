@@ -46,9 +46,10 @@ protected:
   int video_width;
   int video_height;
 
-  bool doing_drag;
   VarDouble* drag_x;
   VarDouble* drag_y;
+  VarDouble* calib_drag_x;
+  VarDouble* calib_drag_y;
 
   void sanitizeSobel(greyImage * img, GVector::vector2d<double> & val,int sobel_border=1);
 
