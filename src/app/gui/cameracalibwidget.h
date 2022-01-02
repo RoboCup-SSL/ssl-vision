@@ -48,6 +48,7 @@ public:
 
   protected:
     QPushButton* fullCalibrationButton;
+    QLabel* errorValueLabel;
 
     QSlider* lineSearchCorridorWidthSlider;
     QLabel* lineSearchCorridorWidthLabelRight;
