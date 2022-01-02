@@ -429,7 +429,7 @@ double CameraParameters::calc_chisqr(
   return chisqr;
 }
 
-void CameraParameters::do_calibration(int cal_type) {
+double CameraParameters::do_calibration(int cal_type) {
   std::vector<GVector::vector3d<double> > p_f;
   std::vector<GVector::vector2d<double> > p_i;
 
@@ -445,9 +445,9 @@ void CameraParameters::do_calibration(int cal_type) {
   }
 
   if(use_opencv_model->getBool()) {
-    calibrateExtrinsicModel(p_f, p_i, cal_type);
+    return calibrateExtrinsicModel(p_f, p_i, cal_type);
   } else {
-    calibrate(p_f, p_i, cal_type);
+    return calibrate(p_f, p_i, cal_type);
   }
 }
 
@@ -495,7 +495,7 @@ bool contains(const cv::Rect& rect, const cv::Point2d& pt, double margin) {
          && rect.y - margin <= pt.y && pt.y < rect.y + rect.height + margin * 2;
 }
 
-void CameraParameters::calibrateExtrinsicModel(
+double CameraParameters::calibrateExtrinsicModel(
     std::vector<GVector::vector3d<double>> &p_f,
     std::vector<GVector::vector2d<double>> &p_i,
     int cal_type) {
@@ -609,7 +609,7 @@ void CameraParameters::calibrateExtrinsicModel(
 
   if (extrinsic_parameters->calib_field_points.size() < 4) {
     std::cerr << "Not enough calibration points: " << extrinsic_parameters->calib_field_points.size() << std::endl;
-    return;
+    return -1;
   }
 
   std::vector<std::vector<cv::Point3f>> object_points(1);
@@ -663,10 +663,10 @@ void CameraParameters::calibrateExtrinsicModel(
     sum += cv::norm(diff) * cv::norm(diff);
   }
   double rmse = sqrt(sum / (double) extrinsic_parameters->calib_field_points.size());
-  std::cout << "RMSE: " << rmse << std::endl;
+  return rmse;
 }
 
-void CameraParameters::calibrate(
+double CameraParameters::calibrate(
     std::vector<GVector::vector3d<double> > &p_f,
     std::vector<GVector::vector2d<double> > &p_i, int cal_type) {
   assert(p_f.size() == p_i.size());
@@ -952,6 +952,7 @@ void CameraParameters::calibrate(
 
   double corner_x(0);
   double corner_y(0);
+  double corner_sum(0);
   for (; it_p_f != p_f.end(); it_p_f++, it_p_i++) {
     GVector::vector2d<double> proj_p;
     field2image(*it_p_f, proj_p);
@@ -963,12 +964,17 @@ void CameraParameters::calibrate(
               << ") and is projected at (" << proj_p.x << "," << proj_p.y <<")"
               << std::endl;
 
-    corner_x += (proj_p.x - it_p_i->x) * (proj_p.x - it_p_i->x);
-    corner_y += (proj_p.y - it_p_i->y) * (proj_p.y - it_p_i->y);
+    double diff_x = proj_p.x - it_p_i->x;
+    double diff_y = proj_p.y - it_p_i->y;
+    corner_x += diff_x * diff_x;
+    corner_y += diff_y * diff_y;
+    corner_sum += sqrt(diff_x * diff_x + diff_y * diff_y);
   }
 
-  std::cerr << "RESIDUAL CORNER POINTS: " << sqrt(corner_x/4) << " "
-            << sqrt(corner_y/4) << std::endl;
+  std::cerr << "RESIDUAL CORNER POINTS: "
+            << sqrt(corner_x/4) << " "
+            << sqrt(corner_y/4) << " "
+            << sqrt(corner_sum/4) << std::endl;
 
  if (cal_type & FULL_ESTIMATION) {
   // Testing calibration by projecting the points on the lines into the image
@@ -1011,7 +1017,9 @@ void CameraParameters::calibrate(
               << sqrt(line_y/(double)i) << std::endl;
   }
  }
-
+ return corner_sum;
+#elif
+  return -1;
 #endif
 }
 
