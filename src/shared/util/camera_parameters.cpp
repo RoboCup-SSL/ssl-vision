@@ -57,35 +57,41 @@ CameraIntrinsicParameters::~CameraIntrinsicParameters() {
 }
 
 void CameraIntrinsicParameters::updateCameraMat() {
-  camera_mat.at<double>(0, 0) = focal_length_x->getDouble();
-  camera_mat.at<double>(1, 1) = focal_length_y->getDouble();
-  camera_mat.at<double>(0, 2) = principal_point_x->getDouble();
-  camera_mat.at<double>(1, 2) = principal_point_y->getDouble();
+  cv::Mat tmp_camera_mat = cv::Mat::eye(3, 3, CV_64F);
+  tmp_camera_mat.at<double>(0, 0) = focal_length_x->getDouble();
+  tmp_camera_mat.at<double>(1, 1) = focal_length_y->getDouble();
+  tmp_camera_mat.at<double>(0, 2) = principal_point_x->getDouble();
+  tmp_camera_mat.at<double>(1, 2) = principal_point_y->getDouble();
+  tmp_camera_mat.copyTo(camera_mat);
 
   camera_mat_inv = camera_mat.inv();
 }
 
 void CameraIntrinsicParameters::updateDistCoeffs() {
-  dist_coeffs.at<double>(0, 0) = dist_coeff_k1->getDouble();
-  dist_coeffs.at<double>(1, 0) = dist_coeff_k2->getDouble();
-  dist_coeffs.at<double>(2, 0) = dist_coeff_p1->getDouble();
-  dist_coeffs.at<double>(3, 0) = dist_coeff_p2->getDouble();
-  dist_coeffs.at<double>(4, 0) = dist_coeff_k3->getDouble();
+  cv::Mat tmp_dist_coeffs(5, 1, CV_64F);
+  tmp_dist_coeffs.at<double>(0, 0) = dist_coeff_k1->getDouble();
+  tmp_dist_coeffs.at<double>(1, 0) = dist_coeff_k2->getDouble();
+  tmp_dist_coeffs.at<double>(2, 0) = dist_coeff_p1->getDouble();
+  tmp_dist_coeffs.at<double>(3, 0) = dist_coeff_p2->getDouble();
+  tmp_dist_coeffs.at<double>(4, 0) = dist_coeff_k3->getDouble();
+  tmp_dist_coeffs.copyTo(dist_coeffs);
 }
 
 void CameraIntrinsicParameters::updateConfigValues() const {
-  cv::Mat new_camera_mat(camera_mat);
-  focal_length_x->setDouble(new_camera_mat.at<double>(0, 0));
-  focal_length_y->setDouble(new_camera_mat.at<double>(1, 1));
-  principal_point_x->setDouble(new_camera_mat.at<double>(0, 2));
-  principal_point_y->setDouble(new_camera_mat.at<double>(1, 2));
+  cv::Mat tmp_camera_mat(3, 3, CV_64F);
+  camera_mat.copyTo(tmp_camera_mat);
+  focal_length_x->setDouble(tmp_camera_mat.at<double>(0, 0));
+  focal_length_y->setDouble(tmp_camera_mat.at<double>(1, 1));
+  principal_point_x->setDouble(tmp_camera_mat.at<double>(0, 2));
+  principal_point_y->setDouble(tmp_camera_mat.at<double>(1, 2));
 
-  cv::Mat new_dist_coeffs(dist_coeffs);
-  dist_coeff_k1->setDouble(new_dist_coeffs.at<double>(0, 0));
-  dist_coeff_k2->setDouble(new_dist_coeffs.at<double>(1, 0));
-  dist_coeff_p1->setDouble(new_dist_coeffs.at<double>(2, 0));
-  dist_coeff_p2->setDouble(new_dist_coeffs.at<double>(3, 0));
-  dist_coeff_k3->setDouble(new_dist_coeffs.at<double>(4, 0));
+  cv::Mat tmp_dist_coeffs(5, 1, CV_64F);
+  dist_coeffs.copyTo(tmp_dist_coeffs);
+  dist_coeff_k1->setDouble(tmp_dist_coeffs.at<double>(0));
+  dist_coeff_k2->setDouble(tmp_dist_coeffs.at<double>(1));
+  dist_coeff_p1->setDouble(tmp_dist_coeffs.at<double>(2));
+  dist_coeff_p2->setDouble(tmp_dist_coeffs.at<double>(3));
+  dist_coeff_k3->setDouble(tmp_dist_coeffs.at<double>(4));
 }
 
 void CameraIntrinsicParameters::reset() {
