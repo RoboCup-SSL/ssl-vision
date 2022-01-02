@@ -119,10 +119,10 @@ void CameraParameters::toProtoBuffer(SSL_GeometryCameraCalibration &buffer) cons
   }
 
   GVector::vector3d< double > world = getWorldLocation();
-  buffer.set_derived_camera_world_tx(world.x);
-  buffer.set_derived_camera_world_ty(world.y);
-  buffer.set_derived_camera_world_tz(world.z);
-  
+  buffer.set_derived_camera_world_tx((float) world.x);
+  buffer.set_derived_camera_world_ty((float) world.y);
+  buffer.set_derived_camera_world_tz((float) world.z);
+
   buffer.set_pixel_image_width(additional_calibration_information->imageWidth->getInt());
   buffer.set_pixel_image_height(additional_calibration_information->imageHeight->getInt());
 }
@@ -148,7 +148,7 @@ GVector::vector3d< double > CameraParameters::getWorldLocation() const {
   return v_out;
 }
 
-void CameraParameters::addSettingsToList(VarList& list) {
+void CameraParameters::addSettingsToList(VarList& list) const {
   list.addChild(intrinsic_parameters->settings);
   list.addChild(extrinsic_parameters->settings);
   list.addChild(use_opencv_model);
@@ -177,7 +177,7 @@ double CameraParameters::radialDistortion(double ru) const {
   return rd;
 }
 
-double CameraParameters::radialDistortion(double ru, double dist) const {
+double CameraParameters::radialDistortion(double ru, double dist) {
   if (dist<=DBL_MIN)
     return ru;
   double rd = 0;
@@ -210,7 +210,7 @@ void CameraParameters::radialDistortion(
 
 void CameraParameters::radialDistortion(
     const GVector::vector2d<double> pu,
-    GVector::vector2d<double> &pd, double dist) const {
+    GVector::vector2d<double> &pd, double dist) {
   double rd = radialDistortion(pu.length(), dist);
   pd = pu;
   pd = pd.norm(rd);
@@ -221,14 +221,14 @@ void CameraParameters::field2image(
     GVector::vector2d<double> &p_i) const {
 
   if(use_opencv_model->getBool()) {
-    cv::Mat src(1, 3, CV_32FC1);
-    cv::Mat dst(1, 2, CV_32FC1);
-    src.ptr<cv::Point3f>(0)->x = p_f.x;
-    src.ptr<cv::Point3f>(0)->y = p_f.y;
-    src.ptr<cv::Point3f>(0)->z = p_f.z;
+    cv::Mat src(1, 3, CV_64FC1);
+    cv::Mat dst(1, 2, CV_64FC1);
+    src.ptr<cv::Point3d>(0)->x = p_f.x;
+    src.ptr<cv::Point3d>(0)->y = p_f.y;
+    src.ptr<cv::Point3d>(0)->z = p_f.z;
     cv::projectPoints(src, extrinsic_parameters->rvec, extrinsic_parameters->tvec, intrinsic_parameters->camera_mat, intrinsic_parameters->dist_coeffs, dst);
-    p_i.x = dst.at<float>(0);
-    p_i.y = dst.at<float>(1);
+    p_i.x = dst.at<double>(0);
+    p_i.y = dst.at<double>(1);
   } else {
     Quaternion<double> q_field2cam = Quaternion<double>(
         q0->getDouble(),q1->getDouble(),q2->getDouble(),q3->getDouble());
@@ -257,7 +257,7 @@ void CameraParameters::field2image(
 
 void CameraParameters::field2image(
     GVector::vector3d<double> &p_f, GVector::vector2d<double> &p_i,
-    Eigen::VectorXd &p) {
+    Eigen::VectorXd &p) const {
   Quaternion<double> q_field2cam = Quaternion<double>(
       q0->getDouble(),q1->getDouble(),q2->getDouble(),q3->getDouble());
   q_field2cam.norm();
@@ -378,8 +378,8 @@ double CameraParameters::calc_chisqr(
   double chisqr(0);
 
   // Iterate over manual points
-  std::vector<GVector::vector3d<double> >::iterator it_p_f  = p_f.begin();
-  std::vector<GVector::vector2d<double> >::iterator it_p_i  = p_i.begin();
+  auto it_p_f  = p_f.begin();
+  auto it_p_i  = p_i.begin();
 
   for (; it_p_f != p_f.end(); it_p_f++, it_p_i++)
   {
@@ -392,12 +392,11 @@ double CameraParameters::calc_chisqr(
   // Iterate of line edge points, but only when performing a full estimation
   if (cal_type & FULL_ESTIMATION)
   {
-    std::vector<CalibrationData>::iterator ls_it = calibrationSegments.begin();
+    auto ls_it = calibrationSegments.begin();
 
     int i = 0;
     for (; ls_it != calibrationSegments.end(); ls_it++) {
-      std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator
-          imgPts_it = (*ls_it).imgPts.begin();
+      auto imgPts_it = (*ls_it).imgPts.begin();
       for (; imgPts_it != (*ls_it).imgPts.end(); imgPts_it++) {
         // Integrate only if a valid point on line
         if (imgPts_it->second) {
@@ -437,12 +436,12 @@ void CameraParameters::do_calibration(int cal_type) {
   AdditionalCalibrationInformation* aci = additional_calibration_information;
   for (int i = 0; i < AdditionalCalibrationInformation::kNumControlPoints;
       ++i) {
-    p_i.push_back(GVector::vector2d<double>(
+    p_i.emplace_back(
       aci->control_point_image_xs[i]->getDouble(),
-      aci->control_point_image_ys[i]->getDouble()));
-    p_f.push_back(GVector::vector3d<double>(
+      aci->control_point_image_ys[i]->getDouble());
+    p_f.emplace_back(
       aci->control_point_field_xs[i]->getDouble(),
-      aci->control_point_field_ys[i]->getDouble(), 0.0));
+      aci->control_point_field_ys[i]->getDouble(), 0.0);
   }
 
   if(use_opencv_model->getBool()) {
@@ -452,7 +451,7 @@ void CameraParameters::do_calibration(int cal_type) {
   }
 }
 
-void CameraParameters::reset() {
+void CameraParameters::reset() const {
   focal_length->resetToDefault();
   principal_point_x->resetToDefault();
   principal_point_y->resetToDefault();
@@ -466,12 +465,12 @@ void CameraParameters::reset() {
   q3->resetToDefault();
 }
 
-bool intersection(cv::Vec4f l1, cv::Vec4f l2, cv::Point2f &r)
+bool intersection(cv::Vec4d l1, cv::Vec4d l2, cv::Point2d &r)
 {
-  cv::Point2f o1;
-  cv::Point2f x;
-  cv::Point2f d1;
-  cv::Point2f d2;
+  cv::Point2d o1;
+  cv::Point2d x;
+  cv::Point2d d1;
+  cv::Point2d d2;
 
   o1.x = l1[2];
   o1.y = l1[3];
@@ -482,7 +481,7 @@ bool intersection(cv::Vec4f l1, cv::Vec4f l2, cv::Point2f &r)
   d2.x = l2[0];
   d2.y = l2[1];
 
-  float cross = d1.x*d2.y - d1.y*d2.x;
+  double cross = d1.x*d2.y - d1.y*d2.x;
   if (abs(cross) < 1e-8)
     return false;
 
@@ -501,14 +500,14 @@ void CameraParameters::calibrateExtrinsicModel(
     std::vector<GVector::vector2d<double>> &p_i,
     int cal_type) {
 
-  std::vector<cv::Point3d> fieldPoints;
-  std::vector<cv::Point2d> imagePoints;
+  extrinsic_parameters->calib_field_points.clear();
+  extrinsic_parameters->calib_image_points.clear();
 
   if (cal_type & FULL_ESTIMATION) {
     // fitted lines through undistorted calibration points
-    std::vector<cv::Vec4f> lines_img_undistorted;
+    std::vector<cv::Vec4d> lines_img_undistorted;
     // corresponding lines in field coordinates
-    std::vector<cv::Vec4f> lines_field;
+    std::vector<cv::Vec4d> lines_field;
     // corresponding line starting points
     std::vector<cv::Point2d> lines_start;
     // corresponding line ending points
@@ -530,20 +529,23 @@ void CameraParameters::calibrateExtrinsicModel(
         }
       }
 
-      // undistort image points (without considering extrensic calibration)
-      std::vector<cv::Point2d> points_undistorted;
-      cv::undistortPoints(points_img,
-          points_undistorted,
+      if (points_img.empty()) {
+        continue;
+      }
+
+      // undistort image points (without considering extrinsic calibration)
+      std::vector<cv::Point2d> points_img_normalized;
+      cv::undistortPoints(points_img, points_img_normalized,
           intrinsic_parameters->camera_mat,
           intrinsic_parameters->dist_coeffs);
 
       // fit a line through the detected calibration image points
-      cv::Vec4f line_img;
-      cv::fitLine(points_undistorted, line_img, cv::DIST_L2, 0, 0.01, 0.01);
+      cv::Vec4d line_img;
+      cv::fitLine(points_img_normalized, line_img, cv::DIST_L2, 0, 0.01, 0.01);
       lines_img_undistorted.push_back(line_img);
       // create a corresponding line in world coordinates
       auto dir = (calibrationData.p2 - calibrationData.p1).norm();
-      cv::Vec4f line_field(dir.x, dir.y, calibrationData.p1.x, calibrationData.p1.y);
+      cv::Vec4d line_field(dir.x, dir.y, calibrationData.p1.x, calibrationData.p1.y);
       lines_field.push_back(line_field);
       // add corresponding start and end points
       lines_start.emplace_back(
@@ -563,8 +565,8 @@ void CameraParameters::calibrateExtrinsicModel(
         auto line_field1 = lines_field[i];
         auto line_field2 = lines_field[j];
 
-        cv::Point2f p_intersection_img_undistorted;
-        cv::Point2f p_intersection_field;
+        cv::Point2d p_intersection_img_undistorted;
+        cv::Point2d p_intersection_field;
         bool found_img = intersection(line_img1, line_img2, p_intersection_img_undistorted);
         bool found_field = intersection(line_field1, line_field2, p_intersection_field);
 
@@ -594,46 +596,73 @@ void CameraParameters::calibrateExtrinsicModel(
                         intrinsic_parameters->camera_mat,
                         intrinsic_parameters->dist_coeffs,
                         points_img_intersect);
-      fieldPoints = points_intersection_field;
-      imagePoints = points_img_intersect;
+      extrinsic_parameters->calib_field_points = points_intersection_field;
+      extrinsic_parameters->calib_image_points = points_img_intersect;
     }
   } else {
     // Use calibration points
     for (uint i = 0; i < p_f.size(); i++) {
-      fieldPoints.emplace_back(p_f[i].x, p_f[i].y, p_f[i].z);
-      imagePoints.emplace_back(p_i[i].x, p_i[i].y);
+      extrinsic_parameters->calib_field_points.emplace_back(p_f[i].x, p_f[i].y, p_f[i].z);
+      extrinsic_parameters->calib_image_points.emplace_back(p_i[i].x, p_i[i].y);
     }
   }
 
-  if (fieldPoints.size() < 4) {
-    std::cerr << "Not enough calibration points: " << fieldPoints.size() << std::endl;
+  if (extrinsic_parameters->calib_field_points.size() < 4) {
+    std::cerr << "Not enough calibration points: " << extrinsic_parameters->calib_field_points.size() << std::endl;
     return;
   }
 
-  // solve
-  cv::solvePnP(
-      fieldPoints,
-      imagePoints,
-      intrinsic_parameters->camera_mat,
-      intrinsic_parameters->dist_coeffs,
-      extrinsic_parameters->rvec,
-      extrinsic_parameters->tvec,
-      false,
-      cv::SOLVEPNP_ITERATIVE
+  std::vector<std::vector<cv::Point3f>> object_points(1);
+  std::vector<std::vector<cv::Point2f>> image_points(1);
+  cv::Size imageSize(2448, 2048);
+  std::vector<cv::Mat> rvecs;
+  std::vector<cv::Mat> tvecs;
+
+  for (auto &point : extrinsic_parameters->calib_field_points) {
+    object_points[0].emplace_back((float) point.x, (float) point.y, (float) point.z);
+  }
+  for (auto &point : extrinsic_parameters->calib_image_points) {
+    image_points[0].emplace_back((float) point.x, (float) point.y);
+  }
+
+  int flags = cv::CALIB_USE_INTRINSIC_GUESS | cv::CALIB_FIX_TANGENT_DIST;
+  if (!(cal_type & FULL_ESTIMATION)) {
+    flags |= cv::CALIB_FIX_K1
+        | cv::CALIB_FIX_K2
+        | cv::CALIB_FIX_K3
+        | cv::CALIB_FIX_FOCAL_LENGTH
+        | cv::CALIB_FIX_PRINCIPAL_POINT;
+  }
+
+  double rms = cv::calibrateCamera(
+        object_points,
+        image_points,
+        imageSize,
+        intrinsic_parameters->camera_mat,
+        intrinsic_parameters->dist_coeffs,
+        rvecs,
+        tvecs,
+        flags,
+        cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 100, DBL_EPSILON)
       );
+  extrinsic_parameters->rvec = rvecs[0];
+  extrinsic_parameters->tvec = tvecs[0];
+
+  std::cout << "Calibration finished with RMS=" << rms << std::endl;
 
   // Update parameters
+  intrinsic_parameters->updateConfigValues();
   extrinsic_parameters->updateConfigValues();
 
   // validate
   std::vector<cv::Point2d> imagePoints_out;
-  cv::projectPoints(fieldPoints, extrinsic_parameters->rvec, extrinsic_parameters->tvec, intrinsic_parameters->camera_mat, intrinsic_parameters->dist_coeffs, imagePoints_out);
+  cv::projectPoints(extrinsic_parameters->calib_field_points, extrinsic_parameters->rvec, extrinsic_parameters->tvec, intrinsic_parameters->camera_mat, intrinsic_parameters->dist_coeffs, imagePoints_out);
   double sum = 0;
   for(uint i = 0; i < imagePoints_out.size(); i++) {
-    auto diff = imagePoints[i] - imagePoints_out[i];
+    auto diff = extrinsic_parameters->calib_image_points[i] - imagePoints_out[i];
     sum += cv::norm(diff) * cv::norm(diff);
   }
-  double rmse = sqrt(sum/ fieldPoints.size());
+  double rmse = sqrt(sum / (double) extrinsic_parameters->calib_field_points.size());
   std::cout << "RMSE: " << rmse << std::endl;
 }
 
@@ -655,10 +684,9 @@ void CameraParameters::calibrate(
 
   if (cal_type & FULL_ESTIMATION) {
     int count_alpha(0); //The number of well detected line segment points
-    std::vector<CalibrationData>::iterator ls_it = calibrationSegments.begin();
+    auto ls_it = calibrationSegments.begin();
     for (; ls_it != calibrationSegments.end(); ls_it++) {
-      std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator
-          pts_it = (*ls_it).imgPts.begin();
+      auto pts_it = (*ls_it).imgPts.begin();
       for (; pts_it != (*ls_it).imgPts.end(); pts_it++) {
         if (pts_it->second) count_alpha ++;
       }
@@ -671,9 +699,8 @@ void CameraParameters::calibrate(
       count_alpha = 0;
       ls_it = calibrationSegments.begin();
       for (; ls_it != calibrationSegments.end(); ls_it++) {
-        std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator
-            pts_it = (*ls_it).imgPts.begin();
-        std::vector< double >::iterator alphas_it = (*ls_it).alphas.begin();
+        auto pts_it = (*ls_it).imgPts.begin();
+        auto alphas_it = (*ls_it).alphas.begin();
         for (; pts_it != (*ls_it).imgPts.end() &&
             alphas_it != (*ls_it).alphas.end(); pts_it++, alphas_it++) {
           if (pts_it->second) {
@@ -725,8 +752,8 @@ void CameraParameters::calibrate(
   while (!stop_optimization) {
     // Calculate Jacobi-Matrix, alpha and beta
     // Iterate over alle point pairs
-    std::vector<GVector::vector3d<double> >::iterator it_p_f  = p_f.begin();
-    std::vector<GVector::vector2d<double> >::iterator it_p_i  = p_i.begin();
+    auto it_p_f  = p_f.begin();
+    auto it_p_i  = p_i.begin();
 
     double epsilon = sqrt(std::numeric_limits<double>::epsilon());
 
@@ -740,7 +767,7 @@ void CameraParameters::calibrate(
       field2image(*it_p_f, proj_p, p);
       proj_p = proj_p - *it_p_i;
 
-      std::vector<int>::iterator it = p_to_est.begin();
+      auto it = p_to_est.begin();
       for (; it != p_to_est.end(); it++) {
         int i = *it;
 
@@ -760,13 +787,11 @@ void CameraParameters::calibrate(
 
     if (cal_type & FULL_ESTIMATION) {
       // First, calculate how many alpha we need to estimate
-      std::vector<CalibrationData>::iterator ls_it =
-          calibrationSegments.begin();
+      auto ls_it = calibrationSegments.begin();
 
       int i = 0;
       for (; ls_it != calibrationSegments.end(); ls_it++) {
-        std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator
-            pts_it = (*ls_it).imgPts.begin();
+        auto pts_it = (*ls_it).imgPts.begin();
         for (; pts_it != (*ls_it).imgPts.end(); pts_it++) {
           if (pts_it->second) {
             GVector::vector2d<double> proj_p;
@@ -782,7 +807,7 @@ void CameraParameters::calibrate(
 
             J.setZero();
 
-            std::vector<int>::iterator it = p_to_est.begin();
+            auto it = p_to_est.begin();
             for (; it != p_to_est.end(); it++) {
               int j = *it;
               Eigen::VectorXd p_diff = p;
@@ -922,8 +947,8 @@ void CameraParameters::calibrate(
 
   // Testing calibration by projecting the four field points into the image
   // plane and calculate MSE
-  std::vector<GVector::vector3d<double> >::iterator it_p_f  = p_f.begin();
-  std::vector<GVector::vector2d<double> >::iterator it_p_i  = p_i.begin();
+  auto it_p_f  = p_f.begin();
+  auto it_p_i  = p_i.begin();
 
   double corner_x(0);
   double corner_y(0);
@@ -951,21 +976,20 @@ void CameraParameters::calibrate(
   double line_x(0);
   double line_y(0);
 
-  std::vector<CalibrationData>::iterator ls_it = calibrationSegments.begin();
+  auto ls_it = calibrationSegments.begin();
 
   int i = 0;
   for (; ls_it != calibrationSegments.end(); ls_it++) {
-    std::vector< std::pair<GVector::vector2d<double>,bool> >::iterator pts_it =
-        (*ls_it).imgPts.begin();
+    auto pts_it = (*ls_it).imgPts.begin();
     for (; pts_it != (*ls_it).imgPts.end(); pts_it++) {
       if (pts_it->second) {
         GVector::vector2d<double> proj_p;
-        double alpha = p_alpha(i);
+        double pts_alpha = p_alpha(i);
         GVector::vector3d<double >alpha_point;
         if (ls_it->straightLine) {
-          alpha_point = alpha * (*ls_it).p1 + (1 - alpha) * (*ls_it).p2;
+          alpha_point = pts_alpha * (*ls_it).p1 + (1 - pts_alpha) * (*ls_it).p2;
         } else {
-          double theta = alpha * (*ls_it).theta1 + (1.0 - alpha) *
+          double theta = pts_alpha * (*ls_it).theta1 + (1.0 - pts_alpha) *
               (*ls_it).theta2;
           alpha_point = ls_it->center +
               ls_it->radius*GVector::vector3d<double>(
@@ -1100,10 +1124,10 @@ generateCameraControlPoints(int cameraId, int numCamerasTotal, double fieldHeigh
   double y1 = -fieldWidth / 2 + yIdx * yStep;
   double y2 = y1 + yStep;
 
-  points.push_back(GVector::vector2d<double>(x1, y1));
-  points.push_back(GVector::vector2d<double>(x1, y2));
-  points.push_back(GVector::vector2d<double>(x2, y2));
-  points.push_back(GVector::vector2d<double>(x2, y1));
+  points.emplace_back(x1, y1);
+  points.emplace_back(x1, y2);
+  points.emplace_back(x2, y2);
+  points.emplace_back(x2, y1);
   return points;
 }
 
@@ -1132,8 +1156,8 @@ CameraParameters::AdditionalCalibrationInformation::~AdditionalCalibrationInform
 
 void CameraParameters::AdditionalCalibrationInformation::addSettingsToList(
     VarList& list) {
-  for (int i = 0; i < kNumControlPoints; ++i) {
-    list.addChild(control_point_set[i]);
+  for (auto & i : control_point_set) {
+    list.addChild(i);
   }
 
   list.addChild(camera_index);
