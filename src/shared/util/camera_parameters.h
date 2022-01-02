@@ -68,6 +68,9 @@ class CameraExtrinsicParameters : public QObject {
   cv::Mat rotation_mat_inv;
   cv::Mat right_side_mat;
 
+  std::vector<cv::Point3d> calib_field_points;
+  std::vector<cv::Point2d> calib_image_points;
+
  public slots:
   void updateRVec();
   void updateTVec();

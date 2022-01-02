@@ -216,6 +216,20 @@ void PluginVisualize::DrawCameraCalibration(
     std::string description = buff;
     vis_frame->data.drawString(bx + 10, by - 2, description, cpoint_draw_color);
   }
+
+  if (camera_parameters.use_opencv_model->getBool()) {
+    int size = 3;
+    int sizeFat = 11;
+    const rgb color = RGB::Pink;
+    for (const auto &point : camera_parameters.extrinsic_parameters->calib_image_points) {
+      int px = (int) point.x - size/2;
+      int py = (int) point.y - size/2;
+      vis_frame->data.drawBox(px, py, size, size, color);
+      int pfx = (int) point.x - sizeFat/2;
+      int pfy = (int) point.y - sizeFat/2;
+      vis_frame->data.drawFatBox(pfx, pfy, sizeFat, sizeFat, color);
+    }
+  }
 }
 
 void PluginVisualize::DrawCalibrationResult(
