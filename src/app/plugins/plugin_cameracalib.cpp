@@ -204,10 +204,11 @@ void PluginCameraCalibration::detectEdgesOnSingleLine(
     Sobel::centerOfLine(
         *grey_image, start_image.x, end_image.x, start_image.y,
         end_image.y, point_image, center_found, kSobelThreshold);
-    calibration_data.imgPts.push_back(std::make_pair(point_image,center_found));
+    CameraParameters::CalibrationDataPoint point(point_image, center_found);
+    calibration_data.points.push_back(point);
     calibration_data.alphas.push_back(alpha);
   }
-  if (calibration_data.imgPts.size() > 2) {
+  if (calibration_data.points.size() > 2) {
     // Need at least two points to uniquely define a line segment.
     camera_parameters.calibrationSegments.push_back(calibration_data);
   }
@@ -271,10 +272,11 @@ void PluginCameraCalibration::detectEdgesOnSingleArc(
     Sobel::centerOfLine(
         *grey_image, start_image.x, end_image.x, start_image.y,
         end_image.y, point_image, center_found, kSobelThreshold);
-    calibration_data.imgPts.push_back(std::make_pair(point_image,center_found));
+    CameraParameters::CalibrationDataPoint point(point_image, center_found);
+    calibration_data.points.push_back(point);
     calibration_data.alphas.push_back(alpha);
   }
-  if (calibration_data.imgPts.size() > 3) {
+  if (calibration_data.points.size() > 3) {
     // Need at least three points to uniquely define a circular arc.
     camera_parameters.calibrationSegments.push_back(calibration_data);
   }

@@ -353,9 +353,10 @@ void PluginVisualize::DrawDetectedEdges(
   for (size_t ls = 0; ls < camera_parameters.calibrationSegments.size(); ++ls) {
     const CameraParameters::CalibrationData& segment =
         camera_parameters.calibrationSegments[ls];
-    for(unsigned int edge=0; edge<segment.imgPts.size(); ++edge) {
-      if (!(segment.imgPts[edge].second)) continue;
-      const GVector::vector2d<double>& image_point = segment.imgPts[edge].first;
+    for(unsigned int edge=0; edge<segment.points.size(); ++edge) {
+      if (!(segment.points[edge].detected)) continue;
+      const GVector::vector2d<double>& image_point = segment.points[edge].img_point;
+      const GVector::vector2d<double>& image_closest_point = segment.points[edge].img_closestPointToSegment;
       vis_frame->data.drawBox(
           image_point.x - 5, image_point.y - 5, 11, 11, edge_draw_color);
       const double alpha = segment.alphas[edge];
@@ -366,6 +367,13 @@ void PluginVisualize::DrawDetectedEdges(
             (segment.p2 - segment.p1).norm();
         DrawEdgeTangent(image_point, field_point, field_tangent, vis_frame,
                         edge_draw_color);
+        if (image_closest_point.nonzero()) {
+          vis_frame->data.drawLine((int)image_point.x,
+                                   (int)image_point.y,
+                                   (int)image_closest_point.x,
+                                   (int)image_closest_point.y,
+                                   RGB::Pink);
+        }
       } else {
         const double angle =
             alpha * segment.theta1 + (1.0 - alpha) * segment.theta2;
