@@ -47,6 +47,17 @@ num offset_to_line(const vector2d<num> x0,const vector2d<num> x1,const vector2d<
   return(n.dot(p - x0));
 }
 
+// returns closest point from point p on line x0-x1
+template <class num>
+vector2d<num> closest_point_on_line(const vector2d<num> x0,const vector2d<num> x1,const vector2d<num> p)
+{
+  vector2d<num> lineDir = x1-x0;
+  lineDir.normalize();
+  vector2d<num> v = p - x0;
+  auto d = v.dot(lineDir);
+  return x0 + lineDir * d;
+}
+
 // returns perpendicular offset from line x0-x1 to point p
 template <class num>
 num offset_along_line(const vector2d<num> x0,const vector2d<num> x1,const vector2d<num> p)
@@ -97,7 +108,7 @@ vector2d<num> intersection(const vector2d<num> a1, const vector2d<num> a2,
   vector2d<num> b2r = (b2 - a1).rotate(-a.angle());
   vector2d<num> br = (b1r - b2r);
 
-  return 
+  return
     vector2d<num>(b2r.x - b2r.y * (br.x / br.y), 0.0).rotate(a.angle()) + a1;
 }
 
@@ -364,11 +375,11 @@ double ray_plane_intersect(vector pOrigin,vector pNormal,
 
 //  return((dot(pNormal,pOrigin) - dot(pNormal,rOrigin)) /
 //         dot(pNormal,rVector));
-  
+
 //  double numer = dot(pNormal,rOrigin) - dot(pNormal,pOrigin);
 //  double denom = dot(pNormal,rVector);
 //  return(-(numer / denom));
-  
+
 }
 
 template <class vector, class real>

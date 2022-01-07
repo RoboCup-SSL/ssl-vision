@@ -80,12 +80,16 @@ class CameraParameters {
   GVector::vector3d<double> getWorldLocation() const;
   void field2image(const GVector::vector3d<double>& p_f, GVector::vector2d<double>& p_i) const;
   void image2field(GVector::vector3d<double>& p_f, const GVector::vector2d<double>& p_i, double z) const;
-  double calibrate(std::vector<GVector::vector3d<double> >& p_f,
+  void calibrate(std::vector<GVector::vector3d<double> >& p_f,
                  std::vector<GVector::vector2d<double> >& p_i,
                  int cal_type);
-  double calibrateExtrinsicModel(std::vector<GVector::vector3d<double> >& p_f,
+  void calibrateExtrinsicModel(std::vector<GVector::vector3d<double> >& p_f,
                                std::vector<GVector::vector2d<double> >& p_i,
                                int cal_type) const;
+  double calculateFourPointRmse(std::vector<GVector::vector3d<double> > &p_f,
+                                std::vector<GVector::vector2d<double> > &p_i) const;
+  void updateCalibrationDataPoints();
+  double calculateCalibrationDataPointsRmse();
 
   /** apply radial distortion to (undistorted) radius ru and return distorted radius */
   double radialDistortion(double ru) const;
@@ -162,6 +166,16 @@ class CameraParameters {
                                                                                double fieldWidth);
   };
 
+  class CalibrationDataPoint {
+   public:
+    CalibrationDataPoint(GVector::vector2d<double> img_point, bool detected);
+    bool detected;
+    GVector::vector2d<double> img_point = {};
+    GVector::vector2d<double> img_closestPointToSegment = {};
+    GVector::vector3d<double> world_point = {};
+    GVector::vector3d<double> world_closestPointToSegment = {};
+  };
+
   /*!
   \class CalibrationData
   \brief Additional structure for holding information about
@@ -190,7 +204,7 @@ class CameraParameters {
     double radius;
 
     // Image points, paired with a bool indicating whether the point was correctly detected
-    std::vector<std::pair<GVector::vector2d<double>, bool> > imgPts;
+    std::vector<CalibrationDataPoint> points;
 
     // Denotes the position along the line or arc. For each point, the
     // location of the point is "alpha * start + (1.0 - alpha) * end" where

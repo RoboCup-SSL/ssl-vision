@@ -396,10 +396,10 @@ double CameraParameters::calc_chisqr(
 
     int i = 0;
     for (; ls_it != calibrationSegments.end(); ls_it++) {
-      auto imgPts_it = (*ls_it).imgPts.begin();
-      for (; imgPts_it != (*ls_it).imgPts.end(); imgPts_it++) {
+      auto imgPts_it = (*ls_it).points.begin();
+      for (; imgPts_it != (*ls_it).points.end(); imgPts_it++) {
         // Integrate only if a valid point on line
-        if (imgPts_it->second) {
+        if (imgPts_it->detected) {
           GVector::vector2d<double> proj_p;
           double alpha = p_alpha(i) + p(STATE_SPACE_DIMENSION + i);
 
@@ -417,10 +417,10 @@ double CameraParameters::calc_chisqr(
           // Project into image plane
           field2image(alpha_point, proj_p, p);
 
-          chisqr += (proj_p.x-imgPts_it->first.x) *
-              (proj_p.x-imgPts_it->first.x) * cov_lsx_inv +
-              (proj_p.y - imgPts_it->first.y) *
-              (proj_p.y - imgPts_it->first.y) * cov_lsy_inv;
+          chisqr += (proj_p.x-imgPts_it->img_point.x) *
+              (proj_p.x-imgPts_it->img_point.x) * cov_lsx_inv +
+              (proj_p.y - imgPts_it->img_point.y) *
+              (proj_p.y - imgPts_it->img_point.y) * cov_lsy_inv;
           i++;
         }
       }
@@ -445,14 +445,99 @@ double CameraParameters::do_calibration(int cal_type) {
   }
 
   if(use_opencv_model->getBool()) {
-    return calibrateExtrinsicModel(p_f, p_i, cal_type);
+    calibrateExtrinsicModel(p_f, p_i, cal_type);
   } else {
-    return calibrate(p_f, p_i, cal_type);
+    calibrate(p_f, p_i, cal_type);
+  }
+
+  updateCalibrationDataPoints();
+  if (cal_type & FOUR_POINT_INITIAL) {
+    return calculateFourPointRmse(p_f, p_i);
+  }
+  return calculateCalibrationDataPointsRmse();
+}
+
+double CameraParameters::calculateFourPointRmse(std::vector<GVector::vector3d<double> > &p_f,
+                                                std::vector<GVector::vector2d<double> > &p_i) const {
+  auto it_p_f  = p_f.begin();
+  auto it_p_i  = p_i.begin();
+  double sum = 0;
+  for (; it_p_f != p_f.end(); it_p_f++, it_p_i++) {
+    GVector::vector2d<double> proj_p;
+    field2image(*it_p_f, proj_p);
+    GVector::vector3d<double> some_point;
+    image2field(some_point,proj_p, 0);
+
+    double diff_x = proj_p.x - it_p_i->x;
+    double diff_y = proj_p.y - it_p_i->y;
+    sum += diff_x * diff_x + diff_y * diff_y;
+  }
+  return sqrt(sum / (double) p_f.size());
+}
+
+void CameraParameters::updateCalibrationDataPoints() {
+  for (auto & segment : calibrationSegments) {
+    if (!segment.straightLine) {
+      continue;
+    }
+
+    for (auto & imgPt : segment.points) {
+      if (imgPt.detected) {
+        image2field(imgPt.world_point, imgPt.img_point, 0.0);
+
+        GVector::vector2d<double> line0(segment.p1.x, segment.p1.y);
+        GVector::vector2d<double> line1(segment.p2.x, segment.p2.y);
+        GVector::vector2d<double> point(imgPt.world_point.x, imgPt.world_point.y);
+        GVector::vector2d<double> closestPoint = GVector::closest_point_on_line(line0, line1, point);
+        imgPt.world_closestPointToSegment.x = closestPoint.x;
+        imgPt.world_closestPointToSegment.y = closestPoint.y;
+        field2image(imgPt.world_closestPointToSegment, imgPt.img_closestPointToSegment);
+      }
+    }
   }
 }
 
-void CameraParameters::reset() const {
+double CameraParameters::calculateCalibrationDataPointsRmse() {
+  double rmse_sum_all = 0;
+  int rmse_cnt_all = 0;
+  for (auto & segment : calibrationSegments) {
+    if (!segment.straightLine) {
+      continue;
+    }
 
+    double rmse_sum_segment = 0;
+    int rmse_cnt_segment = 0;
+
+    for (auto imgPt : segment.points) {
+      if (imgPt.detected) {
+        double distance = (imgPt.img_closestPointToSegment - imgPt.img_point).length();
+        rmse_sum_segment += distance*distance;
+        rmse_cnt_segment++;
+      }
+    }
+    std::cout << "segment ["
+              << segment.p1.x << "," << segment.p1.y
+              << "] -> ["
+              << segment.p2.x << "," << segment.p2.y
+              << "] RMSE: " << sqrt(rmse_sum_segment / rmse_cnt_segment)
+              << std::endl;
+    rmse_sum_all += rmse_sum_segment;
+    rmse_cnt_all += rmse_cnt_segment;
+  }
+  double rmse = sqrt(rmse_sum_all / rmse_cnt_all);
+  std::cout << "Calibration segment RMSE: " << rmse << std::endl;
+  return rmse;
+}
+
+CameraParameters::CalibrationDataPoint::CalibrationDataPoint(GVector::vector2d<double> img_point, bool detected)
+    : detected(detected),
+      img_point(img_point),
+      img_closestPointToSegment(0,0),
+      world_point(0,0,0),
+      world_closestPointToSegment(0,0,0)
+{}
+
+void CameraParameters::reset() const {
   focal_length->resetToDefault();
   principal_point_x->resetToDefault();
   principal_point_y->resetToDefault();
@@ -496,7 +581,7 @@ bool contains(const cv::Rect& rect, const cv::Point2d& pt, double margin) {
          && rect.y - margin <= pt.y && pt.y < rect.y + rect.height + margin * 2;
 }
 
-double CameraParameters::calibrateExtrinsicModel(
+void CameraParameters::calibrateExtrinsicModel(
     std::vector<GVector::vector3d<double>> &p_f,
     std::vector<GVector::vector2d<double>> &p_i,
     int cal_type) const {
@@ -517,7 +602,7 @@ double CameraParameters::calibrateExtrinsicModel(
 
   if (calib_field_points.size() < 4) {
     std::cerr << "Not enough calibration points: " << calib_field_points.size() << std::endl;
-    return -1;
+    return;
   }
 
   std::vector<std::vector<cv::Point3f>> object_points(1);
@@ -583,17 +668,6 @@ double CameraParameters::calibrateExtrinsicModel(
   // Update parameters
   intrinsic_parameters->updateConfigValues();
   extrinsic_parameters->updateConfigValues();
-
-  // validate
-  std::vector<cv::Point2d> imagePoints_out;
-  cv::projectPoints(calib_field_points, extrinsic_parameters->rvec, extrinsic_parameters->tvec, intrinsic_parameters->camera_mat, intrinsic_parameters->dist_coeffs, imagePoints_out);
-  double sum = 0;
-  for(uint i = 0; i < imagePoints_out.size(); i++) {
-    auto diff = calib_image_points[i] - imagePoints_out[i];
-    sum += cv::norm(diff) * cv::norm(diff);
-  }
-  double rmse = sqrt(sum / (double) calib_field_points.size());
-  return rmse;
 }
 
 void CameraParameters::detectCalibrationCorners() {
@@ -617,10 +691,9 @@ void CameraParameters::detectCalibrationCorners() {
 
     // collect all valid image points
     vector<cv::Point2d> points_img;
-    for (auto imgPt : calibrationData.imgPts) {
-      bool detected = imgPt.second;
-      if (detected) {
-        auto p_img = imgPt.first;
+    for (auto point : calibrationData.points) {
+      if (point.detected) {
+        auto p_img = point.img_point;
         points_img.emplace_back(p_img.x, p_img.y);
       }
     }
@@ -691,7 +764,7 @@ void CameraParameters::detectCalibrationCorners() {
   }
 }
 
-double CameraParameters::calibrate(
+void CameraParameters::calibrate(
     std::vector<GVector::vector3d<double> > &p_f,
     std::vector<GVector::vector2d<double> > &p_i, int cal_type) {
   assert(p_f.size() == p_i.size());
@@ -711,9 +784,9 @@ double CameraParameters::calibrate(
     int count_alpha(0); //The number of well detected line segment points
     auto ls_it = calibrationSegments.begin();
     for (; ls_it != calibrationSegments.end(); ls_it++) {
-      auto pts_it = (*ls_it).imgPts.begin();
-      for (; pts_it != (*ls_it).imgPts.end(); pts_it++) {
-        if (pts_it->second) count_alpha ++;
+      auto pts_it = (*ls_it).points.begin();
+      for (; pts_it != (*ls_it).points.end(); pts_it++) {
+        if (pts_it->detected) count_alpha ++;
       }
     }
 
@@ -724,11 +797,11 @@ double CameraParameters::calibrate(
       count_alpha = 0;
       ls_it = calibrationSegments.begin();
       for (; ls_it != calibrationSegments.end(); ls_it++) {
-        auto pts_it = (*ls_it).imgPts.begin();
+        auto pts_it = (*ls_it).points.begin();
         auto alphas_it = (*ls_it).alphas.begin();
-        for (; pts_it != (*ls_it).imgPts.end() &&
+        for (; pts_it != (*ls_it).points.end() &&
             alphas_it != (*ls_it).alphas.end(); pts_it++, alphas_it++) {
-          if (pts_it->second) {
+          if (pts_it->detected) {
             p_alpha(count_alpha++) = (*alphas_it);
           }
         }
@@ -816,9 +889,9 @@ double CameraParameters::calibrate(
 
       int i = 0;
       for (; ls_it != calibrationSegments.end(); ls_it++) {
-        auto pts_it = (*ls_it).imgPts.begin();
-        for (; pts_it != (*ls_it).imgPts.end(); pts_it++) {
-          if (pts_it->second) {
+        auto pts_it = (*ls_it).points.begin();
+        for (; pts_it != (*ls_it).points.end(); pts_it++) {
+          if (pts_it->detected) {
             GVector::vector2d<double> proj_p;
             GVector::vector3d<double >alpha_point;
             if (ls_it->straightLine) {
@@ -828,7 +901,7 @@ double CameraParameters::calibrate(
               alpha_point = ls_it->center + ls_it->radius*GVector::vector3d<double>(cos(theta),sin(theta),0.0);
             }
             field2image(alpha_point, proj_p, p);
-            proj_p = proj_p - (*pts_it).first;
+            proj_p = proj_p - (*pts_it).img_point;
 
             J.setZero();
 
@@ -839,9 +912,9 @@ double CameraParameters::calibrate(
               p_diff(j) = p_diff(j) + epsilon;
               GVector::vector2d<double> proj_p_diff;
               field2image(alpha_point, proj_p_diff, p_diff);
-              J(0,j) = ((proj_p_diff.x - (*pts_it).first.x) - proj_p.x) /
+              J(0,j) = ((proj_p_diff.x - (*pts_it).img_point.x) - proj_p.x) /
                   epsilon;
-              J(1,j) = ((proj_p_diff.y - (*pts_it).first.y) - proj_p.y) /
+              J(1,j) = ((proj_p_diff.y - (*pts_it).img_point.y) - proj_p.y) /
                   epsilon;
             }
 
@@ -861,9 +934,9 @@ double CameraParameters::calibrate(
             GVector::vector2d<double> proj_p_diff;
             field2image(alpha_point, proj_p_diff);
             J(0,STATE_SPACE_DIMENSION + i) =
-                ((proj_p_diff.x - (*pts_it).first.x) - proj_p.x) / epsilon;
+                ((proj_p_diff.x - (*pts_it).img_point.x) - proj_p.x) / epsilon;
             J(1,STATE_SPACE_DIMENSION + i) =
-                ((proj_p_diff.y - (*pts_it).first.y) - proj_p.y) / epsilon;
+                ((proj_p_diff.y - (*pts_it).img_point.y) - proj_p.y) / epsilon;
 
             alpha += J.transpose() * cov_ls_inv * J;
             beta += J.transpose() * cov_ls_inv *
@@ -982,7 +1055,7 @@ double CameraParameters::calibrate(
     GVector::vector2d<double> proj_p;
     field2image(*it_p_f, proj_p);
     GVector::vector3d<double> some_point;
-    image2field(some_point,proj_p, 150);
+    image2field(some_point,proj_p, 0);
     std::cerr << "Point in world: ("<< it_p_f->x << "," << it_p_f->y << ","
               << it_p_f->z  << ")" << std::endl;
     std::cerr << "Point should be at (" << it_p_i->x << "," << it_p_i->y
@@ -993,7 +1066,7 @@ double CameraParameters::calibrate(
     double diff_y = proj_p.y - it_p_i->y;
     corner_x += diff_x * diff_x;
     corner_y += diff_y * diff_y;
-    corner_sum += sqrt(diff_x * diff_x + diff_y * diff_y);
+    corner_sum += diff_x * diff_x + diff_y * diff_y;
   }
 
   std::cerr << "RESIDUAL CORNER POINTS: "
@@ -1011,9 +1084,9 @@ double CameraParameters::calibrate(
 
   int i = 0;
   for (; ls_it != calibrationSegments.end(); ls_it++) {
-    auto pts_it = (*ls_it).imgPts.begin();
-    for (; pts_it != (*ls_it).imgPts.end(); pts_it++) {
-      if (pts_it->second) {
+    auto pts_it = (*ls_it).points.begin();
+    for (; pts_it != (*ls_it).points.end(); pts_it++) {
+      if (pts_it->detected) {
         GVector::vector2d<double> proj_p;
         double pts_alpha = p_alpha(i);
         GVector::vector3d<double >alpha_point;
@@ -1029,8 +1102,8 @@ double CameraParameters::calibrate(
 
         field2image(alpha_point, proj_p, p);
 
-        line_x += (proj_p.x - pts_it->first.x) * (proj_p.x - pts_it->first.x);
-        line_y += (proj_p.y - pts_it->first.y) * (proj_p.y - pts_it->first.y);
+        line_x += (proj_p.x - pts_it->img_point.x) * (proj_p.x - pts_it->img_point.x);
+        line_y += (proj_p.y - pts_it->img_point.y) * (proj_p.y - pts_it->img_point.y);
 
         i++;
       }
@@ -1042,9 +1115,8 @@ double CameraParameters::calibrate(
               << sqrt(line_y/(double)i) << std::endl;
   }
  }
- return sqrt(corner_sum/4);
 #else
-  return -1;
+  return;
 #endif
 }
 
