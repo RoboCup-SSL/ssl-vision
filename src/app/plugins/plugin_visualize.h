@@ -61,6 +61,7 @@ protected:
   VarBool * _v_thresholded;
   VarBool * _v_blobs;
   VarBool * _v_camera_calibration;
+  VarBool * _v_camera_calibration_markers;
   VarBool * _v_calibration_result;
   VarBool * _v_calibration_result_pillars;
   VarDouble * _v_calibration_result_pillars_height;
@@ -95,6 +96,7 @@ protected:
   void DrawBlobs(FrameData* data, VisualizationFrame* vis_frame);
 
   void DrawCameraCalibration(FrameData* data, VisualizationFrame* vis_frame);
+  void DrawCameraCalibrationMarkers(FrameData* data, VisualizationFrame* vis_frame);
 
   void DrawCalibrationResult(FrameData* data, VisualizationFrame* vis_frame);
 
