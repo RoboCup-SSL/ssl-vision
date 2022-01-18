@@ -41,6 +41,7 @@ PluginVisualize::PluginVisualize(
   _v_thresholded = new VarBool("thresholded", true);
   _v_blobs = new VarBool("blobs", true);
   _v_camera_calibration = new VarBool("camera calibration", true);
+  _v_camera_calibration_markers = new VarBool("camera calibration markers", false);
   _v_calibration_result = new VarBool("calibration result", true);
   _v_calibration_result_pillars = new VarBool("calibration result pillars", false);
   _v_calibration_result_pillars_height = new VarDouble("calibration result pillars height", 150.0);
@@ -58,6 +59,7 @@ PluginVisualize::PluginVisualize(
   _settings->addChild(_v_thresholded);
   _settings->addChild(_v_blobs);
   _settings->addChild(_v_camera_calibration);
+  _settings->addChild(_v_camera_calibration_markers);
   _settings->addChild(_v_calibration_result);
   _settings->addChild(_v_calibration_result_pillars);
   _settings->addChild(_v_calibration_result_pillars_height);
@@ -216,7 +218,10 @@ void PluginVisualize::DrawCameraCalibration(
     std::string description = buff;
     vis_frame->data.drawString(bx + 10, by - 2, description, cpoint_draw_color);
   }
+}
 
+void PluginVisualize::DrawCameraCalibrationMarkers(
+    FrameData* data, VisualizationFrame* vis_frame) {
   if (camera_parameters.use_opencv_model->getBool()) {
     int size = 3;
     int sizeFat = 11;
@@ -231,6 +236,7 @@ void PluginVisualize::DrawCameraCalibration(
     }
   }
 }
+
 
 void PluginVisualize::DrawCalibrationResult(
     FrameData* data, VisualizationFrame* vis_frame) {
@@ -487,6 +493,11 @@ ProcessResult PluginVisualize::process(
     // Camera calibration
     if (_v_camera_calibration->getBool()) {
       DrawCameraCalibration(data, vis_frame);
+    }
+
+    // Camera calibration
+    if (_v_camera_calibration_markers->getBool()) {
+      DrawCameraCalibrationMarkers(data, vis_frame);
     }
 
     // Result of camera calibration, draws field to image
