@@ -165,6 +165,8 @@ Q_OBJECT
 protected:
   VarList* settings;
   VarTrigger* updateShapes;
+  VarTrigger* applyDivisionA;
+  VarTrigger* applyDivisionB;
 public:
   VarList* getSettings() const {
     return settings;
@@ -217,6 +219,8 @@ protected slots:
     calibrationChanged();
   }
   void updateFieldLinesAndArcs();
+  void applyGeometryDivisionA();
+  void applyGeometryDivisionB();
 };
 
 

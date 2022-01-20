@@ -32,18 +32,37 @@ class FieldCircularArc;
 namespace FieldConstantsRoboCup2018A {
     const double kFieldLength = 12000.0;
     const double kFieldWidth = 9000.0;
-    const double kGoalWidth = 1200.0;
+    const double kGoalWidth = 1800.0;
     const double kGoalDepth = 180.0;
     const double kGoalHeight = 155.0;
-    const double kBoundaryWidth = 250.0;
+    const double kBoundaryWidth = 300.0;
     const double kLineThickness = 10.0;
-    const double kPenaltyAreaDepth = 1200.0;
-    const double kPenaltyAreaWidth = 2400.0;
+    const double kPenaltyAreaDepth = 1800.0;
+    const double kPenaltyAreaWidth = 3600.0;
     const double kCenterCircleRadius = 500.0;
     const double kGoalLineToPenaltyMark = 8000.0;
     const double kBallRadius = 21.5;
     const double kMaxRobotRadius = 90.0;
     const int kNumCamerasTotal = 2;
-    const int kNumCamerasLocal = 2;
+    const int kNumCamerasLocal = 1;
 }
-#endif // FIELD_H
+
+namespace FieldConstantsRoboCup2018B {
+    const double kFieldLength = 9000.0;
+    const double kFieldWidth = 6000.0;
+    const double kGoalWidth = 1000.0;
+    const double kGoalDepth = 180.0;
+    const double kGoalHeight = 155.0;
+    const double kBoundaryWidth = 300.0;
+    const double kLineThickness = 10.0;
+    const double kPenaltyAreaDepth = 1000.0;
+    const double kPenaltyAreaWidth = 2000.0;
+    const double kCenterCircleRadius = 500.0;
+    const double kGoalLineToPenaltyMark = 6000.0;
+    const double kBallRadius = 21.5;
+    const double kMaxRobotRadius = 90.0;
+    const int kNumCamerasTotal = 1;
+    const int kNumCamerasLocal = 1;
+}
+
+#endif // FIELD_DEFAULT_CONSTANTS_H
