@@ -362,6 +362,8 @@ RoboCupField::RoboCupField() {
        "Local Number of Cameras", FieldConstantsRoboCup2018A::kNumCamerasLocal);
 
   updateShapes = new VarTrigger("Field Lines/Arcs","Update");
+  applyDivisionA = new VarTrigger("Division A", "Apply");
+  applyDivisionB = new VarTrigger("Division B", "Apply");
   var_num_lines = new VarInt("Number of Line Segments", 0);
   var_num_arcs = new VarInt("Number of Arcs", 0);
   field_lines_list = new VarList("Field Lines");
@@ -370,6 +372,8 @@ RoboCupField::RoboCupField() {
   field_models = new RoboCupFieldModels();
 
   settings->addChild(field_models->settings);
+  settings->addChild(applyDivisionA);
+  settings->addChild(applyDivisionB);
   settings->addChild(field_length);
   settings->addChild(field_width);
   settings->addChild(goal_width);
@@ -393,6 +397,8 @@ RoboCupField::RoboCupField() {
   settings->addChild(field_arcs_list);
 
   connect(updateShapes,SIGNAL(wasEdited(VarType*)),this,SLOT(updateFieldLinesAndArcs()));
+  connect(applyDivisionA,SIGNAL(wasEdited(VarType*)),this,SLOT(applyGeometryDivisionA()));
+  connect(applyDivisionB,SIGNAL(wasEdited(VarType*)),this,SLOT(applyGeometryDivisionB()));
   connect(var_num_lines, SIGNAL(wasEdited(VarType*)),
           this, SLOT(ResizeFieldLines()));
   connect(var_num_arcs, SIGNAL(wasEdited(VarType*)),
@@ -448,6 +454,42 @@ RoboCupField::~RoboCupField() {
   delete settings;
 }
 
+void RoboCupField::applyGeometryDivisionA() {
+    field_length->setDouble(FieldConstantsRoboCup2018A::kFieldLength);
+    field_width->setDouble(FieldConstantsRoboCup2018A::kFieldWidth);
+    goal_width->setDouble(FieldConstantsRoboCup2018A::kGoalWidth);
+    goal_depth->setDouble(FieldConstantsRoboCup2018A::kGoalDepth);
+    goal_height->setDouble(FieldConstantsRoboCup2018A::kGoalHeight);
+    boundary_width->setDouble(FieldConstantsRoboCup2018A::kBoundaryWidth);
+    line_thickness->setDouble(FieldConstantsRoboCup2018A::kLineThickness);
+    penalty_area_depth->setDouble(FieldConstantsRoboCup2018A::kPenaltyAreaDepth);
+    penalty_area_width->setDouble(FieldConstantsRoboCup2018A::kPenaltyAreaWidth);
+    goal_center_to_penalty_mark->setDouble(FieldConstantsRoboCup2018A::kGoalLineToPenaltyMark);
+    center_circle_radius->setDouble(FieldConstantsRoboCup2018A::kCenterCircleRadius);
+    ball_radius->setDouble(FieldConstantsRoboCup2018A::kBallRadius);
+    max_robot_radius->setDouble(FieldConstantsRoboCup2018A::kMaxRobotRadius);
+    num_cameras_total->setDouble(FieldConstantsRoboCup2018A::kNumCamerasTotal);
+    num_cameras_local->setDouble(FieldConstantsRoboCup2018A::kNumCamerasLocal);
+}
+
+void RoboCupField::applyGeometryDivisionB() {
+    field_length->setDouble(FieldConstantsRoboCup2018B::kFieldLength);
+    field_width->setDouble(FieldConstantsRoboCup2018B::kFieldWidth);
+    goal_width->setDouble(FieldConstantsRoboCup2018B::kGoalWidth);
+    goal_depth->setDouble(FieldConstantsRoboCup2018B::kGoalDepth);
+    goal_height->setDouble(FieldConstantsRoboCup2018B::kGoalHeight);
+    boundary_width->setDouble(FieldConstantsRoboCup2018B::kBoundaryWidth);
+    line_thickness->setDouble(FieldConstantsRoboCup2018B::kLineThickness);
+    penalty_area_depth->setDouble(FieldConstantsRoboCup2018B::kPenaltyAreaDepth);
+    penalty_area_width->setDouble(FieldConstantsRoboCup2018B::kPenaltyAreaWidth);
+    goal_center_to_penalty_mark->setDouble(FieldConstantsRoboCup2018B::kGoalLineToPenaltyMark);
+    center_circle_radius->setDouble(FieldConstantsRoboCup2018B::kCenterCircleRadius);
+    ball_radius->setDouble(FieldConstantsRoboCup2018B::kBallRadius);
+    max_robot_radius->setDouble(FieldConstantsRoboCup2018B::kMaxRobotRadius);
+    num_cameras_total->setDouble(FieldConstantsRoboCup2018B::kNumCamerasTotal);
+    num_cameras_local->setDouble(FieldConstantsRoboCup2018B::kNumCamerasLocal);
+}
+
 SSL_FieldShapeType RoboCupField::parseShapeType(const VarStringEnum* value) const {
   std::string type = value->getString();
   if(shapeTypeMap.find(type) != shapeTypeMap.end()) {
@@ -472,7 +514,7 @@ void RoboCupField::toProtoBuffer(SSL_GeometryFieldSize& buffer) const {
   buffer.set_goal_height((int) goal_height->getDouble());
   buffer.set_ball_radius((float) ball_radius->getDouble());
   buffer.set_max_robot_radius((float) max_robot_radius->getDouble());
-  
+
   for (size_t i = 0; i < field_lines.size(); ++i) {
     const FieldLine& line = *(field_lines[i]);
     SSL_FieldLineSegment proto_line;
