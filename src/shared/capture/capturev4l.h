@@ -113,7 +113,7 @@ public:
     bool setControl(int ctrl_id,long s);
     bool checkControl(int ctrl_id, bool *bEnabled=NULL, bool *bReadOnly=NULL,
                       long *lDefault=NULL, long *lMin=NULL, long *lMax=NULL);
-    bool startStreaming(int iWidth_, int iHeight_, uint32_t pixel_format, int iInput=0);
+    bool startStreaming(int iWidth_, int iHeight_, uint32_t pixel_format, int framerate, int iInput=0);
     bool stopStreaming();
     
     void captureWarm(int iMaxSpin=1);
