@@ -353,7 +353,7 @@ bool GlobalV4Linstance::waitForFrame(int max_msec)
     return(n==1 && (pollset.revents & POLLIN)!=0);
 }
 
-bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, uint32_t pixel_format, int iInputIdx)
+bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, uint32_t pixel_format, int framerate, int iInputIdx)
 {
     struct v4l2_requestbuffers req;
     
@@ -396,6 +396,14 @@ bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, uint32_t pixel
     if(!xioctl(VIDIOC_REQBUFS, &req, "Request Buffers") || req.count != V4L_STREAMBUFS) {
         printf("REQBUFS returned error, count %d\n", req.count);
         return(false);
+    }
+
+    struct v4l2_streamparm parm;
+    parm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    parm.parm.capture.timeperframe.numerator = 1;
+    parm.parm.capture.timeperframe.denominator = framerate;
+    if (!xioctl(VIDIOC_S_PARM, &parm, "SetParm")) {
+        printf("Warning: Could not set parameters, '%s'; was device previously started?\n", szDevice);
     }
     
     // set up individual buffers
@@ -1341,7 +1349,7 @@ bool CaptureV4L::startCapture()
     //TODO: map cature_format to VFL format
     //  http://linuxtv.org/downloads/v4l-dvb-apis/yuv-formats.html
     
-    if (!camera_instance->startStreaming(width, height, pixel_format)) {
+    if (!camera_instance->startStreaming(width, height, pixel_format, fps)) {
         fprintf(stderr,"CaptureV4L Error: unable to setup capture. Maybe selected combination of Format/Resolution is not supported?\n");
         mutex.unlock();
         cleanup();
