@@ -583,6 +583,8 @@ bool GlobalV4Linstance::getImageFromJPEG(
     JSAMPROW row_ptr = &out_img->getData()[row_stride * row];
     jpeg_read_scanlines(&dinfo, &row_ptr, 1);
   }
+  // freeing jpeg_decompress_struct memory
+  jpeg_destroy_decompress(&dinfo);
   return true;
 }
 
