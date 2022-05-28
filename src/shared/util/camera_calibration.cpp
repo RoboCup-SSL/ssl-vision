@@ -736,15 +736,31 @@ void CameraParameters::detectCalibrationCorners() {
 
       cv::Rect2d rect_line1(lines_start[i], lines_end[i]);
       cv::Rect2d rect_line2(lines_start[j], lines_end[j]);
-      if (found_img &&
-          found_field
+      if (found_img
+          && found_field
           // check if intersection is on line segment
-          && contains(rect_line1, p_intersection_field, 10) && contains(rect_line2, p_intersection_field, 10)) {
+          && contains(rect_line1, p_intersection_field, 10)
+          && contains(rect_line2, p_intersection_field, 10)
+          && p_intersection_img_undistorted.x >= 0
+          && p_intersection_img_undistorted.y >= 0
+          && p_intersection_img_undistorted.x < additional_calibration_information->imageWidth->getInt()
+          && p_intersection_img_undistorted.y < additional_calibration_information->imageHeight->getInt()) {
         cv::Point3d p_intersection_img_undistorted_3d(
             p_intersection_img_undistorted.x, p_intersection_img_undistorted.y, 0);
         points_intersection_img_undistorted.push_back(p_intersection_img_undistorted_3d);
         cv::Point3d p_intersection_field_3d(p_intersection_field.x, p_intersection_field.y, 0);
         points_intersection_field.push_back(p_intersection_field_3d);
+      } else {
+        std::cout << "No calibration points found for "
+            << line_field1 << " -> " << line_field2
+            << "( " << line_img1 << " -> " << line_img2 << " )"
+            << std::endl
+            << "found_img: " << found_img
+            << "found_field: " << found_field
+            << std::endl
+            << "intersection img: " << p_intersection_img_undistorted
+            << "intersection_field: " << p_intersection_field
+            << std::endl;
       }
     }
   }
