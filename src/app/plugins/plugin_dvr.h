@@ -98,6 +98,7 @@ class DVRStream
   //TODO: add partial memory buffering for long video streams.
   protected:
     QList<DVRFrame *> frames;
+    QList<SSL_DetectionFrame *> detection_frames;
     int limit;
     int current;
   public:
@@ -110,6 +111,7 @@ class DVRStream
     void saveStream(QString directory);
     void clear();
     void appendFrame(FrameData * data, bool shift_stream_on_limit_exceed);
+    void appendDetectionFrame(SSL_DetectionFrame * frame, bool shift_stream_on_limit_exceed);
     void seek(int frame);
     int getFrameCount();
     void advance(int frames, bool wrap);
@@ -119,6 +121,7 @@ class DVRStream
     DVRFrame * getFrame(int i);
     DVRFrame * getCurrentFrame();
 
+    SSL_DetectionFrame * getDetectionFrame(int i);
 };
 
 /**
