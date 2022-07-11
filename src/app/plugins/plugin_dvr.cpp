@@ -20,6 +20,9 @@
 //========================================================================
 #include "plugin_dvr.h"
 
+#include <google/protobuf/util/json_util.h>
+#include <fstream>
+
 PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFlags f) : QWidget(parent,f) {
   layout_main=new QVBoxLayout();
 
@@ -370,6 +373,24 @@ void PluginDVR::slotMovieSave() {
           output.save(filename.toStdString());
         }
       }
+
+      // If there is an SSL_DetectionFrame, serialize it to JSON and store in a file next to the camera image
+      SSL_DetectionFrame* detection_frame = stream.getDetectionFrame(i);
+      if(detection_frame){
+        // Convert SSL_DetectionFrame to JSON
+        std::string json_string;
+        google::protobuf::util::MessageToJsonString(*detection_frame, &json_string);
+        // Create filename
+        QString num = QString::number(i);
+        num = "00000" + num;
+        num = num.right(5);
+        QString filename = dir + "/" + num + ".json";
+        // Create file and write JSON to file
+        std::ofstream json_file(filename.toStdString());
+        json_file << json_string;
+        json_file.close();
+      }
+
       if (dlg->wasCanceled()) break;
     }
   }
@@ -415,6 +436,7 @@ void DVRFrame::getFromFrameData(FrameData * data) {
 }
 
 ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
+
   (void)options;
   QString status;
   QString stream_info;
@@ -432,6 +454,13 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
     if (is_recording) {
       stream.setLimit(_max_frames->getInt());
       stream.appendFrame(data,_shift_on_exceed->getBool());
+
+      // If there is an SSL_DetectionFrame present, store it
+      SSL_DetectionFrame* detection_frame = (SSL_DetectionFrame *)data->map.get("ssl_detection_frame");
+      if(detection_frame) {
+        stream.appendDetectionFrame(detection_frame, _shift_on_exceed->getBool());
+      }
+
       status = "Recording (Frame " + QString::number(stream.getFrameCount()) + ").";
       if (stream.getFrameCount() >= stream.getLimit()) {
         if (_shift_on_exceed->getBool()) {
@@ -545,6 +574,22 @@ void DVRStream::appendFrame(FrameData * data, bool shift_stream_on_limit_exceed)
   frames.append(f);
 }
 
+void DVRStream::appendDetectionFrame(SSL_DetectionFrame * frame, bool shift_stream_on_limit_exceed){
+  if (limit!=0 && ((getFrameCount() + 1) > limit)) {
+    if (shift_stream_on_limit_exceed) {
+      SSL_DetectionFrame * f = detection_frames[0];
+      delete f;
+      frames.removeFirst();
+      if (current > 0) current--;
+    } else {
+      return;
+    }
+  }
+  SSL_DetectionFrame * f = new SSL_DetectionFrame();
+  f->CopyFrom(*frame);
+  detection_frames.append(f);
+}
+
 void DVRStream::seek(int frame) {
   if (frame >= getFrameCount()) frame=getFrameCount()-1;
   if (frame < 0) frame=0;
@@ -606,4 +651,10 @@ DVRFrame * DVRStream::getFrame(int i) {
   if (current >= frames.size()) return 0;
   if (i < 0) return 0;
   return frames[i];
+}
+
+SSL_DetectionFrame * DVRStream::getDetectionFrame(int i) {
+  if (current >= detection_frames.size()) return 0;
+  if (i < 0) return 0;
+  return detection_frames[i];
 }
