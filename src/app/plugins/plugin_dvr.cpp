@@ -530,7 +530,7 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
         using namespace std::chrono;
         long current_ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
         float interval_ms = 1000 / fps_limit;
-        if (interval_ms < current_ms - rec_continuous_last_timestamp) {
+        if (!_fps_limit_enable->getBool() || interval_ms < current_ms - rec_continuous_last_timestamp) {
           // If the output directory is given
           if (!rec_continuous_dir.isNull() and !rec_continuous_dir.isEmpty()) {
             // Update the timestamp of the last frame stored
