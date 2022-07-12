@@ -21,6 +21,7 @@
 #include "plugin_dvr.h"
 
 #include <google/protobuf/util/json_util.h>
+#include <chrono>
 #include <fstream>
 
 PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFlags f) : QWidget(parent,f) {
@@ -75,6 +76,8 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
 
   btn_rec_rec = new QToolButton();
   btn_rec_rec->setToolTip("Record");
+  btn_rec_continuous = new QToolButton();
+  btn_rec_continuous->setToolTip("Continuously record and save");
   btn_rec_new = new QToolButton();
   btn_rec_new->setToolTip("New Recording");
   btn_rec_load = new QToolButton();
@@ -85,6 +88,9 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
   btn_rec_rec->setIcon(QIcon(":/icons/media-record.png"));
   btn_rec_rec->setIconSize(QSize(mode_icon_size,mode_icon_size));
 
+  btn_rec_continuous->setIcon(QIcon(":/icons/view-refresh.png"));
+  btn_rec_continuous->setIconSize(QSize(mode_icon_size,mode_icon_size));
+
   btn_rec_new->setIcon(QIcon(":/icons/document-new.png"));
   btn_rec_new->setIconSize(QSize(mode_icon_size,mode_icon_size));
 
@@ -94,6 +100,7 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
   btn_rec_save->setIcon(QIcon(":/icons/document-save.png"));
   btn_rec_save->setIconSize(QSize(mode_icon_size,mode_icon_size));
 
+  connect(btn_rec_continuous,SIGNAL(clicked(bool)),dvr,SLOT(slotRecordContinuousToggled()));
   connect(btn_rec_new,SIGNAL(clicked(bool)),dvr,SLOT(slotMovieNew()));
   connect(btn_rec_load,SIGNAL(clicked(bool)),dvr,SLOT(slotMovieLoad()));
   connect(btn_rec_save,SIGNAL(clicked(bool)),dvr,SLOT(slotMovieSave()));
@@ -143,7 +150,6 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
   btn_seek_wrap->setIconSize(QSize(16,16));
 
   layout_rec = new QHBoxLayout();
-  layout_rec->addWidget(btn_rec_rec);
   layout_rec->addWidget(btn_rec_new);
   layout_rec->addWidget(btn_rec_load);
   layout_rec->addWidget(btn_rec_save);
@@ -164,6 +170,7 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
   box_subseek->setLayout(layout_subseek);
 
   btn_rec_rec->setCheckable(true);
+  btn_rec_continuous->setCheckable(true);
 
   btn_seek_pause->setCheckable(true);
   btn_seek_play->setCheckable(true);
@@ -175,12 +182,11 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
 
   btn_seek_wrap->setCheckable(true);
 
-    btn_seek_live->setChecked(true);
+  btn_seek_live->setChecked(true);
 
   connect(btn_seek_pause,SIGNAL(toggled(bool)),dvr,SLOT(slotSeekModeToggled()));
   connect(btn_seek_play,SIGNAL(toggled(bool)),dvr,SLOT(slotSeekModeToggled()));
   connect(btn_seek_live,SIGNAL(toggled(bool)),dvr,SLOT(slotSeekModeToggled()));
-
 
   connect(btn_seek_front,SIGNAL(clicked(bool)),dvr,SLOT(slotSeekFrameFirst()));
   connect(btn_seek_end,SIGNAL(clicked(bool)),dvr,SLOT(slotSeekFrameLast()));
@@ -189,6 +195,8 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
 
   layout_seek = new QHBoxLayout();
   layout_seek->addWidget(btn_rec_rec);
+  layout_seek->addSpacing(20);
+  layout_seek->addWidget(btn_rec_continuous);
   layout_seek->addSpacing(20);
   layout_seek->addWidget(btn_seek_pause);
   layout_seek->addWidget(btn_seek_play);
@@ -260,6 +268,33 @@ void PluginDVR::slotModeToggled() {
 DVRFrame::~DVRFrame() {
   video.setData(0);
 }
+
+void PluginDVR::slotRecordContinuousToggled(){
+  is_recording_continuous = false;
+
+  // Return if continuous recording is disabled
+  if(!w->btn_rec_continuous->isChecked()) return;
+
+  // If the FPS limiter is not enabled, inform the user
+  if(!_fps_limit_enable->getBool()){
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(w, "Warning! FPS limiter not enabled!", "The FPS limiter is not enabled. Writing all "
+                                  "frames could take a toll on your computer. You can enable the FPS limiter on the "
+                                  "left under DVR Settings. Do you still want to continue?", QMessageBox::Yes | QMessageBox::No);
+
+    if(reply == QMessageBox::No){
+      w->btn_rec_continuous->setChecked(false);
+      return;
+    }
+  }
+
+  // Ask the user where to store the recordings
+  rec_continuous_dir = QFileDialog::getExistingDirectory(0,"Select Directory to store", "",
+      QFileDialog::DontUseNativeDialog | QFileDialog::ShowDirsOnly);
+
+  is_recording_continuous = true;
+}
+
 void PluginDVR::slotSeekFrameFirst() {
   lock();
     stream.seek(0);
@@ -346,7 +381,6 @@ void PluginDVR::slotMovieLoad() {
 void PluginDVR::slotMovieSave() {
   lock();
   QString dir = QFileDialog::getExistingDirectory(0,"Select Directory to Save");
-  rgbImage output;
   QProgressDialog * dlg = new QProgressDialog("Saving Movie to PNG Files...","Cancel", 1,stream.getFrameCount());
   dlg->setWindowModality(Qt::WindowModal);
 
@@ -355,40 +389,12 @@ void PluginDVR::slotMovieSave() {
       DVRFrame * f = stream.getFrame(i);
       dlg->setValue(i+1);
       if (f!=0) {
-        ColorFormat fmt=f->video.getColorFormat();
-        output.allocate(f->video.getWidth(),f->video.getHeight());
-        if (fmt==COLOR_YUV422_UYVY) {
-          Conversions::uyvy2rgb(f->video.getData(),output.getData(),f->video.getWidth(),f->video.getHeight());
-        } else if (fmt==COLOR_RGB8) {
-          memcpy(output.getData(),f->video.getData(),f->video.getNumBytes());
-        } else {
-          output.allocate(0,0);
-        }
-        if (output.getNumBytes() > 0) {
-          //write file:
-          QString num = QString::number(i);
-          num = "00000" + num;
-          num = num.right(5);
-          QString filename = dir + "/" + num + ".png";
-          output.save(filename.toStdString());
-        }
+        saveFrame(*f, dir, i);
       }
 
-      // If there is an SSL_DetectionFrame, serialize it to JSON and store in a file next to the camera image
       SSL_DetectionFrame* detection_frame = stream.getDetectionFrame(i);
       if(detection_frame){
-        // Convert SSL_DetectionFrame to JSON
-        std::string json_string;
-        google::protobuf::util::MessageToJsonString(*detection_frame, &json_string);
-        // Create filename
-        QString num = QString::number(i);
-        num = "00000" + num;
-        num = num.right(5);
-        QString filename = dir + "/" + num + ".json";
-        // Create file and write JSON to file
-        std::ofstream json_file(filename.toStdString());
-        json_file << json_string;
-        json_file.close();
+        saveDetectionFrame(*detection_frame, dir, i);
       }
 
       if (dlg->wasCanceled()) break;
@@ -396,6 +402,42 @@ void PluginDVR::slotMovieSave() {
   }
   delete dlg;
   unlock();
+}
+
+void PluginDVR::saveFrame(const DVRFrame& frame, const QString& dir, int index){
+  rgbImage output;
+
+  ColorFormat fmt = frame.video.getColorFormat();
+  output.allocate(frame.video.getWidth(), frame.video.getHeight());
+  if (fmt == COLOR_YUV422_UYVY) {
+    Conversions::uyvy2rgb(frame.video.getData(), output.getData(), frame.video.getWidth(), frame.video.getHeight());
+  } else if (fmt == COLOR_RGB8) {
+    memcpy(output.getData(), frame.video.getData(), frame.video.getNumBytes());
+  } else {
+    std::cout << "[PluginDVR::saveFrame] Warning! Unknown color format" << std::endl;
+    output.allocate(0,0);
+  }
+  if (output.getNumBytes() > 0) {
+    // write file:
+    QString num = QString::number(index);
+    num = "00000" + num;
+    num = num.right(5);
+    QString filename = dir + "/" + num + ".png";
+    output.save(filename.toStdString());
+  }
+}
+
+void PluginDVR::saveDetectionFrame(const SSL_DetectionFrame& detection_frame, const QString& dir, int index){
+  std::string json_string;
+  google::protobuf::util::MessageToJsonString(detection_frame, &json_string);
+
+  QString num = QString::number(index);
+  num = "00000" + num;
+  num = num.right(5);
+  QString filename = dir + "/" + num + ".json";
+  std::ofstream json_file(filename.toStdString());
+  json_file << json_string;
+  json_file.close();
 }
 
 PluginDVR::PluginDVR(FrameBuffer * fb)
@@ -407,12 +449,24 @@ PluginDVR::PluginDVR(FrameBuffer * fb)
   w=new PluginDVRWidget(this);
   trigger_pause_refresh=false;
   stream.clear();
- _settings = new VarList("DVR Settings");
+  _settings = new VarList("DVR Settings");
   _max_frames = new VarInt("Max Frames",250);
   _max_frames->setMin(0);
   _shift_on_exceed = new VarBool("Shift Video On Exceeding",true);
+
+  // Options to limit FPS recording, as to not overload the PC with write operations
+  _settings_rec_continuous = new VarList("DVR Record Continuous");
+  _fps_limit_enable = new VarBool("Enable DVR FPS Limiter");
+  _fps_limit_enable->setBool(true);
+  _fps_limit = new VarDouble("DVR FPS Limit");
+  _fps_limit->setInt(1.0);
+  _settings_rec_continuous->addChild(_fps_limit_enable);
+  _settings_rec_continuous->addChild(_fps_limit);
+
   _settings->addChild(_max_frames);
   _settings->addChild(_shift_on_exceed);
+  _settings->addChild(_settings_rec_continuous);
+
   slotModeToggled();
   slotSeekModeToggled();
 }
@@ -442,26 +496,56 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
   QString stream_info;
   stream_info = "";
   status = "";
-  bool is_recording=w->btn_rec_rec->isChecked();
+  bool is_recording = w->btn_rec_rec->isChecked();
   //capture data:
-  if (mode==DVRModePause) {
+  if (mode == DVRModePause) {
     if (trigger_pause_refresh) {
       pause_frame.getFromFrameData(data);
       trigger_pause_refresh=false;
     }
     status = "Pausing.";
-  } else if (mode==DVRModeRecord) {
-    if (is_recording) {
-      stream.setLimit(_max_frames->getInt());
-      stream.appendFrame(data,_shift_on_exceed->getBool());
+  } else if (mode == DVRModeRecord) {
+    if (is_recording || is_recording_continuous) {
+      status = "Recording mode. " + QString::number(stream.getFrameCount()) + " frames in buffer. "
+                                  + QString::number(rec_continuous_frame_index) + " frames written.\n";
 
-      // If there is an SSL_DetectionFrame present, store it
+      stream.setLimit(_max_frames->getInt());
+
+      // Get detection frame connected to frame
       SSL_DetectionFrame* detection_frame = (SSL_DetectionFrame *)data->map.get("ssl_detection_frame");
-      if(detection_frame) {
-        stream.appendDetectionFrame(detection_frame, _shift_on_exceed->getBool());
+
+      // If recording is on, store the frame and possible detection_frame in the ringbuffers
+      if (is_recording) {
+        status = status + "Currently storing all frames. ";
+        stream.appendFrame(data, _shift_on_exceed->getBool());
+        if(detection_frame)
+          stream.appendDetectionFrame(detection_frame, _shift_on_exceed->getBool());
       }
 
-      status = "Recording (Frame " + QString::number(stream.getFrameCount()) + ").";
+      // If continuous recording is on, store the frame and possible detection_frame on the disk
+      if(is_recording_continuous) {
+        float fps_limit = _fps_limit->getDouble();
+        status = status + "Currently writing " + QString::number(fps_limit) + " frames per second to disk. ";
+        // Check if enough time has passed to store the next frame and detection_frame
+        using namespace std::chrono;
+        long current_ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+        float interval_ms = 1000 / fps_limit;
+        if (interval_ms < current_ms - rec_continuous_last_timestamp) {
+          // If the output directory is given
+          if (!rec_continuous_dir.isNull() and !rec_continuous_dir.isEmpty()) {
+            // Update the timestamp of the last frame stored
+            rec_continuous_last_timestamp = current_ms;
+            // Store the frame and possibly the detection_frame
+            DVRFrame* f = new DVRFrame();
+            f->getFromFrameData(data);
+            saveFrame(*f, rec_continuous_dir, rec_continuous_frame_index);
+            if (detection_frame) saveDetectionFrame(*detection_frame, rec_continuous_dir, rec_continuous_frame_index);
+            rec_continuous_frame_index++;
+          }
+        }
+      }
+
+      // Update status text
       if (stream.getFrameCount() >= stream.getLimit()) {
         if (_shift_on_exceed->getBool()) {
           status = status + " Past Max Frame Limit! Now Shift-Recoding!";
@@ -470,7 +554,8 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
         }
       }
     } else {
-      status = "Recorded " + QString::number(stream.getFrameCount()) + " Frame(s)";
+      status = "Recorded " + QString::number(stream.getFrameCount()) + " Frame(s) and " + QString::number(rec_continuous_frame_index)
+               + " Continuous Frame(s)";
     }
   } else {
     status = "Live Pass-Through.";

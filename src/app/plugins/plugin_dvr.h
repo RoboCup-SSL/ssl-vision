@@ -38,6 +38,7 @@
 #include <QFileDialog>
 #include <QProgressDialog>
 #include <QDir>
+#include <QMessageBox>
 
 #include "timer.h"
 #include "rawimage.h"
@@ -70,8 +71,9 @@ class PluginDVRWidget : public QWidget
     QToolButton * btn_rec_new;
     QToolButton * btn_rec_load;
     QToolButton * btn_rec_rec;
+    QToolButton * btn_rec_continuous;
     QToolButton * btn_rec_save;
-    
+
     QToolButton * btn_seek_front;
     QToolButton * btn_seek_frame_back;
     QToolButton * btn_seek_pause;
@@ -101,6 +103,7 @@ class DVRStream
     QList<SSL_DetectionFrame *> detection_frames;
     int limit;
     int current;
+
   public:
     DVRStream();
     virtual ~DVRStream();
@@ -138,6 +141,7 @@ protected slots:
   void slotSeekFrameForward();
   void slotSeekFrameBack();
   void slotSeekFrameLast();
+  void slotRecordContinuousToggled();
   void slotMovieNew();
   void slotMovieLoad();
   void slotMovieSave();
@@ -157,10 +161,13 @@ protected:
   };
   DVRModeEnum mode;
   SeekModeEnum seek_mode;
-  bool is_recording;
+
   VarList * _settings;
+  VarList * _settings_rec_continuous;
   VarInt * _max_frames;
   VarBool * _shift_on_exceed;
+  VarBool * _fps_limit_enable;
+  VarDouble * _fps_limit;
   PluginDVRWidget * w;
 
   double advance_last_t;
@@ -168,13 +175,24 @@ protected:
   bool trigger_pause_refresh;
   DVRFrame pause_frame;
   DVRStream stream;
+
+  // Continuous recording variables
+  bool is_recording_continuous = false;
+  int rec_continuous_frame_index = 0;
+  QString rec_continuous_dir;
+  long rec_continuous_last_timestamp = 0;
+
+  void saveFrame(const DVRFrame& frame, const QString& dir, int index);
+  void saveDetectionFrame(const SSL_DetectionFrame& detection_frame, const QString& dir, int index);
+
 public:
-    PluginDVR(FrameBuffer * fb);
-    virtual VarList * getSettings();
-    virtual ~PluginDVR();
-    virtual string getName();
-    virtual QWidget * getControlWidget();
-    virtual ProcessResult process(FrameData * data, RenderOptions * options);
+
+  PluginDVR(FrameBuffer * fb);
+  virtual VarList * getSettings();
+  virtual ~PluginDVR();
+  virtual string getName();
+  virtual QWidget * getControlWidget();
+  virtual ProcessResult process(FrameData * data, RenderOptions * options);
 };
 
 #endif
