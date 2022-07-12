@@ -28,25 +28,28 @@
 #include "VarTypes.h"
 #include <QWidget>
 //#include <QPushButton>
-#include <QToolButton>
 #include <QButtonGroup>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QGroupBox>
-#include <QSpacerItem>
-#include <QLabel>
-#include <QFileDialog>
-#include <QProgressDialog>
 #include <QDir>
+#include <QFileDialog>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
 #include <QMessageBox>
+#include <QProgressDialog>
+#include <QSpacerItem>
+#include <QToolButton>
+#include <QVBoxLayout>
+#include <condition_variable>
+#include <thread>
+#include <optional>
 
-#include "timer.h"
-#include "rawimage.h"
 #include "image.h"
 #include "jog_dial.h"
-
+#include "rawimage.h"
+#include "timer.h"
 
 class PluginDVR;
+class DVRNonBlockingWriter;
 
 class PluginDVRWidget : public QWidget
 {
@@ -127,6 +130,54 @@ class DVRStream
     SSL_DetectionFrame * getDetectionFrame(int i);
 };
 
+
+class DVRUtils {
+ public:
+  static void saveFrame(const DVRFrame& frame, const QString& dir, int index);
+  static void saveDetectionFrame(const SSL_DetectionFrame& detection_frame, const QString& dir, int index);
+};
+
+struct DVRFrameData {
+  std::unique_ptr<DVRFrame> frame_ptr;
+  SSL_DetectionFrame detection_frame;
+};
+
+
+class DVRThreadSafeQueue
+{
+ protected:
+  std::queue<DVRFrameData> queue;
+  std::mutex queue_mutex;
+  std::condition_variable broker;
+  std::atomic<bool> running = {true};
+
+ public:
+  DVRFrameData dequeue();
+  void enqueue(DVRFrameData data);
+  void stop();
+};
+
+
+class DVRNonBlockingWriter
+{
+ protected:
+  const QString output_dir;
+  std::thread writer_thread;
+  std::atomic<bool> running = {true};
+
+  DVRThreadSafeQueue data_buffer;
+  int index{};
+  void runWriterOnLoop();
+  void write();
+
+ public:
+  explicit DVRNonBlockingWriter(QString output_dir);
+  ~DVRNonBlockingWriter();
+
+  void write(FrameData * frameData, SSL_DetectionFrame * frame);
+};
+
+
 /**
 	@author Stefan Zickler
 */
@@ -178,12 +229,11 @@ protected:
 
   // Continuous recording variables
   bool is_recording_continuous = false;
-  int rec_continuous_frame_index = 0;
-  QString rec_continuous_dir;
   long rec_continuous_last_timestamp = 0;
 
-  void saveFrame(const DVRFrame& frame, const QString& dir, int index);
-  void saveDetectionFrame(const SSL_DetectionFrame& detection_frame, const QString& dir, int index);
+  // std::variant<DVRNonBlockingWriter> would be preferable over allocating on heap,
+  // but is not available in c++11
+  std::unique_ptr<DVRNonBlockingWriter> frame_writer;
 
 public:
 

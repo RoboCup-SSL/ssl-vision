@@ -23,6 +23,8 @@
 #include <google/protobuf/util/json_util.h>
 #include <chrono>
 #include <fstream>
+#include <utility>
+#include <memory>
 
 PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFlags f) : QWidget(parent,f) {
   layout_main=new QVBoxLayout();
@@ -289,9 +291,8 @@ void PluginDVR::slotRecordContinuousToggled(){
   }
 
   // Ask the user where to store the recordings
-  rec_continuous_dir = QFileDialog::getExistingDirectory(0,"Select Directory to store", "",
-      QFileDialog::DontUseNativeDialog | QFileDialog::ShowDirsOnly);
-
+  const auto dir = QFileDialog::getExistingDirectory(nullptr, "Select Directory to store", "", QFileDialog::DontUseNativeDialog | QFileDialog::ShowDirsOnly);
+  frame_writer = std::unique_ptr<DVRNonBlockingWriter>(new DVRNonBlockingWriter(dir));
   is_recording_continuous = true;
 }
 
@@ -389,12 +390,12 @@ void PluginDVR::slotMovieSave() {
       DVRFrame * f = stream.getFrame(i);
       dlg->setValue(i+1);
       if (f!=0) {
-        saveFrame(*f, dir, i);
+        DVRUtils::saveFrame(*f, dir, i);
       }
 
       SSL_DetectionFrame* detection_frame = stream.getDetectionFrame(i);
       if(detection_frame){
-        saveDetectionFrame(*detection_frame, dir, i);
+        DVRUtils::saveDetectionFrame(*detection_frame, dir, i);
       }
 
       if (dlg->wasCanceled()) break;
@@ -402,42 +403,6 @@ void PluginDVR::slotMovieSave() {
   }
   delete dlg;
   unlock();
-}
-
-void PluginDVR::saveFrame(const DVRFrame& frame, const QString& dir, int index){
-  rgbImage output;
-
-  ColorFormat fmt = frame.video.getColorFormat();
-  output.allocate(frame.video.getWidth(), frame.video.getHeight());
-  if (fmt == COLOR_YUV422_UYVY) {
-    Conversions::uyvy2rgb(frame.video.getData(), output.getData(), frame.video.getWidth(), frame.video.getHeight());
-  } else if (fmt == COLOR_RGB8) {
-    memcpy(output.getData(), frame.video.getData(), frame.video.getNumBytes());
-  } else {
-    std::cout << "[PluginDVR::saveFrame] Warning! Unknown color format" << std::endl;
-    output.allocate(0,0);
-  }
-  if (output.getNumBytes() > 0) {
-    // write file:
-    QString num = QString::number(index);
-    num = "00000" + num;
-    num = num.right(5);
-    QString filename = dir + "/" + num + ".png";
-    output.save(filename.toStdString());
-  }
-}
-
-void PluginDVR::saveDetectionFrame(const SSL_DetectionFrame& detection_frame, const QString& dir, int index){
-  std::string json_string;
-  google::protobuf::util::MessageToJsonString(detection_frame, &json_string);
-
-  QString num = QString::number(index);
-  num = "00000" + num;
-  num = num.right(5);
-  QString filename = dir + "/" + num + ".json";
-  std::ofstream json_file(filename.toStdString());
-  json_file << json_string;
-  json_file.close();
 }
 
 PluginDVR::PluginDVR(FrameBuffer * fb)
@@ -506,8 +471,7 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
     status = "Pausing.";
   } else if (mode == DVRModeRecord) {
     if (is_recording || is_recording_continuous) {
-      status = "Recording mode. " + QString::number(stream.getFrameCount()) + " frames in buffer. "
-                                  + QString::number(rec_continuous_frame_index) + " frames written.\n";
+      status = "Recording mode. " + QString::number(stream.getFrameCount()) + " frames in buffer. ";
 
       stream.setLimit(_max_frames->getInt());
 
@@ -524,24 +488,16 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
 
       // If continuous recording is on, store the frame and possible detection_frame on the disk
       if(is_recording_continuous) {
-        float fps_limit = _fps_limit->getDouble();
-        status = status + "Currently writing " + QString::number(fps_limit) + " frames per second to disk. ";
+        double fps_limit = _fps_limit->getDouble();
+        status += "Currently writing " + QString::number(fps_limit) + " frames per second to disk. ";
         // Check if enough time has passed to store the next frame and detection_frame
         using namespace std::chrono;
-        long current_ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-        float interval_ms = 1000 / fps_limit;
-        if (!_fps_limit_enable->getBool() || interval_ms < current_ms - rec_continuous_last_timestamp) {
-          // If the output directory is given
-          if (!rec_continuous_dir.isNull() and !rec_continuous_dir.isEmpty()) {
-            // Update the timestamp of the last frame stored
-            rec_continuous_last_timestamp = current_ms;
-            // Store the frame and possibly the detection_frame
-            DVRFrame* f = new DVRFrame();
-            f->getFromFrameData(data);
-            saveFrame(*f, rec_continuous_dir, rec_continuous_frame_index);
-            if (detection_frame) saveDetectionFrame(*detection_frame, rec_continuous_dir, rec_continuous_frame_index);
-            rec_continuous_frame_index++;
-          }
+        auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+        double interval_ms = 1000 / fps_limit;
+
+        if (!_fps_limit_enable->getBool() || interval_ms < now - rec_continuous_last_timestamp) {
+            rec_continuous_last_timestamp = now;
+            frame_writer->write(data, detection_frame);
         }
       }
 
@@ -554,8 +510,7 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
         }
       }
     } else {
-      status = "Recorded " + QString::number(stream.getFrameCount()) + " Frame(s) and " + QString::number(rec_continuous_frame_index)
-               + " Continuous Frame(s)";
+      status = "Recorded " + QString::number(stream.getFrameCount()) + " Frame(s)";
     }
   } else {
     status = "Live Pass-Through.";
@@ -742,4 +697,103 @@ SSL_DetectionFrame * DVRStream::getDetectionFrame(int i) {
   if (current >= detection_frames.size()) return 0;
   if (i < 0) return 0;
   return detection_frames[i];
+}
+
+
+void DVRUtils::saveFrame(const DVRFrame& frame, const QString& dir, int index){
+  rgbImage output;
+
+  ColorFormat fmt = frame.video.getColorFormat();
+  output.allocate(frame.video.getWidth(), frame.video.getHeight());
+  if (fmt == COLOR_YUV422_UYVY) {
+    Conversions::uyvy2rgb(frame.video.getData(), output.getData(), frame.video.getWidth(), frame.video.getHeight());
+  } else if (fmt == COLOR_RGB8) {
+    memcpy(output.getData(), frame.video.getData(), frame.video.getNumBytes());
+  } else {
+    std::cout << "[PluginDVR::saveFrame] Warning! Unknown color format" << std::endl;
+    output.allocate(0,0);
+  }
+  if (output.getNumBytes() > 0) {
+    // write file:
+    QString num = QString::number(index);
+    num = "00000" + num;
+    num = num.right(5);
+    QString filename = dir + "/" + num + ".png";
+    output.save(filename.toStdString());
+  }
+}
+
+void DVRUtils::saveDetectionFrame(const SSL_DetectionFrame& detection_frame, const QString& dir, int index){
+  std::string json_string;
+  google::protobuf::util::MessageToJsonString(detection_frame, &json_string);
+
+  QString num = QString::number(index);
+  num = "00000" + num;
+  num = num.right(5);
+  QString filename = dir + "/" + num + ".json";
+  std::ofstream json_file(filename.toStdString());
+  json_file << json_string;
+  json_file.close();
+}
+
+
+DVRFrameData DVRThreadSafeQueue::dequeue() {
+  std::unique_lock<std::mutex> lock(queue_mutex);
+
+  // Releases the lock and wait until there is new element
+  broker.wait(lock, [&] {
+    return !queue.empty() || !running;
+  });
+
+  // Early return since queue might be empty
+  if (!running) return {};
+
+  auto data = std::move(queue.front());
+  queue.pop();
+  return data;
+}
+
+void DVRThreadSafeQueue::enqueue(DVRFrameData data) {
+  const std::lock_guard<std::mutex> lock(queue_mutex);
+  queue.push(std::move(data));
+  broker.notify_one();
+}
+
+void DVRThreadSafeQueue::stop() {
+  running = false;
+  broker.notify_one();
+}
+
+DVRNonBlockingWriter::DVRNonBlockingWriter(QString output_dir): output_dir(std::move(output_dir))
+{
+  writer_thread = std::thread(&DVRNonBlockingWriter::runWriterOnLoop, this);
+}
+
+DVRNonBlockingWriter::~DVRNonBlockingWriter() {
+  if (writer_thread.joinable()) {
+    running = false;
+    data_buffer.stop();
+    writer_thread.join();
+  }
+}
+
+void DVRNonBlockingWriter::runWriterOnLoop() {
+  while(running) write();
+}
+
+void DVRNonBlockingWriter::write() {
+  const auto data = data_buffer.dequeue();
+
+  // Early return in case, thread was stopped, since dequeue might return {} in that case
+  if (!running) return;
+
+  DVRUtils::saveFrame(*data.frame_ptr, output_dir, index);
+  DVRUtils::saveDetectionFrame(data.detection_frame, output_dir, index);
+  index++;
+}
+
+void DVRNonBlockingWriter::write(FrameData* frameData, SSL_DetectionFrame* detectionFrame) {
+    auto frame_ptr = std::unique_ptr<DVRFrame>(new DVRFrame());
+    frame_ptr->getFromFrameData(frameData);
+    data_buffer.enqueue({std::move(frame_ptr), *detectionFrame });
 }
