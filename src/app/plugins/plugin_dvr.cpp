@@ -233,6 +233,12 @@ PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFl
 
 }
 
+
+
+
+
+/* ===== PluginDVR ===== */
+
 void PluginDVR::slotSeekModeToggled() {
   lock();
     if (w->btn_seek_pause->isChecked()) {
@@ -456,6 +462,9 @@ void DVRFrame::getFromFrameData(FrameData * data) {
 
 ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
 
+  using namespace std::chrono;
+  long function_start = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
+
   (void)options;
   QString status;
   QString stream_info;
@@ -491,7 +500,6 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
         double fps_limit = _fps_limit->getDouble();
         status += "Currently writing " + QString::number(fps_limit) + " frames per second to disk. ";
         // Check if enough time has passed to store the next frame and detection_frame
-        using namespace std::chrono;
         auto now = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
         double interval_ms = 1000 / fps_limit;
 
@@ -571,12 +579,22 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
   //update GUI:
   w->label_info->setText(status + "\n" + stream_info);
 
+  long function_stop = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
+
+  std::cout << "microseconds : " << (function_stop - function_start) << std::endl;
+
   return ProcessingOk;
 }
 
 QWidget * PluginDVR::getControlWidget() {
   return w;
 }
+
+
+
+
+
+/* ===== DVRStream ===== */
 
 bool DVRStream::loadStream(QString file) {
   return false;
@@ -652,9 +670,11 @@ DVRStream::DVRStream() {
   limit=0;
   clear();
 }
+
 DVRStream::~DVRStream() {
  clear();
 }
+
 void DVRStream::advance(int frames, bool wrap) {
   if (getFrameCount() == 0) return;
   int new_current=current+frames;
@@ -679,9 +699,11 @@ void DVRStream::advance(int frames, bool wrap) {
 void DVRStream::advanceToMostRecent() {
   current=getFrameCount()-1;
 }
+
 int DVRStream::getCurrentFrameIndex() {
   return current;
 }
+
 DVRFrame * DVRStream::getCurrentFrame() {
   if (current >= frames.size()) return 0;
   return frames[current];
@@ -699,6 +721,11 @@ SSL_DetectionFrame * DVRStream::getDetectionFrame(int i) {
   return detection_frames[i];
 }
 
+
+
+
+
+/* ===== DVRUtils ===== */
 
 void DVRUtils::saveFrame(const DVRFrame& frame, const QString& dir, int index){
   rgbImage output;
@@ -737,6 +764,11 @@ void DVRUtils::saveDetectionFrame(const SSL_DetectionFrame& detection_frame, con
 }
 
 
+
+
+
+/* ===== DVRThreadSafeQueue ===== */
+
 DVRFrameData DVRThreadSafeQueue::dequeue() {
   std::unique_lock<std::mutex> lock(queue_mutex);
 
@@ -764,8 +796,14 @@ void DVRThreadSafeQueue::stop() {
   broker.notify_one();
 }
 
-DVRNonBlockingWriter::DVRNonBlockingWriter(QString output_dir): output_dir(std::move(output_dir))
-{
+
+
+
+
+/* ===== DVRNonBlockingWriter ===== */
+
+DVRNonBlockingWriter::DVRNonBlockingWriter(QString output_dir): output_dir(std::move(output_dir)){
+  std::cout << "[DVRNonBlockingWriter] New instance" << std::endl;
   writer_thread = std::thread(&DVRNonBlockingWriter::runWriterOnLoop, this);
 }
 
@@ -775,6 +813,7 @@ DVRNonBlockingWriter::~DVRNonBlockingWriter() {
     data_buffer.stop();
     writer_thread.join();
   }
+  std::cout << "[DVRNonBlockingWriter] Instance destructed" << std::endl;
 }
 
 void DVRNonBlockingWriter::runWriterOnLoop() {
