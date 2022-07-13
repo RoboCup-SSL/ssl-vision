@@ -219,6 +219,7 @@ void CameraExtrinsicParameters::addCalibrationPointSet(cv::Point2d image, cv::Po
   set->addChild(new VarDouble("image_y", image.y));
   set->addChild(new VarDouble("field_x", field.x));
   set->addChild(new VarDouble("field_y", field.y));
+  set->addChild(new VarDouble("field_z", field.z));
   calibrationPoints->addChild(set);
 }
 
@@ -247,7 +248,8 @@ std::vector<cv::Point3d> CameraExtrinsicParameters::getCalibFieldPoints() {
   for (auto& pointSet : calibrationPoints->getChildren()) {
     auto field_x = (VarDouble*)pointSet->findChild("field_x");
     auto field_y = (VarDouble*)pointSet->findChild("field_y");
-    points.emplace_back(field_x->getDouble(), field_y->getDouble(), 0);
+    auto field_z = (VarDouble*)pointSet->findChild("field_z");
+    points.emplace_back(field_x->getDouble(), field_y->getDouble(), field_z->getDouble());
   }
   return points;
 }
