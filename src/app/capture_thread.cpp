@@ -38,7 +38,7 @@ CaptureThread::CaptureThread(int cam_id)
   // timings should only be printed on demand for a short period of time by temporally activating this flag
   control->addChild( (VarType*) (c_print_timings = new VarBool("print timings",false)));
   control->addChild( (VarType*) (c_refresh= new VarTrigger("re-read params","Refresh")));
-  control->addChild( (VarType*) (captureModule= new VarStringEnum("Capture Module","None")));
+  control->addChild( (VarType*) (captureModule= new VarStringEnum("Capture Module",camId < 2 ? "Read from files" : "None")));
   captureModule->addFlags(VARTYPE_FLAG_NOLOAD_ENUM_CHILDREN);
   captureModule->addItem("None");
   captureModule->addItem("Read from files");
