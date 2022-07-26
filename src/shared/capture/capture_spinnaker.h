@@ -76,6 +76,8 @@ protected:
   VarDouble* v_gamma;
   VarBool* v_gamma_enabled;
   VarStringEnum* v_white_balance_auto;
+  VarDouble* v_white_balance_red;
+  VarDouble* v_white_balance_blue;
   VarStringEnum* v_stream_buffer_handling_mode;
   VarStringEnum* v_stream_buffer_count_mode;
   VarInt* v_stream_buffer_count;
