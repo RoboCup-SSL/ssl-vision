@@ -33,6 +33,11 @@ To get all of these packages in (k)ubuntu, run the `InstallPackagesUbuntu.sh` sc
 
 Or, in archlinux, run the `InstallPackagesArch.sh` script.
 
+## Test data
+
+If you do not have a camera available and want to test or improve ssl-vision, you can use the `CaptureFromFile` capture module to play back images.
+Some test data is available through [GIT LFS](https://git-lfs.github.com/), but bandwidth is very limited with GitHub and might not always work. You can alternatively download test data [here](https://cloud.robocup.org/s/qjKQEiKnGnLAkn9) and copy it to [test-data](./test-data).
+
 ## Supported cameras
 
 Multiple cameras are supported:

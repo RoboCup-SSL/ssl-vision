@@ -56,10 +56,13 @@ CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id, QO
   v_gain_auto->addItem(toString(Spinnaker::GainAuto_Continuous));
   v_gain_db = new VarDouble("Gain [dB]", 12.0, 0.0, 12.0);
 
-  v_white_balance_auto = new VarStringEnum("Auto While Balance", toString(Spinnaker::BalanceWhiteAuto_Off));
+  v_white_balance_auto = new VarStringEnum("Auto White Balance", toString(Spinnaker::BalanceWhiteAuto_Off));
   v_white_balance_auto->addItem(toString(Spinnaker::BalanceWhiteAuto_Off));
   v_white_balance_auto->addItem(toString(Spinnaker::BalanceWhiteAuto_Once));
   v_white_balance_auto->addItem(toString(Spinnaker::BalanceWhiteAuto_Continuous));
+
+  v_white_balance_blue = new VarDouble("White Balance Blue", 2, 0.125, 8);
+  v_white_balance_red = new VarDouble("White Balance Red", 2, 0.125, 8);
 
   v_gamma = new VarDouble("Gamma", 0.4, 0.25, 4.0);
   v_gamma_enabled = new VarBool("Gamma enabled", false);
@@ -91,6 +94,8 @@ CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id, QO
   dcam_parameters->addChild(v_gamma);
   dcam_parameters->addChild(v_gamma_enabled);
   dcam_parameters->addChild(v_white_balance_auto);
+  dcam_parameters->addChild(v_white_balance_blue);
+  dcam_parameters->addChild(v_white_balance_red);
   dcam_parameters->addChild(v_stream_buffer_handling_mode);
   dcam_parameters->addChild(v_stream_buffer_count_mode);
   dcam_parameters->addChild(v_stream_buffer_count);
@@ -151,6 +156,10 @@ void CaptureSpinnaker::readParameterValues(VarList * item)
     v_gain_auto->setString(toString(pCam->GainAuto.GetValue()));
 
     v_white_balance_auto->setString(toString(pCam->BalanceWhiteAuto.GetValue()));
+    pCam->BalanceRatioSelector.SetValue(Spinnaker::BalanceRatioSelector_Blue);
+    v_white_balance_blue->setDouble(pCam->BalanceRatio.GetValue());
+    pCam->BalanceRatioSelector.SetValue(Spinnaker::BalanceRatioSelector_Red);
+    v_white_balance_red->setDouble(pCam->BalanceRatio.GetValue());
 
     v_gamma_enabled->setBool(pCam->GammaEnable.GetValue());
     if (IsReadable(pCam->Gamma)) {
@@ -205,6 +214,11 @@ void CaptureSpinnaker::writeParameterValues(VarList * item)
     }
 
     pCam->BalanceWhiteAuto.SetValue(stringToBalanceWhiteAuto(v_white_balance_auto->getString().c_str()));
+
+    pCam->BalanceRatioSelector.SetValue(Spinnaker::BalanceRatioSelector_Blue);
+    pCam->BalanceRatio.SetValue(v_white_balance_blue->getDouble());
+    pCam->BalanceRatioSelector.SetValue(Spinnaker::BalanceRatioSelector_Red);
+    pCam->BalanceRatio.SetValue(v_white_balance_red->getDouble());
 
     pCam->GammaEnable.SetValue(v_gamma_enabled->getBool());
     if (IsWritable(pCam->Gamma)) {

@@ -5,6 +5,7 @@
 /backup
 /test-data/*
 !/test-data/rc2019
+!/test-data/rc2022
 /.idea
 cmake-build*
 /.dir-locals.el
