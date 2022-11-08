@@ -330,36 +330,37 @@ void FieldCircularArc::Rename() {
 
 RoboCupField::RoboCupField() {
   settings = new VarList("Field Configuration");
+  // Using default values based on default test images here, which are slightly different compared to DivA constants
   field_length = new VarDouble(
-      "Field Length", FieldConstantsRoboCup2018A::kFieldLength);
+      "Field Length", 12040);
   field_width = new VarDouble(
-      "Field Width", FieldConstantsRoboCup2018A::kFieldWidth);
+      "Field Width", 9020);
   goal_width = new VarDouble(
-      "Goal Width", FieldConstantsRoboCup2018A::kGoalWidth);
+      "Goal Width", 1200);
   goal_depth = new VarDouble(
-      "Goal Depth", FieldConstantsRoboCup2018A::kGoalDepth);
+      "Goal Depth", 180);
   goal_height = new VarDouble(
-      "Goal Height", FieldConstantsRoboCup2018A::kGoalHeight);
+      "Goal Height", 155);
   boundary_width = new VarDouble(
-      "Boundary Width", FieldConstantsRoboCup2018A::kBoundaryWidth);
+      "Boundary Width", 300);
   line_thickness = new VarDouble(
-      "Line Thickness", FieldConstantsRoboCup2018A::kLineThickness);
+      "Line Thickness", 10);
   penalty_area_depth = new VarDouble(
-       "Penalty Area Depth", FieldConstantsRoboCup2018A::kPenaltyAreaDepth);
+       "Penalty Area Depth", 1220);
   penalty_area_width = new VarDouble(
-       "Penalty Area Width", FieldConstantsRoboCup2018A::kPenaltyAreaWidth);
+       "Penalty Area Width", 2410);
   goal_center_to_penalty_mark = new VarDouble(
-      "Goal Line to Penalty Mark", FieldConstantsRoboCup2018A::kGoalLineToPenaltyMark);
+      "Goal Line to Penalty Mark", 8000);
   center_circle_radius = new VarDouble(
-      "Center Circle Radius", FieldConstantsRoboCup2018A::kCenterCircleRadius);
+      "Center Circle Radius", 500);
   ball_radius = new VarDouble(
       "Ball Radius", FieldConstantsRoboCup2018A::kBallRadius);
   max_robot_radius = new VarDouble(
       "Max Robot Radius", FieldConstantsRoboCup2018A::kMaxRobotRadius);
   num_cameras_total = new VarInt(
-       "Total Number of Cameras", FieldConstantsRoboCup2018A::kNumCamerasTotal);
+       "Total Number of Cameras", 2);
   num_cameras_local = new VarInt(
-       "Local Number of Cameras", FieldConstantsRoboCup2018A::kNumCamerasLocal);
+       "Local Number of Cameras", 2);
 
   updateShapes = new VarTrigger("Field Lines/Arcs","Update");
   applyDivisionA = new VarTrigger("Division A", "Apply");
@@ -422,6 +423,8 @@ RoboCupField::RoboCupField() {
   shapeTypeMap["LeftFieldRightPenaltyStretch"] = LeftFieldRightPenaltyStretch;
   shapeTypeMap["RightFieldLeftPenaltyStretch"] = RightFieldLeftPenaltyStretch;
   shapeTypeMap["RightFieldRightPenaltyStretch"] = RightFieldRightPenaltyStretch;
+
+  updateFieldLinesAndArcs();
 
   emit calibrationChanged();
 }

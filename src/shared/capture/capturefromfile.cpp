@@ -37,7 +37,7 @@ CaptureFromFile::CaptureFromFile(VarList * _settings, int default_camera_id, QOb
 
   settings->addChild(conversion_settings = new VarList("Conversion Settings"));
   settings->addChild(capture_settings = new VarList("Capture Settings"));
-    
+
   //=======================CONVERSION SETTINGS=======================
   conversion_settings->addChild(v_colorout=new VarStringEnum("convert to mode",Colors::colorFormatToString(COLOR_YUV422_UYVY)));
   v_colorout->addItem(Colors::colorFormatToString(COLOR_RGB8));
@@ -49,9 +49,9 @@ CaptureFromFile::CaptureFromFile(VarList * _settings, int default_camera_id, QOb
 
   //=======================CAPTURE SETTINGS==========================
   ostringstream convert;
-  convert << "test-data/cam" << default_camera_id;
+  convert << "test-data/rc2022/bots-center-ball-" << default_camera_id << "-2";
   capture_settings->addChild(v_cap_dir = new VarString("directory", convert.str()));
-    
+
   // Valid file endings
   validImageFileEndings.push_back("PNG");
   validImageFileEndings.push_back("BMP");
@@ -64,7 +64,7 @@ CaptureFromFile::~CaptureFromFile()
 {
 }
 
-bool CaptureFromFile::stopCapture() 
+bool CaptureFromFile::stopCapture()
 {
   cleanup();
   return true;
@@ -85,16 +85,16 @@ bool CaptureFromFile::startCapture()
     // Acquire a list of file names
     DIR *dp;
     struct dirent *dirp;
-    if((v_cap_dir->getString() == "") || ((dp  = opendir(v_cap_dir->getString().c_str())) == 0)) 
+    if((v_cap_dir->getString() == "") || ((dp  = opendir(v_cap_dir->getString().c_str())) == 0))
     {
       fprintf(stderr,"Failed to open directory %s \n", v_cap_dir->getString().c_str());
       mutex.unlock();
       is_capturing=false;
       return false;
-    }  
-    while ((dirp = readdir(dp))) 
+    }
+    while ((dirp = readdir(dp)))
     {
-      if (strcmp(dirp->d_name,".") != 0 && strcmp(dirp->d_name,"..") != 0) 
+      if (strcmp(dirp->d_name,".") != 0 && strcmp(dirp->d_name,"..") != 0)
       {
         if(isImageFileName(std::string(dirp->d_name)))
           imgs_to_load.push_back(v_cap_dir->getString() + "/" + std::string(dirp->d_name));
@@ -109,7 +109,7 @@ bool CaptureFromFile::startCapture()
       is_capturing=false;
       return false;
     }
-  
+
     // Read images to buffer in memory:
     imgs_to_load.sort();
     for (const auto& currentImage : imgs_to_load) {
@@ -157,8 +157,8 @@ bool CaptureFromFile::startCapture()
     }
     currentImageIndex = 0;
   }
-  is_capturing=true;  
-  
+  is_capturing=true;
+
   mutex.unlock();
   return true;
 }
@@ -271,13 +271,13 @@ RawImage CaptureFromFile::getFrame()
   return result;
 }
 
-void CaptureFromFile::releaseFrame() 
+void CaptureFromFile::releaseFrame()
 {
   mutex.lock();
   mutex.unlock();
 }
 
-string CaptureFromFile::getCaptureMethodName() const 
+string CaptureFromFile::getCaptureMethodName() const
 {
   return "FromFile";
 }

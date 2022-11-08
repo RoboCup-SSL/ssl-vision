@@ -37,15 +37,15 @@ PluginVisualize::PluginVisualize(
   _v_enabled = new VarBool("enable", true);
   _v_image = new VarBool("image", true);
   _v_greyscale = new VarBool("greyscale", false);
-  _v_thresholded = new VarBool("thresholded", false);
-  _v_blobs = new VarBool("blobs", false);
-  _v_camera_calibration = new VarBool("camera calibration", false);
-  _v_calibration_result = new VarBool("calibration result", false);
+  _v_thresholded = new VarBool("thresholded", true);
+  _v_blobs = new VarBool("blobs", true);
+  _v_camera_calibration = new VarBool("camera calibration", true);
+  _v_calibration_result = new VarBool("calibration result", true);
   _v_detected_edges = new VarBool("detected edges", false);
   _v_complete_sobel = new VarBool("complete edge detection", false);
   _v_complete_sobel->setBool(false);
 
-  _v_mask_hull = new VarBool("image mask hull", false);
+  _v_mask_hull = new VarBool("image mask hull", true);
 
   _settings = new VarList("Visualization");
   _settings->addChild(_v_enabled);
