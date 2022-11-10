@@ -36,4 +36,3 @@ workflows:
       - build
       - build-v4l
       - build-splitter
-      - build-qt4
