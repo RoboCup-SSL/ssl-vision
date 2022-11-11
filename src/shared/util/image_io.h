@@ -34,7 +34,7 @@
   \class ImageIO
   \brief A class containing helper functions for reading and writing image data to/from files
 
-  This class relies on QT4's image i/o functions
+  This class relies on QT's image i/o functions
 
 */
 class ImageIO {

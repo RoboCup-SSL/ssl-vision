@@ -1,6 +1,5 @@
 project(ssl-vision)
 set(OpenGL_GL_PREFERENCE LEGACY)
-set(USE_QT5 TRUE CACHE BOOL "Use Qt5 instead of Qt4")
 set(USE_DC1394 TRUE CACHE BOOL "Compile with DC1394 driver (firewire cameras)")
 set(USE_SPINNAKER FALSE CACHE BOOL "Compile with Spinnaker driver (FLIR cameras)")
 set(USE_mvIMPACT FALSE CACHE BOOL "Compile with mvImpact driver (bluefox USB2 + USB3 cameras)")
@@ -13,19 +12,15 @@ if(USE_DC1394 AND USE_mvIMPACT)
 	message(FATAL_ERROR "DC1394 and mvImpact are not compatible: mvImpact crashes when creating device manager")
 endif()
 
-if(USE_QT5)
-	cmake_minimum_required(VERSION 2.8.9)
-	if(POLICY CMP0020)
-	    cmake_policy(SET CMP0020 NEW) # remove if CMake >= 2.8.11 required
-	endif()
-	if(POLICY CMP0043) # compatibility with CMake 3.0.1
-	    cmake_policy(SET CMP0043 OLD)
-	endif()
-	if(POLICY CMP0071) # compatibility with CMake 3.10.0
-	    cmake_policy(SET CMP0071 OLD)
-	endif()
-else()
-	cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8.9)
+if(POLICY CMP0020)
+    cmake_policy(SET CMP0020 NEW) # remove if CMake >= 2.8.11 required
+endif()
+if(POLICY CMP0043) # compatibility with CMake 3.0.1
+    cmake_policy(SET CMP0043 OLD)
+endif()
+if(POLICY CMP0071) # compatibility with CMake 3.10.0
+    cmake_policy(SET CMP0071 OLD)
 endif()
 
 #defines
@@ -52,29 +47,14 @@ endif()
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(Eigen3 REQUIRED eigen3)
 
-if(USE_QT5)
-	set(CMAKE_INCLUDE_CURRENT_DIR ON)
-	set(CMAKE_AUTOMOC ON)
-	find_package(Qt5Core REQUIRED)
-	find_package(Qt5Widgets REQUIRED)
-	#find_package(Qt5Network REQUIRED)
-	find_package(Qt5OpenGL REQUIRED)
-	# replaced by automoc
-	macro(qt4_wrap_cpp VARNAME)
-		set(${VARNAME} "")
-	endmacro()
-	# wrap functions
-	macro(qt4_wrap_ui)
-		qt5_wrap_ui(${ARGN})
-	endmacro()
-	macro(qt4_add_resources)
-		qt5_add_resources(${ARGN})
-	endmacro()
-	set(QT_LIBRARIES "")
-else()
-	find_package(Qt4 4.8.0 COMPONENTS QtCore QtGui QtOpenGL QtNetwork REQUIRED)
-	include ( ${QT_USE_FILE} )
-endif()
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+#find_package(Qt5Network REQUIRED)
+find_package(Qt5OpenGL REQUIRED)
+
+set(QT_LIBRARIES "")
 
 include_directories(
 	${PROJECT_BINARY_DIR}
@@ -240,7 +220,7 @@ set (SRCS ${SRCS}
 	${OPTIONAL_SRCS}
 )
 
-qt4_wrap_cpp (MOC_SRCS
+qt5_wrap_cpp (MOC_SRCS
 	src/app/capture_thread.h
 
 	src/app/gui/maskwidget.h
@@ -269,19 +249,19 @@ qt4_wrap_cpp (MOC_SRCS
 	${OPTIONAL_HEADERS}
 )
 
-qt4_wrap_ui (UI_SRCS
+qt5_wrap_ui (UI_SRCS
 	src/app/gui/mainwindow.ui
 	src/app/gui/videowidget.ui
 	${OPTIONAL_UI_SRCS}
 )
 
-qt4_add_resources(RC_SRCS
+qt5_add_resources(RC_SRCS
 	src/app/gui/icons/icons_gui.qrc
 	${SHARED_RC}
 )
 
 ## generate moc files for graphicalClient
-qt4_wrap_cpp(LCLIENT_MOC_SRCS
+qt5_wrap_cpp(LCLIENT_MOC_SRCS
     src/logClient/CentralWindow.h
     src/logClient/ClientThreading.h
     src/logClient/GraphicsPrimitives.h
@@ -289,17 +269,17 @@ qt4_wrap_cpp(LCLIENT_MOC_SRCS
 )
 
 ## generate moc files for graphicalClient2
-qt4_wrap_cpp(GCLIENT_MOC_SRCS
+qt5_wrap_cpp(GCLIENT_MOC_SRCS
     src/graphicalClient/soccerview.h
 )
 
 ## shared qt wrappings
 
-qt4_wrap_cpp (SHARED_MOC_SRCS
+qt5_wrap_cpp (SHARED_MOC_SRCS
 	${SHARED_HEADERS}
 )
 
-qt4_add_resources(SHARED_RC_SRCS
+qt5_add_resources(SHARED_RC_SRCS
 	${SHARED_RC}
 )
 
@@ -350,26 +330,20 @@ set (libs ${QT_LIBRARIES}
   ${V4L_LIBS}
 )
 target_link_libraries(sslvision ${libs})
-if(USE_QT5)
-	qt5_use_modules(sslvision Widgets)
-endif()
+qt5_use_modules(sslvision Widgets)
 set (libs ${libs} sslvision)
 
 ## build the main app
 set (target vision)
 add_executable(${target} ${UI_SRCS} ${MOC_SRCS} ${RC_SRCS} ${SRCS})
 target_link_libraries(${target} ${libs})
-if(USE_QT5)
-	qt5_use_modules(${target} Widgets OpenGL)
-endif()
+qt5_use_modules(${target} Widgets OpenGL)
 
 ##build non graphical client
 set (client client)
 add_executable(${client} src/client/main.cpp )
 target_link_libraries(${client} ${libs})
-if(USE_QT5)
-	qt5_use_modules(${client} Core)
-endif()
+qt5_use_modules(${client} Core)
 
 ##build logging client
 set (lclient logClient)
@@ -381,9 +355,7 @@ add_executable(${lclient} ${LCLIENT_MOC_SRCS}
 	src/logClient/LogControl.cpp
 )
 target_link_libraries(${lclient} ${libs})
-if(USE_QT5)
-	qt5_use_modules(${lclient} Widgets OpenGL)
-endif()
+qt5_use_modules(${lclient} Widgets OpenGL)
 
 ##build graphical client
 set (gclient graphicalClient)
@@ -393,6 +365,4 @@ add_executable(${gclient} ${GCLIENT_MOC_SRCS}
   src/graphicalClient/gltext.cpp
 )
 target_link_libraries(${gclient} ${libs})
-if(USE_QT5)
-	qt5_use_modules(${gclient} Widgets OpenGL)
-endif()
+qt5_use_modules(${gclient} Widgets OpenGL)
