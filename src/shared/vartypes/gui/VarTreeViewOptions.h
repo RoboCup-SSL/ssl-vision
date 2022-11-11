@@ -40,9 +40,9 @@ namespace VarTypes {
     \author Stefan Zickler, (C) 2008
     \see    VarTypes.h
   
-    This file is part of the QT4 Item-Model for VarTypes.
+    This file is part of the QT Item-Model for VarTypes.
     It is used when you want to edit/visualize VarTypes using
-    QT4's model/view system.
+    QT's model/view system.
   
     If you don't know what VarTypes are, please see \c VarTypes.h 
   */

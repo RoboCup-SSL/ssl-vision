@@ -28,17 +28,6 @@ jobs:
       - run: mkdir -p build
       - run: cmake -B build -DUSE_SPLITTER=true .
       - run: make
-  build-qt4:
-    docker:
-      - image: ubuntu:18.04
-    steps:
-      - run: apt-get update -qq && apt-get install -qq git
-      - checkout
-      - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
-      - run: apt-get install -qq libqt4-dev
-      - run: mkdir -p build
-      - run: cmake -B build -DUSE_QT5=false .
-      - run: make
 
 workflows:
   version: 2
@@ -47,4 +36,3 @@ workflows:
       - build
       - build-v4l
       - build-splitter
-      - build-qt4
