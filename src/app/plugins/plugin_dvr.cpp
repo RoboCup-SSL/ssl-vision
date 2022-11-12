@@ -463,7 +463,6 @@ void DVRFrame::getFromFrameData(FrameData * data) {
 ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
 
   using namespace std::chrono;
-  long function_start = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
 
   (void)options;
   QString status;
@@ -580,8 +579,6 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
   w->label_info->setText(status + "\n" + stream_info);
 
   long function_stop = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
-
-  std::cout << "microseconds : " << (function_stop - function_start) << std::endl;
 
   return ProcessingOk;
 }
