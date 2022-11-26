@@ -21,7 +21,9 @@
 
 #ifndef CAPTURE_THREAD_H
 #define CAPTURE_THREAD_H
+#ifdef DC1394
 #include "capturedc1394v2.h"
+#endif
 #include "capturefromfile.h"
 #include "capturev4l.h"
 #include "capture_generator.h"
