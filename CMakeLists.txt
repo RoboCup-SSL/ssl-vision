@@ -125,14 +125,14 @@ else()
 endif()
 
 if( USE_PYLON )
-	find_package( PYLON5 REQUIRED )
-	include_directories(SYSTEM ${PYLON5_INCLUDE_DIRS})
-	add_definitions(-DPYLON5)
+	find_package( PYLON REQUIRED )
+	include_directories(SYSTEM ${PYLON_INCLUDE_DIRS})
+	add_definitions(-DPYLON)
 	set (SHARED_SRCS ${SHARED_SRCS} ${shared_dir}/capture/capture_basler.cpp)
 	set (SHARED_HEADERS ${SHARED_HEADERS} ${shared_dir}/capture/capture_basler.h)
-	message(STATUS "Pylon5 enabled")
+	message(STATUS "Pylon enabled")
 else()
-	message(STATUS "Pylon5 disabled")
+	message(STATUS "Pylon disabled")
 endif()
 
 if( USE_SPINNAKER )
@@ -323,7 +323,7 @@ set (libs ${QT_LIBRARIES}
 	${PROTOBUF_LIBRARIES}
 	${DC1394_LIBRARIES}
 	${mvIMPACT_LIBS}
-	${PYLON5_LIBRARIES}
+	${PYLON_LIBRARIES}
 	${OpenCV_LIBS}
 	${FLYCAP_LIBS}
 	${SPINNAKER_LIBS}
