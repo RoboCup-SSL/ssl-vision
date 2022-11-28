@@ -45,7 +45,7 @@ Multiple cameras are supported:
  * 1394B / Firewire 800 (backward compatible with 1394A)
  * Basic usb camera support via the [Video for Linux (V4L)](http://linuxtv.org/downloads/v4l-dvb-apis/) drivers
  * Matrix-Vision BlueFox (USB 2.0) and BlueFox3 (USB 3.0) cameras via [mvIMPACT Acquire SDK](http://www.matrix-vision.com/software-drivers-en.html)
- * Basler cameras via the [Pylon Software Suite](https://www.baslerweb.com/en/products/software/basler-pylon-camera-software-suite/)
+ * Basler cameras via the [Pylon Software Suite](https://www.baslerweb.com/en/products/software/basler-pylon-camera-software-suite/) (currently supports 7.2.1)
  * FLIR cameras via the [SPINNAKER and FLYCAP SDK](https://www.flir.com/support-center/iis/machine-vision/downloads/spinnaker-sdk-flycapture-and-firmware-download/)
  
 To enable support for one or more of those cameras, install the corresponding SDK (linked above and described in more details below) first.
@@ -91,6 +91,7 @@ sh install_mvBlueFOX.sh -u
 ### Basler cameras
 
 Basler cameras are supported via the [Pylon Software Suite](https://www.baslerweb.com/en/products/software/basler-pylon-camera-software-suite/). 
+[This link](https://www.baslerweb.com/fp-1668420813/media/downloads/software/pylon_software/pylon_7.2.1.25747_x86_64_debs.tar.gz) should directly download the current supported version, 7.2.1.
 Installation instructions are contained in the download. 
 
 Tested with [Basler ace acA1300-75gc](https://www.baslerweb.com/en/products/cameras/area-scan-cameras/ace/aca1300-75gc/). 

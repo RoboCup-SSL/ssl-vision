@@ -48,7 +48,7 @@
 #include "capture_flycap.h"
 #endif
 
-#ifdef PYLON5
+#ifdef PYLON
 #include "capture_basler.h"
 #endif
 
