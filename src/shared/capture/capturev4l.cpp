@@ -586,7 +586,10 @@ bool GlobalV4Linstance::getImageFromJPEG(
   try{
     jpeg_create_decompress(&dinfo);
     jpeg_mem_src(&dinfo, in_img.data, in_img.length);
-    jpeg_read_header(&dinfo, true);
+    if (jpeg_read_header(&dinfo, true) != JPEG_HEADER_OK){
+      std::cout << "jpeg header is wrong" << std::endl;
+      return false;
+    }
     dinfo.output_components = 3;
     jpeg_start_decompress(&dinfo);
 
@@ -600,6 +603,7 @@ bool GlobalV4Linstance::getImageFromJPEG(
   }
   catch(std::runtime_error & e){
     jpeg_destroy_decompress(&dinfo);
+      std::cout << "an error occured using libjpeg" << std::endl;
     return false;
   }
   return true;
