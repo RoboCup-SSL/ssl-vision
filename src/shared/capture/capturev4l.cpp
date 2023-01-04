@@ -60,7 +60,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>      //open
 #include <unistd.h>     //close
-#include <jpeglib.h>
 
 namespace {
 uint32_t stringToPixelFormat(const std::string &format) {
@@ -567,24 +566,42 @@ bool GlobalV4Linstance::getImageRgb(GlobalV4Linstance::yuyv *pSrc, int width, in
     return true;
 }
 
+void GlobalV4Linstance::jpegErrorExit(j_common_ptr dinfo)
+{
+    char jpegLastErrorMsg[JMSG_LENGTH_MAX];
+    /* Create the message */
+    (*( dinfo->err->format_message)) (dinfo, jpegLastErrorMsg);
+
+    /* Jump to the catch */
+    throw std::runtime_error(jpegLastErrorMsg);
+}
+
 bool GlobalV4Linstance::getImageFromJPEG(
     const GlobalV4Linstance::image_t &in_img, RawImage *out_img) {
   struct jpeg_decompress_struct dinfo;
   struct jpeg_error_mgr jerr;
   dinfo.err = jpeg_std_error(&jerr);
-  jpeg_create_decompress(&dinfo);
-  jpeg_mem_src(&dinfo, in_img.data, in_img.length);
-  jpeg_read_header(&dinfo, true);
-  dinfo.output_components = 3;
-  jpeg_start_decompress(&dinfo);
+  jerr.error_exit = jpegErrorExit;
 
-  int row_stride = out_img->getWidth() * 3;
-  for (int row = 0; row < out_img->getHeight(); ++row) {
-    JSAMPROW row_ptr = &out_img->getData()[row_stride * row];
-    jpeg_read_scanlines(&dinfo, &row_ptr, 1);
+  try{
+    jpeg_create_decompress(&dinfo);
+    jpeg_mem_src(&dinfo, in_img.data, in_img.length);
+    jpeg_read_header(&dinfo, true);
+    dinfo.output_components = 3;
+    jpeg_start_decompress(&dinfo);
+
+    int row_stride = out_img->getWidth() * 3;
+    for (int row = 0; row < out_img->getHeight(); ++row) {
+      JSAMPROW row_ptr = &out_img->getData()[row_stride * row];
+      jpeg_read_scanlines(&dinfo, &row_ptr, 1);
+    }
+    // freeing jpeg_decompress_struct memory
+    jpeg_destroy_decompress(&dinfo);
   }
-  // freeing jpeg_decompress_struct memory
-  jpeg_destroy_decompress(&dinfo);
+  catch(std::runtime_error & e){
+    jpeg_destroy_decompress(&dinfo);
+    return false;
+  }
   return true;
 }
 

@@ -42,6 +42,7 @@
 #include "VarTypes.h"
 #include <linux/videodev2.h>
 #include <sys/poll.h>
+#include <jpeglib.h>
 
 #include <map>
 
@@ -144,8 +145,9 @@ public:
     static bool writeRgbPPM(GlobalV4Linstance::rgb *imgbuf, int width, int height, const char *filename);
 private:
     static bool getImageRgb(GlobalV4Linstance::yuyv *pSrc, int width, int height, GlobalV4Linstance::rgb **rgbbuf);
+    static void jpegErrorExit(j_common_ptr dinfo);
     static bool getImageFromJPEG(const image_t& in_img, RawImage* out_img);
-  static bool getImage(const image_t& in_img, const uint32_t pixel_format, RawImage* out_img);
+    static bool getImage(const image_t& in_img, const uint32_t pixel_format, RawImage* out_img);
     static GlobalV4Linstance::rgb yuv2rgb(GlobalV4Linstance::yuv p);
     
 };
