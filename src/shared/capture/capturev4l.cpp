@@ -605,7 +605,7 @@ bool GlobalV4Linstance::getImage(const GlobalV4Linstance::image_t &in_img,
   };
 }
 
-GlobalV4Linstance::rgb GlobalV4Linstance::yuv2rgb(GlobalV4Linstance::yuv p)
+inline GlobalV4Linstance::rgb GlobalV4Linstance::yuv2rgb(GlobalV4Linstance::yuv p)
 {
     GlobalV4Linstance::rgb r;
 
