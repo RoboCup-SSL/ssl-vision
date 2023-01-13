@@ -608,15 +608,10 @@ bool GlobalV4Linstance::getImage(const GlobalV4Linstance::image_t &in_img,
 GlobalV4Linstance::rgb GlobalV4Linstance::yuv2rgb(GlobalV4Linstance::yuv p)
 {
     GlobalV4Linstance::rgb r;
-    int y,u,v;
-    
-    y = p.y;
-    u = p.v*2 - 255;
-    v = p.u*2 - 255;
-    
-    r.red   = bound(y + u                     ,0,255);
-    r.green = bound((int)(y - 0.51*u - 0.19*v),0,255);
-    r.blue  = bound(y + v                     ,0,255);
+
+    r.red   = bound(p.y + ((p.v * 1436) >> 10) - 179, 0, 255);
+    r.green = bound(p.y - ((p.u * 352 + p.v * 731) >> 10) + 135, 0, 255);
+    r.blue  = bound(p.y + ((p.u * 1814) >> 10) - 226, 0, 255);
     
     return(r);
 }
