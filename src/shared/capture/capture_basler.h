@@ -40,7 +40,7 @@ private:
 	QMutex mutex;
 
 public:
-	CaptureBasler(VarList* _settings=0, QObject* parent=0);
+	CaptureBasler(VarList* _settings=0, int default_camera_id=0, QObject* parent=0);
     void mvc_connect(VarList * group);
 	~CaptureBasler();
 

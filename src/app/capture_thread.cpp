@@ -77,7 +77,7 @@ CaptureThread::CaptureThread(int cam_id)
   captureModule->addItem("Basler GigE");
   basler = new VarList("Basler GigE");
   settings->addChild(basler);
-  captureBasler = new CaptureBasler(basler);
+  captureBasler = new CaptureBasler(basler, camId);
 #endif
 
 #ifdef FLYCAP
