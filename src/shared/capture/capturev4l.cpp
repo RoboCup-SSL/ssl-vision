@@ -554,14 +554,21 @@ bool GlobalV4Linstance::getImageRgb(GlobalV4Linstance::yuyv *pSrc, int width, in
     
     int size = width*height;
     GlobalV4Linstance::rgb *pDest = (*rgbbuf);
-    GlobalV4Linstance::yuv pxCopy;
-    for (int iP=0; iP<size; iP++) {
-        pxCopy.y = (iP&1)? pSrc->y2 : pSrc->y1;
-        pxCopy.u = pSrc->u;
-        pxCopy.v = pSrc->v;
-        (*pDest) = yuv2rgb(pxCopy);
-        pDest++;                //advance destination always
-        if (iP&1) pSrc++;       //avoid odd field advancement
+
+    // Convert YUYV to RGB
+    for (int iP=0; iP < size>>1; iP++) {
+        int uv2r = ((pSrc->v * 1436) >> 10) - 179;
+        int uv2g = ((pSrc->u * 352 + pSrc->v * 731) >> 10) - 135;
+        int uv2b = ((pSrc->u * 1814) >> 10) - 226;
+        pDest->red   = bound(pSrc->y1 + uv2r, 0, 255);
+        pDest->green = bound(pSrc->y1 - uv2g, 0, 255);
+        pDest->blue  = bound(pSrc->y1 + uv2b, 0, 255);
+        pDest++;
+        pDest->red   = bound(pSrc->y2 + uv2r, 0, 255);
+        pDest->green = bound(pSrc->y2 - uv2g, 0, 255);
+        pDest->blue  = bound(pSrc->y2 + uv2b, 0, 255);
+        pDest++;
+        pSrc++;
     }
     return true;
 }
@@ -625,18 +632,13 @@ bool GlobalV4Linstance::getImage(const GlobalV4Linstance::image_t &in_img,
   };
 }
 
-GlobalV4Linstance::rgb GlobalV4Linstance::yuv2rgb(GlobalV4Linstance::yuv p)
+inline GlobalV4Linstance::rgb GlobalV4Linstance::yuv2rgb(GlobalV4Linstance::yuv p)
 {
     GlobalV4Linstance::rgb r;
-    int y,u,v;
-    
-    y = p.y;
-    u = p.v*2 - 255;
-    v = p.u*2 - 255;
-    
-    r.red   = bound(y + u                     ,0,255);
-    r.green = bound((int)(y - 0.51*u - 0.19*v),0,255);
-    r.blue  = bound(y + v                     ,0,255);
+
+    r.red   = bound(p.y + ((p.v * 1436) >> 10) - 179, 0, 255);
+    r.green = bound(p.y - ((p.u * 352 + p.v * 731) >> 10) + 135, 0, 255);
+    r.blue  = bound(p.y + ((p.u * 1814) >> 10) - 226, 0, 255);
     
     return(r);
 }
