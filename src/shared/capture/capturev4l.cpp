@@ -556,16 +556,6 @@ bool GlobalV4Linstance::getImageRgb(GlobalV4Linstance::yuyv *pSrc, int width, in
     int size = width*height;
     GlobalV4Linstance::rgb *pDest = (*rgbbuf);
 
-    // GlobalV4Linstance::yuv pxCopy;
-    // for (int iP=0; iP<size; iP++) {
-    //     pxCopy.y = (iP&1)? pSrc->y2 : pSrc->y1;
-    //     pxCopy.u = pSrc->u;
-    //     pxCopy.v = pSrc->v;
-    //     (*pDest) = yuv2rgb(pxCopy);
-    //     pDest++;                //advance destination always
-    //     if (iP&1) pSrc++;       //avoid odd field advancement
-    // }
-
     // Convert YUYV to RGB
     for (int iP=0; iP < size>>1; iP++) {
         int uv2r = ((pSrc->v * 1436) >> 10) - 179;
