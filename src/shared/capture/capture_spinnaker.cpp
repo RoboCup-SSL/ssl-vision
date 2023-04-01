@@ -216,9 +216,13 @@ void CaptureSpinnaker::writeParameterValues(VarList * item)
     pCam->BalanceWhiteAuto.SetValue(stringToBalanceWhiteAuto(v_white_balance_auto->getString().c_str()));
 
     pCam->BalanceRatioSelector.SetValue(Spinnaker::BalanceRatioSelector_Blue);
-    pCam->BalanceRatio.SetValue(v_white_balance_blue->getDouble());
+    if (IsWritable(pCam->BalanceRatio)) {
+      pCam->BalanceRatio.SetValue(v_white_balance_blue->getDouble());
+    }
     pCam->BalanceRatioSelector.SetValue(Spinnaker::BalanceRatioSelector_Red);
-    pCam->BalanceRatio.SetValue(v_white_balance_red->getDouble());
+    if (IsWritable(pCam->BalanceRatio)) {
+      pCam->BalanceRatio.SetValue(v_white_balance_red->getDouble());
+    }
 
     pCam->GammaEnable.SetValue(v_gamma_enabled->getBool());
     if (IsWritable(pCam->Gamma)) {
