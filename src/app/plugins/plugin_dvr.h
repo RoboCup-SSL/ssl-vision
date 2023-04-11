@@ -164,7 +164,6 @@ class DVRNonBlockingWriter
   const QString output_dir;
   std::thread writer_thread;
   std::atomic<bool> running = {true};
-
   DVRThreadSafeQueue data_buffer;
   int index{};
   void runWriterOnLoop();

@@ -25,6 +25,7 @@
 #include <fstream>
 #include <utility>
 #include <memory>
+#include <cstdlib>
 
 PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFlags f) : QWidget(parent,f) {
   layout_main=new QVBoxLayout();
@@ -280,6 +281,11 @@ DVRFrame::~DVRFrame() {
 void PluginDVR::slotRecordContinuousToggled(){
   is_recording_continuous = false;
 
+  // Destruct the frame writer if it exists
+  if(frame_writer){
+    frame_writer.reset();
+  }
+
   // Return if continuous recording is disabled
   if(!w->btn_rec_continuous->isChecked()) return;
 
@@ -298,6 +304,14 @@ void PluginDVR::slotRecordContinuousToggled(){
 
   // Ask the user where to store the recordings
   const auto dir = QFileDialog::getExistingDirectory(nullptr, "Select Directory to store", "", QFileDialog::DontUseNativeDialog | QFileDialog::ShowDirsOnly);
+
+  // Check if 'cancel' was pressed
+  if(dir.isEmpty()){
+    w->btn_rec_continuous->setChecked(false);
+    return;
+  }
+
+  // Create the frame writer with the given directory
   frame_writer = std::unique_ptr<DVRNonBlockingWriter>(new DVRNonBlockingWriter(dir));
   is_recording_continuous = true;
 }
@@ -504,7 +518,15 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
 
         if (!_fps_limit_enable->getBool() || interval_ms < now - rec_continuous_last_timestamp) {
             rec_continuous_last_timestamp = now;
-            frame_writer->write(data, detection_frame);
+            
+            using namespace std::chrono;
+            high_resolution_clock::time_point t1 = high_resolution_clock::now();
+            std::cout << std::endl;
+              frame_writer->write(data, detection_frame);
+            high_resolution_clock::time_point t2 = high_resolution_clock::now();
+            duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+            std::cout << "[plugin_dvr.cpp][process] Writing frame took " << time_span.count() * 1000 << " ms in main thread" << std::endl;
+            
         }
       }
 
@@ -805,11 +827,13 @@ DVRNonBlockingWriter::DVRNonBlockingWriter(QString output_dir): output_dir(std::
 }
 
 DVRNonBlockingWriter::~DVRNonBlockingWriter() {
+  std::cout << "[DVRNonBlockingWriter] Joining writer thread.." << std::endl;
   if (writer_thread.joinable()) {
     running = false;
     data_buffer.stop();
     writer_thread.join();
   }
+  std::cout << "[DVRNonBlockingWriter] Writer thread joined" << std::endl;
   std::cout << "[DVRNonBlockingWriter] Instance destructed" << std::endl;
 }
 
@@ -823,13 +847,19 @@ void DVRNonBlockingWriter::write() {
   // Early return in case, thread was stopped, since dequeue might return {} in that case
   if (!running) return;
 
-  DVRUtils::saveFrame(*data.frame_ptr, output_dir, index);
-  DVRUtils::saveDetectionFrame(data.detection_frame, output_dir, index);
+  using namespace std::chrono;
+  high_resolution_clock::time_point t1 = high_resolution_clock::now();
+    DVRUtils::saveFrame(*data.frame_ptr, output_dir, index);
+    DVRUtils::saveDetectionFrame(data.detection_frame, output_dir, index);
+  high_resolution_clock::time_point t2 = high_resolution_clock::now();
+  duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+  std::cout << "[DVRNonBlockingWriter] Writing frame " << index << " took " << time_span.count() * 1000 << " ms in secondary thread" << std::endl;
+
   index++;
 }
 
 void DVRNonBlockingWriter::write(FrameData* frameData, SSL_DetectionFrame* detectionFrame) {
-    auto frame_ptr = std::unique_ptr<DVRFrame>(new DVRFrame());
+    std::unique_ptr<DVRFrame> frame_ptr = std::unique_ptr<DVRFrame>(new DVRFrame());
     frame_ptr->getFromFrameData(frameData);
     data_buffer.enqueue({std::move(frame_ptr), *detectionFrame });
 }
