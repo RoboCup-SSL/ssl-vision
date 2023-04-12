@@ -103,7 +103,7 @@ Tested with [Basler ace acA1300-75gc](https://www.baslerweb.com/en/products/came
 USB 3.0 cameras are currently supported.
 
 Tested cameras:
- * Blackfly S (BFS-U3-51S5C-C)
+ * Blackfly S (BFS-U3-51S5C-C) - [Documentation](https://www.flir.de/support-center/iis/machine-vision/knowledge-base/technical-documentation-blackfly-s-usb3/)
  
 Download and install the [SDK](https://www.flir.com/products/spinnaker-sdk) and build ssl-vision with `-DUSE_SPINNAKER=true`.
 
