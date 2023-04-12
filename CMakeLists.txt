@@ -12,70 +12,28 @@ if(USE_DC1394 AND USE_mvIMPACT)
 	message(FATAL_ERROR "DC1394 and mvImpact are not compatible: mvImpact crashes when creating device manager")
 endif()
 
-cmake_minimum_required(VERSION 2.8.9)
-if(POLICY CMP0020)
-    cmake_policy(SET CMP0020 NEW) # remove if CMake >= 2.8.11 required
-endif()
-if(POLICY CMP0043) # compatibility with CMake 3.0.1
-    cmake_policy(SET CMP0043 OLD)
-endif()
-if(POLICY CMP0071) # compatibility with CMake 3.10.0
-    cmake_policy(SET CMP0071 OLD)
-endif()
+# Minimum cmake version is set to current version in Ubuntu 20.04
+cmake_minimum_required(VERSION 3.16.3)
 
-#defines
-add_definitions(-D UNIX)
-add_definitions(-D LINUX)
-add_definitions(-D _GNU_SOURCE)
-add_definitions(-std=c++11)
-
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
-
-SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_CXX_STANDARD 11)
 
 # Find third-party libraries
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
-
 find_package(Protobuf REQUIRED)
-if(EXISTS ${PROTOBUF_PROTOC_EXECUTABLE})
-	message(STATUS "Found PROTOBUF Compiler: ${PROTOBUF_PROTOC_EXECUTABLE}")
-else()
-	message(FATAL_ERROR "Could not find PROTOBUF Compiler")
-endif()
-
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(Eigen3 REQUIRED eigen3)
-
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOMOC ON)
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
-#find_package(Qt5Network REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
-
-set(QT_LIBRARIES "")
-
-include_directories(
-	${PROJECT_BINARY_DIR}
-	${Eigen3_INCLUDE_DIRS}
-	${PROTOBUF_INCLUDE_DIRS}
-)
+# Note: Bluefox SDK is not compatible with some components of OpenCV. Take care when enabling more.
+find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs )
 
 include(src/shared/CMakeLists.txt.inc)
-
-# Note: Bluefox SDK is not compatible with some components of OpenCV. Take care when enabling more.
-find_package( OpenCV REQUIRED COMPONENTS core imgproc imgcodecs )
-if( OpenCV_FOUND )
-    message(STATUS "OpenCV ${OpenCV_VERSION} found")
-    if(OpenCV_VERSION_MAJOR LESS 3)
-        message(FATAL_ERROR "OpenCV major version >= 3 is required")
-    endif()
-    include_directories(${OpenCV_INCLUDE_DIRS})
-    add_definitions(-D OPENCV)
-else()
-    message(FATAL_ERROR "OpenCV NOT found")
-endif()
 
 if( USE_mvIMPACT )
 	find_package(mvIMPACT REQUIRED)
@@ -260,7 +218,7 @@ qt5_add_resources(RC_SRCS
 	${SHARED_RC}
 )
 
-## generate moc files for graphicalClient
+## generate moc files for logClient
 qt5_wrap_cpp(LCLIENT_MOC_SRCS
     src/logClient/CentralWindow.h
     src/logClient/ClientThreading.h
@@ -268,13 +226,12 @@ qt5_wrap_cpp(LCLIENT_MOC_SRCS
     src/logClient/LogControl.h
 )
 
-## generate moc files for graphicalClient2
+## generate moc files for graphicalClient
 qt5_wrap_cpp(GCLIENT_MOC_SRCS
     src/graphicalClient/soccerview.h
 )
 
 ## shared qt wrappings
-
 qt5_wrap_cpp (SHARED_MOC_SRCS
 	${SHARED_HEADERS}
 )
@@ -283,23 +240,8 @@ qt5_add_resources(SHARED_RC_SRCS
 	${SHARED_RC}
 )
 
-set (arch ${CMAKE_SYSTEM_PROCESSOR})
-
-message (STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
-message (STATUS "Arch: ${arch}")
-
-if (${arch} MATCHES "x86_64")
-	#set compiler flags here for x86_64
-	set (cc_flags "")
-elseif (${arch} MATCHES "x86")
-	#set compiler flags here for x86
-	set (cc_flags "")
-endif()
-
-# make sure to use C++98 and enable warnings
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ansi")
 # enable warnings
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 #flags to set in debug mode
 set (CMAKE_CXX_FLAGS_DEBUG "-g -Wl,--no-as-needed")
@@ -307,62 +249,50 @@ set (CMAKE_CXX_FLAGS_DEBUG "-g -Wl,--no-as-needed")
 #flags to set in release mode
 set (CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3 -march=native -Wl,--no-as-needed")
 
-message( STATUS "CC Flags: ${CMAKE_CXX_FLAGS_RELEASE}")
-message (STATUS "Custom CC Flags: ${cc_flags}")
-
-add_definitions(${cc_flags})
-
 ## build the common code
 add_library(sslvision ${SHARED_MOC_SRCS} ${SHARED_RC_SRCS} ${CC_PROTO} ${SHARED_SRCS})
 add_dependencies(sslvision GenerateProto)
 
-set (libs ${QT_LIBRARIES}
-	${CMAKE_THREAD_LIBS_INIT}
-	${OPENGL_gl_LIBRARY}
-	${OPENGL_glu_LIBRARY}
-	${PROTOBUF_LIBRARIES}
-	${DC1394_LIBRARIES}
-	${mvIMPACT_LIBS}
-	${PYLON_LIBRARIES}
-	${OpenCV_LIBS}
-	${FLYCAP_LIBS}
-	${SPINNAKER_LIBS}
+set (libs
+  ${QT_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT}
+  ${OPENGL_gl_LIBRARY}
+  ${OPENGL_glu_LIBRARY}
+  ${PROTOBUF_LIBRARIES}
+  ${DC1394_LIBRARIES}
+  ${mvIMPACT_LIBS}
+  ${PYLON_LIBRARIES}
+  ${OpenCV_LIBS}
+  ${FLYCAP_LIBS}
+  ${SPINNAKER_LIBS}
   ${V4L_LIBS}
+  Eigen3::Eigen
 )
-target_link_libraries(sslvision ${libs})
-qt5_use_modules(sslvision Widgets)
+target_link_libraries(sslvision ${libs} Qt5::Widgets)
 set (libs ${libs} sslvision)
 
 ## build the main app
-set (target vision)
-add_executable(${target} ${UI_SRCS} ${MOC_SRCS} ${RC_SRCS} ${SRCS})
-target_link_libraries(${target} ${libs})
-qt5_use_modules(${target} Widgets OpenGL)
+add_executable(vision ${UI_SRCS} ${MOC_SRCS} ${RC_SRCS} ${SRCS})
+target_link_libraries(vision ${libs} Qt5::Widgets Qt5::OpenGL)
 
-##build non graphical client
-set (client client)
-add_executable(${client} src/client/main.cpp )
-target_link_libraries(${client} ${libs})
-qt5_use_modules(${client} Core)
+## build non graphical client
+add_executable(client src/client/main.cpp )
+target_link_libraries(client ${libs} Qt5::Core)
 
-##build logging client
-set (lclient logClient)
-add_executable(${lclient} ${LCLIENT_MOC_SRCS}
+## build logging client
+add_executable(logClient ${LCLIENT_MOC_SRCS}
 	src/logClient/main.cpp
 	src/logClient/CentralWindow.cpp
 	src/logClient/ClientThreading.cpp
 	src/logClient/GraphicsPrimitives.cpp
 	src/logClient/LogControl.cpp
 )
-target_link_libraries(${lclient} ${libs})
-qt5_use_modules(${lclient} Widgets OpenGL)
+target_link_libraries(logClient ${libs} Qt5::Widgets Qt5::OpenGL)
 
-##build graphical client
-set (gclient graphicalClient)
-add_executable(${gclient} ${GCLIENT_MOC_SRCS}
+## build graphical client
+add_executable(graphicalClient ${GCLIENT_MOC_SRCS}
   src/graphicalClient/main.cpp
   src/graphicalClient/soccerview.cpp
   src/graphicalClient/gltext.cpp
 )
-target_link_libraries(${gclient} ${libs})
-qt5_use_modules(${gclient} Widgets OpenGL)
+target_link_libraries(graphicalClient ${libs} Qt5::Widgets Qt5::OpenGL)
