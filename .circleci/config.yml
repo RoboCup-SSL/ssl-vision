@@ -8,6 +8,14 @@ jobs:
       - checkout
       - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
       - run: make
+  build-ubuntu-2204:
+    docker:
+      - image: ubuntu:22.04
+    steps:
+      - run: apt-get update -qq && apt-get install -qq git
+      - checkout
+      - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
+      - run: make
   build-v4l:
     docker:
         - image: ubuntu:20.04
@@ -34,5 +42,6 @@ workflows:
   build_all:
     jobs:
       - build
+      - build-ubuntu-2204
       - build-v4l
       - build-splitter
