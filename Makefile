@@ -1,3 +1,4 @@
+.PHONY: all clean build_cmake cleanup_cache run run_client run_graphical_client install_test_data configure_spinnaker
 buildDir=build
 
 #change to Debug for debug mode
@@ -6,10 +7,7 @@ buildType=Release
 all: build_cmake
 
 $(buildDir)/CMakeLists.txt.copy: CMakeLists.txt
-	mkdir -p $(buildDir) && \
-	cd $(buildDir) && \
-	cmake -DCMAKE_BUILD_TYPE=$(buildType) .. && \
-	cp ../CMakeLists.txt ./CMakeLists.txt.copy
+	cmake -S . -B $(buildDir) -DCMAKE_BUILD_TYPE=$(buildType)
 
 build_cmake: $(buildDir)/CMakeLists.txt.copy
 	$(MAKE) -C $(buildDir)
@@ -20,13 +18,16 @@ clean:
 cleanup_cache:
 	rm -rf $(buildDir)
 
-run: all
-	./bin/vision
+configure_spinnaker: $(buildDir)/CMakeLists.txt.copy
+	cmake -S . -B $(buildDir) -DUSE_SPINNAKER=true
 
-runClient:
+run: all
+	./bin/vision -s
+
+run_client: all
 	./bin/client
 
-runGraphicalClient:
+run_graphical_client: all
 	./bin/graphicalClient
 
 $(buildDir)/test-data.zip:
