@@ -7,7 +7,7 @@ buildType=Release
 all: build_cmake
 
 $(buildDir)/CMakeLists.txt.copy: CMakeLists.txt
-	cmake -S . -B $(buildDir) -DCMAKE_BUILD_TYPE=$(buildType)
+	cmake -B $(buildDir) -DCMAKE_BUILD_TYPE=$(buildType)
 
 build_cmake: $(buildDir)/CMakeLists.txt.copy
 	$(MAKE) -C $(buildDir)
@@ -20,6 +20,12 @@ cleanup_cache:
 
 configure_spinnaker: $(buildDir)/CMakeLists.txt.copy
 	cmake -S . -B $(buildDir) -DUSE_SPINNAKER=true
+
+backup_configs: $(wildcard robocup-*) settings.xml
+		$(eval dir="backup/$(shell date +%Y-%m-%d_%H-%M-%S)")
+		mkdir -p $(dir)
+		cp $? $(dir)
+#		cp settings.xml $(dir)
 
 run: all
 	./bin/vision -s
