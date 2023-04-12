@@ -25,7 +25,6 @@ backup_configs: $(wildcard robocup-*) settings.xml
 		$(eval dir="backup/$(shell date +%Y-%m-%d_%H-%M-%S)")
 		mkdir -p $(dir)
 		cp $? $(dir)
-#		cp settings.xml $(dir)
 
 run: all
 	./bin/vision -s
