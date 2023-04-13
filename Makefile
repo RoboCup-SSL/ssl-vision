@@ -27,7 +27,7 @@ backup_configs: $(wildcard robocup-*) settings.xml
 		cp $? $(dir)
 
 run: all
-	./bin/vision -s
+	LC_NUMERIC=en_US.UTF-8 ./bin/vision -s
 
 run_client: all
 	./bin/client
