@@ -59,7 +59,7 @@ Then build with the corresponding option:
  * `-DUSE_FLYCAP=true`
  * `-DUSE_V4L=true`
  
-Example for a release build: `cd build; cmake -DUSE_SPINNAKER=true ..`.
+Example for a release build: `cmake -B build -DUSE_SPINNAKER=true`.
  As these are cached cmake options, you only need to run this once and can build with `make` afterwards.
 
 ### Virtual Splitter cameras
@@ -115,9 +115,7 @@ make
 ```
 If you need to pass extra parameters to cmake, you need to run `cmake` directly:
 ```bash
-cd build
-cmake -DUSE_WHAT_SO_EVER=true ..
-cd ..
+cmake -B build -DUSE_WHAT_SO_EVER=true
 make
 ```
 The `USE_*` parameters are cached, so they do not have to be passed in each time.
