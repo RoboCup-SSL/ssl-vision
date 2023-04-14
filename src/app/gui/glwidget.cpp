@@ -299,7 +299,7 @@ void GLWidget::resizeGL ( int width, int height ) {
 
 void GLWidget::wheelEvent ( QWheelEvent * event ) {
   event->setAccepted ( false );
-  pixelloc loc=zoom.invZoom ( (int) event->position().x(),(int) event->position().y(),true );
+  pixelloc loc=zoom.invZoom ( event->pos().x(),event->pos().y(),true );
   if ( stack!= nullptr ) stack->wheelEvent ( event,loc );
   if ( event->isAccepted() ) return;
   int delta=event->angleDelta().y();
