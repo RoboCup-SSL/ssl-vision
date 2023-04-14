@@ -5,7 +5,7 @@ set(USE_SPINNAKER FALSE CACHE BOOL "Compile with Spinnaker driver (FLIR cameras)
 set(USE_mvIMPACT FALSE CACHE BOOL "Compile with mvImpact driver (bluefox USB2 + USB3 cameras)")
 set(USE_PYLON FALSE CACHE BOOL "Compile with pylon driver (Basler cameras)")
 set(USE_FLYCAP FALSE CACHE BOOL "Compile with flycap driver (FLIR cameras, predecessor of Spinnaker)")
-set(USE_V4L FALSE CACHE BOOL "Compile with Video4Linux support (generic webcams)")
+set(USE_V4L TRUE CACHE BOOL "Compile with Video4Linux support (generic webcams)")
 set(USE_SPLITTER FALSE CACHE BOOL "Compile with Camera splitter support (virtual cameras with part of a full image)")
 
 if(USE_DC1394 AND USE_mvIMPACT)
