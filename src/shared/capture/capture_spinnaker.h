@@ -52,7 +52,7 @@ class CaptureSpinnaker : public QObject, public CaptureInterface
   Q_OBJECT
 
   public slots:
-  void changed(VarType * group);
+  void changed(VarTypes::VarType * group);
 
   protected:
   QMutex mutex;
@@ -79,7 +79,6 @@ protected:
   VarDouble* v_white_balance_red;
   VarDouble* v_white_balance_blue;
   VarStringEnum* v_stream_buffer_handling_mode;
-  VarStringEnum* v_stream_buffer_count_mode;
   VarInt* v_stream_buffer_count;
   VarBool* v_use_camera_time;
   VarDouble* v_frame_rate;
@@ -236,28 +235,6 @@ private:
         return Spinnaker::StreamBufferHandlingMode_OldestFirst;
       }
       return Spinnaker::StreamBufferHandlingMode_OldestFirstOverwrite;
-    }
-
-
-    static string toString(Spinnaker::StreamBufferCountModeEnum e) {
-      switch(e)
-      {
-        case Spinnaker::StreamBufferCountMode_Auto:
-          return "Auto";
-        case Spinnaker::StreamBufferCountMode_Manual:
-          return "Manual";
-        default:
-          return "Auto";
-      }
-    }
-
-    static Spinnaker::StreamBufferCountModeEnum stringToStreamBufferCountMode(const char* s) {
-      if(strcmp(s, "Auto") == 0) {
-        return Spinnaker::StreamBufferCountMode_Auto;
-      } else if(strcmp(s, "Manual") == 0) {
-        return Spinnaker::StreamBufferCountMode_Manual;
-      }
-      return Spinnaker::StreamBufferCountMode_Auto;
     }
 };
 

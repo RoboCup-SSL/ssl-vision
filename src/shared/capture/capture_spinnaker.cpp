@@ -73,10 +73,6 @@ CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id, QO
   v_stream_buffer_handling_mode->addItem(toString(Spinnaker::StreamBufferHandlingMode_NewestFirst));
   v_stream_buffer_handling_mode->addItem(toString(Spinnaker::StreamBufferHandlingMode_NewestOnly));
 
-  v_stream_buffer_count_mode = new VarStringEnum("Stream Buffer Count Mode", toString(Spinnaker::StreamBufferCountMode_Manual));
-  v_stream_buffer_count_mode->addItem(toString(Spinnaker::StreamBufferCountMode_Manual));
-  v_stream_buffer_count_mode->addItem(toString(Spinnaker::StreamBufferCountMode_Auto));
-
   v_stream_buffer_count = new VarInt("Stream Buffer Count", 3);
 
   v_use_camera_time = new VarBool("Use camera time", true);
@@ -97,7 +93,6 @@ CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id, QO
   dcam_parameters->addChild(v_white_balance_blue);
   dcam_parameters->addChild(v_white_balance_red);
   dcam_parameters->addChild(v_stream_buffer_handling_mode);
-  dcam_parameters->addChild(v_stream_buffer_count_mode);
   dcam_parameters->addChild(v_stream_buffer_count);
   dcam_parameters->addChild(v_use_camera_time);
   dcam_parameters->addChild(v_frame_rate);
@@ -117,9 +112,9 @@ CaptureSpinnaker::~CaptureSpinnaker()
 void CaptureSpinnaker::mvc_connect(VarList * group)
 {
   for (auto &i : group->getChildren()) {
-    connect(i,SIGNAL(wasEdited(VarType *)),group,SLOT(mvcEditCompleted()));
+    connect(i,SIGNAL(wasEdited(VarType*)),group,SLOT(mvcEditCompleted()));
   }
-  connect(group,SIGNAL(wasEdited(VarType *)),this,SLOT(changed(VarType *)));
+  connect(group,SIGNAL(wasEdited(VarType*)),this,SLOT(changed(VarType*)));
 }
 
 void CaptureSpinnaker::changed(VarType * group)
@@ -167,14 +162,7 @@ void CaptureSpinnaker::readParameterValues(VarList * item)
     }
 
     v_stream_buffer_handling_mode->setString(toString(pCam->TLStream.StreamBufferHandlingMode.GetValue()));
-    Spinnaker::StreamBufferCountModeEnum countMode = pCam->TLStream.StreamBufferCountMode.GetValue();
-    v_stream_buffer_count_mode->setString(toString(countMode));
     v_stream_buffer_count->setInt(static_cast<int>(pCam->TLStream.StreamBufferCountResult.GetValue()));
-    if(countMode == Spinnaker::StreamBufferCountMode_Auto) {
-      v_stream_buffer_count->addFlags(VARTYPE_FLAG_READONLY);
-    } else {
-      v_stream_buffer_count->removeFlags(VARTYPE_FLAG_READONLY);
-    }
 
     v_frame_rate->setDouble(pCam->AcquisitionFrameRate.GetValue());
     v_frame_rate_result->setDouble(pCam->AcquisitionResultingFrameRate.GetValue());
@@ -229,13 +217,8 @@ void CaptureSpinnaker::writeParameterValues(VarList * item)
       pCam->Gamma.SetValue(v_gamma->getDouble());
     }
 
-    // reference: https://www.ptgrey.com/tan/11174
     pCam->TLStream.StreamBufferHandlingMode.SetValue(stringToStreamBufferHandlingMode(v_stream_buffer_handling_mode->getString().c_str()));
-    auto countMode = stringToStreamBufferCountMode(v_stream_buffer_count_mode->getString().c_str());
-    pCam->TLStream.StreamBufferCountMode.SetValue(countMode);
-    if(countMode == Spinnaker::StreamBufferCountMode_Manual) {
-      pCam->TLStream.StreamBufferCountManual.SetValue(v_stream_buffer_count->getInt());
-    }
+    pCam->TLStream.StreamBufferCountManual.SetValue(v_stream_buffer_count->getInt());
   }
   catch (Spinnaker::Exception &e)
   {
