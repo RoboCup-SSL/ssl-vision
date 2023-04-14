@@ -2,46 +2,44 @@ version: 2
 jobs:
   build:
     docker:
-      - image: ubuntu:20.04
+      - image: cimg/base:current-22.04
+    resource_class: large
     steps:
-      - run: apt-get update -qq && apt-get install -qq git
       - checkout
-      - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
-      - run: make
-  build-ubuntu-2204:
+      - run: ./InstallPackagesUbuntu.sh
+      - run: make -j 4
+  build-ubuntu-2004:
     docker:
-      - image: ubuntu:22.04
+      - image: cimg/base:current-20.04
+    resource_class: large
     steps:
-      - run: apt-get update -qq && apt-get install -qq git
       - checkout
-      - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
-      - run: make
+      - run: ./InstallPackagesUbuntu.sh
+      - run: make -j 4
   build-v4l:
     docker:
-        - image: ubuntu:20.04
+      - image: cimg/base:current-22.04
+    resource_class: large
     steps:
-      - run: apt-get update -qq && apt-get install -qq git
       - checkout
-      - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
-      - run: mkdir -p build
-      - run: cmake -B build -DUSE_V4L=true .
-      - run: make
+      - run: ./InstallPackagesUbuntu.sh
+      - run: cmake -B build -DUSE_V4L=true
+      - run: make -j 4
   build-splitter:
     docker:
-      - image: ubuntu:20.04
+      - image: cimg/base:current-22.04
+    resource_class: large
     steps:
-      - run: apt-get update -qq && apt-get install -qq git
       - checkout
-      - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
-      - run: mkdir -p build
-      - run: cmake -B build -DUSE_SPLITTER=true .
-      - run: make
+      - run: ./InstallPackagesUbuntu.sh
+      - run: cmake -B build -DUSE_SPLITTER=true
+      - run: make -j 4
 
 workflows:
   version: 2
   build_all:
     jobs:
       - build
-      - build-ubuntu-2204
+      - build-ubuntu-2004
       - build-v4l
       - build-splitter
