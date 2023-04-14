@@ -55,7 +55,7 @@ class PluginDVRWidget : public QWidget
 {
   Q_OBJECT
   public:
-    PluginDVRWidget(PluginDVR * dvr, QWidget * parent = 0, Qt::WindowFlags f = 0);
+    explicit PluginDVRWidget(PluginDVR * dvr, QWidget * parent = nullptr);
     JogDial * jog;
     QGroupBox * box_mode;
     QGroupBox * box_rec;
@@ -85,7 +85,7 @@ class PluginDVRWidget : public QWidget
     QToolButton * btn_seek_play;
     QToolButton * btn_seek_live;
     QToolButton * btn_seek_wrap;
-    
+
     QLabel * label_info;
 };
 

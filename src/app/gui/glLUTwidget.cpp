@@ -940,8 +940,8 @@ void GLLUTWidget::wheelEvent ( QWheelEvent * event )
   if (view_mode==VIEW_CUBE) {
     cam.wheelEvent(event);
   } else {
-    int delta=event->delta() / 120;
-    if (delta == 0) delta=((event->delta() > 0) ? 1 : 0);
+    int delta=event->angleDelta().y() / 120;
+    if (delta == 0) delta=((event->angleDelta().y() > 0) ? 1 : 0);
     state.slice_idx=max(min(state.slice_idx+delta,(int)slices.size()-1),0);
     event->accept();
   }

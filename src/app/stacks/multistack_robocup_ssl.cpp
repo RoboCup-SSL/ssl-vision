@@ -91,7 +91,7 @@ MultiStackRoboCupSSL::MultiStackRoboCupSSL(RenderOptions *_opts, int num_normal_
   num_threads++;
 #endif
   createThreads(num_threads, num_normal_camera_threads);
-  for (unsigned int i = 0; i < num_normal_camera_threads;i++) {
+  for (int i = 0; i < num_normal_camera_threads;i++) {
     //NOTE: if modified to put different stacks in cameras, please
     //      update the plugin_colorcalib.cpp code to safely reallocate and copy their
     //      data instead of assuming that format and size is uniform across

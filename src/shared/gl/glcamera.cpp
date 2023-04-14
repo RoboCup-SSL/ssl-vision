@@ -61,7 +61,7 @@ void GLCamera::preRender() {
   //this pans in camera coordinates (centered around camera):
   //glTranslatef(0.0,0.0,-forward.z);
   glTranslated(-forward.x,-forward.y,-forward.z);
-  
+
   glMultMatrixd(m);
 }
 
@@ -155,7 +155,7 @@ double GLCamera::getYaw() {
 //--------QT specific things go in here:
 
 void GLCamera::wheelEvent ( QWheelEvent * event ) {
-  int delta=event->delta();
+  int delta=event->angleDelta().y();
   if (delta < 0) {
     setDistance(max(getDistance() + 0.05,getDistance()*1.15));
     //this->zoom.zoomIn();
@@ -191,7 +191,7 @@ void GLCamera::mouseAction ( QMouseEvent * event ) {
 }
 
 void GLCamera::mousePressEvent ( QMouseEvent * event ) {
-  
+
   if (event->button()==Qt::RightButton) {
     mouseStart_pan=event->pos();
     if (pan_mode==GLCAM_PAN_POSITION_CENTRIC) {
@@ -204,7 +204,7 @@ void GLCamera::mousePressEvent ( QMouseEvent * event ) {
     getEuler(p_start,y_start,r_start);
     mouseStart_rotate=event->pos();
   }
-  
+
   mouseAction(event);
 }
 void GLCamera::mouseReleaseEvent ( QMouseEvent * event ) {

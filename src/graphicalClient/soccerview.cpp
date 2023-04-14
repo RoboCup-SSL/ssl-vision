@@ -130,7 +130,7 @@ void GLSoccerView::mouseMoveEvent(QMouseEvent* event)
 void GLSoccerView::wheelEvent(QWheelEvent* event)
 {
   static const bool debug = false;
-  double zoomRatio = -double(event->delta())/1000.0;
+  double zoomRatio = -double(event->angleDelta().y())/1000.0;
   viewScale = viewScale*(1.0+zoomRatio);
   recomputeProjection();
   if(debug) printf("Zoom: %5.3f\n",viewScale);
