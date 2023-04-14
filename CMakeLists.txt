@@ -218,14 +218,6 @@ qt5_add_resources(RC_SRCS
 	${SHARED_RC}
 )
 
-## generate moc files for logClient
-qt5_wrap_cpp(LCLIENT_MOC_SRCS
-    src/logClient/CentralWindow.h
-    src/logClient/ClientThreading.h
-    src/logClient/GraphicsPrimitives.h
-    src/logClient/LogControl.h
-)
-
 ## generate moc files for graphicalClient
 qt5_wrap_cpp(GCLIENT_MOC_SRCS
     src/graphicalClient/soccerview.h
@@ -278,16 +270,6 @@ target_link_libraries(vision ${libs} Qt5::Widgets Qt5::OpenGL)
 ## build non graphical client
 add_executable(client src/client/main.cpp )
 target_link_libraries(client ${libs} Qt5::Core)
-
-## build logging client
-add_executable(logClient ${LCLIENT_MOC_SRCS}
-	src/logClient/main.cpp
-	src/logClient/CentralWindow.cpp
-	src/logClient/ClientThreading.cpp
-	src/logClient/GraphicsPrimitives.cpp
-	src/logClient/LogControl.cpp
-)
-target_link_libraries(logClient ${libs} Qt5::Widgets Qt5::OpenGL)
 
 ## build graphical client
 add_executable(graphicalClient ${GCLIENT_MOC_SRCS}
