@@ -15,22 +15,22 @@ void computeMask(const ConvexHull &convex_hull, Image<raw8> &mask) {
   for (auto it = convex_hull.begin(); it != convex_hull.end(); ++it) {
     const GVector::vector2d<int> &a = *it;
     const GVector::vector2d<int> &b =
-      std::next(it) != convex_hull.end() ? *std::next(it) : *convex_hull.begin(); 
+      std::next(it) != convex_hull.end() ? *std::next(it) : *convex_hull.begin();
     mask.drawLine(a.x, a.y, b.x, b.y, WHITE);
   }
 
   if (convex_hull.getNumPoints() < 3)
     return;
-  
+
   // linescan, top - bot, left - right
   // first find where the whites should be painted, and then paint them
-  for (unsigned int y = 0; y < mask.getHeight(); ++y) {
-    unsigned int minX = mask.getHeight();  // never min
-    unsigned int maxX = 0;
-    for (unsigned int x = 0; x < mask.getWidth(); ++x) {
+  for (int y = 0; y < mask.getHeight(); ++y) {
+    int minX = mask.getHeight();  // never min
+    int maxX = 0;
+    for (int x = 0; x < mask.getWidth(); ++x) {
       if (mask.getPixel(x, y) == WHITE) {
-	minX = minX <= x ? minX : x;
-	maxX = x;
+        minX = minX <= x ? minX : x;
+        maxX = x;
       }
     }
     if (minX == mask.getHeight() ||  // no whites
@@ -38,14 +38,14 @@ void computeMask(const ConvexHull &convex_hull, Image<raw8> &mask) {
       continue;
 
     assert(minX >= 0 && minX < mask.getWidth() && maxX >= 0 && maxX < mask.getWidth());
-    for (unsigned int x = minX; x < maxX + 1; ++x)
+    for (int x = minX; x < maxX + 1; ++x)
       mask.setPixel(x, y, WHITE);
   }
 }
 
 void ConvexHullImageMask::slotMaskPointsRead() {
   lock();
-  
+
   VarTypes::VarInt *x;
   VarTypes::VarInt *y;
   std::vector<VarTypes::VarType *> mask_points = _v_list->getChildren();
@@ -68,7 +68,7 @@ ConvexHullImageMask::ConvexHullImageMask(const std::string &filename)
     _v_settings = new VarTypes::VarExternal(filename, "Mask");
     _v_list = new VarTypes::VarList("Convex Hull Points");
     _v_settings->addChild(_v_list);
-    
+
     connect(_v_list,SIGNAL(XMLwasRead(VarType *)),this,SLOT(slotMaskPointsRead()));
   }
 }
@@ -80,11 +80,11 @@ ConvexHullImageMask::~ConvexHullImageMask() {
 
 void ConvexHullImageMask::reset() {
   lock();
-  
+
   _convex_hull.clear();
   computeMask(_convex_hull, _mask);
   _v_list->resetToDefault();
-  
+
   unlock();
 }
 
@@ -114,7 +114,6 @@ void ConvexHullImageMask::removePoint(const int x, const int y, const int margin
   lock();
 
   bool changed = false;
-  const int PIXEL_MARGIN = 3;
   for (int w = -margin; w < margin + 1 && !changed; ++w)
     for (int h = -margin; h < margin + 1 && !changed; ++h)
       changed = _convex_hull.removePoint(x + w, y + h);
@@ -148,7 +147,7 @@ int ConvexHullImageMask::getNumPixels() const {
   lock();
   const int tmp = _mask.getNumPixels();
   unlock();
-  
+
   return tmp;
 }
 
@@ -156,7 +155,7 @@ int ConvexHullImageMask::getNumBytes() const {
   lock();
   const int tmp = _mask.getNumBytes();
   unlock();
-  
+
   return tmp;
 }
 
@@ -164,7 +163,7 @@ int ConvexHullImageMask::getWidth() const {
   lock();
   const int tmp = _mask.getWidth();
   unlock();
-  
+
   return tmp;
 }
 
@@ -172,7 +171,7 @@ int ConvexHullImageMask::getHeight() const {
   lock();
   const int tmp = _mask.getHeight();
   unlock();
-  
+
   return tmp;
 }
 

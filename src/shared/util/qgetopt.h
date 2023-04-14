@@ -24,8 +24,8 @@
 
 #include <QString>
 #include <QStringList>
-#include <QLinkedList>
 #include <QMap>
+#include <utility>
 
 class GetOpt {
 public:
@@ -67,15 +67,14 @@ private:
     enum OptionType { OUnknown, OEnd, OSwitch, OArg1, OOpt, ORepeat, OVarLen, OOptSwitch, OShortSwitch, OShortOptSwitch };
 
     struct Option;
-    friend struct Option;
 
     struct Option {
-        Option( OptionType t = OUnknown,
-                char s = 0, const QString &l = QString::null )
+        explicit Option( OptionType t = OUnknown,
+                char s = 0, QString l = QString() )
             : type( t ),
               sname( s ),
-              lname( l ),
-              boolValue( 0 ) { }
+              lname(std::move( l )),
+              boolValue( nullptr ) { }
 
         OptionType type;
         char sname;		// short option name (0 if none)
@@ -88,8 +87,8 @@ private:
         QString def;
     };
 
-    QLinkedList<Option> options;
-    typedef QLinkedList<Option>::const_iterator OptionConstIterator;
+    std::list<Option> options;
+    typedef std::list<Option>::const_iterator OptionConstIterator;
     QMap<QString, int> setOptions;
 
     void init( int argc, char *argv[], int offset = 1 );

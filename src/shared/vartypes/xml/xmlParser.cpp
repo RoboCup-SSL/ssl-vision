@@ -75,7 +75,7 @@
   #endif
   #include "xmlParser.h"
   #include <cstdio>
-  
+
   namespace VarTypes {
   #ifdef _XMLWINDOWS
   //#ifdef _DEBUG
@@ -86,20 +86,20 @@
   #include <Windows.h> // to have IsTextUnicode, MultiByteToWideChar, WideCharToMultiByte to handle unicode files
                       // to have "MessageBoxA" to display error messages for openFilHelper
   #endif
-  
+
   #include <memory.h>
   #include <assert.h>
   #include <stdio.h>
   #include <string.h>
   #include <stdlib.h>
-  
+
   XMLCSTR XMLNode::getVersion() { return _T("v2.23"); }
   void free_XMLDLL(void *t){free(t);}
-  
+
   static char strictUTF8Parsing=1, guessUnicodeChars=1, dropWhiteSpace=1;
-  
+
   inline int mmin( const int t1, const int t2 ) { return t1 < t2 ? t1 : t2; }
-  
+
   // You can modify the initialization of the variable "XMLClearTags" below
   // to change the clearTags that are currently recognized by the library.
   // The number on the second columns is the length of the string inside the
@@ -114,7 +114,7 @@
       {    NULL           ,0,  NULL           }
   };
   ALLXMLClearTag* XMLNode::getClearTagTable() { return XMLClearTags; }
-  
+
   // You can modify the initialization of the variable "XMLEntities" below
   // to change the character entities that are currently recognized by the library.
   // The number on the second columns is the length of the string inside the
@@ -129,12 +129,12 @@
       { _T("&apos;"), 6, _T('\'')},
       { NULL        , 0, '\0'    }
   };
-  
+
   // When rendering the XMLNode to a string (using the "createXMLString" function),
   // you can ask for a beautiful formatting. This formatting is using the
   // following indentation character:
   #define INDENTCHAR _T('\t')
-  
+
   // The following function parses the XML errors into a user friendly string.
   // You can edit this to change the output language of the library to something else.
   XMLCSTR XMLNode::getError(XMLError xerror)
@@ -159,7 +159,7 @@
       case eXMLErrorCharConversionError:   return _T("Error: unable to convert between UNICODE and MultiByte chars");
       case eXMLErrorCannotOpenWriteFile:   return _T("Error: unable to open file for writing");
       case eXMLErrorCannotWriteFile:       return _T("Error: cannot write into file");
-  
+
       case eXMLErrorBase64DataSizeIsNotMultipleOf4: return _T("Warning: Base64-string length is not a multiple of 4");
       case eXMLErrorBase64DecodeTruncatedData:      return _T("Warning: Base64-string is truncated");
       case eXMLErrorBase64DecodeIllegalCharacter:   return _T("Error: Base64-string contains an illegal character");
@@ -167,7 +167,7 @@
       };
       return _T("Unknown");
   }
-  
+
   // Here is an abstraction layer to access some common string manipulation functions.
   // The abstraction layer is currently working for gcc, Microsoft Visual Studio 6.0,
   // Microsoft Visual Studio .NET, CC (sun compiler) and Borland C++.
@@ -184,35 +184,35 @@
           if ((((unsigned long)b)%sizeof(wchar_t))!=0) return FALSE;
   #endif
           const wchar_t *s=(const wchar_t*)b;
-  
+
           // buffer too small:
           if (len<(int)sizeof(wchar_t)) return FALSE;
-  
+
           // odd length test
           if (len&1) return FALSE;
-  
+
           /* only checks the first 256 characters */
           len=mmin(256,len/sizeof(wchar_t));
-  
+
           // Check for the special byte order:
           if (*s == 0xFFFE) return FALSE;     // IS_TEXT_UNICODE_REVERSE_SIGNATURE;
           if (*s == 0xFEFF) return TRUE;      // IS_TEXT_UNICODE_SIGNATURE
-  
+
           // checks for ASCII characters in the UNICODE stream
           int i,stats=0;
           for (i=0; i<len; i++) if (s[i]<=(unsigned short)255) stats++;
           if (stats>len/2) return TRUE;
-  
+
           // Check for UNICODE NULL chars
           for (i=0; i<len; i++) if (!s[i]) return TRUE;
-  
+
           return FALSE;
       }
       #else
       char myIsTextUnicode(const void *b,int l) { return (char)IsTextUnicode((CONST LPVOID)b,l,NULL); };
       #endif
   #endif
-  
+
   #ifdef _XMLWINDOWS
   // for Microsoft Visual Studio 6.0 and Microsoft Visual Studio .NET,
       #ifdef _XMLUNICODE
@@ -330,11 +330,11 @@
         int _strnicmp(const char *c1,const char *c2, int l) { return strncasecmp(c1,c2,l);}
         #endif
   #endif
-  
+
   /////////////////////////////////////////////////////////////////////////
   //      Here start the core implementation of the XMLParser library    //
   /////////////////////////////////////////////////////////////////////////
-  
+
   // You should normally not change anything below this point.
   // For your own information, I suggest that you read the openFileHelper below:
   XMLNode XMLNode::openFileHelper(XMLCSTR filename, XMLCSTR tag)
@@ -349,11 +349,11 @@
           setGlobalOptions(guessUnicodeChars,guessUTF8ParsingParameterValue(bb,l),dropWhiteSpace);
           fclose(f);
       }
-  
+
       // parse the file
       XMLResults pResults;
       XMLNode xnode=XMLNode::parseFile(filename,tag,&pResults);
-  
+
       // display error message (if any)
       if (pResults.error != eXMLErrorNone)
       {
@@ -367,7 +367,7 @@
               "XML Parsing error inside file '%s'.\n%s\nAt line %i, column %i.\n%s%s%s"
   #endif
               ,filename,XMLNode::getError(pResults.error),pResults.nLine,pResults.nColumn,s1,s2,s3);
-  
+
           // display message
   #if defined(WIN32) && !defined(UNDER_CE) && !defined(_XMLPARSER_NO_MESSAGEBOX_)
           MessageBoxA(NULL,message,"XML Parsing error",MB_OK|MB_ICONERROR|MB_TOPMOST);
@@ -375,11 +375,11 @@
           printf("%s",message);
   #endif
           xnode = XMLNode::createXMLTopNode(tag);
-          
+
       }
       return xnode;
   }
-  
+
   #ifndef _XMLUNICODE
   // If "strictUTF8Parsing=0" then we assume that all characters have the same length of 1 byte.
   // If "strictUTF8Parsing=1" then the characters have different lengths (from 1 byte to 4 bytes).
@@ -417,7 +417,7 @@
   };
   static const char *XML_ByteTable=(const char *)XML_utf8ByteTable; // the default is "strictUTF8Parsing=1"
   #endif
-  
+
   XMLError XMLNode::writeToFile(XMLCSTR filename, const char *encoding, char nFormat) const
   {
       int i;
@@ -457,12 +457,12 @@
       free(t);
       return eXMLErrorNone;
   }
-  
+
   // Duplicate a given string.
   XMLSTR stringDup(XMLCSTR lpszData, int cbData)
   {
       if (lpszData==NULL) return NULL;
-  
+
       XMLSTR lpszNew;
       if (cbData==0) cbData=(int)_tcslen(lpszData);
       lpszNew = (XMLSTR)malloc((cbData+1) * sizeof(XMLCHAR));
@@ -473,11 +473,11 @@
       }
       return lpszNew;
   }
-  
+
   XMLNode XMLNode::emptyXMLNode;
   XMLClear XMLNode::emptyXMLClear={ NULL, NULL, NULL};
   XMLAttribute XMLNode::emptyXMLAttribute={ NULL, NULL};
-  
+
   // Enumeration used to decipher what type a token is
   typedef enum XMLTokenTypeTag
   {
@@ -492,7 +492,7 @@
       eTokenClear,
       eTokenError
   } XMLTokenType;
-  
+
   // Main structure used for parsing XML
   typedef struct XML
   {
@@ -506,13 +506,13 @@
       int                    cbNewElement;
       int                    nFirst;
   } XML;
-  
+
   typedef struct
   {
       ALLXMLClearTag *pClr;
       XMLCSTR     pStr;
   } NextToken;
-  
+
   // Enumeration used when parsing attributes
   typedef enum Attrib
   {
@@ -520,7 +520,7 @@
       eAttribEquals,
       eAttribValue
   } Attrib;
-  
+
   // Enumeration used when parsing elements to dictate whether we are currently
   // inside a tag
   typedef enum Status
@@ -528,7 +528,7 @@
       eInsideTag = 0,
       eOutsideTag
   } Status;
-  
+
   // private (used while rendering):
   XMLSTR toXMLString(XMLSTR dest,XMLCSTR source)
   {
@@ -560,7 +560,7 @@
       *dest=0;
       return dd;
   }
-  
+
   // private (used while rendering):
   int lengthXMLString(XMLCSTR source)
   {
@@ -585,20 +585,20 @@
       }
       return r;
   }
-  
+
   XMLSTR toXMLString(XMLCSTR source)
   {
       XMLSTR dest=(XMLSTR)malloc((lengthXMLString(source)+1)*sizeof(XMLCHAR));
       return toXMLString(dest,source);
   }
-  
+
   XMLSTR toXMLStringFast(XMLSTR *dest,int *destSz, XMLCSTR source)
   {
       int l=lengthXMLString(source)+1;
       if (l>*destSz) { *destSz=l; *dest=(XMLSTR)realloc(*dest,l*sizeof(XMLCHAR)); }
       return toXMLString(*dest,source);
   }
-  
+
   // private:
   XMLSTR fromXMLString(XMLCSTR s, int lo, XML *pXML)
   {
@@ -610,7 +610,7 @@
       // in: string (s) and length (lo) of string
       // out:  new allocated string converted from xml
       if (!s) return NULL;
-  
+
       int ll=0,j;
       XMLSTR d;
       XMLCSTR ss=s;
@@ -654,7 +654,7 @@
           }
           ll++;
       }
-  
+
       d=(XMLSTR)malloc((ll+1)*sizeof(XMLCHAR));
       s=d;
       while (ll-->0)
@@ -712,9 +712,9 @@
       *d=0;
       return (XMLSTR)s;
   }
-  
+
   #define XML_isSPACECHAR(ch) ((ch==_T('\n'))||(ch==_T(' '))||(ch== _T('\t'))||(ch==_T('\r')))
-  
+
   // private:
   char myTagCompare(XMLCSTR cclose, XMLCSTR copen)
   // !!!! WARNING strange convention&:
@@ -732,7 +732,7 @@
           (c==_T('=' ))) return 0;
       return 1;
   }
-  
+
   // Obtain the next character from the string.
   static inline XMLCHAR getNextChar(XML *pXML)
   {
@@ -744,7 +744,7 @@
   #endif
       return ch;
   }
-  
+
   // Find the next token in a string.
   // pcbToken contains the number of characters that have been read.
   static NextToken GetNextToken(XML *pXML, int *pcbToken, enum XMLTokenTypeTag *pType)
@@ -754,15 +754,15 @@
       XMLCHAR            chTemp;
       int              indexStart,nFoundMatch,nIsText=FALSE;
       result.pClr=NULL; // prevent warning
-  
+
       // Find next non-white space character
       do { indexStart=pXML->nIndex; ch=getNextChar(pXML); } while XML_isSPACECHAR(ch);
-  
+
       if (ch)
       {
           // Cache the current string pointer
           result.pStr = &pXML->lpXML[indexStart];
-  
+
           // First check whether the token is in the clear tag list (meaning it
           // does not need formatting).
           ALLXMLClearTag *ctag=XMLClearTags;
@@ -777,7 +777,7 @@
               }
               ctag++;
           } while(ctag->lpszOpen);
-  
+
           // If we didn't find a clear tag then check for standard tokens
           switch(ch)
           {
@@ -787,17 +787,17 @@
               // Type of token
               *pType = eTokenQuotedText;
               chTemp = ch;
-  
+
               // Set the size
               nFoundMatch = FALSE;
-  
+
               // Search through the string to find a matching quote
               while((ch = getNextChar(pXML)))
               {
                   if (ch==chTemp) { nFoundMatch = TRUE; break; }
                   if (ch==_T('<')) break;
               }
-  
+
               // If we failed to find a matching quote
               if (nFoundMatch == FALSE)
               {
@@ -805,29 +805,29 @@
                   nIsText=TRUE;
                   break;
               }
-  
+
   //  4.02.2002
   //            if (FindNonWhiteSpace(pXML)) pXML->nIndex--;
-  
+
               break;
-  
+
           // Equals (used with attribute values)
           case _T('='):
               *pType = eTokenEquals;
               break;
-  
+
           // Close tag
           case _T('>'):
               *pType = eTokenCloseTag;
               break;
-  
+
           // Check for tag start and tag end
           case _T('<'):
-  
+
               // Peek at the next character to see if we have an end tag '</',
               // or an xml declaration '<?'
               chTemp = pXML->lpXML[pXML->nIndex];
-  
+
               // If we have a tag end...
               if (chTemp == _T('/'))
               {
@@ -835,29 +835,29 @@
                   getNextChar(pXML);
                   *pType = eTokenTagEnd;
               }
-  
+
               // If we have an XML declaration tag
               else if (chTemp == _T('?'))
               {
-  
+
                   // Set the type and ensure we point at the next character
                   getNextChar(pXML);
                   *pType = eTokenDeclaration;
               }
-  
+
               // Otherwise we must have a start tag
               else
               {
                   *pType = eTokenTagStart;
               }
               break;
-  
+
           // Check to see if we have a short hand type end tag ('/>').
           case _T('/'):
-  
+
               // Peek at the next character to see if we have a short end tag '/>'
               chTemp = pXML->lpXML[pXML->nIndex];
-  
+
               // If we have a short hand end tag...
               if (chTemp == _T('>'))
               {
@@ -866,15 +866,15 @@
                   *pType = eTokenShortHandClose;
                   break;
               }
-  
+
               // If we haven't found a short hand closing tag then drop into the
               // text process
-  
+
           // Other characters
           default:
               nIsText = TRUE;
           }
-  
+
           // If this is a TEXT node
           if (nIsText)
           {
@@ -885,7 +885,7 @@
                   if XML_isSPACECHAR(ch)
                   {
                       indexStart++; break;
-  
+
                   } else if (ch==_T('/'))
                   {
                       // If we find a slash then this maybe text or a short hand end tag
@@ -893,7 +893,7 @@
                       ch=pXML->lpXML[pXML->nIndex];
                       // If we found a short hand end tag then we need to exit the loop
                       if (ch==_T('>')) { pXML->nIndex--; break; }
-  
+
                   } else if ((ch==_T('<'))||(ch==_T('>'))||(ch==_T('=')))
                   {
                       pXML->nIndex--; break;
@@ -908,47 +908,47 @@
           *pType = eTokenError;
           result.pStr=NULL;
       }
-  
+
       return result;
   }
-  
+
   XMLCSTR XMLNode::updateName_WOSD(XMLCSTR lpszName)
   {
       if (d->lpszName&&(lpszName!=d->lpszName)) free((void*)d->lpszName);
       d->lpszName=lpszName;
       return lpszName;
   }
-  
+
   // private:
   XMLNode::XMLNode(struct XMLNodeDataTag *p){ d=p; (p->ref_count)++; }
   XMLNode::XMLNode(XMLNodeData *pParent, XMLCSTR lpszName, char isDeclaration)
   {
       d=(XMLNodeData*)malloc(sizeof(XMLNodeData));
       d->ref_count=1;
-  
+
       d->lpszName=NULL;
       d->nChild= 0;
       d->nText = 0;
       d->nClear = 0;
       d->nAttribute = 0;
-  
+
       d->isDeclaration = isDeclaration;
-  
+
       d->pParent = pParent;
       d->pChild= NULL;
       d->pText= NULL;
       d->pClear= NULL;
       d->pAttribute= NULL;
       d->pOrder= NULL;
-  
+
       updateName_WOSD(lpszName);
   }
-  
+
   XMLNode XMLNode::createXMLTopNode_WOSD(XMLCSTR lpszName, char isDeclaration) { return XMLNode(NULL,lpszName,isDeclaration); }
   XMLNode XMLNode::createXMLTopNode(XMLCSTR lpszName, char isDeclaration) { return XMLNode(NULL,stringDup(lpszName),isDeclaration); }
-  
+
   #define MEMORYINCREASE 50
-  
+
   static inline void *myRealloc(void *p, int newsize, int memInc, int sizeofElem)
   {
       if (p==NULL) { if (memInc) return malloc(memInc*sizeofElem); return malloc(sizeofElem); }
@@ -959,14 +959,14 @@
   //    }
       return p;
   }
-  
+
   // private:
   int XMLNode::findPosition(XMLNodeData *d, int index, XMLElementType xtype)
   {
       if (index<0) return -1;
       int i=0,j=(int)((index<<2)+xtype),*o=d->pOrder; while (o[i]!=j) i++; return i;
   }
-  
+
   // private:
   // update "order" information when deleting a content of a XMLNode
   int XMLNode::removeOrderElement(XMLNodeData *d, XMLElementType t, int index)
@@ -981,7 +981,7 @@
       // Anyway, at the end, it will be free'd completely at once.
       return i;
   }
-  
+
   void *XMLNode::addToOrder(int memoryIncrease,int *_pos, int nc, void *p, int size, XMLElementType xtype)
   {
       //  in: *_pos is the position inside d->pOrder ("-1" means "EndOf")
@@ -990,24 +990,24 @@
       int n=d->nChild+d->nText+d->nClear;
       d->pOrder=(int*)myRealloc(d->pOrder,n+1,memoryIncrease*3,sizeof(int));
       int pos=*_pos,*o=d->pOrder;
-  
+
       if ((pos<0)||(pos>=n)) { *_pos=nc; o[n]=(int)((nc<<2)+xtype); return p; }
-  
+
       int i=pos;
       memmove(o+i+1, o+i, (n-i)*sizeof(int));
-  
+
       while ((pos<n)&&((o[pos]&3)!=(int)xtype)) pos++;
       if (pos==n) { *_pos=nc; o[n]=(int)((nc<<2)+xtype); return p; }
-  
+
       o[i]=o[pos];
       for (i=pos+1;i<=n;i++) if ((o[i]&3)==(int)xtype) o[i]+=4;
-  
+
       *_pos=pos=o[pos]>>2;
       memmove(((char*)p)+(pos+1)*size,((char*)p)+pos*size,(nc-pos)*size);
-  
+
       return p;
   }
-  
+
   // Add a child node to the given element.
   XMLNode XMLNode::addChild_priv(int memoryIncrease, XMLCSTR lpszName, char isDeclaration, int pos)
   {
@@ -1018,7 +1018,7 @@
       d->nChild++;
       return d->pChild[pos];
   }
-  
+
   // Add an attribute to an element.
   XMLAttribute *XMLNode::addAttribute_priv(int memoryIncrease,XMLCSTR lpszName, XMLCSTR lpszValuev)
   {
@@ -1031,7 +1031,7 @@
       d->nAttribute++;
       return pAttr;
   }
-  
+
   // Add text to the element.
   XMLCSTR XMLNode::addText_priv(int memoryIncrease, XMLCSTR lpszValue, int pos)
   {
@@ -1041,7 +1041,7 @@
       d->nText++;
       return lpszValue;
   }
-  
+
   // Add clear (unformatted) text to the element.
   XMLClear *XMLNode::addClear_priv(int memoryIncrease, XMLCSTR lpszValue, XMLCSTR lpszOpen, XMLCSTR lpszClose, int pos)
   {
@@ -1056,7 +1056,7 @@
       d->nClear++;
       return pNewClear;
   }
-  
+
   // private:
   // Parse a clear (unformatted) type node.
   char XMLNode::parseClearTag(void *px, ALLXMLClearTag *pClear)
@@ -1066,7 +1066,7 @@
       XMLCSTR lpszTemp=NULL;
       XMLCSTR lpXML=&pXML->lpXML[pXML->nIndex];
       static XMLCSTR docTypeEnd=_T("]>");
-  
+
       // Find the closing tag
       // Seems the <!DOCTYPE need a better treatment so lets handle it
       if (pClear->lpszOpen==XMLClearTags[1].lpszOpen)
@@ -1083,33 +1083,33 @@
   #endif
           }
       } else lpszTemp=_tcsstr(lpXML, pClear->lpszClose);
-  
+
       if (lpszTemp)
       {
           // Cache the size and increment the index
           cbTemp = (int)(lpszTemp - lpXML);
-  
+
           pXML->nIndex += cbTemp+(int)_tcslen(pClear->lpszClose);
-  
+
           // Add the clear node to the current element
           addClear_priv(MEMORYINCREASE,stringDup(lpXML,cbTemp), pClear->lpszOpen, pClear->lpszClose,-1);
           return 0;
       }
-  
+
       // If we failed to find the end tag
       pXML->error = eXMLErrorUnmatchedEndClearTag;
       return 1;
   }
-  
+
   void XMLNode::exactMemory(XMLNodeData *d)
   {
       if (d->pOrder)     d->pOrder=(int*)realloc(d->pOrder,(d->nChild+d->nText+d->nClear)*sizeof(int));
-      if (d->pChild)     d->pChild=(XMLNode*)realloc(d->pChild,d->nChild*sizeof(XMLNode));
+      if (d->pChild)     d->pChild=(XMLNode*)realloc((void*) d->pChild,d->nChild*sizeof(XMLNode));
       if (d->pAttribute) d->pAttribute=(XMLAttribute*)realloc(d->pAttribute,d->nAttribute*sizeof(XMLAttribute));
       if (d->pText)      d->pText=(XMLCSTR*)realloc(d->pText,d->nText*sizeof(XMLSTR));
       if (d->pClear)     d->pClear=(XMLClear *)realloc(d->pClear,d->nClear*sizeof(XMLClear));
   }
-  
+
   char XMLNode::maybeAddTxT(void *pa, XMLCSTR tokenPStr)
   {
       XML *pXML=(XML *)pa;
@@ -1140,9 +1140,9 @@
       XMLNode pNew;
       enum Status status; // inside or outside a tag
       enum Attrib attrib = eAttribName;
-  
+
       assert(pXML);
-  
+
       // If this is the first call to the function
       if (pXML->nFirst)
       {
@@ -1154,22 +1154,22 @@
           // If this is not the first call then we should only be called when inside a tag.
           status = eInsideTag;
       }
-  
+
       // Iterate through the tokens in the document
       for(;;)
       {
           // Obtain the next token
           token = GetNextToken(pXML, &cbToken, &type);
-  
+
           if (type != eTokenError)
           {
               // Check the current status
               switch(status)
               {
-  
+
               // If we are outside of a tag definition
               case eOutsideTag:
-  
+
                   // Check what type of token we obtained
                   switch(type)
                   {
@@ -1180,20 +1180,20 @@
                   case eTokenQuotedText:
                   case eTokenEquals:
                       break;
-  
+
                   // If we found a start tag '<' and declarations '<?'
                   case eTokenTagStart:
                   case eTokenDeclaration:
-  
+
                       // Cache whether this new element is a declaration or not
                       nDeclaration = (type == eTokenDeclaration);
-  
+
                       // If we have node text then add this to the element
                       if (maybeAddTxT(pXML,token.pStr)) return FALSE;
-  
+
                       // Find the name of the tag
                       token = GetNextToken(pXML, &cbToken, &type);
-  
+
                       // Return an error if we couldn't obtain the next token or
                       // it wasnt text
                       if (type != eTokenText)
@@ -1201,10 +1201,10 @@
                           pXML->error = eXMLErrorMissingTagName;
                           return FALSE;
                       }
-  
+
                       // If we found a new element which is the same as this
                       // element then we need to pass this back to the caller..
-  
+
   #ifdef APPROXIMATE_PARSING
                       if (d->lpszName &&
                           myTagCompare(d->lpszName, token.pStr) == 0)
@@ -1221,13 +1221,13 @@
                           // the current element we need to add the new element to
                           // the current one and recurse
                           pNew = addChild_priv(MEMORYINCREASE,stringDup(token.pStr,cbToken), nDeclaration,-1);
-  
+
                           while (!pNew.isEmpty())
                           {
                               // Callself to process the new node.  If we return
                               // FALSE this means we dont have any more
                               // processing to do...
-  
+
                               if (!pNew.ParseXMLElement(pXML)) return FALSE;
                               else
                               {
@@ -1246,33 +1246,33 @@
                                           pXML->error=eXMLErrorUnmatchedEndTag;
                                           return FALSE;
                                       }
-  
+
                                       // If the end tag matches the name of this
                                       // element then we only need to unwind
                                       // once more...
-  
+
                                       if (myTagCompare(d->lpszName, pXML->lpEndTag)==0)
                                       {
                                           pXML->cbEndTag = 0;
                                       }
-  
+
                                       return TRUE;
                                   } else
                                       if (pXML->cbNewElement)
                                       {
                                           // If the call indicated a new element is to
                                           // be created on THIS element.
-  
+
                                           // If the name of this element matches the
                                           // name of the element we need to create
                                           // then we need to return to the caller
                                           // and let it process the element.
-  
+
                                           if (myTagCompare(d->lpszName, pXML->lpNewElement)==0)
                                           {
                                               return TRUE;
                                           }
-  
+
                                           // Add the new element and recurse
                                           pNew = addChild_priv(MEMORYINCREASE,stringDup(pXML->lpNewElement,pXML->cbNewElement),0,-1);
                                           pXML->cbNewElement = 0;
@@ -1281,22 +1281,22 @@
                                       {
                                           // If we didn't have a new element to create
                                           pNew = emptyXMLNode;
-  
+
                                       }
                               }
                           }
                       }
                       break;
-  
+
                   // If we found an end tag
                   case eTokenTagEnd:
-  
+
                       // If we have node text then add this to the element
                       if (maybeAddTxT(pXML,token.pStr)) return FALSE;
-  
+
                       // Find the name of the end tag
                       token = GetNextToken(pXML, &cbTemp, &type);
-  
+
                       // The end tag should be text
                       if (type != eTokenText)
                       {
@@ -1304,7 +1304,7 @@
                           return FALSE;
                       }
                       lpszTemp = token.pStr;
-  
+
                       // After the end tag we should find a closing tag
                       token = GetNextToken(pXML, &cbToken, &type);
                       if (type != eTokenCloseTag)
@@ -1313,7 +1313,7 @@
                           return FALSE;
                       }
                       pXML->lpszText=pXML->lpXML+pXML->nIndex;
-  
+
                       // We need to return to the previous caller.  If the name
                       // of the tag cannot be found we need to keep returning to
                       // caller until we find a match
@@ -1332,11 +1332,11 @@
                           pXML->cbEndTag = cbTemp;
                       }
   #endif
-  
+
                       // Return to the caller
                       exactMemory(d);
                       return TRUE;
-  
+
                   // If we found a clear (unformatted) token
                   case eTokenClear:
                       // If we have node text then add this to the element
@@ -1344,22 +1344,22 @@
                       if (parseClearTag(pXML, token.pClr)) return FALSE;
                       pXML->lpszText=pXML->lpXML+pXML->nIndex;
                       break;
-  
+
                   default:
                       break;
                   }
                   break;
-  
+
               // If we are inside a tag definition we need to search for attributes
               case eInsideTag:
-  
+
                   // Check what part of the attribute (name, equals, value) we
                   // are looking for.
                   switch(attrib)
                   {
                   // If we are looking for a new attribute
                   case eAttribName:
-  
+
                       // Check what the current token type is
                       switch(type)
                       {
@@ -1372,7 +1372,7 @@
                           cbTemp = cbToken;
                           attrib = eAttribEquals;
                           break;
-  
+
                       // If we found a closing tag...
                       // Eg.  '>'
                       case eTokenCloseTag:
@@ -1380,14 +1380,14 @@
                           status = eOutsideTag;
                           pXML->lpszText=pXML->lpXML+pXML->nIndex;
                           break;
-  
+
                       // If we found a short hand '/>' closing tag then we can
                       // return to the caller
                       case eTokenShortHandClose:
                           exactMemory(d);
                           pXML->lpszText=pXML->lpXML+pXML->nIndex;
                           return TRUE;
-  
+
                       // Errors...
                       case eTokenQuotedText:    /* '"SomeText"'   */
                       case eTokenTagStart:      /* '<'            */
@@ -1400,7 +1400,7 @@
                       default: break;
                       }
                       break;
-  
+
                   // If we are looking for an equals
                   case eAttribEquals:
                       // Check what the current token type is
@@ -1416,7 +1416,7 @@
                           lpszTemp = token.pStr;
                           cbTemp = cbToken;
                           break;
-  
+
                       // If we found a closing tag 'Attribute >' or a short hand
                       // closing tag 'Attribute />'
                       case eTokenShortHandClose:
@@ -1424,30 +1424,30 @@
                           // If we are a declaration element '<?' then we need
                           // to remove extra closing '?' if it exists
                           pXML->lpszText=pXML->lpXML+pXML->nIndex;
-  
+
                           if (d->isDeclaration &&
                               (lpszTemp[cbTemp-1]) == _T('?'))
                           {
                               cbTemp--;
                           }
-  
+
                           if (cbTemp)
                           {
                               // Add the unvalued attribute to the list
                               addAttribute_priv(MEMORYINCREASE,stringDup(lpszTemp,cbTemp), NULL);
                           }
-  
+
                           // If this is the end of the tag then return to the caller
                           if (type == eTokenShortHandClose)
                           {
                               exactMemory(d);
                               return TRUE;
                           }
-  
+
                           // We are now outside the tag
                           status = eOutsideTag;
                           break;
-  
+
                       // If we found the equals token...
                       // Eg.  'Attribute ='
                       case eTokenEquals:
@@ -1455,7 +1455,7 @@
                           // for the attribute
                           attrib = eAttribValue;
                           break;
-  
+
                       // Errors...
                       case eTokenQuotedText:    /* 'Attribute "InvalidAttr"'*/
                       case eTokenTagStart:      /* 'Attribute <'            */
@@ -1467,7 +1467,7 @@
                       default: break;
                       }
                       break;
-  
+
                   // If we are looking for an attribute value
                   case eAttribValue:
                       // Check what the current token type is
@@ -1485,7 +1485,7 @@
                           {
                               cbToken--;
                           }
-  
+
                           if (cbTemp)
                           {
                               // Add the valued attribute to the list
@@ -1498,11 +1498,11 @@
                               }
                               addAttribute_priv(MEMORYINCREASE,stringDup(lpszTemp,cbTemp),attrVal);
                           }
-  
+
                           // Indicate we are searching for a new attribute
                           attrib = eAttribName;
                           break;
-  
+
                       // Errors...
                       case eTokenTagStart:        /* 'Attr = <'          */
                       case eTokenTagEnd:          /* 'Attr = </'         */
@@ -1535,16 +1535,16 @@
           }
       }
   }
-  
+
   // Count the number of lines and columns in an XML string.
   static void CountLinesAndColumns(XMLCSTR lpXML, int nUpto, XMLResults *pResults)
   {
       XMLCHAR ch;
       assert(lpXML);
       assert(pResults);
-  
+
       struct XML xml={ lpXML,lpXML, 0, 0, eXMLErrorNone, NULL, 0, NULL, 0, TRUE };
-  
+
       pResults->nLine = 1;
       pResults->nColumn = 1;
       while (xml.nIndex<nUpto)
@@ -1558,7 +1558,7 @@
           }
       }
   }
-  
+
   // Parse XML and return the root element.
   XMLNode XMLNode::parseString(XMLCSTR lpszXML, XMLCSTR tag, XMLResults *pResults)
   {
@@ -1572,15 +1572,15 @@
           }
           return emptyXMLNode;
       }
-  
+
       XMLNode xnode(NULL,NULL,FALSE);
       struct XML xml={ lpszXML, lpszXML, 0, 0, eXMLErrorNone, NULL, 0, NULL, 0, TRUE };
-  
+
       // Create header element
       xnode.ParseXMLElement(&xml);
       enum XMLError error = xml.error;
       if ((xnode.nChildNode()==1)&&(xnode.nElement()==1)) xnode=xnode.getChildNode(); // skip the empty node
-  
+
       // If no error occurred
       if ((error==eXMLErrorNone)||(error==eXMLErrorMissingEndTag))
       {
@@ -1612,13 +1612,13 @@
           // Cleanup: this will destroy all the nodes
           xnode = emptyXMLNode;
       }
-  
-  
+
+
       // If we have been given somewhere to place results
       if (pResults)
       {
           pResults->error = error;
-  
+
           // If we have an error
           if (error!=eXMLErrorNone)
           {
@@ -1629,7 +1629,7 @@
       }
       return xnode;
   }
-  
+
   XMLNode XMLNode::parseFile(XMLCSTR filename, XMLCSTR tag, XMLResults *pResults)
   {
       if (pResults) { pResults->nLine=0; pResults->nColumn=0; }
@@ -1674,13 +1674,13 @@
           }
       }
   #endif
-  
+
       if (!buf) { if (pResults) pResults->error=eXMLErrorCharConversionError; return emptyXMLNode; }
       XMLNode x=parseString((XMLSTR)(buf+headerSz),tag,pResults);
       free(buf);
       return x;
   }
-  
+
   static inline void charmemset(XMLSTR dest,XMLCHAR c,int l) { while (l--) *(dest++)=c; }
   // private:
   // Creates an user friendly XML string from a given element with
@@ -1696,19 +1696,19 @@
       int nChildFormat=-1;
       int nElementI=pEntry->nChild+pEntry->nText+pEntry->nClear;
       int i,j;
-  
+
       assert(pEntry);
-  
+
   #define LENSTR(lpsz) (lpsz ? _tcslen(lpsz) : 0)
-  
+
       // If the element has no name then assume this is the head node.
       cbElement = (int)LENSTR(pEntry->lpszName);
-  
+
       if (cbElement)
       {
           // "<elementname "
           cb = nFormat == -1 ? 0 : nFormat;
-  
+
           if (lpszMarker)
           {
               if (cb) charmemset(lpszMarker, INDENTCHAR, sizeof(XMLCHAR)*cb);
@@ -1718,13 +1718,13 @@
               _tcscpy(&lpszMarker[nResult], pEntry->lpszName);
               nResult+=cbElement;
               lpszMarker[nResult++]=_T(' ');
-  
+
           } else
           {
               nResult+=cbElement+2+cb;
               if (pEntry->isDeclaration) nResult++;
           }
-  
+
           // Enumerate attributes and add them to the string
           XMLAttribute *pAttr=pEntry->pAttribute;
           for (i=0; i<pEntry->nAttribute; i++)
@@ -1753,7 +1753,7 @@
               }
               pAttr++;
           }
-  
+
           if (pEntry->isDeclaration)
           {
               if (lpszMarker)
@@ -1779,7 +1779,7 @@
                   }
               } else nResult--;
       }
-  
+
       // Calculate the child format for when we recurse.  This is used to
       // determine the number of spaces used for prefixes.
       if (nFormat!=-1)
@@ -1787,7 +1787,7 @@
           if (cbElement&&(!pEntry->isDeclaration)) nChildFormat=nFormat+1;
           else nChildFormat=nFormat;
       }
-  
+
       // Enumerate through remaining children
       for (i=0; i<nElementI; i++)
       {
@@ -1819,7 +1819,7 @@
                   }
                   break;
               }
-  
+
           // Clear type nodes
           case eNodeClear:
               {
@@ -1843,7 +1843,7 @@
                           nResult += cb;
                       }
                   }
-  
+
                   // "OpenTag Value"
                   cb = (int)LENSTR(pChild->lpszValue);
                   if (cb)
@@ -1851,7 +1851,7 @@
                       if (lpszMarker) _tcscpy(&lpszMarker[nResult], pChild->lpszValue);
                       nResult += cb;
                   }
-  
+
                   // "OpenTag Value CloseTag"
                   cb = (int)LENSTR(pChild->lpszCloseTag);
                   if (cb)
@@ -1859,7 +1859,7 @@
                       if (lpszMarker) _tcscpy(&lpszMarker[nResult], pChild->lpszCloseTag);
                       nResult += cb;
                   }
-  
+
                   if (nFormat!=-1)
                   {
                       if (lpszMarker) lpszMarker[nResult] = _T('\n');
@@ -1867,7 +1867,7 @@
                   }
                   break;
               }
-  
+
           // Element nodes
           case eNodeChild:
               {
@@ -1878,7 +1878,7 @@
           default: break;
           }
       }
-  
+
       if ((cbElement)&&(!pEntry->isDeclaration))
       {
           // If we have child entries we need to use long XML notation for
@@ -1896,12 +1896,12 @@
                           nResult+=nFormat;
                       }
                   }
-  
+
                   _tcscpy(&lpszMarker[nResult], _T("</"));
                   nResult += 2;
                   _tcscpy(&lpszMarker[nResult], pEntry->lpszName);
                   nResult += cbElement;
-  
+
                   if (nFormat == -1)
                   {
                       _tcscpy(&lpszMarker[nResult], _T(">"));
@@ -1940,12 +1940,12 @@
               }
           }
       }
-  
+
       return nResult;
   }
-  
+
   #undef LENSTR
-  
+
   // Create an XML string
   // @param       int nFormat             - 0 if no formatting is required
   //                                        otherwise nonzero for formatted text
@@ -1958,10 +1958,10 @@
   XMLSTR XMLNode::createXMLString(int nFormat, int *pnSize) const
   {
       if (!d) { if (pnSize) *pnSize=0; return NULL; }
-  
+
       XMLSTR lpszResult = NULL;
       int cbStr;
-  
+
       // Recursively Calculate the size of the XML string
       if (!dropWhiteSpace) nFormat=0;
       nFormat = nFormat ? 0 : -1;
@@ -1974,9 +1974,9 @@
       if (pnSize) *pnSize = cbStr;
       return lpszResult;
   }
-  
+
   XMLNode::~XMLNode() { deleteNodeContent(); }
-  
+
   int XMLNode::detachFromParent(XMLNodeData *d)
   {
       XMLNode *pa=d->pParent->pChild;
@@ -1987,7 +1987,7 @@
       else { free(pa); d->pParent->pChild=NULL; }
       return removeOrderElement(d->pParent,eNodeChild,i);
   }
-  
+
   void XMLNode::deleteNodeContent(char force)
   {
       if (!d) return;
@@ -2014,7 +2014,7 @@
           d=NULL;
       }
   }
-  
+
   XMLNode XMLNode::addChild(XMLNode childNode, int pos)
   {
       XMLNodeData *dc=childNode.d;
@@ -2028,7 +2028,7 @@
       d->nChild++;
       return childNode;
   }
-  
+
   void XMLNode::deleteAttribute(int i)
   {
       if ((!d)||(i<0)||(i>=d->nAttribute)) return;
@@ -2038,7 +2038,7 @@
       if (p->lpszValue) free((void*)p->lpszValue);
       if (d->nAttribute) memmove(p,p+1,(d->nAttribute-i)*sizeof(XMLAttribute)); else { free(p); d->pAttribute=NULL; }
   }
-  
+
   void XMLNode::deleteAttribute(XMLAttribute *a){ if (a) deleteAttribute(a->lpszName); }
   void XMLNode::deleteAttribute(XMLCSTR lpszName)
   {
@@ -2046,7 +2046,7 @@
       getAttribute(lpszName,&j);
       if (j) deleteAttribute(j-1);
   }
-  
+
   XMLAttribute *XMLNode::updateAttribute_WOSD(XMLCSTR lpszNewValue, XMLCSTR lpszNewName,int i)
   {
       if (!d) return NULL;
@@ -2061,13 +2061,13 @@
       if (lpszNewName&&p->lpszName!=lpszNewName) { free((void*)p->lpszName); p->lpszName=lpszNewName; };
       return p;
   }
-  
+
   XMLAttribute *XMLNode::updateAttribute_WOSD(XMLAttribute *newAttribute, XMLAttribute *oldAttribute)
   {
       if (oldAttribute) return updateAttribute_WOSD(newAttribute->lpszValue,newAttribute->lpszName,oldAttribute->lpszName);
       return addAttribute_WOSD(newAttribute->lpszName,newAttribute->lpszValue);
   }
-  
+
   XMLAttribute *XMLNode::updateAttribute_WOSD(XMLCSTR lpszNewValue, XMLCSTR lpszNewName,XMLCSTR lpszOldName)
   {
       int j=0;
@@ -2079,7 +2079,7 @@
           else             return addAttribute_WOSD(stringDup(lpszOldName),lpszNewValue);
       }
   }
-  
+
   int XMLNode::indexText(XMLCSTR lpszValue) const
   {
       if (!d) return -1;
@@ -2089,7 +2089,7 @@
       for (i=0; i<l; i++) if (lpszValue==p[i]) return i;
       return -1;
   }
-  
+
   void XMLNode::deleteText(int i)
   {
       if ((!d)||(i<0)||(i>=d->nText)) return;
@@ -2099,9 +2099,9 @@
       if (d->nText) memmove(p,p+1,(d->nText-i)*sizeof(XMLCSTR)); else { free(p); d->pText=NULL; }
       removeOrderElement(d,eNodeText,i);
   }
-  
+
   void XMLNode::deleteText(XMLCSTR lpszValue) { deleteText(indexText(lpszValue)); }
-  
+
   XMLCSTR XMLNode::updateText_WOSD(XMLCSTR lpszNewValue, int i)
   {
       if (!d) return NULL;
@@ -2110,7 +2110,7 @@
       if (*p!=lpszNewValue) { free((void*)*p); *p=lpszNewValue; }
       return lpszNewValue;
   }
-  
+
   XMLCSTR XMLNode::updateText_WOSD(XMLCSTR lpszNewValue, XMLCSTR lpszOldValue)
   {
       if (!d) return NULL;
@@ -2118,7 +2118,7 @@
       if (i>=0) return updateText_WOSD(lpszNewValue,i);
       return addText_WOSD(lpszNewValue);
   }
-  
+
   void XMLNode::deleteClear(int i)
   {
       if ((!d)||(i<0)||(i>=d->nClear)) return;
@@ -2128,7 +2128,7 @@
       if (d->nClear) memmove(p,p+1,(d->nText-i)*sizeof(XMLClear)); else { free(p); d->pClear=NULL; }
       removeOrderElement(d,eNodeClear,i);
   }
-  
+
   int XMLNode::indexClear(XMLCSTR lpszValue) const
   {
       if (!d) return -1;
@@ -2138,10 +2138,10 @@
       for (i=0; i<l; i++) if (lpszValue==p[i].lpszValue) return i;
       return -1;
   }
-  
+
   void XMLNode::deleteClear(XMLCSTR lpszValue) { deleteClear(indexClear(lpszValue)); }
   void XMLNode::deleteClear(XMLClear *a) { if (a) deleteClear(a->lpszValue); }
-  
+
   XMLClear *XMLNode::updateClear_WOSD(XMLCSTR lpszNewContent, int i)
   {
       if (!d) return NULL;
@@ -2153,7 +2153,7 @@
       if (lpszNewContent!=p->lpszValue) { free((void*)p->lpszValue); p->lpszValue=lpszNewContent; }
       return p;
   }
-  
+
   XMLClear *XMLNode::updateClear_WOSD(XMLCSTR lpszNewValue, XMLCSTR lpszOldValue)
   {
       if (!d) return NULL;
@@ -2161,13 +2161,13 @@
       if (i>=0) return updateClear_WOSD(lpszNewValue,i);
       return addClear_WOSD(lpszNewValue,XMLClearTags[0].lpszOpen,XMLClearTags[0].lpszClose);
   }
-  
+
   XMLClear *XMLNode::updateClear_WOSD(XMLClear *newP,XMLClear *oldP)
   {
       if (oldP) return updateClear_WOSD(newP->lpszValue,oldP->lpszValue);
       return NULL;
   }
-  
+
   XMLNode& XMLNode::operator=( const XMLNode& A )
   {
       // shallow copy
@@ -2179,14 +2179,14 @@
       }
       return *this;
   }
-  
+
   XMLNode::XMLNode(const XMLNode &A)
   {
       // shallow copy
       d=A.d;
       if (d) (d->ref_count)++ ;
   }
-  
+
   int XMLNode::nChildNode(XMLCSTR name) const
   {
       if (!d) return 0;
@@ -2199,7 +2199,7 @@
       }
       return j;
   }
-  
+
   XMLNode XMLNode::getChildNode(XMLCSTR name, int *j) const
   {
       if (!d) return emptyXMLNode;
@@ -2217,7 +2217,7 @@
       }
       return emptyXMLNode;
   }
-  
+
   XMLNode XMLNode::getChildNode(XMLCSTR name, int j) const
   {
       if (!d) return emptyXMLNode;
@@ -2225,7 +2225,7 @@
       while (j-->0) getChildNode(name,&i);
       return getChildNode(name,&i);
   }
-  
+
   int XMLNode::positionOfText     (int i) const { if (i>=d->nText ) i=d->nText-1;  return findPosition(d,i,eNodeText ); }
   int XMLNode::positionOfClear    (int i) const { if (i>=d->nClear) i=d->nClear-1; return findPosition(d,i,eNodeClear); }
   int XMLNode::positionOfChildNode(int i) const { if (i>=d->nChild) i=d->nChild-1; return findPosition(d,i,eNodeChild); }
@@ -2248,7 +2248,7 @@
       do { getChildNode(name,&j); if (j<0) return -1; } while (count--);
       return findPosition(d,j-1,eNodeChild);
   }
-  
+
   XMLNode XMLNode::getChildNodeWithAttribute(XMLCSTR name,XMLCSTR attributeName,XMLCSTR attributeValue, int *k) const
   {
       int i=0,j;
@@ -2276,7 +2276,7 @@
       } while (!x.isEmpty());
       return emptyXMLNode;
   }
-  
+
   // Find an attribute on an node.
   XMLCSTR XMLNode::getAttribute(XMLCSTR lpszAttrib, int *j) const
   {
@@ -2295,7 +2295,7 @@
       }
       return NULL;
   }
-  
+
   char XMLNode::isAttributeSet(XMLCSTR lpszAttrib) const
   {
       if (!d) return FALSE;
@@ -2311,7 +2311,7 @@
       }
       return FALSE;
   }
-  
+
   XMLCSTR XMLNode::getAttribute(XMLCSTR name, int j) const
   {
       if (!d) return NULL;
@@ -2319,7 +2319,7 @@
       while (j-->0) getAttribute(name,&i);
       return getAttribute(name,&i);
   }
-  
+
   XMLNodeContents XMLNode::enumContents(int i) const
   {
       XMLNodeContents c;
@@ -2342,7 +2342,7 @@
       }
       return c;
   }
-  
+
   XMLCSTR XMLNode::getName() const { if (!d) return NULL; return d->lpszName;   }
   int XMLNode::nText()       const { if (!d) return 0;    return d->nText;      }
   int XMLNode::nChildNode()  const { if (!d) return 0;    return d->nChild;     }
@@ -2358,7 +2358,7 @@
   XMLNode      XMLNode::getParentNode    (     ) const { if ((!d)||(!d->pParent     )) return emptyXMLNode;      return XMLNode(d->pParent); }
   char         XMLNode::isDeclaration    (     ) const { if (!d) return 0;             return d->isDeclaration; }
   char         XMLNode::isEmpty          (     ) const { return (d==NULL); }
-  
+
   XMLNode       XMLNode::addChild(XMLCSTR lpszName, char isDeclaration, int pos)
                 { return addChild_priv(0,stringDup(lpszName),isDeclaration,pos); }
   XMLNode       XMLNode::addChild_WOSD(XMLCSTR lpszName, char isDeclaration, int pos)
@@ -2393,7 +2393,7 @@
                 { return updateClear_WOSD(stringDup(lpszNewValue),lpszOldValue); }
   XMLClear     *XMLNode::updateClear(XMLClear *newP,XMLClear *oldP)
                 { return updateClear_WOSD(stringDup(newP->lpszValue),oldP->lpszValue); }
-  
+
   void XMLNode::setGlobalOptions(char _guessUnicodeChars, char _strictUTF8Parsing, char _dropWhiteSpace)
   {
       guessUnicodeChars=_guessUnicodeChars; dropWhiteSpace=_dropWhiteSpace; strictUTF8Parsing=_strictUTF8Parsing;
@@ -2401,7 +2401,7 @@
       if (_strictUTF8Parsing) XML_ByteTable=XML_utf8ByteTable; else XML_ByteTable=XML_asciiByteTable;
   #endif
   }
-  
+
   char XMLNode::guessUTF8ParsingParameterValue(void *buf,int l, char useXMLEncodingAttribute)
   {
   #ifdef _XMLUNICODE
@@ -2411,7 +2411,7 @@
       if (myIsTextUnicode(buf,l)) return 0;
       unsigned char *b=(unsigned char*)buf;
       if ((b[0]==0xef)&&(b[1]==0xbb)&&(b[2]==0xbf)) return 1;
-  
+
       // Match utf-8 model ?
       int i=0;
       while (i<l)
@@ -2440,16 +2440,16 @@
   #endif
   }
   #undef XML_isSPACECHAR
-  
+
   //////////////////////////////////////////////////////////
   //      Here starts the base64 conversion functions.    //
   //////////////////////////////////////////////////////////
-  
+
   static const char base64Fillchar = _T('='); // used to mark partial words at the end
-  
+
   // this lookup table defines the base64 encoding
   XMLCSTR base64EncodeTable=_T("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
-  
+
   // Decode Table gives the index of any valid base64 character in the Base64 table]
   // 96: '='  -   97: space char   -   98: illegal char   -   99: end of string
   const unsigned char base64DecodeTable[] = {
@@ -2470,14 +2470,14 @@
       if (formatted) i+=inlen/54;
       return i;
   }
-  
+
   void XMLParserBase64Tool::encode(const std::string & inString, std::string & outString, char formatted)
   {
       unsigned char *inbuf = (unsigned char*)inString.data();
       unsigned int inlen   = inString.length();
       encode(inbuf,inlen,outString,formatted);
   }
-  
+
   void XMLParserBase64Tool::encode(unsigned char *inbuf, unsigned int inlen, std::string & outString, char formatted) {
       int i=encodeLength(inlen,formatted),k=17,eLen=inlen/3,j;
       outString.resize(i,0);
@@ -2512,7 +2512,7 @@
       }
       *(curr++)=0;
   }
-  
+
   unsigned int XMLParserBase64Tool::decodeSize(XMLCSTR data,XMLError *xe)
   {
       if (xe) *xe=eXMLErrorNone;
@@ -2534,7 +2534,7 @@
       do { data--; size--; } while(*data==base64Fillchar); size++;
       return (unsigned int)((size*3)/4);
   }
-  
+
   bool XMLParserBase64Tool::decode(const std::string & inString, unsigned char *buf, int len, XMLError *xe)
   {
       XMLCSTR data=inString.c_str();
@@ -2543,7 +2543,7 @@
       unsigned char d,c;
       for(;;)
       {
-  
+
   #ifdef _XMLUNICODE
   #define BASE64DECODE_READ_NEXT_CHAR(c)                                              \
           do {                                                                        \
@@ -2556,7 +2556,7 @@
           do { c=base64DecodeTable[(unsigned char)data[i++]]; }while (c==97);   \
           if(c==98){ if(xe)*xe=eXMLErrorBase64DecodeIllegalCharacter; return false; }
   #endif
-  
+
           BASE64DECODE_READ_NEXT_CHAR(c)
           if (c==99) { return true; }
           if (c==96)
@@ -2565,12 +2565,12 @@
               if (xe) *xe=eXMLErrorBase64DecodeTruncatedData;
               return true;
           }
-  
+
           BASE64DECODE_READ_NEXT_CHAR(d)
           if ((d==99)||(d==96)) { if (xe) *xe=eXMLErrorBase64DecodeTruncatedData;  return true; }
           if (p==(int)len) {      if (xe) *xe=eXMLErrorBase64DecodeBufferTooSmall; return false; }
           buf[p++]=(c<<2)|((d>>4)&0x3);
-  
+
           BASE64DECODE_READ_NEXT_CHAR(c)
           if (c==99) { if (xe) *xe=eXMLErrorBase64DecodeTruncatedData;  return true; }
           if (p==(int)len)
@@ -2581,7 +2581,7 @@
           }
           if (c==96) { if (xe) *xe=eXMLErrorBase64DecodeTruncatedData;  return true; }
           buf[p++]=((d<<4)&0xf0)|((c>>2)&0xf);
-  
+
           BASE64DECODE_READ_NEXT_CHAR(d)
           if (d==99 ) { if (xe) *xe=eXMLErrorBase64DecodeTruncatedData;  return true; }
           if (p==(int)len)
@@ -2595,7 +2595,7 @@
       }
   }
   #undef BASE64DECODE_READ_NEXT_CHAR
-  
+
   bool XMLParserBase64Tool::decode(const std::string & inString, std::string & outString, XMLError *xe)
   //unsigned char *XMLParserBase64Tool::decode(XMLCSTR data, int *outlen, XMLError *xe)
   {

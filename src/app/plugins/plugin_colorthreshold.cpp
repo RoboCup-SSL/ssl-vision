@@ -80,7 +80,7 @@ void PluginColorThresholdWorker::process() {
   rawImageOut.setData(imageOut->getData() + offsetBytesOut);
   Image<raw8> imagePartOut;
   imagePartOut.fromRawImage(rawImageOut);
-  
+
   thresholdImage(&imagePartIn, &imagePartOut, lut, &maskImagePartIn);
 
   doneMutex.unlock();
@@ -137,7 +137,7 @@ ProcessResult PluginColorThreshold::process(FrameData * data, RenderOptions * op
   //make sure image is allocated:
   img_thresholded->allocate(data->video.getWidth(),data->video.getHeight());
 
-  if(workers.size() != numThreads->getInt()) {
+  if((int) workers.size() != numThreads->getInt()) {
     clearWorkers();
     for(int i=0;i<numThreads->getInt();i++) {
       auto *worker = new PluginColorThresholdWorker(i, numThreads->getInt(), lut);
