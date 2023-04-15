@@ -25,6 +25,16 @@ jobs:
       - run: ./InstallPackagesUbuntu.sh
       - run: cmake -B build -DUSE_SPLITTER=true
       - run: make -j 4
+  build-spinnaker:
+    docker:
+      - image: cimg/base:current-22.04
+    resource_class: large
+    steps:
+      - checkout
+      - run: ./InstallPackagesUbuntu.sh
+      - run: make install_spinnaker_sdk
+      - run: cmake -B build -DUSE_SPINNAKER=true
+      - run: make -j 4
 
 workflows:
   version: 2
@@ -33,3 +43,4 @@ workflows:
       - build
       - build-ubuntu-2004
       - build-splitter
+      - build-spinnaker
