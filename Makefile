@@ -6,6 +6,9 @@ buildType=Release
 
 all: build_cmake
 
+$(buildDir):
+	mkdir -p $(buildDir)
+
 $(buildDir)/CMakeLists.txt.copy: CMakeLists.txt
 	cmake -B $(buildDir) -DCMAKE_BUILD_TYPE=$(buildType)
 
@@ -42,3 +45,14 @@ install_test_data: $(buildDir)/test-data.zip
 	unzip $(buildDir)/test-data.zip
 	mv ssl-vision-test-data/* ./test-data
 	rmdir ssl-vision-test-data
+
+$(buildDir)/spinnaker-3.0.0.118-amd64-pkg.tar.gz: $(buildDir)
+	wget -O $(buildDir)/spinnaker-3.0.0.118-amd64-pkg.tar.gz https://cloud.robocup.org/s/DoQqtmnrq8pNYCc/download/spinnaker-3.0.0.118-amd64-pkg.tar.gz
+
+install_spinnaker_sdk: $(buildDir)/spinnaker-3.0.0.118-amd64-pkg.tar.gz
+	tar xvf $(buildDir)/spinnaker-3.0.0.118-amd64-pkg.tar.gz -C $(buildDir)
+	echo libgentl	libspinnaker/accepted-flir-eula	boolean	true | sudo debconf-set-selections
+	cd $(buildDir)/spinnaker-3.0.0.118-amd64 && \
+		sudo dpkg -i libgentl_*.deb && \
+    sudo dpkg -i libspinnaker_*.deb && \
+    sudo dpkg -i libspinnaker-dev_*.deb
