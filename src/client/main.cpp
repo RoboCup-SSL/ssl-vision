@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 
                 printf("-[Detection Data]-------\n");
                 //Frame info:
-                printf("Camera ID=%d FRAME=%d T_CAPTURE=%.4f\n",detection.camera_id(),detection.frame_number(),detection.t_capture());
+                printf("Camera ID=%d FRAME=%d T_CAPTURE=%.4f T_CAPTURE_CAM=%.4f\n",detection.camera_id(),detection.frame_number(),detection.t_capture(), detection.t_capture_camera());
 
                 printf("SSL-Vision Processing Latency                   %7.3fms\n",(detection.t_sent()-detection.t_capture())*1000.0);
                 printf("Network Latency (assuming synched system clock) %7.3fms\n",(t_now-detection.t_sent())*1000.0);
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
                 printf("  -max_robot_radius=%.1f (mm)\n",field.max_robot_radius());
                 printf("  -field_lines_size=%d\n",field.field_lines_size());
                 printf("  -field_arcs_size=%d\n",field.field_arcs_size());
-                
+
                 const SSL_GeometryModels & models = geom.models();
                 printf("Field Models:\n");
                 printf("  -straight_two_phase:acc_roll=%f\n",models.straight_two_phase().acc_roll());

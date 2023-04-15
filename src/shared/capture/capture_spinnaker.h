@@ -68,7 +68,6 @@ private:
     // capture parameters
     VarInt *v_cam_bus;
     VarStringEnum *v_convert_to_mode;
-    VarBool *v_use_camera_time;
 
     // camera parameters
     VarBool *v_acquisition;

@@ -313,7 +313,9 @@ void CaptureThread::run() {
           auto t_start = std::chrono::steady_clock::now();
           RawImage pic_raw=capture->getFrame();
           auto t_getFrame = std::chrono::steady_clock::now();
-          d->time=pic_raw.getTime();
+          pic_raw.setTime(GetTimeSec());
+          d->time = pic_raw.getTime();
+          d->time_cam=pic_raw.getTimeCam();
           bool bSuccess = capture->copyAndConvertFrame( pic_raw,d->video);
           auto t_convert = std::chrono::steady_clock::now();
           capture_mutex.unlock();

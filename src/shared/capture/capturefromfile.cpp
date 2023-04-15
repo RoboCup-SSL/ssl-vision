@@ -200,6 +200,7 @@ bool CaptureFromFile::copyAndConvertFrame(const RawImage & src, RawImage & targe
 
   target.ensure_allocation(output_fmt, src.getWidth(), src.getHeight());
   target.setTime(src.getTime());
+  target.setTimeCam ( src.getTimeCam() );
   if (output_fmt == src_fmt)
   {
     memcpy(target.getData(), src.getData(), static_cast<size_t>(src.getNumBytes()));
@@ -254,17 +255,11 @@ RawImage CaptureFromFile::getFrame()
   {
     fprintf (stderr, "CaptureFromFile Error, no images available");
     is_capturing=false;
-    result.setData(nullptr);
     result.setWidth(640);
     result.setHeight(480);
-    result.setTime(0.0);
   } else {
     result = images[currentImageIndex];
     currentImageIndex = static_cast<unsigned int>((currentImageIndex + 1) % images.size());
-
-    timeval tv{};
-    gettimeofday(&tv, nullptr);
-    result.setTime((double) tv.tv_sec + tv.tv_usec*(1.0E-6));
   }
 
   mutex.unlock();

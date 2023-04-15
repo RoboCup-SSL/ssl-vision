@@ -288,6 +288,7 @@ bool CaptureBasler::copyAndConvertFrame(const RawImage & src,
 	try {
 		target.ensure_allocation(COLOR_RGB8, src.getWidth(), src.getHeight());
 		target.setTime(src.getTime());
+		target.setTimeCam (src.getTimeCam());
 		memcpy(target.getData(), src.getData(), src.getNumBytes());
 	} catch (...) {
 		MUTEX_UNLOCK;
