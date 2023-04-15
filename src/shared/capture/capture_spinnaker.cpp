@@ -374,7 +374,10 @@ bool CaptureSpinnaker::copyAndConvertFrame(const RawImage &src, RawImage &target
   ColorFormat src_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
   ColorFormat out_color = Colors::stringToColorFormat(v_convert_to_mode->getSelection().c_str());
   if (src_color == out_color) {
-    target = src;
+    // We have to copy the data here to avoid a potential double free
+    // If we do 'target = src', both RawImages own the same data, and if both try to free/delete it,
+    // i.e. due to an ensure_allocation(), a double free error will occur
+    target.deepCopyFromRawImage(src, false);
   } else if (src_color == COLOR_RAW8 && out_color == COLOR_RGB8) {
     target.ensure_allocation(out_color, src.getWidth(), src.getHeight());
     cv::Mat srcMat(src.getHeight(), src.getWidth(), CV_8UC1, src.getData());
