@@ -109,30 +109,12 @@ bool GlobalV4LinstanceManager::removeInstance(GlobalV4Linstance *pDevice) {
   return false;
 }
 
-bool GlobalV4LinstanceManager::removeInstance(int iDevice) {
-  if (pinstance->map_instance.find(iDevice) != pinstance->map_instance.end()) return false;
-  return removeInstance(pinstance->map_instance[iDevice]);
-}
-
 GlobalV4LinstanceManager::~GlobalV4LinstanceManager() {
   for (auto & it : pinstance->map_instance) {
     delete it.second;
   }
   map_instance.clear();
 }
-
-int GlobalV4LinstanceManager::enumerateInstances(int *id_list, int max_id) {
-  int iFoundDevices = 0;
-  for (int cam_id = 0; cam_id < max_id; cam_id++) {
-    GlobalV4Linstance *pDevice = GlobalV4LinstanceManager::obtainInstance(cam_id);
-    if (pDevice) {
-      id_list[iFoundDevices++] = cam_id;
-      GlobalV4LinstanceManager::removeInstance(pDevice);
-    }
-  }
-  return iFoundDevices;
-}
-
 
 //======================= Actual V4L device interface =======================
 
@@ -240,11 +222,6 @@ bool GlobalV4Linstance::captureFrame(RawImage *pImage, uint32_t pixel_format, in
 
   if (_img) {
     if (pImage) {                                       //allow null to stoke the capture
-      unsigned char *pDest = pImage->getData();
-      if (!pDest) {                                   //we don't want low-level to reallocate!
-        fprintf(stderr, "GlobalV4Linstance: RawImage not pre-allocated in captureFrame in device '%s'\n",
-                szDevice);
-      }
       lock();
 
       //mid-level copy to RGB
@@ -262,7 +239,6 @@ bool GlobalV4Linstance::captureFrame(RawImage *pImage, uint32_t pixel_format, in
 
   return bSuccess;
 }
-
 
 const GlobalV4Linstance::image_t *GlobalV4Linstance::captureFrame(int iMaxSpin) {
   if (!waitForFrame(300)) {
@@ -355,7 +331,7 @@ bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, uint32_t pixel
   tempbuf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   tempbuf.memory = V4L2_MEMORY_MMAP;
 
-  for (int i = 0; i < req.count; i++) {
+  for (int i = 0; i < (int) req.count; i++) {
     tempbuf.index = i;
     if (!xioctl(VIDIOC_QUERYBUF, &tempbuf, "Allocate query buffer")) {
       printf("QUERYBUF returned error, '%s'\n", szDevice);
@@ -573,27 +549,7 @@ inline GlobalV4Linstance::rgb GlobalV4Linstance::yuv2rgb(GlobalV4Linstance::yuv 
 //======================= GUI & API Definitions =======================
 
 CaptureV4L::CaptureV4L(VarList *_settings, int default_camera_id, QObject *parent) : QObject(parent), CaptureInterface(_settings) {
-  cam_id = default_camera_id;
-
   mutex.lock();
-
-  cam_count = GlobalV4LinstanceManager::enumerateInstances(cam_list, MAX_CAM_SCAN);
-  if (cam_count == 0) {
-    fprintf(stderr, "CaptureV4L Error: can't find cameras");
-  }
-
-  if (cam_id > cam_list[cam_count - 1]) {
-    static bool bMaxWarningShown = false;
-    if (!bMaxWarningShown) {
-      fprintf(stderr, "CaptureV4L Error: no camera found with index %d. Max index is: %d\n", cam_id, cam_list[cam_count - 1]);
-      bMaxWarningShown = true;
-    }
-  } else {
-    camera_instance = GlobalV4LinstanceManager::obtainInstance(cam_id);
-    if (!camera_instance) {
-      fprintf(stderr, "CaptureV4L: unable to obtain instance of camera id %d!\n", cam_id);
-    }
-  }
 
   settings->addChild(conversion_settings = new VarList("Conversion Settings"));
   settings->addChild(capture_settings = new VarList("Capture Settings"));
@@ -798,7 +754,6 @@ void CaptureV4L::readParameterValues(VarList *item) {
     }
   }
 
-
   mutex.unlock();
 }
 
@@ -848,7 +803,6 @@ void CaptureV4L::writeParameterValues(VarList *item) {
 void CaptureV4L::readParameterProperty(VarList *item) {
   if (!camera_instance) return;
   mutex.lock();
-  bool debug = false;
   bool valid = true;
   v4lfeature_t feature = getV4LfeatureEnum(item, valid);
   if (!valid) {
@@ -870,11 +824,15 @@ void CaptureV4L::readParameterProperty(VarList *item) {
     printf("UNIMPLEMENTED FEATURE (readParameterProperty): %s\n", item->getName().c_str());
   } else {
     if (!camera_instance->getControl(feature, lDefault)) {
-      if (debug) fprintf(stderr, "V4L PROP FEATURE IS *NOT* PRESENT: %s\n", item->getName().c_str());
+#ifdef NDEBUG
+      fprintf(stderr, "V4L PROP FEATURE IS *NOT* PRESENT: %s\n", item->getName().c_str());
+#endif
       //feature doesn't exist
       item->addFlags(VARTYPE_FLAG_READONLY | VARTYPE_FLAG_HIDE_CHILDREN);
     } else {
-      if (debug) fprintf(stderr, "V4L PROP FEATURE IS PRESENT: %s\n", item->getName().c_str());
+#ifdef NDEBUG
+      fprintf(stderr, "V4L PROP FEATURE IS PRESENT: %s\n", item->getName().c_str());
+#endif
       item->removeFlags(VARTYPE_FLAG_READONLY | VARTYPE_FLAG_HIDE_CHILDREN);
       //check for switchability:
       bool bReadOnly, bEnabled;
@@ -899,52 +857,26 @@ void CaptureV4L::readParameterProperty(VarList *item) {
   mutex.unlock();
 }
 
-
-CaptureV4L::~CaptureV4L() {
-  GlobalV4LinstanceManager::removeInstance(camera_instance);
-  rawFrame.clear();           //release memory from local image
-}
-
-bool CaptureV4L::resetBus() {
-  mutex.lock();
-
-  cam_count = GlobalV4LinstanceManager::enumerateInstances(cam_list, MAX_CAM_SCAN);
-  if (cam_count == 0) {
-    fprintf(stderr, "CaptureV4L Error: can't find cameras");
-    mutex.unlock();
-    return false;
-  }
-
-  mutex.unlock();
-  return true;
-
-}
-
 bool CaptureV4L::stopCapture() {
   if (isCapturing()) {
+    is_capturing = false;
     readAllParameterValues();
 
-    vector<VarType *> tmp = capture_settings->getChildren();
-    for (auto & i : tmp) {
-      i->removeFlags(VARTYPE_FLAG_READONLY);
+    if (!camera_instance->stopStreaming()) {
+      printf("CaptureV4L Error: Could not stop streaming");
     }
-    dcam_parameters->addFlags(VARTYPE_FLAG_HIDE_CHILDREN);
+    GlobalV4LinstanceManager::removeInstance(camera_instance);
+    camera_instance = nullptr;
+    rawFrame.clear();
   }
-  cleanup();
+
+  vector<VarType *> tmp = capture_settings->getChildren();
+  for (auto & i : tmp) {
+    i->removeFlags(VARTYPE_FLAG_READONLY);
+  }
+  dcam_parameters->addFlags(VARTYPE_FLAG_HIDE_CHILDREN);
 
   return true;
-}
-
-
-void CaptureV4L::cleanup() {
-  mutex.lock();
-
-  //TODO: cleanup/free any memory buffers.
-  if (camera_instance && is_capturing)
-    camera_instance->stopStreaming();
-  is_capturing = false;
-
-  mutex.unlock();
 }
 
 /// This function converts a local dcam_parameters-manager variable ID
@@ -980,310 +912,40 @@ v4lfeature_t CaptureV4L::getV4LfeatureEnum(VarList *val, bool &valid) {
   return res;
 }
 
-/// This function converts a v4l feature into a variable ID
-// http://v4l-test.sourceforge.net/spec/x542.htm
-VarList *CaptureV4L::getVariablePointer(v4lfeature_t val) {
-  VarList *res = nullptr;
-  switch (val) {
-    case V4L2_CID_BRIGHTNESS:
-      res = P_BRIGHTNESS;
-      break;
-    case V4L2_CID_CONTRAST:
-      res = P_CONTRAST;
-      break;
-    case V4L2_CID_SATURATION:
-      res = P_SATURATION;
-      break;
-    case V4L2_CID_SHARPNESS:
-      res = P_SHARPNESS;
-      break;
-    case V4L2_CID_HUE:
-      res = P_HUE;
-      break;
-    case V4L2_CID_AUTO_WHITE_BALANCE:
-      res = P_WHITE_BALANCE;
-      break;  //bool
-    case V4L2_CID_GAMMA:
-      res = P_GAMMA;
-      break;
-    case V4L2_CID_EXPOSURE:
-      res = P_EXPOSURE;
-      break;
-    case V4L2_CID_GAIN:
-      res = P_GAIN;
-      break;
-    case V4L2_CID_WHITE_BALANCE_TEMPERATURE:
-      res = P_TEMPERATURE;
-      break;
-    case GlobalV4Linstance::V4L2_FEATURE_FRAME_RATE:
-      res = P_FRAME_RATE;
-      break;
-    default:
-      res = nullptr;
-      break;
-  }
-  return res;
-}
-
 bool CaptureV4L::startCapture() {
-  if (!v_cam_bus) return false;
   mutex.lock();
-  //disable any previous activity on that camera:
-  if (is_capturing)
-    camera_instance->stopStreaming();
 
-  //dynamically fetch the camera ID and reconnect now
-  int new_cam_id = v_cam_bus->getInt();
-  if (cam_id != new_cam_id) {
-    cam_id = new_cam_id;
-    GlobalV4LinstanceManager::removeInstance(camera_instance);
-    camera_instance = nullptr;
-    if (cam_id > cam_list[cam_count - 1]) {
-      static bool bMaxWarningShown = false;
-      if (!bMaxWarningShown) {
-        fprintf(stderr, "CaptureV4L Error: no camera found with index %d. Max index is: %d\n", cam_id, cam_list[cam_count - 1]);
-        bMaxWarningShown = true;
-      }
-    } else {
-      camera_instance = GlobalV4LinstanceManager::obtainInstance(cam_id);
-    }
-  }
+  camera_instance = GlobalV4LinstanceManager::obtainInstance(v_cam_bus->getInt());
   if (!camera_instance) {
-    fprintf(stderr, "CaptureV4L: unable to obtain instance of camera id %d in startCapture!\n", cam_id);
+    fprintf(stderr, "CaptureV4L: unable to obtain instance of camera id %d in startCapture!\n", v_cam_bus->getInt());
     mutex.unlock();
     return false;
   }
 
-  //grab current parameters:
+  // Grab current parameters
   width = v_width->getInt();
   height = v_height->getInt();
   left = v_left->getInt();
   top = v_top->getInt();
   capture_format = Colors::stringToColorFormat(v_colormode->getString().c_str());
   pixel_format = stringToPixelFormat(v_format->getString());
-  int fps = v_fps->getInt();
+  int fps = min(v_fps->getInt(), 60);
 
-  //Check configuration parameters:
-  if (fps > 60) {
-    fprintf(stderr, "CaptureV4L Error: The library does not support framerates higher than 60 fps (does your camera?).");
-    mutex.unlock();
-    return false;
+  // Check configuration parameters:
+  if (v_fps->getInt() > 60) {
+    fprintf(stderr, "CaptureV4L Error: The library does not support frame rates higher than 60 fps");
   }
-
-
-  /* ---- TODO: adapt to do checking based on available USB mode?
-
-
-  dc1394_video_set_transmission(camera,DC1394_OFF);
-
-  dc1394video_modes_t supported_modes;
-  bool know_modes=false;
-  if (dc1394_video_get_supported_modes(camera,&supported_modes) == DC1394_SUCCESS) {
-      know_modes=true;
-  } else {
-      fprintf(stderr,"CaptureV4L Warning: unable to query supported camera modes!\n");
-  }
-
-  bool native_unavailable = false;
-  if (mode==CAPTURE_MODE_AUTO || mode==CAPTURE_MODE_NATIVE) {
-      if (width==160 && height==120) {
-          if (capture_format==COLOR_YUV444) {
-              dcformat=DC1394_VIDEO_MODE_160x120_YUV444;
-          } else {
-              native_unavailable = true;
-          }
-      } else if (width==320 && height==240) {
-          if (capture_format==COLOR_YUV422_UYVY) {
-              dcformat=DC1394_VIDEO_MODE_320x240_YUV422;
-          } else {
-              native_unavailable = true;
-          }
-      } else if (width==640 && height==480) {
-          if (capture_format==COLOR_YUV411) {
-              dcformat=DC1394_VIDEO_MODE_640x480_YUV411;
-          } else if (capture_format==COLOR_YUV422_UYVY) {
-              dcformat=DC1394_VIDEO_MODE_640x480_YUV422;
-          } else if (capture_format==COLOR_RGB8) {
-              dcformat=DC1394_VIDEO_MODE_640x480_RGB8;
-          } else if (capture_format==COLOR_MONO8) {
-              dcformat=DC1394_VIDEO_MODE_640x480_MONO8;
-          } else if (capture_format==COLOR_MONO16) {
-              dcformat=DC1394_VIDEO_MODE_640x480_MONO16;
-          } else {
-              native_unavailable = true;
-          }
-      } else if (width==800 && height==600) {
-          if (capture_format==COLOR_YUV422_UYVY) {
-              dcformat=DC1394_VIDEO_MODE_800x600_YUV422;
-          } else if (capture_format==COLOR_RGB8) {
-              dcformat=DC1394_VIDEO_MODE_800x600_RGB8;
-          } else if (capture_format==COLOR_MONO8) {
-              dcformat=DC1394_VIDEO_MODE_800x600_MONO8;
-          } else if (capture_format==COLOR_MONO16) {
-              dcformat=DC1394_VIDEO_MODE_800x600_MONO16;
-          } else {
-              native_unavailable = true;
-          }
-      } else if (width==1024 && height==768) {
-          if (capture_format==COLOR_YUV422_UYVY) {
-              dcformat=DC1394_VIDEO_MODE_1024x768_YUV422;
-          } else if (capture_format==COLOR_RGB8) {
-              dcformat=DC1394_VIDEO_MODE_1024x768_RGB8;
-          } else if (capture_format==COLOR_MONO8) {
-              dcformat=DC1394_VIDEO_MODE_1024x768_MONO8;
-          } else if (capture_format==COLOR_MONO16) {
-              dcformat=DC1394_VIDEO_MODE_1024x768_MONO16;
-          } else {
-              native_unavailable = true;
-          }
-      } else if (width==1280 && height==960) {
-          if (capture_format==COLOR_YUV422_UYVY) {
-              dcformat=DC1394_VIDEO_MODE_1280x960_YUV422;
-          } else if (capture_format==COLOR_RGB8) {
-              dcformat=DC1394_VIDEO_MODE_1280x960_RGB8;
-          } else if (capture_format==COLOR_MONO8) {
-              dcformat=DC1394_VIDEO_MODE_1280x960_MONO8;
-          } else if (capture_format==COLOR_MONO16) {
-              dcformat=DC1394_VIDEO_MODE_1280x960_MONO16;
-          } else {
-              native_unavailable = true;
-          }
-      } else if (width==1600 && height==1200) {
-          if (capture_format==COLOR_YUV422_UYVY) {
-              dcformat=DC1394_VIDEO_MODE_1600x1200_YUV422;
-          } else if (capture_format==COLOR_RGB8) {
-              dcformat=DC1394_VIDEO_MODE_1600x1200_RGB8;
-          } else if (capture_format==COLOR_MONO8) {
-              dcformat=DC1394_VIDEO_MODE_1600x1200_MONO8;
-          } else if (capture_format==COLOR_MONO16) {
-              dcformat=DC1394_VIDEO_MODE_1600x1200_MONO16;
-          } else {
-              native_unavailable = true;
-          }
-      } else {
-          native_unavailable = true;
-      }
-      if (native_unavailable==false && know_modes) {
-          bool found_mode=false;
-          for (unsigned int i=0;i<supported_modes.num;i++) {
-              if (supported_modes.modes[i]==dcformat) {
-                  found_mode=true;
-                  break;
-              }
-          }
-          if (found_mode==false) {
-              native_unavailable=true;
-          }
-      }
-
-      if (native_unavailable==true) {
-          if (mode==CAPTURE_MODE_AUTO) {
-              printf("CaptureV4L Info: Selected format/resolution not supported as FORMAT 0\n");
-              printf("CaptureV4L Info: Selecting lowest available Format 7 mode\n");
-              if (know_modes) {
-                  bool found=false;
-                  for (unsigned int i=0;i<supported_modes.num;i++) {
-                      if (supported_modes.modes[i] >= DC1394_VIDEO_MODE_FORMAT7_MIN && supported_modes.modes[i]<=DC1394_VIDEO_MODE_FORMAT7_MAX) {
-                          if (found==false || supported_modes.modes[i] < dcformat) {
-                              found=true;
-                              dcformat=supported_modes.modes[i];
-                          }
-                      }
-                  }
-                  if (found==false) {
-                      fprintf(stderr,"CaptureV4L Error: No Format 7 modes available!");
-                      fprintf(stderr,"CaptureV4L Error: Maybe try selecting a supported Format 0 resolution/framerate?");
-#ifndef VDATA_NO_QT
-                      mutex.unlock();
-#endif
-                      return false;
-                  }
-              } else {
-                  dcformat=DC1394_VIDEO_MODE_FORMAT7_0;
-              }
-
-          } else {
-              fprintf(stderr,"CaptureV4L Error: Selected color format/resolution not natively supported!");
-              fprintf(stderr,"CaptureV4L Error: Maybe try switching to auto or a format7 mode.");
-#ifndef VDATA_NO_QT
-              mutex.unlock();
-#endif
-              return false;
-          }
-      }
-  } else {
-      if (mode==CAPTURE_MODE_FORMAT_7_MODE_0) dcformat = DC1394_VIDEO_MODE_FORMAT7_0;
-      if (mode==CAPTURE_MODE_FORMAT_7_MODE_1) dcformat = DC1394_VIDEO_MODE_FORMAT7_1;
-      if (mode==CAPTURE_MODE_FORMAT_7_MODE_2) dcformat = DC1394_VIDEO_MODE_FORMAT7_2;
-      if (mode==CAPTURE_MODE_FORMAT_7_MODE_3) dcformat = DC1394_VIDEO_MODE_FORMAT7_3;
-      if (mode==CAPTURE_MODE_FORMAT_7_MODE_4) dcformat = DC1394_VIDEO_MODE_FORMAT7_4;
-      if (mode==CAPTURE_MODE_FORMAT_7_MODE_5) dcformat = DC1394_VIDEO_MODE_FORMAT7_5;
-      if (mode==CAPTURE_MODE_FORMAT_7_MODE_6) dcformat = DC1394_VIDEO_MODE_FORMAT7_6;
-      if (mode==CAPTURE_MODE_FORMAT_7_MODE_7) dcformat = DC1394_VIDEO_MODE_FORMAT7_7;
-  }
-
-
-  if (know_modes) {
-      //check whether capture mode is supported:
-      bool found=false;
-      for (unsigned int i=0;i<supported_modes.num;i++) {
-          if (supported_modes.modes[i]==dcformat) {
-              found=true;
-              break;
-          }
-      }
-      if (found==false) {
-          fprintf(stderr,"CaptureV4L Error: Selected mode (format/resolution/framerate) is not supported by camera!\n");
-#ifndef VDATA_NO_QT
-          mutex.unlock();
-#endif
-          cleanup();
-          return false;
-      } else {
-      }
-  }
-
-
-  if (dc1394_video_set_mode(camera,dcformat) !=  DC1394_SUCCESS) {
-      fprintf(stderr,"CaptureV4L Error: unable to set capture mode\n");
-#ifndef VDATA_NO_QT
-      mutex.unlock();
-#endif
-      cleanup();
-      return false;
-  }
-  //verify mode:
-  dc1394video_mode_t check_mode;
-  if (dc1394_video_get_mode(camera,&check_mode) ==  DC1394_SUCCESS) {
-      if (check_mode!=dcformat) {
-          fprintf(stderr,"CaptureV4L Error: Unable to set selected mode\n");
-#ifndef VDATA_NO_QT
-          mutex.unlock();
-#endif
-          cleanup();
-          return false;
-      }
-  }
-   */
-
-
-  //TODO: map cature_format to VFL format
-  //  http://linuxtv.org/downloads/v4l-dvb-apis/yuv-formats.html
 
   if (!camera_instance->startStreaming(width, height, pixel_format, fps)) {
     fprintf(stderr, "CaptureV4L Error: unable to setup capture. Maybe selected combination of Format/Resolution is not supported?\n");
     mutex.unlock();
-    cleanup();
     return false;
   }
 
+  rawFrame.ensure_allocation(capture_format, width, height);
+
   vector<VarType *> l = capture_settings->getChildren();
   for (auto & i : l) {
-    i->addFlags(VARTYPE_FLAG_READONLY);
-  }
-
-  vector<VarType *> tmp = capture_settings->getChildren();
-  for (auto & i : tmp) {
     i->addFlags(VARTYPE_FLAG_READONLY);
   }
 
@@ -1298,7 +960,6 @@ bool CaptureV4L::startCapture() {
   mutex.lock();
   camera_instance->captureWarm();
 
-  //now we can allow upstream/external to capture
   is_capturing = true;
 
   mutex.unlock();
@@ -1307,44 +968,25 @@ bool CaptureV4L::startCapture() {
 }
 
 bool CaptureV4L::copyAndConvertFrame(const RawImage &src, RawImage &target) {
-  return convertFrame(src, target, Colors::stringToColorFormat(v_colorout->getSelection().c_str()));
-}
-
-bool CaptureV4L::convertFrame(const RawImage &src, RawImage &target, ColorFormat output_fmt, int y16bits) {
   mutex.lock();
-  ColorFormat src_fmt = src.getColorFormat();
-  if (target.getData() == nullptr) {
-    //allocate target, if it does not exist yet
-    target.allocate(output_fmt, src.getWidth(), src.getHeight());
-  } else {
-    target.ensure_allocation(output_fmt, src.getWidth(), src.getHeight());
-    //target.setWidth(src.getWidth());
-    //target.setHeight(src.getHeight());
-    //target.setFormat(output_fmt);
+  ColorFormat output_fmt = Colors::stringToColorFormat(v_colorout->getSelection().c_str());
+  if (src.getData() == nullptr) {
+    mutex.unlock();
+    return false;
   }
   target.setTime(src.getTime());
   target.setTimeCam(src.getTimeCam());
+
+  ColorFormat src_fmt = src.getColorFormat();
+
+  target.ensure_allocation(output_fmt, src.getWidth(), src.getHeight());
   if (output_fmt == src_fmt) {
-    //just do a memcpy
-    memcpy(target.getData(), src.getData(), src.getNumBytes());
+    // We have to copy the data here to avoid a potential double free
+    // If we do 'target = src', both RawImages own the same data, and if both try to free/delete it,
+    // i.e. due to an ensure_allocation(), a double free error will occur
+    target.deepCopyFromRawImage(src, false);
   } else {
-    //do some more fancy conversion
-    /*if ((src_fmt==COLOR_MONO8 || src_fmt==COLOR_RAW8) && output_fmt==COLOR_RGB8) {
-        Conversions::y2rgb (src.getData(), target.getData(), width, height);
-    } else if ((src_fmt==COLOR_MONO16 || src_fmt==COLOR_RAW16)) {
-        if (output_fmt==COLOR_RGB8) {
-            Conversions::y162rgb (src.getData(), target.getData(), width, height, y16bits);
-        }
-        else {
-            fprintf(stderr,"Cannot copy and convert frame...unknown conversion selected from: %s to %s\n",
-                    Colors::colorFormatToString(src_fmt).c_str(),
-                    Colors::colorFormatToString(output_fmt).c_str());
-#ifndef VDATA_NO_QT
-            mutex.unlock();
-#endif
-            return false;
-        }
-    } else */ if (src_fmt == COLOR_RGB8 && output_fmt == COLOR_YUV422_UYVY) {
+    if (src_fmt == COLOR_RGB8 && output_fmt == COLOR_YUV422_UYVY) {
       Conversions::rgb2uyvy(src.getData(), target.getData(), width, height);
     } else if (src_fmt == COLOR_RGB8 && output_fmt == COLOR_YUV422_YUYV) {
       Conversions::rgb2yuyv(src.getData(), target.getData(), width, height);
@@ -1362,25 +1004,12 @@ bool CaptureV4L::convertFrame(const RawImage &src, RawImage &target, ColorFormat
 
 RawImage CaptureV4L::getFrame() {
   mutex.lock();
-  // capture a frame and write it
-  rawFrame.ensure_allocation(capture_format, width, height);
-  if (!camera_instance || !is_capturing || !camera_instance->captureFrame(&rawFrame, pixel_format)) {
-    fprintf(stderr, "CaptureV4L Warning: Frame not ready, camera %d\n", cam_id);
+
+  if (!camera_instance->captureFrame(&rawFrame, pixel_format)) {
+    fprintf(stderr, "CaptureV4L Warning: Frame not ready, camera %d\n", v_cam_bus->getInt());
     mutex.unlock();
-    RawImage badImage;
-    return badImage;
+    return RawImage{};
   }
-
-#ifndef NDEBUG
-  //strictly for debugging
-  const char *szOutput = nullptr;
-  if (szOutput) {
-    GlobalV4Linstance::writeRgbPPM(reinterpret_cast<GlobalV4Linstance::rgb *>(rawFrame.getData()),
-                                   width, height, szOutput);
-  }
-#endif
-
-  /*printf("B: %d w: %d h: %d bytes: %d pad: %d pos: %d %d depth: %d bpp %d coding: %d  behind %d id %d\n",frame->data_in_padding ? 1 : 0, frame->size[0],frame->size[1],frame->image_bytes,frame->padding_bytes, frame->position[0],frame->position[1],frame->data_depth,frame->packets_per_frame,frame->color_coding,frame->frames_behind,frame->id);*/
 
   mutex.unlock();
   return rawFrame;
@@ -1388,8 +1017,6 @@ RawImage CaptureV4L::getFrame() {
 
 void CaptureV4L::releaseFrame() {
   mutex.lock();
-
-  //frame management done at low-level now...
   mutex.unlock();
 }
 

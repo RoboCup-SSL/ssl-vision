@@ -188,11 +188,7 @@ class GlobalV4LinstanceManager {
 public:
     static GlobalV4Linstance *obtainInstance(int iDevice);
 
-    static int enumerateInstances(int *id_list, int max_id = 4);
-
     static bool removeInstance(GlobalV4Linstance *pDevice);
-
-    static bool removeInstance(int iDevice);
 
 protected:
     GlobalV4LinstanceManager() {};
@@ -262,18 +258,15 @@ protected:
     std::unique_ptr<VarStringEnum> v_format;
     VarInt *v_buffer_size;
 
-    int cam_id;
     int width = 0;
     int height = 0;
     int top = 0;
     int left = 0;
     ColorFormat capture_format = COLOR_UNDEFINED;
     uint32_t pixel_format = 0;
-    int cam_list[MAX_CAM_SCAN] = {};
-    int cam_count = 0;
     RawImage rawFrame;
 
-    GlobalV4Linstance *camera_instance;
+    GlobalV4Linstance *camera_instance = nullptr;
 
     VarList *dcam_parameters;
     VarList *capture_settings;
@@ -284,7 +277,7 @@ public:
 
     void mvc_connect(VarList *group);
 
-    ~CaptureV4L() override;
+    ~CaptureV4L() override = default;
 
     bool startCapture() override;
 
@@ -296,7 +289,7 @@ public:
 
     void releaseFrame() override;
 
-    bool resetBus() override;
+    bool resetBus() override { return true; };
 
     void readAllParameterValues() override;
 
@@ -307,22 +300,6 @@ public:
 private:
     /// This function converts a local variable pointer to enum
     v4lfeature_t getV4LfeatureEnum(VarList *val, bool &valid);
-
-    v4lfeature_t getV4LfeatureEnum(VarList *val) {
-      bool b = true;
-      return getV4LfeatureEnum(val, b);
-    }
-
-    /// This function is used internally only
-    /// The user should call copyAndConvertFrame with parameters setup through the
-    /// VarTypes settings.
-    bool convertFrame(const RawImage &src, RawImage &target,
-                      ColorFormat output_fmt, int y16bits = 16);
-
-    /// This function converts a V4L feature into a local variable Pointer
-    VarList *getVariablePointer(v4lfeature_t val);
-
-    void cleanup();
 
     void readParameterValues(VarList *item);
 
