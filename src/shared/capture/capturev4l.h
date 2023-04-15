@@ -83,10 +83,7 @@ public:
     };
 protected:
     GlobalV4Linstance() {
-      counter = 0;
       pollset.fd = -1;
-      mzero(img, V4L_STREAMBUFS);
-      memset(szDevice, 0, sizeof(char) * 128);
     }
 
     ~GlobalV4Linstance() {
@@ -95,11 +92,11 @@ protected:
 
     QMutex mutex;
 private:
-    pollfd pollset;
-    char counter;
-    char szDevice[128];
-    struct v4l2_buffer tempbuf;
-    image_t img[V4L_STREAMBUFS];
+    pollfd pollset = {};
+    char counter = 0;
+    char szDevice[128] = {};
+    struct v4l2_buffer tempbuf = {};
+    image_t img[V4L_STREAMBUFS] = {};
 
     bool enqueueBuffer(v4l2_buffer &buf);
 
@@ -115,15 +112,21 @@ private:
 
     static int xioctl(int fd, int request, void *data, const char *error_str);
 
-    bool xioctl(int request, void *data, const char *error_str);
+    bool xioctl(int request, void *data, const char *error_str) const;
 
 public:
-    bool getControl(int ctrl_id, long &s);
+    bool getControl(long ctrl_id, long &s);
 
-    bool setControl(int ctrl_id, long s);
+    bool setControl(long ctrl_id, long s);
 
-    bool checkControl(int ctrl_id, bool *bEnabled = NULL, bool *bReadOnly = NULL,
-                      long *lDefault = NULL, long *lMin = NULL, long *lMax = NULL);
+    bool checkControl(
+            long ctrl_id,
+            bool *bEnabled = nullptr,
+            bool *bReadOnly = nullptr,
+            long *lDefault = nullptr,
+            long *lMin = nullptr,
+            long *lMax = nullptr
+    );
 
     bool startStreaming(int iWidth_, int iHeight_, uint32_t pixel_format, int framerate, int iInput = 0);
 
@@ -169,7 +172,7 @@ private:
 
     static bool getImageFromJPEG(const image_t &in_img, RawImage *out_img);
 
-    static bool getImage(const image_t &in_img, const uint32_t pixel_format, RawImage *out_img);
+    static bool getImage(const image_t &in_img, uint32_t pixel_format, RawImage *out_img);
 
     static GlobalV4Linstance::rgb yuv2rgb(GlobalV4Linstance::yuv p);
 
@@ -192,21 +195,15 @@ public:
     static bool removeInstance(int iDevice);
 
 protected:
-    GlobalV4LinstanceManager();
+    GlobalV4LinstanceManager() {};
 
     ~GlobalV4LinstanceManager();
-
-    GlobalV4LinstanceManager(const GlobalV4LinstanceManager &);
-
-    GlobalV4LinstanceManager &operator=(const GlobalV4LinstanceManager &);
 
 private:
     static GlobalV4LinstanceManager *pinstance;
     typedef std::map<int, GlobalV4Linstance *> t_map_v4l;
     t_map_v4l map_instance;
 };
-
-
 
 /*!
  \class CaptureV4L
@@ -234,11 +231,9 @@ public slots:
 
 protected:
     QMutex mutex;
-public:
-
 
 protected:
-    bool is_capturing;
+    bool is_capturing = false;
 
     //processing variables:
     VarStringEnum *v_colorout;
@@ -268,15 +263,14 @@ protected:
     VarInt *v_buffer_size;
 
     int cam_id;
-    int width;
-    int height;
-    int top;
-    int left;
-    ColorFormat capture_format;
-    uint32_t pixel_format;
-    int ring_buffer_size;
-    int cam_list[MAX_CAM_SCAN];
-    int cam_count;
+    int width = 0;
+    int height = 0;
+    int top = 0;
+    int left = 0;
+    ColorFormat capture_format = COLOR_UNDEFINED;
+    uint32_t pixel_format = 0;
+    int cam_list[MAX_CAM_SCAN] = {};
+    int cam_count = 0;
     RawImage rawFrame;
 
     GlobalV4Linstance *camera_instance;
@@ -286,20 +280,31 @@ protected:
     VarList *conversion_settings;
 
 public:
-    CaptureV4L(VarList *_settings = 0, int default_camera_id = 0, QObject *parent = 0);
+    explicit CaptureV4L(VarList *_settings = nullptr, int default_camera_id = 0, QObject *parent = nullptr);
 
     void mvc_connect(VarList *group);
 
-    ~CaptureV4L();
+    ~CaptureV4L() override;
 
-    /// Initialize the interface and start capture
-    virtual bool startCapture();
+    bool startCapture() override;
 
-    /// Stop Capture
-    virtual bool stopCapture();
+    bool stopCapture() override;
 
-    virtual bool isCapturing() { return is_capturing; };
+    bool isCapturing() override { return is_capturing; };
 
+    RawImage getFrame() override;
+
+    void releaseFrame() override;
+
+    bool resetBus() override;
+
+    void readAllParameterValues() override;
+
+    bool copyAndConvertFrame(const RawImage &src, RawImage &target) override;
+
+    string getCaptureMethodName() const override { return "V4L"; };
+
+private:
     /// This function converts a local variable pointer to enum
     v4lfeature_t getV4LfeatureEnum(VarList *val, bool &valid);
 
@@ -308,17 +313,14 @@ public:
       return getV4LfeatureEnum(val, b);
     }
 
+    /// This function is used internally only
+    /// The user should call copyAndConvertFrame with parameters setup through the
+    /// VarTypes settings.
+    bool convertFrame(const RawImage &src, RawImage &target,
+                      ColorFormat output_fmt, int y16bits = 16);
+
     /// This function converts a V4L feature into a local variable Pointer
     VarList *getVariablePointer(v4lfeature_t val);
-
-    /// this gives a raw-image with a pointer directly to the video-buffer
-    /// Note that this pointer is only guaranteed to point to a valid
-    /// memory location until releaseFrame() is called.
-    virtual RawImage getFrame();
-
-    virtual void releaseFrame();
-
-    virtual bool resetBus();
 
     void cleanup();
 
@@ -330,26 +332,7 @@ public:
 
     void readAllParameterProperties();
 
-    /// will perform a pure memcpy of an image, independent of vartypes
-    /// conversion settings
-    bool copyFrame(const RawImage &src, RawImage &target);
-
-    virtual void readAllParameterValues();
-
     void writeAllParameterValues();
-
-    virtual bool copyAndConvertFrame(const RawImage &src, RawImage &target);
-
-    virtual string getCaptureMethodName() const;
-
-protected:
-    /// This function is used internally only
-    /// The user should call copyAndConvertFrame with parameters setup through the
-    /// VarTypes settings.
-    bool convertFrame(const RawImage &src, RawImage &target,
-                      ColorFormat output_fmt, int y16bits = 16);
-
-
 };
 
 #endif

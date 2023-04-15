@@ -66,8 +66,6 @@ namespace {
       } else if (format == "MJPEG") {
         return V4L2_PIX_FMT_MJPEG;
       } else {
-        // TODO(dschwab): If we update to c++14/17 then we can return a nullopt
-        // and let the caller decide what the default type should be.
         return V4L2_PIX_FMT_YUYV;
       }
     }
@@ -86,19 +84,19 @@ namespace {
 
 //======================= Singleton Manager =======================
 
-GlobalV4LinstanceManager *GlobalV4LinstanceManager::pinstance = NULL;
+GlobalV4LinstanceManager *GlobalV4LinstanceManager::pinstance = nullptr;
 
 GlobalV4Linstance *GlobalV4LinstanceManager::obtainInstance(int iDevice) {
   if (!pinstance) pinstance = new GlobalV4LinstanceManager();
   if (pinstance->map_instance.find(iDevice) == pinstance->map_instance.end()) {
     pinstance->map_instance[iDevice] = new GlobalV4Linstance();
   }
-  if (!pinstance->map_instance[iDevice]->obtainInstance(iDevice)) return NULL;
+  if (!pinstance->map_instance[iDevice]->obtainInstance(iDevice)) return nullptr;
   return pinstance->map_instance[iDevice];
 }
 
 bool GlobalV4LinstanceManager::removeInstance(GlobalV4Linstance *pDevice) {
-  for (t_map_v4l::iterator it = pinstance->map_instance.begin();
+  for (auto it = pinstance->map_instance.begin();
        it != pinstance->map_instance.end(); it++) {
     if (it->second == pDevice) {
       if (pDevice->removeInstance()) {
@@ -108,7 +106,7 @@ bool GlobalV4LinstanceManager::removeInstance(GlobalV4Linstance *pDevice) {
       return true;
     }
   }
-  return false;       // didn't find it
+  return false;
 }
 
 bool GlobalV4LinstanceManager::removeInstance(int iDevice) {
@@ -116,14 +114,9 @@ bool GlobalV4LinstanceManager::removeInstance(int iDevice) {
   return removeInstance(pinstance->map_instance[iDevice]);
 }
 
-GlobalV4LinstanceManager::GlobalV4LinstanceManager() {
-  //instance=new GlobalV4Linstance();
-}
-
 GlobalV4LinstanceManager::~GlobalV4LinstanceManager() {
-  for (t_map_v4l::iterator it = pinstance->map_instance.begin();
-       it != pinstance->map_instance.end(); it++) {
-    delete it->second;
+  for (auto & it : pinstance->map_instance) {
+    delete it.second;
   }
   map_instance.clear();
 }
@@ -152,7 +145,6 @@ bool GlobalV4Linstance::obtainInstance(int iDevice) {
 bool GlobalV4Linstance::obtainInstance(char *szDevice_) {
   lock();
   bool bSuccess = (pollset.fd > -1);
-  //fprintf(stderr,"WARNING: obtainInstance ENTER : counter : %d!\n", counter);
 
   if (counter == 0) {
     if (pollset.fd < 0) {
@@ -167,7 +159,7 @@ bool GlobalV4Linstance::obtainInstance(char *szDevice_) {
       pollset.events = POLLIN;
 
       // test capture capabilities
-      v4l2_capability cap;
+      v4l2_capability cap{};
       if (xioctl(pollset.fd, VIDIOC_QUERYCAP, &cap, "VideoQueryCap") == 0) {
         if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE) ||
             !(cap.capabilities & V4L2_CAP_STREAMING)) {
@@ -178,18 +170,6 @@ bool GlobalV4Linstance::obtainInstance(char *szDevice_) {
       }
     }
 
-    // set cropping to default (no effect if not supported)
-    if (bSuccess && false) {
-      v4l2_cropcap cropcap;
-      v4l2_crop crop;
-      mzero(cropcap);
-      mzero(crop);
-      cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-      xioctl(pollset.fd, VIDIOC_CROPCAP, &cropcap, "CropCap");
-      crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-      crop.c = cropcap.defrect;
-      xioctl(pollset.fd, VIDIOC_S_CROP, &crop, "SetCrop");
-    }
     if (!bSuccess) {
       if (pollset.fd > -1) close(pollset.fd);
       pollset.fd = -1;
@@ -199,7 +179,6 @@ bool GlobalV4Linstance::obtainInstance(char *szDevice_) {
   }
   if (bSuccess)
     counter++;
-  //fprintf(stderr,"WARNING: obtainInstance EXIT : counter : %d!\n", counter);
 
   unlock();
   return bSuccess;
@@ -227,7 +206,7 @@ bool GlobalV4Linstance::removeInstance(bool bRelock) {
   return was_last;
 }
 
-bool GlobalV4Linstance::xioctl(int request, void *data, const char *error_str) {
+bool GlobalV4Linstance::xioctl(int request, void *data, const char *error_str) const {
   int ret = xioctl(pollset.fd, request, data, error_str);
   return (ret == 0);
 }
@@ -256,7 +235,7 @@ int GlobalV4Linstance::xioctl(int fd, int request, void *data,
 
 bool GlobalV4Linstance::captureFrame(RawImage *pImage, uint32_t pixel_format, int iMaxSpin) {
   const image_t *_img = captureFrame(iMaxSpin);       //low-level fetch
-  if (!_img || _img->data == NULL) return false;
+  if (!_img || _img->data == nullptr) return false;
   bool bSuccess = false;
 
   if (_img) {
@@ -270,18 +249,9 @@ bool GlobalV4Linstance::captureFrame(RawImage *pImage, uint32_t pixel_format, in
 
       //mid-level copy to RGB
       if (_img->data && getImage(*_img, pixel_format, pImage)) {
-        // just copy timestamp from v4l buffer
-        // http://www.linuxtv.org/downloads/v4l-dvb-apis/buffer.html
-        // http://linux.die.net/man/2/gettimeofday
-        /*
-        timeval tv;
-        pImage->setTime(0.0);
-        //TODO: we could copy the timestamp from the tempbuf/image itself
-        gettimeofday(&tv,NULL);
-        pImage->setTime((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
-        */
-        pImage->setTimeCam((double)_img->timestamp.tv_sec  +
-                        (double) _img->timestamp.tv_usec * (1.0E-6));
+        long time_cam = _img->timestamp.tv_sec * (long) 1e9 +
+                        _img->timestamp.tv_usec * (long) 1e3;
+        pImage->setTimeCam(time_cam);
         bSuccess = true;
       }
       unlock();
@@ -297,7 +267,7 @@ bool GlobalV4Linstance::captureFrame(RawImage *pImage, uint32_t pixel_format, in
 const GlobalV4Linstance::image_t *GlobalV4Linstance::captureFrame(int iMaxSpin) {
   if (!waitForFrame(300)) {
     fprintf(stderr, "GlobalV4Linstance: error waiting for frame '%s'\n", szDevice);
-    return (NULL);
+    return nullptr;
   }
 
   do {
@@ -312,7 +282,7 @@ const GlobalV4Linstance::image_t *GlobalV4Linstance::captureFrame(int iMaxSpin) 
     enqueueBuffer(tempbuf);
   } while (iMaxSpin--);
 
-  int i = tempbuf.index;
+  uint32_t i = tempbuf.index;
   img[i].timestamp = tempbuf.timestamp;
   img[i].field = (tempbuf.field == V4L2_FIELD_BOTTOM);
   return (&(img[i]));
@@ -327,7 +297,7 @@ bool GlobalV4Linstance::releaseFrame(const GlobalV4Linstance::image_t *_img) {
 //because there is some delay before camera actually starts, spin
 // here for the first frame to come out
 void GlobalV4Linstance::captureWarm(int iMaxSpin) {
-  const GlobalV4Linstance::image_t *_img = NULL;
+  const GlobalV4Linstance::image_t *_img = nullptr;
   while (!_img) {
     _img = captureFrame(iMaxSpin);
   }
@@ -342,11 +312,9 @@ bool GlobalV4Linstance::waitForFrame(int max_msec) {
 }
 
 bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, uint32_t pixel_format, int framerate, int iInputIdx) {
-  struct v4l2_requestbuffers req;
 
   // Set video format
-  v4l2_format fmt;
-  mzero(fmt);
+  v4l2_format fmt{};
   fmt.fmt.pix.width = iWidth_;
   fmt.fmt.pix.height = iHeight_;
   fmt.fmt.pix.pixelformat = pixel_format;
@@ -354,7 +322,6 @@ bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, uint32_t pixel
   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if (!xioctl(VIDIOC_S_FMT, &fmt, "SetFormat")) {
     printf("Warning: Could not set format, '%s'; was device previously started?\n", szDevice);
-    //       return(false);
   }
 
   // Set Input and Controls (for more advanced v4l as well)
@@ -363,20 +330,9 @@ bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, uint32_t pixel
   // vid.setInput(1); // Component video
   // vid.setInput(2); // S-video
   xioctl(VIDIOC_S_INPUT, &iInputIdx, "SetInput");
-  /*
-  v4l2_std_id id = V4L2_STD_NTSC_M;               //TODO: modify/detect for other cameras
-  xioctl(VIDIOC_S_STD,&id,"SetStandard");
-
-  long lControlVal = static_cast<long>(0.5f*(1 << 16));
-  setControl(V4L2_CID_BRIGHTNESS, lControlVal);
-  setControl(V4L2_CID_HUE, lControlVal);
-  setControl(V4L2_CID_CONTRAST, lControlVal);
-  lControlVal = static_cast<long>(0.9f*(1 << 16));
-  setControl(V4L2_CID_SATURATION, lControlVal);
-   */
 
   // Request mmap-able capture buffers
-  mzero(req);
+  struct v4l2_requestbuffers req{};
   req.count = V4L_STREAMBUFS;
   req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   req.memory = V4L2_MEMORY_MMAP;
@@ -385,7 +341,7 @@ bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, uint32_t pixel
     return (false);
   }
 
-  struct v4l2_streamparm parm;
+  struct v4l2_streamparm parm{};
   parm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   parm.parm.capture.timeperframe.numerator = 1;
   parm.parm.capture.timeperframe.denominator = framerate;
@@ -399,7 +355,7 @@ bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, uint32_t pixel
   tempbuf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   tempbuf.memory = V4L2_MEMORY_MMAP;
 
-  for (unsigned i = 0; i < req.count; i++) {
+  for (int i = 0; i < req.count; i++) {
     tempbuf.index = i;
     if (!xioctl(VIDIOC_QUERYBUF, &tempbuf, "Allocate query buffer")) {
       printf("QUERYBUF returned error, '%s'\n", szDevice);
@@ -408,7 +364,7 @@ bool GlobalV4Linstance::startStreaming(int iWidth_, int iHeight_, uint32_t pixel
     img[i].index = i;
     img[i].length = tempbuf.length;
     img[i].data = static_cast<unsigned char *>(
-            mmap(NULL, tempbuf.length, PROT_READ | PROT_WRITE, MAP_SHARED,
+            mmap(nullptr, tempbuf.length, PROT_READ | PROT_WRITE, MAP_SHARED,
                  pollset.fd, tempbuf.m.offset));
 
     if (img[i].data == MAP_FAILED) {
@@ -435,13 +391,13 @@ bool GlobalV4Linstance::stopStreaming() {
   bool bSuccess = false;
   if (pollset.fd != -1) {
     v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    bSuccess = xioctl(VIDIOC_STREAMOFF, &type, NULL);
+    bSuccess = xioctl(VIDIOC_STREAMOFF, &type, nullptr);
 
-    for (int i = 0; i < V4L_STREAMBUFS; i++) {
-      if (img[i].data) {
-        munmap(img[i].data, img[i].length);
-        img[i].data = NULL;
-        img[i].length = 0;
+    for (auto & i : img) {
+      if (i.data) {
+        munmap(i.data, i.length);
+        i.data = nullptr;
+        i.length = 0;
       }
     }
   }
@@ -459,10 +415,9 @@ bool GlobalV4Linstance::dequeueBuffer(v4l2_buffer &buf) {
   return xioctl(VIDIOC_DQBUF, &buf, "DequeueBuffer");
 }
 
-bool GlobalV4Linstance::checkControl(int ctrl_id, bool *bEnabled, bool *bReadOnly,
+bool GlobalV4Linstance::checkControl(long ctrl_id, bool *bEnabled, bool *bReadOnly,
                                      long *lDefault, long *lMin, long *lMax) {
-  v4l2_queryctrl queryctrl;
-  mzero(queryctrl);
+  v4l2_queryctrl queryctrl{};
   queryctrl.id = ctrl_id;
 
   if (xioctl(VIDIOC_QUERYCTRL, &queryctrl, "CheckControl")) {
@@ -477,9 +432,8 @@ bool GlobalV4Linstance::checkControl(int ctrl_id, bool *bEnabled, bool *bReadOnl
 }
 
 
-bool GlobalV4Linstance::getControl(int ctrl_id, long &s) {
-  v4l2_control ctrl;
-  mzero(ctrl);
+bool GlobalV4Linstance::getControl(long ctrl_id, long &s) {
+  v4l2_control ctrl{};
   ctrl.id = ctrl_id;
 
   if (xioctl(VIDIOC_G_CTRL, &ctrl, "GetControl")) {
@@ -490,25 +444,19 @@ bool GlobalV4Linstance::getControl(int ctrl_id, long &s) {
   }
 }
 
-bool GlobalV4Linstance::setControl(int ctrl_id, long s) {
-  v4l2_control ctrl;
-  mzero(ctrl);
+bool GlobalV4Linstance::setControl(long ctrl_id, long s) {
+  v4l2_control ctrl{};
   ctrl.id = ctrl_id;
-  ctrl.value = s;
+  ctrl.value = (int) s;
 
-  if (xioctl(VIDIOC_S_CTRL, &ctrl, "SetControl")) {
-    return (true);
-  } else {
-    return (false);
-  }
+  return xioctl(VIDIOC_S_CTRL, &ctrl, "SetControl");
 }
 
 //======================= Low level utility functions ====================
 bool GlobalV4Linstance::writeYuyvPPM(GlobalV4Linstance::yuyv *pSrc, int width, int height, const char *filename) {
-  GlobalV4Linstance::rgb *bufrgb = NULL;
+  GlobalV4Linstance::rgb *bufrgb = nullptr;
   if (!getImageRgb(pSrc, width, height, &bufrgb)) return false;
-  int wrote;
-  wrote = writeRgbPPM(bufrgb, width, height, filename);
+  int wrote = writeRgbPPM(bufrgb, width, height, filename);
   delete[](bufrgb);
 
   return (wrote > 0);
@@ -521,15 +469,14 @@ bool GlobalV4Linstance::writeRgbPPM(GlobalV4Linstance::rgb *imgbuf, int width, i
 
   // write the image
   fprintf(out, "P6\n%d %d\n%d\n", width, height, 255);
-  int result = fwrite(imgbuf, 3, width * height, out);
-  (void) result; //get the compiler to shut up.
+  fwrite(imgbuf, 3, width * height, out);
 
   return (fclose(out) == 0);
 }
 
 bool GlobalV4Linstance::getImageRgb(GlobalV4Linstance::yuyv *pSrc, int width, int height, GlobalV4Linstance::rgb **rgbbuf) {
   if (!rgbbuf) return false;
-  if ((*rgbbuf) == NULL)
+  if ((*rgbbuf) == nullptr)
     (*rgbbuf) = new rgb[width * height];
 
   int size = width * height;
@@ -564,8 +511,8 @@ void GlobalV4Linstance::jpegErrorExit(j_common_ptr dinfo) {
 
 bool GlobalV4Linstance::getImageFromJPEG(
         const GlobalV4Linstance::image_t &in_img, RawImage *out_img) {
-  struct jpeg_decompress_struct dinfo;
-  struct jpeg_error_mgr jerr;
+  struct jpeg_decompress_struct dinfo{};
+  struct jpeg_error_mgr jerr{};
   dinfo.err = jpeg_std_error(&jerr);
   jerr.error_exit = jpegErrorExit;
 
@@ -607,18 +554,18 @@ bool GlobalV4Linstance::getImage(const GlobalV4Linstance::image_t &in_img,
     case V4L2_PIX_FMT_MJPEG:
       return getImageFromJPEG(in_img, out_img);
     default:
-      return 0;
-  };
+      return false;
+  }
 }
 
 inline GlobalV4Linstance::rgb GlobalV4Linstance::yuv2rgb(GlobalV4Linstance::yuv p) {
-  GlobalV4Linstance::rgb r;
+  GlobalV4Linstance::rgb r{};
 
   r.red = bound(p.y + ((p.v * 1436) >> 10) - 179, 0, 255);
   r.green = bound(p.y - ((p.u * 352 + p.v * 731) >> 10) + 135, 0, 255);
   r.blue = bound(p.y + ((p.u * 1814) >> 10) - 226, 0, 255);
 
-  return (r);
+  return r;
 }
 
 
@@ -626,10 +573,7 @@ inline GlobalV4Linstance::rgb GlobalV4Linstance::yuv2rgb(GlobalV4Linstance::yuv 
 //======================= GUI & API Definitions =======================
 
 CaptureV4L::CaptureV4L(VarList *_settings, int default_camera_id, QObject *parent) : QObject(parent), CaptureInterface(_settings) {
-  mzero(cam_list, MAX_CAM_SCAN);
-  cam_count = 0;
   cam_id = default_camera_id;
-  is_capturing = false;
 
   mutex.lock();
 
@@ -658,15 +602,6 @@ CaptureV4L::CaptureV4L(VarList *_settings, int default_camera_id, QObject *paren
   //=======================CONVERSION SETTINGS=======================
   conversion_settings->addChild(v_colorout = new VarStringEnum("convert to mode", Colors::colorFormatToString(COLOR_RGB8)));
   v_colorout->addItem(Colors::colorFormatToString(COLOR_RGB8));
-//    v_colorout->addItem(Colors::colorFormatToString(COLOR_RGB16));
-//    v_colorout->addItem(Colors::colorFormatToString(COLOR_RAW8));
-//    v_colorout->addItem(Colors::colorFormatToString(COLOR_RAW16));
-//    v_colorout->addItem(Colors::colorFormatToString(COLOR_MONO8));
-//    v_colorout->addItem(Colors::colorFormatToString(COLOR_MONO16));
-//    v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV411));
-//    v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV422_UYVY));
-//    v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV422_YUYV));
-//    v_colorout->addItem(Colors::colorFormatToString(COLOR_YUV444));
 
   dcam_parameters->addFlags(VARTYPE_FLAG_HIDE_CHILDREN);
 
@@ -679,15 +614,6 @@ CaptureV4L::CaptureV4L(VarList *_settings, int default_camera_id, QObject *paren
   capture_settings->addChild(v_top = new VarInt("top", 0));
   capture_settings->addChild(v_colormode = new VarStringEnum("capture mode", Colors::colorFormatToString(COLOR_RGB8)));
   v_colormode->addItem(Colors::colorFormatToString(COLOR_RGB8));
-//    v_colormode->addItem(Colors::colorFormatToString(COLOR_RGB16));
-//    v_colormode->addItem(Colors::colorFormatToString(COLOR_RAW8));
-//    v_colormode->addItem(Colors::colorFormatToString(COLOR_RAW16));
-//    v_colormode->addItem(Colors::colorFormatToString(COLOR_MONO8));
-//    v_colormode->addItem(Colors::colorFormatToString(COLOR_MONO16));
-//    v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV411));
-//    v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV422_UYVY));
-//    v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV422_YUYV));
-//    v_colormode->addItem(Colors::colorFormatToString(COLOR_YUV444));
 
   v_format.reset(new VarStringEnum("pixel format", pixelFormatToString(V4L2_PIX_FMT_YUYV)));
   v_format->addItem(pixelFormatToString(V4L2_PIX_FMT_YUYV));
@@ -695,20 +621,6 @@ CaptureV4L::CaptureV4L(VarList *_settings, int default_camera_id, QObject *paren
   capture_settings->addChild(v_format.get());
   capture_settings->addChild(v_buffer_size = new VarInt("ringbuffer size", V4L_STREAMBUFS));
   v_buffer_size->addFlags(VARTYPE_FLAG_READONLY);
-
-  // we could do a better job of enumerating formats here...
-  // http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-enum-fmt.html
-  // http://www.linuxtv.org/downloads/v4l-dvb-apis/vidioc-enum-framesizes.html#v4l2-frmsizeenum
-
-
-  // v4l2_frmsizeenum
-//    printf("sensor supported frame size:\n");
-//    fsize.index = 0;
-//    while (ioctl(fd_v4l, VIDIOC_ENUM_FRAMESIZES, &fsize) >= 0) {
-//    	printf(" %dx%d\n", fsize.discrete.width,
-//                 fsize.discrete.height);
-//    	fsize.index++;
-//    }
 
   //=======================DCAM PARAMETERS===========================
   // http://linuxtv.org/downloads/legacy/video4linux/API/V4L2_API/spec/ch01s08.html
@@ -778,10 +690,10 @@ CaptureV4L::CaptureV4L(VarList *_settings, int default_camera_id, QObject *paren
   mvc_connect(P_FRAME_RATE);
 
   vector<VarType *> v = dcam_parameters->getChildren();
-  for (unsigned int i = 0; i < v.size(); i++) {
-    if (v[i]->getType() == VARTYPE_ID_LIST) {
+  for (auto & i : v) {
+    if (i->getType() == VARTYPE_ID_LIST) {
       VarBool *temp;
-      ((VarList *) v[i])->addChild(temp = new VarBool("was_read", false));
+      ((VarList *) i)->addChild(temp = new VarBool("was_read", false));
       temp->addFlags(VARTYPE_FLAG_HIDDEN);
     }
   }
@@ -793,8 +705,8 @@ CaptureV4L::CaptureV4L(VarList *_settings, int default_camera_id, QObject *paren
 
 void CaptureV4L::mvc_connect(VarList *group) {
   vector<VarType *> v = group->getChildren();
-  for (unsigned int i = 0; i < v.size(); i++) {
-    connect(v[i], SIGNAL(wasEdited(VarType * )), group, SLOT(mvcEditCompleted()));
+  for (auto & i : v) {
+    connect(i, SIGNAL(wasEdited(VarType * )), group, SLOT(mvcEditCompleted()));
   }
   connect(group, SIGNAL(wasEdited(VarType * )), this, SLOT(changed(VarType * )));
 }
@@ -809,27 +721,27 @@ void CaptureV4L::changed(VarType *group) {
 
 void CaptureV4L::readAllParameterValues() {
   vector<VarType *> v = dcam_parameters->getChildren();
-  for (unsigned int i = 0; i < v.size(); i++) {
-    if (v[i]->getType() == VARTYPE_ID_LIST) {
-      readParameterValues((VarList *) v[i]);
+  for (auto & i : v) {
+    if (i->getType() == VARTYPE_ID_LIST) {
+      readParameterValues((VarList *) i);
     }
   }
 }
 
 void CaptureV4L::readAllParameterProperties() {
   vector<VarType *> v = dcam_parameters->getChildren();
-  for (unsigned int i = 0; i < v.size(); i++) {
-    if (v[i]->getType() == VARTYPE_ID_LIST) {
-      readParameterProperty((VarList *) v[i]);
+  for (auto & i : v) {
+    if (i->getType() == VARTYPE_ID_LIST) {
+      readParameterProperty((VarList *) i);
     }
   }
 }
 
 void CaptureV4L::writeAllParameterValues() {
   vector<VarType *> v = dcam_parameters->getChildren();
-  for (unsigned int i = 0; i < v.size(); i++) {
-    if (v[i]->getType() == VARTYPE_ID_LIST) {
-      writeParameterValues((VarList *) v[i]);
+  for (auto & i : v) {
+    if (i->getType() == VARTYPE_ID_LIST) {
+      writeParameterValues((VarList *) i);
     }
   }
 }
@@ -839,40 +751,40 @@ void CaptureV4L::readParameterValues(VarList *item) {
   mutex.lock();
   bool valid = true;
   v4lfeature_t feature = getV4LfeatureEnum(item, valid);
-  if (valid == false) {
+  if (!valid) {
     printf("INVALID FEATURE: %s\n", item->getName().c_str());
     mutex.unlock();
     return;
   }
-  VarInt *vint = 0;
-  VarBool *venabled = 0;
-  VarBool *vwasread = 0;
+  VarInt *vint = nullptr;
+  VarBool *venabled = nullptr;
+  VarBool *vwasread = nullptr;
 
   vector<VarType *> children = item->getChildren();
-  for (unsigned int i = 0; i < children.size(); i++) {
-    if (children[i]->getType() == VARTYPE_ID_BOOL && children[i]->getName() == "was_read") vwasread = (VarBool *) children[i];
-    if (children[i]->getType() == VARTYPE_ID_BOOL && children[i]->getName() == "enabled") venabled = (VarBool *) children[i];
-    if (children[i]->getType() == VARTYPE_ID_INT && children[i]->getName() == "value") vint = (VarInt *) children[i];
+  for (auto & i : children) {
+    if (i->getType() == VARTYPE_ID_BOOL && i->getName() == "was_read") vwasread = (VarBool *) i;
+    if (i->getType() == VARTYPE_ID_BOOL && i->getName() == "enabled") venabled = (VarBool *) i;
+    if (i->getType() == VARTYPE_ID_INT && i->getName() == "value") vint = (VarInt *) i;
   }
 
   long lValue;
-  if (vwasread != 0 && vwasread->getBool() == true) {             //only proceed if no failure in past
+  if (vwasread != nullptr && vwasread->getBool()) {             //only proceed if no failure in past
     if (feature > GlobalV4Linstance::V4L2_FEATURE_PRIVATE) {       //custom/private features
       printf("UNIMPLEMENTED FEATURE (readParameterValues): %s\n", item->getName().c_str());
     } else {
       if (!camera_instance->getControl(feature, lValue)) {
         //feature doesn't exist
         printf("NON-READ FEATURE (readParameterValues): %s\n", item->getName().c_str());
-        if (vwasread != 0) vwasread->setBool(false);
+        if (vwasread != nullptr) vwasread->setBool(false);
       } else {
         //check for switchability:
-        if (vwasread != 0) vwasread->setBool(true);
+        if (vwasread != nullptr) vwasread->setBool(true);
         if (camera_instance->checkControl(feature)) {
           venabled->setBool(true);
         } else {
           venabled->setBool(false);
         }
-        vint->setInt(lValue);
+        vint->setInt((int) lValue);
       }
 
       //update render flags:
@@ -894,36 +806,36 @@ void CaptureV4L::writeParameterValues(VarList *item) {
   mutex.lock();
   bool valid = true;
   v4lfeature_t feature = getV4LfeatureEnum(item, valid);
-  if (valid == false) {
+  if (!valid) {
     mutex.unlock();
     return;
   }
-  VarInt *vint = 0;
-  VarBool *venabled = 0;
-  VarBool *vwasread = 0;
-  VarBool *vdefault = 0;
+  VarInt *vint = nullptr;
+  VarBool *venabled = nullptr;
+  VarBool *vwasread = nullptr;
+  VarBool *vdefault = nullptr;
 
   vector<VarType *> children = item->getChildren();
-  for (unsigned int i = 0; i < children.size(); i++) {
-    if (children[i]->getType() == VARTYPE_ID_BOOL && children[i]->getName() == "was_read") vwasread = (VarBool *) children[i];
-    if (children[i]->getType() == VARTYPE_ID_BOOL && children[i]->getName() == "enabled") venabled = (VarBool *) children[i];
-    if (children[i]->getType() == VARTYPE_ID_BOOL && children[i]->getName() == "default") vdefault = (VarBool *) children[i];
-    if (children[i]->getType() == VARTYPE_ID_INT && children[i]->getName() == "value") vint = (VarInt *) children[i];
+  for (auto & i : children) {
+    if (i->getType() == VARTYPE_ID_BOOL && i->getName() == "was_read") vwasread = (VarBool *) i;
+    if (i->getType() == VARTYPE_ID_BOOL && i->getName() == "enabled") venabled = (VarBool *) i;
+    if (i->getType() == VARTYPE_ID_BOOL && i->getName() == "default") vdefault = (VarBool *) i;
+    if (i->getType() == VARTYPE_ID_INT && i->getName() == "value") vint = (VarInt *) i;
   }
 
   //new: only apply parameters which were previously read from the camera
   if (feature > GlobalV4Linstance::V4L2_FEATURE_PRIVATE) {       //custom/private features
     printf("UNIMPLEMENTED FEATURE (writeParameterValues): %s\n", item->getName().c_str());
   } else {
-    if (vwasread != 0 && vwasread->getBool() == true) {
+    if (vwasread != nullptr && vwasread->getBool()) {
       printf("ATTEMPTING TO SET (writeParameterValues): %s\n", item->getName().c_str());
-      if (vint != 0) {
+      if (vint != nullptr) {
         if (vdefault && vdefault->getBool())
           vint->resetToDefault();
         long lValue = static_cast<long>(vint->getInt());
         if (!camera_instance->setControl(feature, lValue)) {
           //feature doesn't exist or broke after initial read
-          if (vwasread != 0) vwasread->setBool(false);
+          if (vwasread != nullptr) vwasread->setBool(false);
           venabled->setBool(false);
         }
       }
@@ -939,18 +851,18 @@ void CaptureV4L::readParameterProperty(VarList *item) {
   bool debug = false;
   bool valid = true;
   v4lfeature_t feature = getV4LfeatureEnum(item, valid);
-  if (valid == false) {
+  if (!valid) {
     fprintf(stderr, "ERROR: INVALID PROPERTY ENCOUNTERED DURING READOUT: %s\n", item->getName().c_str());
     mutex.unlock();
     return;
   }
-  VarInt *vint = 0;
-  VarBool *venabled = 0;
+  VarInt *vint = nullptr;
+  VarBool *venabled = nullptr;
 
   vector<VarType *> children = item->getChildren();
-  for (unsigned int i = 0; i < children.size(); i++) {
-    if (children[i]->getType() == VARTYPE_ID_BOOL && children[i]->getName() == "enabled") venabled = (VarBool *) children[i];
-    if (children[i]->getType() == VARTYPE_ID_INT && children[i]->getName() == "value") vint = (VarInt *) children[i];
+  for (auto & i : children) {
+    if (i->getType() == VARTYPE_ID_BOOL && i->getName() == "enabled") venabled = (VarBool *) i;
+    if (i->getType() == VARTYPE_ID_INT && i->getName() == "value") vint = (VarInt *) i;
   }
 
   long lDefault = 0;
@@ -973,10 +885,10 @@ void CaptureV4L::readParameterProperty(VarList *item) {
           venabled->removeFlags(VARTYPE_FLAG_READONLY);
         else
           venabled->addFlags(VARTYPE_FLAG_READONLY);
-        if (vint != 0) {
-          vint->setMin(lMin);
-          vint->setMax(lMax);
-          vint->setDefault(lDefault);
+        if (vint != nullptr) {
+          vint->setMin((int) lMin);
+          vint->setMax((int) lMax);
+          vint->setDefault((int) lDefault);
         }
       } else {
         venabled->setBool(false);
@@ -1013,8 +925,8 @@ bool CaptureV4L::stopCapture() {
     readAllParameterValues();
 
     vector<VarType *> tmp = capture_settings->getChildren();
-    for (unsigned int i = 0; i < tmp.size(); i++) {
-      tmp[i]->removeFlags(VARTYPE_FLAG_READONLY);
+    for (auto & i : tmp) {
+      i->removeFlags(VARTYPE_FLAG_READONLY);
     }
     dcam_parameters->addFlags(VARTYPE_FLAG_HIDE_CHILDREN);
   }
@@ -1031,8 +943,8 @@ void CaptureV4L::cleanup() {
   if (camera_instance && is_capturing)
     camera_instance->stopStreaming();
   is_capturing = false;
-  mutex.unlock();
 
+  mutex.unlock();
 }
 
 /// This function converts a local dcam_parameters-manager variable ID
@@ -1071,7 +983,7 @@ v4lfeature_t CaptureV4L::getV4LfeatureEnum(VarList *val, bool &valid) {
 /// This function converts a v4l feature into a variable ID
 // http://v4l-test.sourceforge.net/spec/x542.htm
 VarList *CaptureV4L::getVariablePointer(v4lfeature_t val) {
-  VarList *res = 0;
+  VarList *res = nullptr;
   switch (val) {
     case V4L2_CID_BRIGHTNESS:
       res = P_BRIGHTNESS;
@@ -1107,7 +1019,7 @@ VarList *CaptureV4L::getVariablePointer(v4lfeature_t val) {
       res = P_FRAME_RATE;
       break;
     default:
-      res = 0;
+      res = nullptr;
       break;
   }
   return res;
@@ -1125,7 +1037,7 @@ bool CaptureV4L::startCapture() {
   if (cam_id != new_cam_id) {
     cam_id = new_cam_id;
     GlobalV4LinstanceManager::removeInstance(camera_instance);
-    camera_instance = NULL;
+    camera_instance = nullptr;
     if (cam_id > cam_list[cam_count - 1]) {
       static bool bMaxWarningShown = false;
       if (!bMaxWarningShown) {
@@ -1150,8 +1062,6 @@ bool CaptureV4L::startCapture() {
   capture_format = Colors::stringToColorFormat(v_colormode->getString().c_str());
   pixel_format = stringToPixelFormat(v_format->getString());
   int fps = v_fps->getInt();
-  //CaptureMode mode=stringToCaptureMode(v_format->getString().c_str());
-  ring_buffer_size = v_buffer_size->getInt();
 
   //Check configuration parameters:
   if (fps > 60) {
@@ -1368,13 +1278,13 @@ bool CaptureV4L::startCapture() {
   }
 
   vector<VarType *> l = capture_settings->getChildren();
-  for (unsigned int i = 0; i < l.size(); i++) {
-    l[i]->addFlags(VARTYPE_FLAG_READONLY);
+  for (auto & i : l) {
+    i->addFlags(VARTYPE_FLAG_READONLY);
   }
 
   vector<VarType *> tmp = capture_settings->getChildren();
-  for (unsigned int i = 0; i < tmp.size(); i++) {
-    tmp[i]->addFlags(VARTYPE_FLAG_READONLY);
+  for (auto & i : tmp) {
+    i->addFlags(VARTYPE_FLAG_READONLY);
   }
 
   dcam_parameters->removeFlags(VARTYPE_FLAG_HIDE_CHILDREN);
@@ -1396,19 +1306,14 @@ bool CaptureV4L::startCapture() {
   return true;
 }
 
-bool CaptureV4L::copyFrame(const RawImage &src, RawImage &target) {
-  return convertFrame(src, target, src.getColorFormat());
-}
-
 bool CaptureV4L::copyAndConvertFrame(const RawImage &src, RawImage &target) {
   return convertFrame(src, target, Colors::stringToColorFormat(v_colorout->getSelection().c_str()));
 }
 
-
 bool CaptureV4L::convertFrame(const RawImage &src, RawImage &target, ColorFormat output_fmt, int y16bits) {
   mutex.lock();
   ColorFormat src_fmt = src.getColorFormat();
-  if (target.getData() == 0) {
+  if (target.getData() == nullptr) {
     //allocate target, if it does not exist yet
     target.allocate(output_fmt, src.getWidth(), src.getHeight());
   } else {
@@ -1468,7 +1373,7 @@ RawImage CaptureV4L::getFrame() {
 
 #ifndef NDEBUG
   //strictly for debugging
-  const char *szOutput = NULL;
+  const char *szOutput = nullptr;
   if (szOutput) {
     GlobalV4Linstance::writeRgbPPM(reinterpret_cast<GlobalV4Linstance::rgb *>(rawFrame.getData()),
                                    width, height, szOutput);
@@ -1486,10 +1391,6 @@ void CaptureV4L::releaseFrame() {
 
   //frame management done at low-level now...
   mutex.unlock();
-}
-
-string CaptureV4L::getCaptureMethodName() const {
-  return "V4L";
 }
 
 
