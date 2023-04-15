@@ -21,6 +21,7 @@
 
 #ifndef CAPTURE_SPINNAKER_H
 #define CAPTURE_SPINNAKER_H
+
 #include "captureinterface.h"
 #include "VarTypes.h"
 #include "Spinnaker.h"
@@ -47,92 +48,93 @@
   please inform the author, as we are aiming for complete camera
   coverage.
 */
-class CaptureSpinnaker : public QObject, public CaptureInterface
-{
-  Q_OBJECT
+class CaptureSpinnaker : public QObject, public CaptureInterface {
+Q_OBJECT
 
-  public slots:
-  void changed(VarTypes::VarType * group);
+public slots:
 
-  protected:
-  QMutex mutex;
-
-  public:
+    void changed(VarTypes::VarType *group);
 
 protected:
-  bool is_capturing;
-  TimeSync timeSync;
-
-  //capture variables:
-  VarInt    * v_cam_bus;
-  VarStringEnum * v_convert_to_mode;
-
-  //DCAM parameters:
-  VarStringEnum * v_capture_mode;
-  VarStringEnum* v_expose_auto;
-  VarDouble* v_expose_us;
-  VarStringEnum* v_gain_auto;
-  VarDouble* v_gain_db;
-  VarDouble* v_gamma;
-  VarBool* v_gamma_enabled;
-  VarStringEnum* v_white_balance_auto;
-  VarDouble* v_white_balance_red;
-  VarDouble* v_white_balance_blue;
-  VarStringEnum* v_stream_buffer_handling_mode;
-  VarInt* v_stream_buffer_count;
-  VarBool* v_use_camera_time;
-  VarDouble* v_frame_rate;
-  VarDouble* v_frame_rate_result;
-
-  VarList * capture_settings;
-  VarList * dcam_parameters;
-
-  // Spinnaker specific data
-  Spinnaker::SystemPtr pSystem;
-  Spinnaker::CameraPtr pCam;
-  Spinnaker::ImagePtr pImage;
-
-  unsigned int cam_id;
+    QMutex mutex;
 
 public:
-  explicit CaptureSpinnaker(VarList * _settings = nullptr, int default_camera_id = 0, QObject * parent = nullptr);
-  void mvc_connect(VarList * group);
-  ~CaptureSpinnaker() override;
 
-  /// Initialize the interface and start capture
-  bool startCapture() override;
+protected:
+    bool is_capturing;
+    TimeSync timeSync;
 
-  /// Stop Capture
-  bool stopCapture() override;
+    //capture variables:
+    VarInt *v_cam_bus;
+    VarStringEnum *v_convert_to_mode;
 
-  bool isCapturing() override { return is_capturing; };
+    //DCAM parameters:
+    VarStringEnum *v_capture_mode;
+    VarStringEnum *v_expose_auto;
+    VarDouble *v_expose_us;
+    VarStringEnum *v_gain_auto;
+    VarDouble *v_gain_db;
+    VarDouble *v_gamma;
+    VarBool *v_gamma_enabled;
+    VarStringEnum *v_white_balance_auto;
+    VarDouble *v_white_balance_red;
+    VarDouble *v_white_balance_blue;
+    VarStringEnum *v_stream_buffer_handling_mode;
+    VarInt *v_stream_buffer_count;
+    VarBool *v_use_camera_time;
+    VarDouble *v_frame_rate;
+    VarDouble *v_frame_rate_result;
 
-  /// this gives a raw-image with a pointer directly to the video-buffer
-  /// Note that this pointer is only guaranteed to point to a valid
-  /// memory location until releaseFrame() is called.
-  RawImage getFrame() override;
+    VarList *capture_settings;
+    VarList *dcam_parameters;
 
-  void releaseFrame() override;
+    // Spinnaker specific data
+    Spinnaker::SystemPtr pSystem;
+    Spinnaker::CameraPtr pCam;
+    Spinnaker::ImagePtr pImage;
 
-  bool resetBus() override;
+    unsigned int cam_id;
 
-  void readParameterValues(VarList * item);
+public:
+    explicit CaptureSpinnaker(VarList *_settings = nullptr, int default_camera_id = 0, QObject *parent = nullptr);
 
-  void writeParameterValues(VarList * item);
+    void mvc_connect(VarList *group);
 
-  void readAllParameterValues() override;
+    ~CaptureSpinnaker() override;
 
-  void writeAllParameterValues();
+    /// Initialize the interface and start capture
+    bool startCapture() override;
 
-  bool copyAndConvertFrame(const RawImage & src, RawImage & target) override;
+    /// Stop Capture
+    bool stopCapture() override;
 
-  string getCaptureMethodName() const override;
+    bool isCapturing() override { return is_capturing; };
+
+    /// this gives a raw-image with a pointer directly to the video-buffer
+    /// Note that this pointer is only guaranteed to point to a valid
+    /// memory location until releaseFrame() is called.
+    RawImage getFrame() override;
+
+    void releaseFrame() override;
+
+    bool resetBus() override;
+
+    void readParameterValues(VarList *item);
+
+    void writeParameterValues(VarList *item);
+
+    void readAllParameterValues() override;
+
+    void writeAllParameterValues();
+
+    bool copyAndConvertFrame(const RawImage &src, RawImage &target) override;
+
+    string getCaptureMethodName() const override;
 
 private:
 
     static string toString(Spinnaker::ExposureAutoEnums e) {
-      switch(e)
-      {
+      switch (e) {
         case Spinnaker::ExposureAuto_Off:
           return "off";
         case Spinnaker::ExposureAuto_Once:
@@ -144,12 +146,12 @@ private:
       }
     }
 
-    static Spinnaker::ExposureAutoEnums stringToExposureAuto(const char* s) {
-      if(strcmp(s, "off") == 0) {
+    static Spinnaker::ExposureAutoEnums stringToExposureAuto(const char *s) {
+      if (strcmp(s, "off") == 0) {
         return Spinnaker::ExposureAuto_Off;
-      } else if(strcmp(s, "once") == 0) {
+      } else if (strcmp(s, "once") == 0) {
         return Spinnaker::ExposureAuto_Once;
-      } else if(strcmp(s, "continues") == 0) {
+      } else if (strcmp(s, "continues") == 0) {
         return Spinnaker::ExposureAuto_Continuous;
       }
       return Spinnaker::ExposureAuto_Off;
@@ -157,8 +159,7 @@ private:
 
 
     static string toString(Spinnaker::GainAutoEnums e) {
-      switch(e)
-      {
+      switch (e) {
         case Spinnaker::GainAuto_Off:
           return "off";
         case Spinnaker::GainAuto_Once:
@@ -170,12 +171,12 @@ private:
       }
     }
 
-    static Spinnaker::GainAutoEnums stringToGainAuto(const char* s) {
-      if(strcmp(s, "off") == 0) {
+    static Spinnaker::GainAutoEnums stringToGainAuto(const char *s) {
+      if (strcmp(s, "off") == 0) {
         return Spinnaker::GainAuto_Off;
-      } else if(strcmp(s, "once") == 0) {
+      } else if (strcmp(s, "once") == 0) {
         return Spinnaker::GainAuto_Once;
-      } else if(strcmp(s, "continues") == 0) {
+      } else if (strcmp(s, "continues") == 0) {
         return Spinnaker::GainAuto_Continuous;
       }
       return Spinnaker::GainAuto_Off;
@@ -183,8 +184,7 @@ private:
 
 
     static string toString(Spinnaker::BalanceWhiteAutoEnums e) {
-      switch(e)
-      {
+      switch (e) {
         case Spinnaker::BalanceWhiteAuto_Off:
           return "off";
         case Spinnaker::BalanceWhiteAuto_Once:
@@ -196,12 +196,12 @@ private:
       }
     }
 
-    static Spinnaker::BalanceWhiteAutoEnums stringToBalanceWhiteAuto(const char* s) {
-      if(strcmp(s, "off") == 0) {
+    static Spinnaker::BalanceWhiteAutoEnums stringToBalanceWhiteAuto(const char *s) {
+      if (strcmp(s, "off") == 0) {
         return Spinnaker::BalanceWhiteAuto_Off;
-      } else if(strcmp(s, "once") == 0) {
+      } else if (strcmp(s, "once") == 0) {
         return Spinnaker::BalanceWhiteAuto_Once;
-      } else if(strcmp(s, "continues") == 0) {
+      } else if (strcmp(s, "continues") == 0) {
         return Spinnaker::BalanceWhiteAuto_Continuous;
       }
       return Spinnaker::BalanceWhiteAuto_Off;
@@ -209,8 +209,7 @@ private:
 
 
     static string toString(Spinnaker::StreamBufferHandlingModeEnum e) {
-      switch(e)
-      {
+      switch (e) {
         case Spinnaker::StreamBufferHandlingMode_NewestOnly:
           return "NewestOnly";
         case Spinnaker::StreamBufferHandlingMode_NewestFirst:
@@ -224,14 +223,14 @@ private:
       }
     }
 
-    static Spinnaker::StreamBufferHandlingModeEnum stringToStreamBufferHandlingMode(const char* s) {
-      if(strcmp(s, "NewestOnly") == 0) {
+    static Spinnaker::StreamBufferHandlingModeEnum stringToStreamBufferHandlingMode(const char *s) {
+      if (strcmp(s, "NewestOnly") == 0) {
         return Spinnaker::StreamBufferHandlingMode_NewestOnly;
-      } else if(strcmp(s, "NewestFirst") == 0) {
+      } else if (strcmp(s, "NewestFirst") == 0) {
         return Spinnaker::StreamBufferHandlingMode_NewestFirst;
-      } else if(strcmp(s, "OldestFirstOverwrite") == 0) {
+      } else if (strcmp(s, "OldestFirstOverwrite") == 0) {
         return Spinnaker::StreamBufferHandlingMode_OldestFirstOverwrite;
-      } else if(strcmp(s, "OldestFirst") == 0) {
+      } else if (strcmp(s, "OldestFirst") == 0) {
         return Spinnaker::StreamBufferHandlingMode_OldestFirst;
       }
       return Spinnaker::StreamBufferHandlingMode_OldestFirstOverwrite;

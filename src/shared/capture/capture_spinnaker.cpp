@@ -23,18 +23,17 @@
 #include <memory>
 #include <opencv2/opencv.hpp>
 
-CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id, QObject * parent) : QObject(parent), CaptureInterface(_settings)
-{
+CaptureSpinnaker::CaptureSpinnaker(VarList *_settings, int default_camera_id, QObject *parent) : QObject(parent), CaptureInterface(_settings) {
   cam_id = (unsigned int) default_camera_id;
   is_capturing = false;
 
-    mutex.lock();
+  mutex.lock();
 
   settings->addChild(capture_settings = new VarList("Capture Settings"));
-  settings->addChild(dcam_parameters  = new VarList("Camera Parameters"));
+  settings->addChild(dcam_parameters = new VarList("Camera Parameters"));
 
   //=======================CAPTURE SETTINGS==========================
-  capture_settings->addChild(v_cam_bus = new VarInt("cam idx",default_camera_id));
+  capture_settings->addChild(v_cam_bus = new VarInt("cam idx", default_camera_id));
 
   v_convert_to_mode = new VarStringEnum("convert to mode", Colors::colorFormatToString(COLOR_RGB8));
   v_convert_to_mode->addItem(Colors::colorFormatToString(COLOR_RAW8));
@@ -98,47 +97,40 @@ CaptureSpinnaker::CaptureSpinnaker(VarList * _settings,int default_camera_id, QO
   dcam_parameters->addChild(v_frame_rate);
   dcam_parameters->addChild(v_frame_rate_result);
 
-    mvc_connect(dcam_parameters);
-    mutex.unlock();
+  mvc_connect(dcam_parameters);
+  mutex.unlock();
 }
 
 
-CaptureSpinnaker::~CaptureSpinnaker()
-{
+CaptureSpinnaker::~CaptureSpinnaker() {
   capture_settings->deleteAllChildren();
   dcam_parameters->deleteAllChildren();
 }
 
-void CaptureSpinnaker::mvc_connect(VarList * group)
-{
-  for (auto &i : group->getChildren()) {
-    connect(i,SIGNAL(wasEdited(VarType*)),group,SLOT(mvcEditCompleted()));
+void CaptureSpinnaker::mvc_connect(VarList *group) {
+  for (auto &i: group->getChildren()) {
+    connect(i, SIGNAL(wasEdited(VarType * )), group, SLOT(mvcEditCompleted()));
   }
-  connect(group,SIGNAL(wasEdited(VarType*)),this,SLOT(changed(VarType*)));
+  connect(group, SIGNAL(wasEdited(VarType * )), this, SLOT(changed(VarType * )));
 }
 
-void CaptureSpinnaker::changed(VarType * group)
-{
-  if (group->getType()==VARTYPE_ID_LIST)
-  {
-    writeParameterValues( (VarList *)group );
-    readParameterValues( (VarList *)group );
+void CaptureSpinnaker::changed(VarType *group) {
+  if (group->getType() == VARTYPE_ID_LIST) {
+    writeParameterValues((VarList *) group);
+    readParameterValues((VarList *) group);
   }
 }
 
-void CaptureSpinnaker::readAllParameterValues()
-{
+void CaptureSpinnaker::readAllParameterValues() {
   readParameterValues(dcam_parameters);
 }
 
-void CaptureSpinnaker::writeAllParameterValues()
-{
+void CaptureSpinnaker::writeAllParameterValues() {
   writeParameterValues(dcam_parameters);
 }
 
-void CaptureSpinnaker::readParameterValues(VarList * item)
-{
-  if(item != dcam_parameters || pCam == nullptr)
+void CaptureSpinnaker::readParameterValues(VarList *item) {
+  if (item != dcam_parameters || pCam == nullptr)
     return;
 
   mutex.lock();
@@ -167,17 +159,15 @@ void CaptureSpinnaker::readParameterValues(VarList * item)
     v_frame_rate->setDouble(pCam->AcquisitionFrameRate.GetValue());
     v_frame_rate_result->setDouble(pCam->AcquisitionResultingFrameRate.GetValue());
   }
-  catch (Spinnaker::Exception &e)
-  {
+  catch (Spinnaker::Exception &e) {
     fprintf(stderr, "An error occurred while reading parameters of device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
   }
 
   mutex.unlock();
 }
 
-void CaptureSpinnaker::writeParameterValues(VarList * item)
-{
-  if(item != dcam_parameters || pCam == nullptr)
+void CaptureSpinnaker::writeParameterValues(VarList *item) {
+  if (item != dcam_parameters || pCam == nullptr)
     return;
 
   mutex.lock();
@@ -185,7 +175,7 @@ void CaptureSpinnaker::writeParameterValues(VarList * item)
   try {
     Spinnaker::ExposureAutoEnums exposureAuto = stringToExposureAuto(v_expose_auto->getString().c_str());
     pCam->ExposureAuto.SetValue(exposureAuto);
-    if(exposureAuto == Spinnaker::ExposureAuto_Off) {
+    if (exposureAuto == Spinnaker::ExposureAuto_Off) {
       pCam->ExposureTime.SetValue(v_expose_us->getDouble());
       v_expose_us->removeFlags(VARTYPE_FLAG_READONLY);
     } else {
@@ -194,7 +184,7 @@ void CaptureSpinnaker::writeParameterValues(VarList * item)
 
     Spinnaker::GainAutoEnums gainAuto = stringToGainAuto(v_gain_auto->getString().c_str());
     pCam->GainAuto.SetValue(gainAuto);
-    if(gainAuto == Spinnaker::GainAuto_Off) {
+    if (gainAuto == Spinnaker::GainAuto_Off) {
       pCam->Gain.SetValue(v_gain_db->getDouble());
       v_gain_db->removeFlags(VARTYPE_FLAG_READONLY);
     } else {
@@ -220,27 +210,23 @@ void CaptureSpinnaker::writeParameterValues(VarList * item)
     pCam->TLStream.StreamBufferHandlingMode.SetValue(stringToStreamBufferHandlingMode(v_stream_buffer_handling_mode->getString().c_str()));
     pCam->TLStream.StreamBufferCountManual.SetValue(v_stream_buffer_count->getInt());
   }
-  catch (Spinnaker::Exception &e)
-  {
+  catch (Spinnaker::Exception &e) {
     fprintf(stderr, "An error occurred while writing parameters to device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
   }
 
   mutex.unlock();
 }
 
-bool CaptureSpinnaker::resetBus()
-{
-    mutex.lock();
+bool CaptureSpinnaker::resetBus() {
+  mutex.lock();
 
-    mutex.unlock();
+  mutex.unlock();
 
   return true;
 }
 
-bool CaptureSpinnaker::stopCapture()
-{
-  if (isCapturing())
-  {
+bool CaptureSpinnaker::stopCapture() {
+  if (isCapturing()) {
     is_capturing = false;
     try {
       pCam->EndAcquisition();
@@ -248,27 +234,25 @@ bool CaptureSpinnaker::stopCapture()
       pCam = (int) NULL;
       pSystem->ReleaseInstance();
     }
-    catch (Spinnaker::Exception &e)
-    {
+    catch (Spinnaker::Exception &e) {
       fprintf(stderr, "Spinnaker: An error occurred while closing the device (error code: %d, '%s')\n", e.GetError(), e.GetFullErrorMessage());
     }
   }
 
   vector<VarType *> tmp = capture_settings->getChildren();
-  for (auto &i : tmp) {
-    i->removeFlags( VARTYPE_FLAG_READONLY );
+  for (auto &i: tmp) {
+    i->removeFlags(VARTYPE_FLAG_READONLY);
   }
 
   return true;
 }
 
-bool CaptureSpinnaker::startCapture()
-{
+bool CaptureSpinnaker::startCapture() {
   using namespace std;
   using namespace Spinnaker;
   using namespace Spinnaker::GenApi;
 
-    mutex.lock();
+  mutex.lock();
 
   pSystem = System::GetInstance();
 
@@ -277,21 +261,18 @@ bool CaptureSpinnaker::startCapture()
   CameraList camList = pSystem->GetCameras();
   fprintf(stderr, "Spinnaker: Number of cams: %u\n", camList.GetSize());
 
-  if(cam_id >= camList.GetSize())
-  {
+  if (cam_id >= camList.GetSize()) {
     fprintf(stderr, "Spinnaker: Invalid cam_id: %u\n", cam_id);
     pSystem->ReleaseInstance();
 
-      mutex.unlock();
+    mutex.unlock();
     return false;
   }
 
-  try
-  {
+  try {
     pCam = camList.GetByIndex(cam_id);
   }
-  catch (Spinnaker::Exception &e)
-  {
+  catch (Spinnaker::Exception &e) {
     fprintf(stderr, "An error occurred while opening device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
     camList.Clear();
     pSystem->ReleaseInstance();
@@ -299,13 +280,11 @@ bool CaptureSpinnaker::startCapture()
     return false;
   }
 
-  try
-  {
+  try {
     pCam->Init();
     camList.Clear();
   }
-  catch (Spinnaker::Exception &e)
-  {
+  catch (Spinnaker::Exception &e) {
     fprintf(stderr, "An error occurred while initializing camera %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
     pCam = (int) NULL;
     camList.Clear();
@@ -328,13 +307,11 @@ bool CaptureSpinnaker::startCapture()
     }
 
     ColorFormat out_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
-    if(out_color == COLOR_RAW8)
-    {
+    if (out_color == COLOR_RAW8) {
       try {
         pCam->PixelFormat.SetValue(Spinnaker::PixelFormat_BayerRG8);
       }
-      catch (Spinnaker::Exception &e)
-      {
+      catch (Spinnaker::Exception &e) {
         fprintf(stderr, "An error occurred while configuring device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
       }
     } else {
@@ -343,8 +320,7 @@ bool CaptureSpinnaker::startCapture()
 
     pCam->BeginAcquisition();
   }
-  catch (Spinnaker::Exception &e)
-  {
+  catch (Spinnaker::Exception &e) {
     fprintf(stderr, "An error occurred while configuring device %d with Spinnaker (error code: %d, '%s')\n", cam_id, e.GetError(), e.GetFullErrorMessage());
     pCam->DeInit();
     pCam = (int) NULL;
@@ -356,11 +332,11 @@ bool CaptureSpinnaker::startCapture()
   is_capturing = true;
 
   vector<VarType *> tmp = capture_settings->getChildren();
-  for (auto &i : tmp) {
-    i->addFlags( VARTYPE_FLAG_READONLY );
+  for (auto &i: tmp) {
+    i->addFlags(VARTYPE_FLAG_READONLY);
   }
 
-    mutex.unlock();
+  mutex.unlock();
 
   writeAllParameterValues();
   readAllParameterValues();
@@ -368,8 +344,7 @@ bool CaptureSpinnaker::startCapture()
   return true;
 }
 
-bool CaptureSpinnaker::copyAndConvertFrame(const RawImage & src, RawImage & target)
-{
+bool CaptureSpinnaker::copyAndConvertFrame(const RawImage &src, RawImage &target) {
   mutex.lock();
   if (src.getTime() == 0) {
     mutex.unlock();
@@ -379,9 +354,9 @@ bool CaptureSpinnaker::copyAndConvertFrame(const RawImage & src, RawImage & targ
 
   ColorFormat src_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
   ColorFormat out_color = Colors::stringToColorFormat(v_convert_to_mode->getSelection().c_str());
-  if(src_color == out_color) {
+  if (src_color == out_color) {
     target = src;
-  } else if(src_color == COLOR_RAW8 && out_color == COLOR_RGB8) {
+  } else if (src_color == COLOR_RAW8 && out_color == COLOR_RGB8) {
     target.ensure_allocation(out_color, src.getWidth(), src.getHeight());
     cv::Mat srcMat(src.getHeight(), src.getWidth(), CV_8UC1, src.getData());
     cv::Mat dstMat(target.getHeight(), target.getWidth(), CV_8UC3, target.getData());
@@ -397,8 +372,7 @@ bool CaptureSpinnaker::copyAndConvertFrame(const RawImage & src, RawImage & targ
   return true;
 }
 
-RawImage CaptureSpinnaker::getFrame()
-{
+RawImage CaptureSpinnaker::getFrame() {
   mutex.lock();
 
   ColorFormat out_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
@@ -412,14 +386,12 @@ RawImage CaptureSpinnaker::getFrame()
   try {
     pImage = pCam->GetNextImage();
   }
-  catch (Spinnaker::Exception &e)
-  {
+  catch (Spinnaker::Exception &e) {
     fprintf(stderr, "Spinnaker: An error occurred while getting the next image (error code: %d, '%s')\n", e.GetError(), e.GetFullErrorMessage());
   }
 
 
-  if (pImage->IsIncomplete())
-  {
+  if (pImage->IsIncomplete()) {
     auto description = Spinnaker::Image::GetImageStatusDescription(pImage->GetImageStatus());
     fprintf(stderr, "Spinnaker: Image incomplete: %s\n", description);
     mutex.unlock();
@@ -434,32 +406,29 @@ RawImage CaptureSpinnaker::getFrame()
   } else {
     timeval tv{};
     gettimeofday(&tv, nullptr);
-    result.setTime((double)tv.tv_sec + (double)tv.tv_usec * (1.0E-6));
+    result.setTime((double) tv.tv_sec + (double) tv.tv_usec * (1.0E-6));
   }
   result.setWidth((int) pImage->GetWidth());
   result.setHeight((int) pImage->GetHeight());
-  result.setData((unsigned char*) pImage->GetData());
+  result.setData((unsigned char *) pImage->GetData());
 
   mutex.unlock();
   return result;
 }
 
-void CaptureSpinnaker::releaseFrame()
-{
-    mutex.lock();
+void CaptureSpinnaker::releaseFrame() {
+  mutex.lock();
 
   try {
     pImage->Release();
   }
-  catch (Spinnaker::Exception &e)
-  {
+  catch (Spinnaker::Exception &e) {
     fprintf(stderr, "Spinnaker: An error occurred while releasing an image (error code: %d, '%s')\n", e.GetError(), e.GetFullErrorMessage());
   }
 
-    mutex.unlock();
+  mutex.unlock();
 }
 
-string CaptureSpinnaker::getCaptureMethodName() const
-{
+string CaptureSpinnaker::getCaptureMethodName() const {
   return "Spinnaker";
 }
