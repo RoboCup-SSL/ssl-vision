@@ -24,7 +24,6 @@
 #include <opencv2/opencv.hpp>
 
 CaptureSpinnaker::CaptureSpinnaker(VarList *_settings, int default_camera_id, QObject *parent) : QObject(parent), CaptureInterface(_settings) {
-  cam_id = (unsigned int) default_camera_id;
   is_capturing = false;
 
   mutex.lock();
@@ -297,13 +296,12 @@ bool CaptureSpinnaker::startCapture() {
   mutex.lock();
 
   pSystem = Spinnaker::System::GetInstance();
-  cam_id = (unsigned int) v_cam_bus->getInt();
 
   Spinnaker::CameraList camList = pSystem->GetCameras();
   fprintf(stderr, "Spinnaker: Number of cams: %u\n", camList.GetSize());
 
-  if (cam_id >= camList.GetSize()) {
-    fprintf(stderr, "Spinnaker: Invalid cam_id: %u\n", cam_id);
+  if (v_cam_bus->getInt() >= (int) camList.GetSize()) {
+    fprintf(stderr, "Spinnaker: Invalid cam_id: %u\n", v_cam_bus->getInt());
     pSystem->ReleaseInstance();
 
     mutex.unlock();
@@ -311,7 +309,7 @@ bool CaptureSpinnaker::startCapture() {
   }
 
   try {
-    pCam = camList.GetByIndex(cam_id);
+    pCam = camList.GetByIndex(v_cam_bus->getInt());
   }
   catch (Spinnaker::Exception &e) {
     fprintf(stderr, "Spinnaker: Could not open device: %s\n", e.GetFullErrorMessage());

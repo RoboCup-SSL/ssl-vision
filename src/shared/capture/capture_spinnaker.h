@@ -58,7 +58,6 @@ public slots:
     void slotResetTriggered();
 
 private:
-    unsigned int cam_id;
     bool is_capturing;
     bool reset_parameters = false;
 
