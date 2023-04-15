@@ -67,7 +67,7 @@ class RawImage : public ImageInterface
   int getHeight() const;
   ColorFormat getColorFormat() const;
   double getTime() const;
-    double getTimeCam() const;
+  double getTimeCam() const;
   unsigned char * getData() const;
   int getNumBytes() const;
   int getNumColorBlocks() const;
