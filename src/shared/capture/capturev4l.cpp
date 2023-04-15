@@ -286,8 +286,8 @@ bool GlobalV4Linstance::captureFrame(RawImage *pImage, uint32_t pixel_format, in
               gettimeofday(&tv,NULL);
               pImage->setTime((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
               */
-              pImage->setTime((double)_img->timestamp.tv_sec +
-                              _img->timestamp.tv_usec * (1.0E-6));
+              pImage->setTimeCam((double)_img->timestamp.tv_sec +
+                           (double) _img->timestamp.tv_usec * (1.0E-6));
               bSuccess = true;
             }
             unlock();
@@ -1434,6 +1434,7 @@ bool CaptureV4L::convertFrame(const RawImage & src, RawImage & target, ColorForm
         //target.setFormat(output_fmt);
     }
     target.setTime(src.getTime());
+    target.setTimeCam ( src.getTimeCam() );
     if (output_fmt==src_fmt) {
         //just do a memcpy
         memcpy(target.getData(),src.getData(),src.getNumBytes());

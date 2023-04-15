@@ -559,6 +559,7 @@ bool CaptureFlycap::convertFrame(const RawImage & src,
     target.ensure_allocation(output_fmt,src.getWidth(),src.getHeight());
   }
   target.setTime(src.getTime());
+  target.setTimeCam ( src.getTimeCam() );
   if (output_fmt==src_fmt) {
     //just do a memcpy
     memcpy(target.getData(),src.getData(),src.getNumBytes());
@@ -627,10 +628,6 @@ RawImage CaptureFlycap::getFrame() {
   Image image;
   RawImage result;
   result.setColorFormat(capture_format);
-  result.setWidth(0);
-  result.setHeight(0);
-  result.setTime(0.0);
-  result.setData(0);
   error = camera->RetrieveBuffer(&image);
   if (error != PGRERROR_OK) {
     error.PrintErrorTrace();
@@ -642,9 +639,6 @@ RawImage CaptureFlycap::getFrame() {
   stored_image->DeepCopy(&image);
 
   result.setData(stored_image->GetData());
-  struct timeval tv;
-  gettimeofday(&tv,NULL);
-  result.setTime((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
   result.setHeight(stored_image->GetRows());
   result.setWidth(stored_image->GetCols());
   result.setColorFormat(pixelFormatToColorFormat(stored_image->GetPixelFormat()));

@@ -24,17 +24,16 @@
 
 RawImage::RawImage()
 {
-  data=0;
+  data= nullptr;
   width=0;
   height=0;
   format=COLOR_UNDEFINED;
   time=0.0;
+  time_cam=0;
 }
 
 
-RawImage::~RawImage()
-{
-}
+RawImage::~RawImage() = default;
 
 
 int RawImage::getWidth() const
@@ -55,6 +54,11 @@ ColorFormat RawImage::getColorFormat() const
 double RawImage::getTime() const
 {
   return time;
+}
+
+double RawImage::getTimeCam() const
+{
+  return time_cam;
 }
 
 unsigned char * RawImage::getData() const
@@ -104,20 +108,23 @@ void RawImage::setTime(double t)
   time=t;
 }
 
+void RawImage::setTimeCam(double t)
+{
+  time_cam=t;
+}
+
 void RawImage::setData(unsigned char * d)
 {
-  if (data!=0) delete[] data;
+  delete[] data;
   data=d;
 }
 
 void  RawImage::allocate (ColorFormat fmt, int w, int h)
 {
   if(w >= 0 && h >= 0) {
-    if (data!=0) {
-      delete[] data;
-    }
+    delete[] data;
     if (w==0 && h==0) {
-      data=0;
+      data=nullptr;
     } else {
       data=new unsigned char[computeImageSize(fmt,w*h)];
     }
@@ -129,7 +136,7 @@ void  RawImage::allocate (ColorFormat fmt, int w, int h)
 
 void  RawImage::ensure_allocation (ColorFormat fmt, int w, int h)
 {
-  if(data == 0 || format != fmt || width != w || height!=h) {
+  if(data == nullptr || format != fmt || width != w || height!=h) {
     allocate(fmt,w,h);
   }
 }
@@ -146,7 +153,7 @@ void RawImage::deepCopyFromRawImage(const RawImage & img, bool copyMetaData)
 void RawImage::clear()
 {
   allocate(getColorFormat(),0,0);
-};
+}
 
 int RawImage::computeImageSize(ColorFormat fmt, int pixelCount)
 {

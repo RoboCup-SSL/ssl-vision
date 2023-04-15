@@ -24,11 +24,11 @@
 FrameData::FrameData()
 {
   time=0;
+  time_cam=0;
   number=0;
 }
 
 
-FrameData::~FrameData()
-{}
+FrameData::~FrameData() = default;
 
 

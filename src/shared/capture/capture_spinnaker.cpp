@@ -39,11 +39,8 @@ CaptureSpinnaker::CaptureSpinnaker(VarList *_settings, int default_camera_id, QO
   v_convert_to_mode->addItem(Colors::colorFormatToString(COLOR_RAW8));
   v_convert_to_mode->addItem(Colors::colorFormatToString(COLOR_RGB8));
 
-  v_use_camera_time = new VarBool("Use camera time", false);
-
   capture_settings->addChild(v_cam_bus);
   capture_settings->addChild(v_convert_to_mode);
-  capture_settings->addChild(v_use_camera_time);
 
   //=======================CAMERA SETTINGS==========================
   v_acquisition = new VarBool("Acquisition", true);
@@ -367,11 +364,12 @@ bool CaptureSpinnaker::startCapture() {
 
 bool CaptureSpinnaker::copyAndConvertFrame(const RawImage &src, RawImage &target) {
   mutex.lock();
-  if (src.getTime() == 0) {
+  if (src.getData() == nullptr) {
     mutex.unlock();
     return false;
   }
   target.setTime(src.getTime());
+  target.setTimeCam ( src.getTimeCam() );
 
   ColorFormat src_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
   ColorFormat out_color = Colors::stringToColorFormat(v_convert_to_mode->getSelection().c_str());
@@ -399,10 +397,6 @@ RawImage CaptureSpinnaker::getFrame() {
   ColorFormat out_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
   RawImage result;
   result.setColorFormat(out_color);
-  result.setWidth(0);
-  result.setHeight(0);
-  result.setTime(0.0);
-  result.setData(nullptr);
 
   try {
     if (pCam->IsStreaming() != v_acquisition->getBool()) {
@@ -430,19 +424,10 @@ RawImage CaptureSpinnaker::getFrame() {
       auto description = Spinnaker::Image::GetImageStatusDescription(pImage->GetImageStatus());
       fprintf(stderr, "Spinnaker: Image incomplete: %s\n", description);
     } else {
-      if (v_use_camera_time->getBool()) {
-        uint64_t image_timestamp = pImage->GetTimeStamp();
-        timeSync.update(image_timestamp);
-        double time = (double) timeSync.sync(image_timestamp) / 1e9;
-        result.setTime(time);
-      } else {
-        timeval tv{};
-        gettimeofday(&tv, nullptr);
-        result.setTime((double) tv.tv_sec + (double) tv.tv_usec * (1.0E-6));
-      }
       result.setWidth((int) pImage->GetWidth());
       result.setHeight((int) pImage->GetHeight());
       result.setData((unsigned char *) pImage->GetData());
+      result.setTimeCam((double) pImage->GetTimeStamp() / 1e9);
     }
   }
 
