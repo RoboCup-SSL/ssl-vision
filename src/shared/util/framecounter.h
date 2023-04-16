@@ -22,7 +22,7 @@
 #ifndef FRAMECOUNTER_H_
 #define FRAMECOUNTER_H_
 
-#include <QTime>
+#include <QElapsedTimer>
 #include <QMutex>
 
 
@@ -30,22 +30,19 @@
   \brief A class for frame counting and frame-rate measurements
 */
 class FrameCounter {
-protected:	
-	int interval;
-	
-	double fps;
-	long long total;
-	long long framecounter;
-	QTime timer;
+protected:
+	double fps = 0.0;
+	long long total = 0;
+	long long framecounter = 0;
+    QElapsedTimer timer;
 	QMutex mutex;
 public:
-	FrameCounter(int _interval=1000) {
-		reset(_interval);
+	FrameCounter() {
+		reset();
 	}
-	~FrameCounter() {}
-	void reset(int _interval=1000) {
+	~FrameCounter() = default;
+	void reset() {
 		mutex.lock();
-		interval=_interval;
 		framecounter=0;
 		fps=0.0;
 		total=0;
@@ -84,6 +81,6 @@ public:
 		double res=fps;
 		mutex.unlock();
     return res;
-	}    
+	}
 };
 #endif /*FRAMECOUNTER_H_*/

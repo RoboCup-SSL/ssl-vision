@@ -36,7 +36,8 @@ Or, in archlinux, run the `InstallPackagesArch.sh` script.
 ## Test data
 
 If you do not have a camera available and want to test or improve ssl-vision, you can use the `CaptureFromFile` capture module to play back images.
-Some test data is available through [GIT LFS](https://git-lfs.github.com/), but bandwidth is very limited with GitHub and might not always work. You can alternatively download test data [here](https://cloud.robocup.org/s/qjKQEiKnGnLAkn9) and copy it to [test-data](./test-data).
+To install some test data, run: `make install_test_data`. It will download several test images to [test-data](./test-data).
+The default configuration of ssl-vision will peak this up automatically.
 
 ## Supported cameras
 
@@ -58,7 +59,7 @@ Then build with the corresponding option:
  * `-DUSE_FLYCAP=true`
  * `-DUSE_V4L=true`
  
-Example for a release build: `cd build; cmake -DUSE_SPINNAKER=true ..`.
+Example for a release build: `cmake -B build -DUSE_SPINNAKER=true`.
  As these are cached cmake options, you only need to run this once and can build with `make` afterwards.
 
 ### Virtual Splitter cameras
@@ -102,7 +103,7 @@ Tested with [Basler ace acA1300-75gc](https://www.baslerweb.com/en/products/came
 USB 3.0 cameras are currently supported.
 
 Tested cameras:
- * Blackfly S (BFS-U3-51S5C-C)
+ * Blackfly S (BFS-U3-51S5C-C) - [Documentation](https://www.flir.de/support-center/iis/machine-vision/knowledge-base/technical-documentation-blackfly-s-usb3/)
  
 Download and install the [SDK](https://www.flir.com/products/spinnaker-sdk) and build ssl-vision with `-DUSE_SPINNAKER=true`.
 
@@ -114,9 +115,7 @@ make
 ```
 If you need to pass extra parameters to cmake, you need to run `cmake` directly:
 ```bash
-cd build
-cmake -DUSE_WHAT_SO_EVER=true ..
-cd ..
+cmake -B build -DUSE_WHAT_SO_EVER=true
 make
 ```
 The `USE_*` parameters are cached, so they do not have to be passed in each time.

@@ -92,6 +92,7 @@ bool CaptureSplitter::copyAndConvertFrame(const RawImage &src, RawImage &target)
     return false;
   }
   target.setTime(src.getTime());
+  target.setTimeCam ( src.getTimeCam() );
 
   // make sure we use values from 0 to 1
   double rel_height_offset = std::min(1.0, std::max(0.0, relative_height_offset->getDouble()));

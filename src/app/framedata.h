@@ -68,9 +68,9 @@ class FrameData
 {
 public:
   long long number;
-  int cam_id;
   double time;
-  RawImage video;//the video image from the camera (input)
+  double time_cam;
+  RawImage video; //the video image from the camera (input)
 
   FrameDataMap map; //all other data
 

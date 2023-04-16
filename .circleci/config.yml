@@ -2,37 +2,45 @@ version: 2
 jobs:
   build:
     docker:
-      - image: ubuntu:20.04
+      - image: cimg/base:current-22.04
+    resource_class: large
     steps:
-      - run: apt-get update -qq && apt-get install -qq git
       - checkout
-      - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
-      - run: make
-  build-v4l:
+      - run: ./InstallPackagesUbuntu.sh
+      - run: make -j 4
+  build-ubuntu-2004:
     docker:
-        - image: ubuntu:20.04
+      - image: cimg/base:current-20.04
+    resource_class: large
     steps:
-      - run: apt-get update -qq && apt-get install -qq git
       - checkout
-      - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
-      - run: mkdir -p build
-      - run: cmake -B build -DUSE_V4L=true .
-      - run: make
+      - run: ./InstallPackagesUbuntu.sh
+      - run: make -j 4
   build-splitter:
     docker:
-      - image: ubuntu:20.04
+      - image: cimg/base:current-22.04
+    resource_class: large
     steps:
-      - run: apt-get update -qq && apt-get install -qq git
       - checkout
-      - run: DEBIAN_FRONTEND=noninteractive ./InstallPackagesUbuntu.sh
-      - run: mkdir -p build
-      - run: cmake -B build -DUSE_SPLITTER=true .
-      - run: make
+      - run: ./InstallPackagesUbuntu.sh
+      - run: cmake -B build -DUSE_SPLITTER=true
+      - run: make -j 4
+  build-spinnaker:
+    docker:
+      - image: cimg/base:current-22.04
+    resource_class: large
+    steps:
+      - checkout
+      - run: ./InstallPackagesUbuntu.sh
+      - run: make install_spinnaker_sdk
+      - run: cmake -B build -DUSE_SPINNAKER=true
+      - run: make -j 4
 
 workflows:
   version: 2
   build_all:
     jobs:
       - build
-      - build-v4l
+      - build-ubuntu-2004
       - build-splitter
+      - build-spinnaker

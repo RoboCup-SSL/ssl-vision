@@ -1441,6 +1441,7 @@ bool CaptureDC1394v2::convertFrame(const RawImage & src, RawImage & target, Colo
     //target.setFormat(output_fmt);
   }
   target.setTime(src.getTime());
+  target.setTimeCam ( src.getTimeCam() );
   if (output_fmt==src_fmt) {
     //just do a memcpy
     memcpy(target.getData(),src.getData(),src.getNumBytes());
@@ -1506,14 +1507,11 @@ bool CaptureDC1394v2::convertFrame(const RawImage & src, RawImage & target, Colo
 
 RawImage CaptureDC1394v2::getFrame()
 {
-    mutex.lock();
+  mutex.lock();
   RawImage result;
   result.setColorFormat(capture_format);
   result.setWidth(width);
   result.setHeight(height);
-  //result.size= RawImage::computeImageSize(format, width*height);
-  timeval tv;
-  result.setTime(0.0);
 
   if (dc1394_capture_dequeue(camera, DC1394_CAPTURE_POLICY_WAIT, &frame)!=DC1394_SUCCESS) {
     fprintf (stderr, "CaptureDC1394v2 Error: Failed to capture from camera %d\n", cam_id);
@@ -1532,13 +1530,9 @@ RawImage CaptureDC1394v2::getFrame()
     if (dc1394_capture_is_frame_corrupt (camera, frame) == DC1394_TRUE) {
       printf("============================CORRUPT!\n"); fflush(stdout); exit(1);
     }*/
-    gettimeofday(&tv,NULL);
-    result.setTime((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
     result.setData(frame->image);
-
-    /*printf("B: %d w: %d h: %d bytes: %d pad: %d pos: %d %d depth: %d bpp %d coding: %d  behind %d id %d\n",frame->data_in_padding ? 1 : 0, frame->size[0],frame->size[1],frame->image_bytes,frame->padding_bytes, frame->position[0],frame->position[1],frame->data_depth,frame->packets_per_frame,frame->color_coding,frame->frames_behind,frame->id);*/
   }
-    mutex.unlock();
+  mutex.unlock();
   return result;
 }
 

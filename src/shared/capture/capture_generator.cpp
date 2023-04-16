@@ -82,6 +82,7 @@ bool CaptureGenerator::copyAndConvertFrame ( const RawImage & src, RawImage & ta
     target.ensure_allocation ( output_fmt, src.getWidth(), src.getHeight() );
   }
   target.setTime ( src.getTime() );
+  target.setTimeCam ( src.getTimeCam() );
 
   if ( output_fmt == src_fmt ) {
     if ( src.getData() != 0 ) memcpy ( target.getData(),src.getData(),src.getNumBytes() );
@@ -109,6 +110,7 @@ RawImage CaptureGenerator::getFrame()
   limit.waitForNextFrame();
   result.setColorFormat ( COLOR_RGB8 );
   result.setTime ( GetTimeSec() );
+  result.setTimeCam( GetTimeSec() );
   result.allocate ( COLOR_RGB8,v_width->getInt(),v_height->getInt() );
   rgbImage img;
   img.fromRawImage(result);

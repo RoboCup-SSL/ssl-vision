@@ -27,7 +27,7 @@
 #include <memory>
 #include <cstdlib>
 
-PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent, Qt::WindowFlags f) : QWidget(parent,f) {
+PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent) : QWidget(parent) {
   layout_main=new QVBoxLayout();
 
   int mode_icon_size=32;
@@ -599,8 +599,6 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
 
   //update GUI:
   w->label_info->setText(status + "\n" + stream_info);
-
-  long function_stop = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
 
   return ProcessingOk;
 }

@@ -1,32 +1,57 @@
 syntax = "proto2";
 
 message SSL_DetectionBall {
+  // Confidence in [0-1] of the detection
   required float  confidence = 1;
   optional uint32 area       = 2;
+  // X-coordinate in [mm] in global ssl-vision coordinate system
   required float  x          = 3;
+  // Y-coordinate in [mm] in global ssl-vision coordinate system
   required float  y          = 4;
+  // Z-coordinate in [mm] in global ssl-vision coordinate system
+  // Not supported by ssl-vision, but might be set by simulators
   optional float  z          = 5;
+  // X-coordinate in [pixel] in the image
   required float  pixel_x    = 6;
+  // Y-coordinate in [pixel] in the image
   required float  pixel_y    = 7;
 }
 
 message SSL_DetectionRobot {
+  // Confidence in [0-1] of the detection
   required float  confidence  =  1;
+  // Id of the robot
   optional uint32 robot_id    =  2;
+  // X-coordinate in [mm] in global ssl-vision coordinate system
   required float  x           =  3;
+  // Y-coordinate in [mm] in global ssl-vision coordinate system
   required float  y           =  4;
+  // Orientation in [rad]
   optional float  orientation =  5;
+  // X-coordinate in [pixel] in the image
   required float  pixel_x     =  6;
+  // Y-coordinate in [pixel] in the image
   required float  pixel_y     =  7;
+  // Height, as configured in ssl-vision for the respective team
   optional float  height      =  8;
 }
 
 message SSL_DetectionFrame {
-  required uint32             frame_number  = 1;
-  required double             t_capture     = 2;
-  required double             t_sent        = 3;
-  required uint32             camera_id     = 4;
-  repeated SSL_DetectionBall  balls         = 5;
-  repeated SSL_DetectionRobot robots_yellow = 6;
-  repeated SSL_DetectionRobot robots_blue   = 7;
+  // monotonously increasing frame number
+  required uint32             frame_number     = 1;
+  // Unix timestamp in [seconds] at which the image has been received by ssl-vision
+  required double             t_capture        = 2;
+  // Unix timestamp in [seconds] at which this message has been sent to the network
+  required double             t_sent           = 3;
+  // Camera timestamp in [seconds] as reported by the camera, if supported
+  // This is not necessarily a unix timestamp
+  optional double             t_capture_camera = 8;
+  // Identifier of the camera
+  required uint32             camera_id        = 4;
+  // Detected balls
+  repeated SSL_DetectionBall  balls            = 5;
+  // Detected yellow robots
+  repeated SSL_DetectionRobot robots_yellow    = 6;
+  // Detected blue robots
+  repeated SSL_DetectionRobot robots_blue      = 7;
 }

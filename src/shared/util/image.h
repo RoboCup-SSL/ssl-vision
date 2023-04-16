@@ -19,13 +19,12 @@
 */
 //========================================================================
 
-#ifndef __IMAGE_H__
-#define __IMAGE_H__
+#pragma once
 
-#include <stdlib.h>
-#include <math.h>
-#include <stdio.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cmath>
+#include <cstdio>
+#include <cassert>
 #include <string>
 #include "colors.h"
 #include "util.h"
@@ -160,7 +159,7 @@ public:
   }
 
   void fillBlack() {
-    memset(data,0,getNumBytes());
+    memset((void*) data,0,getNumBytes());
   }
 
   void fillColor(const PIXEL & color) {
@@ -187,7 +186,7 @@ public:
     assert(number >= 0 && number < (width*height));
     return(*(data+number));
   }
-  
+
   PIXEL getPixel (int x,int y) const
   {
     assert(x >= 0 && y >=0 && x<width && y<height);
@@ -206,7 +205,7 @@ public:
       (*(data+(width*y)+x))=val;
     }
   }
-  
+
 
   void drawLine (int x0, int y0, int x1, int y1 , PIXEL val)
   {
@@ -360,7 +359,7 @@ void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
    	return false;
    }
   }
-  
+
   bool save(string filename) {
    if (PIXEL::getColorFormat()==COLOR_RGB8) {
    	 return ImageIO::writeRGB(getPixelData(), getWidth() , getHeight() ,filename.c_str());
@@ -375,7 +374,7 @@ void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
     if (!(allow_external && source.getWidth()==getWidth() && source.getHeight() == getHeight())) {
       allocate(source.getWidth(),source.getHeight());
     }
-    memcpy(data,source.getData(),source.getNumBytes());
+    memcpy((void*) data,source.getData(),source.getNumBytes());
   }
 
   void copyFromRectArea(const Image &source, int x, int y, int w, int h, bool allow_external=false) {
@@ -396,7 +395,7 @@ void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
     PIXEL * src_ptr = source.getPixelPointer(x,y);
     PIXEL * tgt_ptr = getPixelData();
     for (int i = y ; i < my; i++) {
-      memcpy(tgt_ptr, src_ptr ,sizeof(PIXEL) * w);
+      memcpy((void*) tgt_ptr, src_ptr ,sizeof(PIXEL) * w);
       src_ptr+=source.getWidth();
       tgt_ptr+=w;
     }
@@ -415,7 +414,7 @@ void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
       }
     }
   }
-  
+
   void convertToIntensity() {
       register PIXEL * a=getPixelData();
       register unsigned int i;
@@ -425,7 +424,7 @@ void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
         a++;
       }
   }
-  
+
   void binarizeGreyImage(unsigned int threshold) {
       register PIXEL * a=getPixelData();
       register unsigned int i;
@@ -451,7 +450,7 @@ void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
   }
 
   void drawChar(int x, int y, char c, PIXEL val)
-  { 
+  {
     int charWidth(8), charHeight(8), charSize(8);
     int x0=x;
     unsigned char* charpos(gfxPrimitivesFontdata + (unsigned char) c * charSize);
@@ -472,13 +471,13 @@ void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
       y++;
     }
   }
-  
+
   void drawString(int x, int y, std::string s, PIXEL val)
   {
     for (unsigned int i=0; i < s.length(); i++)
       drawChar(x+8*i, y, s[i], val);
   }
-  
+
 };
 
 /*!
@@ -550,7 +549,7 @@ public:
     } else {
       fprintf(stderr,"Cannot convert image of different sizes\n");
     }
-  }  
+  }
   static void convert(const rgbImage & a, greyImage & b) {
     if (a.getNumPixels()==b.getNumPixels()) {
       rgb * p1=a.getPixelData();
@@ -611,12 +610,5 @@ public:
       fprintf(stderr,"Cannot convert image of different sizes\n");
     }
   }
-  
+
 };
-
-
-
-
-
-#endif
-
