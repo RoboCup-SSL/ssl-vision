@@ -519,13 +519,13 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
         if (!_fps_limit_enable->getBool() || interval_ms < now - rec_continuous_last_timestamp) {
             rec_continuous_last_timestamp = now;
             
-            using namespace std::chrono;
-            high_resolution_clock::time_point t1 = high_resolution_clock::now();
-            std::cout << std::endl;
+            // using namespace std::chrono;
+            // high_resolution_clock::time_point t1 = high_resolution_clock::now();
+            // std::cout << std::endl;
               frame_writer->write(data, detection_frame);
-            high_resolution_clock::time_point t2 = high_resolution_clock::now();
-            duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-            std::cout << "[plugin_dvr.cpp][process] Writing frame took " << time_span.count() * 1000 << " ms in main thread" << std::endl;
+            // high_resolution_clock::time_point t2 = high_resolution_clock::now();
+            // duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+            // std::cout << "[plugin_dvr.cpp][process] Writing frame took " << time_span.count() * 1000 << " ms in main thread" << std::endl;
             
         }
       }
@@ -813,6 +813,10 @@ void DVRThreadSafeQueue::stop() {
   broker.notify_one();
 }
 
+int DVRThreadSafeQueue::size() {
+  return queue.size();
+}
+
 
 
 
@@ -839,25 +843,36 @@ void DVRNonBlockingWriter::runWriterOnLoop() {
   while(running) write();
 }
 
+/**
+ * Called from secondary thread. Writes the frame to disk
+*/
 void DVRNonBlockingWriter::write() {
   const auto data = data_buffer.dequeue();
 
   // Early return in case, thread was stopped, since dequeue might return {} in that case
   if (!running) return;
 
-  using namespace std::chrono;
-  high_resolution_clock::time_point t1 = high_resolution_clock::now();
+  // using namespace std::chrono;
+  // high_resolution_clock::time_point t1 = high_resolution_clock::now();
     DVRUtils::saveFrame(*data.frame_ptr, output_dir, index);
     DVRUtils::saveDetectionFrame(data.detection_frame, output_dir, index);
-  high_resolution_clock::time_point t2 = high_resolution_clock::now();
-  duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-  std::cout << "[DVRNonBlockingWriter] Writing frame " << index << " took " << time_span.count() * 1000 << " ms in secondary thread" << std::endl;
+  // high_resolution_clock::time_point t2 = high_resolution_clock::now();
+  // duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+  // std::cout << "[DVRNonBlockingWriter] Writing frame " << index << " took " << time_span.count() * 1000 << " ms in secondary thread" << std::endl;
 
   index++;
 }
 
+/**
+ * Called from main thread. Deepcopies the frame and adds it to the queue to be written in the secondary thread
+*/
 void DVRNonBlockingWriter::write(FrameData* frameData, SSL_DetectionFrame* detectionFrame) {
     std::unique_ptr<DVRFrame> frame_ptr = std::unique_ptr<DVRFrame>(new DVRFrame());
-    frame_ptr->getFromFrameData(frameData);
-    data_buffer.enqueue({std::move(frame_ptr), *detectionFrame });
+    // Limit the number of frames in the queue to 1. This prevents memory from overflowing
+    if(data_buffer.size() < 1){
+      frame_ptr->getFromFrameData(frameData);
+      data_buffer.enqueue({std::move(frame_ptr), *detectionFrame });
+    }else{
+      std::cout << "[DVRNonBlockingWriter] Warning: a previous frame is already queued to be written. Please lower the 'DVR FPS Limit' in the settings. Skipping current frame.." << std::endl;
+    }
 }

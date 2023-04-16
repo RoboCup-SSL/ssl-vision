@@ -155,6 +155,7 @@ class DVRThreadSafeQueue
   DVRFrameData dequeue();
   void enqueue(DVRFrameData data);
   void stop();
+  int size();
 };
 
 
