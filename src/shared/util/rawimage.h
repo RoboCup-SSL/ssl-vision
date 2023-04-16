@@ -40,19 +40,22 @@ class RawImage : public ImageInterface
 {
   protected:
   /// pointer to capture buffer
-  unsigned char * data;
+  unsigned char * data = nullptr;
 
   /// width of the image in pixels
-  int width;
+  int width = 0;
 
   /// height of the image in pixels
-  int height;
+  int height = 0;
 
   /// encoding format of the image
-  ColorFormat format;
+  ColorFormat format = COLOR_UNDEFINED;
 
-  /// capture timestamp of the image
-  double   time;
+  /// capture timestamp of the image in [s]
+  double time = 0.0;
+
+  /// capture timestamp of the image in [ns]
+  double time_cam = 0;
 
   public:
   RawImage();
@@ -64,6 +67,7 @@ class RawImage : public ImageInterface
   int getHeight() const;
   ColorFormat getColorFormat() const;
   double getTime() const;
+  double getTimeCam() const;
   unsigned char * getData() const;
   int getNumBytes() const;
   int getNumColorBlocks() const;
@@ -77,6 +81,7 @@ class RawImage : public ImageInterface
   void setWidth(int w);
   void setHeight(int h);
   void setTime(double t);
+  void setTimeCam(double t);
   void setData(unsigned char * d);
   void allocate (ColorFormat fmt, int w, int h);
   void ensure_allocation (ColorFormat fmt, int w, int h);

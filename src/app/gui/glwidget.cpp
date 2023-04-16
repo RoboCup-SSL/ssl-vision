@@ -189,11 +189,11 @@ void GLWidget::myGLinit() {
     glEnable ( GL_BLEND );
     glBlendFunc ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-    glEnable ( GL_TEXTURE_2D );  
+    glEnable ( GL_TEXTURE_2D );
     glEnable(GL_CULL_FACE);
   }
   glEnable(GL_MULTISAMPLE);
- 
+
 }
 
 void GLWidget::paintEvent ( QPaintEvent * e ) {
@@ -226,9 +226,9 @@ void GLWidget::mainDraw() {
     painter.begin((QGLWidget*)this);
     painter.setRenderHint(QPainter::Antialiasing);
     myQPainterOverlay(painter,trans);
-  
+
     painter.end();
-  
+
     glMatrixMode ( GL_MODELVIEW );
     glPopMatrix();
   }
@@ -241,11 +241,11 @@ void GLWidget::myGLdraw() {
   glMatrixMode ( GL_PROJECTION );
   glLoadIdentity();
   glPushMatrix();
-    
+
     glMatrixMode ( GL_MODELVIEW );
     glLoadIdentity();
     glPushMatrix();
-    
+
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       if ( rb!=0 ) {
         rb->lockRead();
@@ -258,21 +258,21 @@ void GLWidget::myGLdraw() {
             glPushMatrix();
             zoom.setup ( img.getWidth(), img.getHeight(), vpW,vpH,true );
             pixelloc orig=zoom.zoom ( 0, 0 );
-    
+
             glPushMatrix();
             glRasterPos2i ( 0,0 );
             glBitmap ( 0,0,0,0,orig.x,-orig.y,0 );
             glPixelZoom ( zoom.getZoom() * zoom.getFlipXval(),zoom.getZoom() * zoom.getFlipYval() * -1.0 );
             glDrawPixels ( img.getWidth(), img.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, img.getData() );
             glPopMatrix();
-    
+
             glPopMatrix();
           }
-    
+
         }
         rb->unlockRead();
       }
-      
+
       glMatrixMode ( GL_MODELVIEW );
     glPopMatrix();
 
@@ -300,9 +300,9 @@ void GLWidget::resizeGL ( int width, int height ) {
 void GLWidget::wheelEvent ( QWheelEvent * event ) {
   event->setAccepted ( false );
   pixelloc loc=zoom.invZoom ( event->pos().x(),event->pos().y(),true );
-  if ( stack!=0 ) stack->wheelEvent ( event,loc );
-  if ( event->isAccepted() ==true ) return;
-  int delta=event->delta();
+  if ( stack!= nullptr ) stack->wheelEvent ( event,loc );
+  if ( event->isAccepted() ) return;
+  int delta=event->angleDelta().y();
   if ( delta > 0 ) {
     this->zoom.zoomIn();
   } else {
@@ -396,7 +396,7 @@ void GLWidget::saveImage() {
                          "Export image to file...",
                          "",
                          "PNG (*.png)" );
-    dialog.setConfirmOverwrite ( true );
+    dialog.setOption(QFileDialog::Option::DontConfirmOverwrite, false);
     dialog.setDefaultSuffix ( "png" );
     dialog.setAcceptMode ( QFileDialog::AcceptSave );
     if ( dialog.exec() ) {

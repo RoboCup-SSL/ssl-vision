@@ -28,7 +28,7 @@ CaptureBlueFox3::CaptureBlueFox3(VarList * _settings,int default_camera_id, QObj
   cam_id = (unsigned int) default_camera_id;
   is_capturing = false;
   pDevMgr = nullptr;
-  
+
     mutex.lock();
 
   settings->addChild(capture_settings = new VarList("Capture Settings"));
@@ -63,7 +63,7 @@ bool CaptureBlueFox3::resetBus()
     mutex.lock();
 
     mutex.unlock();
-    
+
   return true;
 }
 
@@ -74,15 +74,15 @@ bool CaptureBlueFox3::stopCapture()
     delete pFI;
 
     pDevice->close();
-    
+
     is_capturing = false;
   }
-  
+
   vector<VarType *> tmp = capture_settings->getChildren();
   for (auto &i : tmp) {
     i->removeFlags( VARTYPE_FLAG_READONLY );
   }
-  
+
   return true;
 }
 
@@ -94,13 +94,13 @@ bool CaptureBlueFox3::startCapture()
   if(pDevMgr == nullptr) {
     pDevMgr = new DeviceManager();
   }
-    
+
   //grab current parameters:
   cam_id = (unsigned int) v_cam_bus->getInt();
-  
+
   const unsigned int devCnt = pDevMgr->deviceCount();
   fprintf(stderr, "BlueFox3: Number of cams: %u\n", devCnt);
-  
+
   if(cam_id >= devCnt)
   {
     fprintf(stderr, "BlueFox3: Invalid cam_id: %u\n", cam_id);
@@ -108,9 +108,9 @@ bool CaptureBlueFox3::startCapture()
       mutex.unlock();
     return false;
   }
-  
+
   pDevice = (*pDevMgr)[cam_id];
-  
+
   try
   {
     pDevice->open();
@@ -122,7 +122,7 @@ bool CaptureBlueFox3::startCapture()
       mutex.unlock();
     return false;
   }
-  
+
   fprintf(stderr, "BlueFox3: Opened: %s with serial ID %s\n", pDevice->family.read().c_str(), pDevice->serial.read().c_str());
 
   GenICam::ImageFormatControl ifc(pDevice);
@@ -155,9 +155,9 @@ bool CaptureBlueFox3::startCapture()
   for (auto &i : tmp) {
     i->addFlags( VARTYPE_FLAG_READONLY );
   }
-    
+
     mutex.unlock();
-    
+
   return true;
 }
 
@@ -179,14 +179,10 @@ RawImage CaptureBlueFox3::getFrame()
   ColorFormat out_color = Colors::stringToColorFormat(v_colorout->getSelection().c_str());
   RawImage result;
   result.setColorFormat(out_color);
-  result.setWidth(0);
-  result.setHeight(0);
-  result.setTime(0.0);
-  result.setData(nullptr);
-  
+
   // make sure the request queue is always filled
   while((static_cast<TDMR_ERROR>( pFI->imageRequestSingle() ) ) == DMR_NO_ERROR ) {};
-  
+
   int requestNr = pFI->imageRequestWaitFor(-1);
 
   // check if the image has been captured without any problems.
@@ -203,9 +199,6 @@ RawImage CaptureBlueFox3::getFrame()
 
   if(pRequest->isOK())
   {
-    timeval tv{};
-    gettimeofday(&tv, nullptr);
-    result.setTime((double)tv.tv_sec + tv.tv_usec*(1.0E-6));
     result.setWidth(pRequest->imageWidth.read());
     result.setHeight(pRequest->imageHeight.read());
     result.setData((unsigned char*)pRequest->imageData.read());
@@ -214,24 +207,24 @@ RawImage CaptureBlueFox3::getFrame()
   {
     fprintf(stderr, "BlueFox3: request not OK\n");
   }
-  
+
   lastRequestNr = requestNr;
-  
+
     mutex.unlock();
   return result;
 }
 
-void CaptureBlueFox3::releaseFrame() 
+void CaptureBlueFox3::releaseFrame()
 {
   mutex.lock();
 
   if(pFI->isRequestNrValid(lastRequestNr))
     pFI->imageRequestUnlock(lastRequestNr);
-  
+
   mutex.unlock();
 }
 
-string CaptureBlueFox3::getCaptureMethodName() const 
+string CaptureBlueFox3::getCaptureMethodName() const
 {
   return "BlueFox3";
 }

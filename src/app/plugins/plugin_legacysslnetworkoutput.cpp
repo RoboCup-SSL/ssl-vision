@@ -67,13 +67,18 @@ bool PluginLegacySSLNetworkOutput::DoubleSizeToSingleSize(
 ProcessResult PluginLegacySSLNetworkOutput::process(
     FrameData * data, RenderOptions * options) {
   (void)options;
-  if (data==0) return ProcessingFailed;
+  if (data== nullptr) return ProcessingFailed;
 
-  SSL_DetectionFrame * detection_frame = 0;
+  SSL_DetectionFrame * detection_frame;
 
   detection_frame=(SSL_DetectionFrame *)data->map.get("ssl_detection_frame");
-  if (detection_frame != 0) {
+  if (detection_frame != nullptr) {
     detection_frame->set_t_capture(data->time);
+    if (data->time_cam > 0) {
+      detection_frame->set_t_capture_camera(data->time_cam);
+    } else {
+      detection_frame->clear_t_capture_camera();
+    }
     detection_frame->set_frame_number(data->number);
     detection_frame->set_camera_id(_camera_params.additional_calibration_information->camera_index->getInt());
     detection_frame->set_t_sent(GetTimeSec());
