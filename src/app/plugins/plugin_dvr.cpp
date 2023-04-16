@@ -25,7 +25,6 @@
 #include <fstream>
 #include <utility>
 #include <memory>
-#include <cstdlib>
 
 PluginDVRWidget::PluginDVRWidget(PluginDVR * dvr, QWidget * parent) : QWidget(parent) {
   layout_main=new QVBoxLayout();
@@ -829,13 +828,11 @@ DVRNonBlockingWriter::DVRNonBlockingWriter(QString output_dir): output_dir(std::
 }
 
 DVRNonBlockingWriter::~DVRNonBlockingWriter() {
-  std::cout << "[DVRNonBlockingWriter] Joining writer thread.." << std::endl;
   if (writer_thread.joinable()) {
     running = false;
     data_buffer.stop();
     writer_thread.join();
   }
-  std::cout << "[DVRNonBlockingWriter] Writer thread joined" << std::endl;
   std::cout << "[DVRNonBlockingWriter] Instance destructed" << std::endl;
 }
 
