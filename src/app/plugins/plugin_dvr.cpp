@@ -521,7 +521,7 @@ ProcessResult PluginDVR::process(FrameData * data, RenderOptions * options) {
             // using namespace std::chrono;
             // high_resolution_clock::time_point t1 = high_resolution_clock::now();
             // std::cout << std::endl;
-              frame_writer->write(data, detection_frame);
+            frame_writer->write(data, detection_frame);
             // high_resolution_clock::time_point t2 = high_resolution_clock::now();
             // duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
             // std::cout << "[plugin_dvr.cpp][process] Writing frame took " << time_span.count() * 1000 << " ms in main thread" << std::endl;
@@ -851,8 +851,8 @@ void DVRNonBlockingWriter::write() {
 
   // using namespace std::chrono;
   // high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    DVRUtils::saveFrame(*data.frame_ptr, output_dir, index);
-    DVRUtils::saveDetectionFrame(data.detection_frame, output_dir, index);
+  DVRUtils::saveFrame(*data.frame_ptr, output_dir, index);
+  DVRUtils::saveDetectionFrame(data.detection_frame, output_dir, index);
   // high_resolution_clock::time_point t2 = high_resolution_clock::now();
   // duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
   // std::cout << "[DVRNonBlockingWriter] Writing frame " << index << " took " << time_span.count() * 1000 << " ms in secondary thread" << std::endl;
@@ -866,7 +866,7 @@ void DVRNonBlockingWriter::write() {
 void DVRNonBlockingWriter::write(FrameData* frameData, SSL_DetectionFrame* detectionFrame) {
     std::unique_ptr<DVRFrame> frame_ptr = std::unique_ptr<DVRFrame>(new DVRFrame());
     // Limit the number of frames in the queue to 1. This prevents memory from overflowing
-    if(data_buffer.size() < 1){
+    if(data_buffer.size() == 0){
       frame_ptr->getFromFrameData(frameData);
       data_buffer.enqueue({std::move(frame_ptr), *detectionFrame });
     }else{
