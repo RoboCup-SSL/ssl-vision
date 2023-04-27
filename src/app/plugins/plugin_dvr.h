@@ -155,6 +155,7 @@ class DVRThreadSafeQueue
   DVRFrameData dequeue();
   void enqueue(DVRFrameData data);
   void stop();
+  int size();
 };
 
 
@@ -164,7 +165,6 @@ class DVRNonBlockingWriter
   const QString output_dir;
   std::thread writer_thread;
   std::atomic<bool> running = {true};
-
   DVRThreadSafeQueue data_buffer;
   int index{};
   void runWriterOnLoop();
