@@ -43,6 +43,7 @@ $(buildDir)/test-data.zip:
 
 install_test_data: $(buildDir)/test-data.zip
 	unzip $(buildDir)/test-data.zip
+	mkdir -p ./test-data
 	mv ssl-vision-test-data/* ./test-data
 	rmdir ssl-vision-test-data
 
