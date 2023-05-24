@@ -22,14 +22,15 @@
 
 #define LUT_COPY_PLACEHOLDER    "(click copy to refresh)"
 
-PluginColorCalibration::PluginColorCalibration(FrameBuffer * _buffer, YUVLUT * _lut, LUTChannelMode _mode) : VisionPlugin(_buffer)
+PluginColorCalibration::PluginColorCalibration(FrameBuffer * _buffer, YUVLUT * _lut, ConvexHullImageMask &mask, LUTChannelMode _mode)
+: VisionPlugin(_buffer), _image_mask(mask)
 {
     mode=_mode;
     lut=_lut;
     lutw=NULL;
     settings=new VarList("YUV Calibrator");
     continuing_undo = false;
-    
+
     copy_LUT_trigger = new VarTrigger("Copy LUT", "Copy LUT");
     settings->addChild(copy_LUT_trigger);
     connect(copy_LUT_trigger,SIGNAL(signalTriggered()),this,SLOT(slotCopyLUT()));
@@ -74,8 +75,8 @@ QWidget * PluginColorCalibration::getControlWidget() {
   return (QWidget *)lutw;
 }
 
-void PluginColorCalibration::mouseEvent( QMouseEvent * event, pixelloc loc) {    
-  QTabWidget* tabw = (QTabWidget*) lutw->parentWidget()->parentWidget();  
+void PluginColorCalibration::mouseEvent( QMouseEvent * event, pixelloc loc) {
+  QTabWidget* tabw = (QTabWidget*) lutw->parentWidget()->parentWidget();
   if (tabw->currentWidget() == lutw) {
     if (event->buttons()==Qt::LeftButton) {
       FrameBuffer * rb=getFrameBuffer();
@@ -128,7 +129,7 @@ void PluginColorCalibration::mouseEvent( QMouseEvent * event, pixelloc loc) {
       }
       event->accept();
     }
-  
+
   }
   else
     event->ignore();
@@ -141,7 +142,7 @@ void PluginColorCalibration::keyPressEvent ( QKeyEvent * event ) {
       rb->lockRead();
       int idx=rb->curRead();
       FrameData * frame = rb->getPointer(idx);
-      lutw->sampleImage(frame->video);
+      lutw->sampleImage(frame->video, _image_mask);
       rb->unlockRead();
     }
     event->accept();

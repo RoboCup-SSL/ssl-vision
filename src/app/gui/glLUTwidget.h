@@ -40,6 +40,7 @@
 #include "texture.h"
 #include "glcamera.h"
 #include "lut3d.h"
+#include "convex_hull_image_mask.h"
 #include <QMutex>
 #include <deque>
 using namespace std;
@@ -213,7 +214,7 @@ public:
     QGLWidget::setObjectName(s);
   }
 
-  void sampleImage(const RawImage & img);
+  void sampleImage(const RawImage & img, ConvexHullImageMask & mask);
 
   GLLUTWidget(LUTChannelMode mode, QWidget *parent = 0);
   virtual ~GLLUTWidget();
