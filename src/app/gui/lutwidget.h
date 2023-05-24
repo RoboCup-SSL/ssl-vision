@@ -26,6 +26,7 @@
 #include <QWidget>
 #include <QListWidget>
 #include <QToolBar>
+#include "convex_hull_image_mask.h"
 
 /*!
   \file    lutwidget.h
@@ -49,7 +50,7 @@ public:
     GLLUTWidget * getGLLUTWidget();
     void samplePixel(const yuv & color);
     void add_del_Pixel(yuv color, bool add, bool continuing_undo);
-    void sampleImage(const RawImage & img);
+    void sampleImage(const RawImage & img, ConvexHullImageMask & mask);
     void focusInEvent ( QFocusEvent * event );
     LUTWidget(LUT3D * lut, LUTChannelMode mode);
     ~LUTWidget();

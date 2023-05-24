@@ -57,7 +57,7 @@ StackRoboCupSSL::StackRoboCupSSL(
   _global_plugin_publish_geometry->addCameraParameters(camera_parameters);
   _legacy_plugin_publish_geometry->addCameraParameters(camera_parameters);
 
-  auto *pluginColorCalibration = new PluginColorCalibration(_fb, lut_yuv, LUTChannelMode_Numeric);
+  auto *pluginColorCalibration = new PluginColorCalibration(_fb, lut_yuv, *_image_mask, LUTChannelMode_Numeric);
 
   stack.push_back(new PluginDVR(_fb));
 
