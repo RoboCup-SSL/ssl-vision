@@ -29,7 +29,7 @@
 			ER-Force
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			142.000000
+			150.000000
 		</Var>
 	</Var>
 	<Var name="Immortals" type="list">
