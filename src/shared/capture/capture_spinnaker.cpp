@@ -332,6 +332,9 @@ bool CaptureSpinnaker::startCapture() {
     return false;
   }
 
+  // is_capturing must be set before reloadParameters()!
+  is_capturing = true;
+
   try {
     fprintf(stderr, "Spinnaker: Opened %s - %s\n", pCam->DeviceModelName.GetValue().c_str(), pCam->DeviceSerialNumber.GetValue().c_str());
 
@@ -347,8 +350,6 @@ bool CaptureSpinnaker::startCapture() {
     mutex.unlock();
     return false;
   }
-
-  is_capturing = true;
 
   vector<VarType *> tmp = capture_settings->getChildren();
   for (auto &i: tmp) {
