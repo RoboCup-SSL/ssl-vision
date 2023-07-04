@@ -241,7 +241,7 @@ bool MultiPatternModel::loadSinglePatternImage(const yuvImage & image, YUVLUT * 
 
   // run low level vision on the image
 
-  proc.processYUV444(&image,10);
+  proc.processYUV444(&image,10, 0.0);
 
   CMVision::ColorRegionList * colors = proc.getColorRegionList();
 
@@ -331,10 +331,10 @@ double MultiPatternModel::calcFitError(const Marker *model,
   double sse = 0.0;
   for(int i=0; i<num_markers; i++){
     int j = (i + ofs) % num_markers;
-    
+
     /* OLD FIT:
     sse +=
-      
+
       (fit_params.fit_area_weight      * sq( model[i].area      - markers[j].area) +
       fit_params.fit_cen_dist_weight  * sq(  model[i].dist      - markers[j].dist) +
       fit_params.fit_next_dist_weight * sq(  model[i].next_dist - markers[j].next_dist) +
@@ -343,10 +343,10 @@ double MultiPatternModel::calcFitError(const Marker *model,
       printf("areas: %f vs. %f\n",model[i].area,markers[j].area);
       printf("diff: %f\n", model[i].area      - markers[j].area\n);
       printf("diff sq: %f\n",sq( model[i].area      - markers[j].area));*/
-      
+
      //NORMALIZED FIT:
     sse +=
-      
+
       (fit_params.fit_area_weight      * sq( (model[i].area      - markers[j].area) / model[i].area) +
       fit_params.fit_cen_dist_weight  * sq(  (model[i].dist      - markers[j].dist) / model[i].dist) +
       fit_params.fit_next_dist_weight * sq(  (model[i].next_dist - markers[j].next_dist) / model[i].next_dist) +
@@ -361,7 +361,7 @@ double MultiPatternModel::calcFitError(const Marker *model,
       //printf("diff: %f\n", model[i].area      - markers[j].area);
       //printf("ang: %f  %f  dist: %f   sqdist: %f\n",model[i].next_angle_dist,markers[j].next_angle_dist,(model[i].next_angle_dist - markers[j].next_angle_dist),sq(  (model[i].next_angle_dist - markers[j].next_angle_dist) /  model[i].next_angle_dist));
       //printf("diff sq: %f\n",sq( model[i].area      - markers[j].area));
-      
+
   }
   //normalize sse over number of markers:
   sse/=num_markers;

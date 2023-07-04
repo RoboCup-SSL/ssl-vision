@@ -296,7 +296,7 @@ public:
     static void connectComponents(CMVision::RunList * runlist);
     static void extractRegions(CMVision::RegionList * reglist, CMVision::RunList * runlist);
     //returns the max area found:
-    static int  separateRegions(CMVision::ColorRegionList * colorlist, CMVision::RegionList * reglist, int min_area);
+    static int  separateRegions(CMVision::ColorRegionList * colorlist, CMVision::RegionList * reglist, int min_area, double min_pixel_ratio);
 
     static CMVision::Region * sortRegionListByArea(CMVision::Region *list,int passes);
     static void sortRegions(CMVision::ColorRegionList * colors,int max_area);
@@ -318,9 +318,8 @@ protected:
 public:
   ImageProcessor(YUVLUT * _lut, int _max_regions=10000, int _max_runs=50000);
   ~ImageProcessor();
-  void processYUV422_UYVY(const RawImage * image, int min_blob_area);
-  void processYUV444(const ImageInterface * image, int min_blob_area);
-  void processThresholded(Image<raw8> * _img_thresholded, int min_blob_area);
+  void processYUV444(const ImageInterface * image, int min_blob_area, double min_pixel_ratio);
+  void processThresholded(Image<raw8> *_img_thresholded, int min_blob_area, double min_pixel_ratio);
   ColorRegionList * getColorRegionList();
 };
 

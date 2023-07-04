@@ -247,7 +247,7 @@ void RegionProcessing::extractRegions(CMVision::RegionList * reglist, CMVision::
 
 
 
-int RegionProcessing::separateRegions(CMVision::ColorRegionList * colorlist, CMVision::RegionList * reglist, int min_area)
+int RegionProcessing::separateRegions(CMVision::ColorRegionList * colorlist, CMVision::RegionList * reglist, int min_area, double min_pixel_ratio)
 // Splits the various regions in the region table a separate list for
 // each color.  The lists are threaded through the table using the
 // region's 'next' field.  Returns the maximal area of the regions,
@@ -277,7 +277,9 @@ int RegionProcessing::separateRegions(CMVision::ColorRegionList * colorlist, CMV
     if (c >= num_colors) {
       printf("Found a color of index %d...but colorlist is only allocated for a max index of %d\n",c,num_colors-1);
     } else {
-      if(area >= min_area){
+        int region_area = p->width()*p->height();
+        double pixelRatio = p->area / (double) region_area;
+      if(area >= min_area && pixelRatio > min_pixel_ratio){
         if(area > max_area) max_area = area;
         color[c].insertFront(p);
       }
@@ -404,25 +406,16 @@ ImageProcessor::~ImageProcessor() {
   delete img_thresholded;
 }
 
-void ImageProcessor::processYUV422_UYVY(const RawImage * image, int min_blob_area) {
-  img_thresholded->allocate(image->getWidth(),image->getHeight());
-  Image<raw8> mask;
-  mask.allocate(image->getWidth(),image->getHeight());
-  memset(mask.getData(),-1,mask.getNumBytes());
-  CMVisionThreshold::thresholdImageYUV422_UYVY(img_thresholded,image,lut,&mask);
-  processThresholded(img_thresholded,min_blob_area);
-}
-
-void ImageProcessor::processYUV444(const ImageInterface * image, int min_blob_area) {
+void ImageProcessor::processYUV444(const ImageInterface * image, int min_blob_area, double min_pixel_ratio) {
   img_thresholded->allocate(image->getWidth(),image->getHeight());
   Image<raw8> mask;
   mask.allocate(image->getWidth(),image->getHeight());
   memset(mask.getData(),-1,mask.getNumBytes());
   CMVisionThreshold::thresholdImageYUV444(img_thresholded,image,lut,&mask);
-  processThresholded(img_thresholded,min_blob_area);
+  processThresholded(img_thresholded, min_blob_area, min_pixel_ratio);
 }
 
-void ImageProcessor::processThresholded(Image<raw8> * _img_thresholded, int min_blob_area) {
+void ImageProcessor::processThresholded(Image<raw8> *_img_thresholded, int min_blob_area, double min_pixel_ratio) {
   CMVision::RegionProcessing::encodeRuns(_img_thresholded, runlist);
   if (runlist->getUsedRuns() == runlist->getMaxRuns()) {
     printf("Warning: runlength encoder exceeded current max run size of %d\n",runlist->getMaxRuns());
@@ -438,7 +431,7 @@ void ImageProcessor::processThresholded(Image<raw8> * _img_thresholded, int min_
   }
 
   //Separate Regions by colors:
-  int max_area = CMVision::RegionProcessing::separateRegions(colorlist, reglist, min_blob_area);
+  int max_area = CMVision::RegionProcessing::separateRegions(colorlist, reglist, min_blob_area, min_pixel_ratio);
 
   CMVision::RegionProcessing::sortRegions(colorlist,max_area);
 }
