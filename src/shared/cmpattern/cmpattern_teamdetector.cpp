@@ -77,12 +77,12 @@ TeamDetector::TeamDetector(LUT3D * lut3d, const CameraParameters& camera_params,
   if (color_id_black == -1) printf("WARNING color label 'Black' not defined in LUT!!!\n");
 
   color_id_white = _lut3d->getChannelID("White");
-  if (color_id_white == -1) printf("WARNING color label 'White' not defined in LUT!!!\n");  
+  if (color_id_white == -1) printf("WARNING color label 'White' not defined in LUT!!!\n");
 
   color_id_clear = 0;
 
   color_id_green = _lut3d->getChannelID("Green");
-  if (color_id_green == -1) printf("WARNING color label 'Green' not defined in LUT!!!\n");  
+  if (color_id_green == -1) printf("WARNING color label 'Green' not defined in LUT!!!\n");
 
   color_id_field_green = _lut3d->getChannelID("Field Green");
   if (color_id_field_green == -1) printf("WARNING color label 'Field Green' not defined in LUT!!!\n");
@@ -212,7 +212,7 @@ void TeamDetector::findRobotsByTeamMarkerOnly(::google::protobuf::RepeatedPtrFie
     //TODO: add confidence masking:
     //float conf = det.mask.get(reg->cen_x,reg->cen_y);
     double conf=1.0;
-    if (field_filter.isInFieldOrPlayableBoundary(reg_center) &&  ((_histogram_enable==false) || checkHistogram(reg,image)==true)) {
+    if (true || field_filter.isInFieldOrPlayableBoundary(reg_center) &&  ((_histogram_enable==false) || checkHistogram(reg,image)==true)) {
       double area = getRegionArea(reg,_robot_height);
       double area_err = fabs(area - _center_marker_area_mean);
 
@@ -439,7 +439,7 @@ void TeamDetector::findRobotsByModel(::google::protobuf::RepeatedPtrField< ::SSL
     vector2d reg_center(reg_center3d.x,reg_center3d.y);
     //TODO add masking:
     //if(det.mask.get(reg->cen_x,reg->cen_y) >= 0.5){
-    if (field_filter.isInFieldOrPlayableBoundary(reg_center)) {
+    if (true || field_filter.isInFieldOrPlayableBoundary(reg_center)) {
       cen.set(reg,reg_center3d,getRegionArea(reg,_robot_height));
       int num_markers = 0;
 
