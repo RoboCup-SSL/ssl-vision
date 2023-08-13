@@ -52,13 +52,17 @@ public:
   void update(const RoboCupField & field) {
     half_field_width = 0.5 * field.field_width->getDouble();
     half_field_length = 0.5 * field.field_length->getDouble();
-    half_goal_width = field.goal_width->getDouble();
+    half_goal_width = 0.5 * field.goal_width->getDouble();
     goal_depth = field.goal_depth->getDouble();
     boundary_width = field.boundary_width->getDouble();
   }
 
   ///check whether a point is within the legal field or the boundary (but not the referee walking area)
   bool isInFieldOrPlayableBoundary(const vector2d & pos) {
+    if (fabs(pos.y) < half_goal_width &&
+       fabs(pos.x) < half_field_length + goal_depth) {
+      return true;
+    }
     return (fabs(pos.x) <= (half_field_length+boundary_width) &&
             fabs(pos.y) <= (half_field_width+boundary_width));
   }
