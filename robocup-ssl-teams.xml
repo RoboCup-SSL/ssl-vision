@@ -45,7 +45,7 @@
 			KIKS
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			125.000000
+			148.000000
 		</Var>
 	</Var>
 	<Var name="RoboDragons" type="list">
