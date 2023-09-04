@@ -27,6 +27,7 @@ PluginFindBlobs::PluginFindBlobs(FrameBuffer * _buffer, YUVLUT * _lut)
 
   _settings=new VarList("Blob Finding");
   _settings->addChild(_v_min_blob_area=new VarInt("min_blob_area", 5));
+  _settings->addChild(_v_min_blob_area_ratio=new VarDouble("min_blob_area ratio", 0.5));
   _settings->addChild(_v_enable=new VarBool("enable", true));
   _settings->addChild(v_max_regions=new VarInt("max regions", 50000, 10000, 1000000));
 
@@ -37,6 +38,7 @@ PluginFindBlobs::~PluginFindBlobs()
 {
   delete _settings;
   delete _v_min_blob_area;
+  delete _v_min_blob_area_ratio;
   delete _v_enable;
   delete v_max_regions;
 }
@@ -67,17 +69,17 @@ ProcessResult PluginFindBlobs::process(FrameData * data, RenderOptions * options
   if (_v_enable->getBool()) {
     //Connect the components of the runlength map:
     CMVision::RegionProcessing::connectComponents(runlist);
-  
+
     //Extract Regions from runlength map:
     CMVision::RegionProcessing::extractRegions(reglist, runlist);
-  
+
     if (reglist->getUsedRegions() == reglist->getMaxRegions()) {
       printf("Warning: FindBlobs: extract regions exceeded maximum number of %d regions\n",reglist->getMaxRegions());
     }
-  
+
     //Separate Regions by colors:
-    int max_area = CMVision::RegionProcessing::separateRegions(colorlist, reglist, _v_min_blob_area->getInt());
-  
+    int max_area = CMVision::RegionProcessing::separateRegions(colorlist, reglist, _v_min_blob_area->getInt(), _v_min_blob_area_ratio->getDouble());
+
     //Sort Regions:
     CMVision::RegionProcessing::sortRegions(colorlist,max_area);
   } else {
@@ -85,7 +87,7 @@ ProcessResult PluginFindBlobs::process(FrameData * data, RenderOptions * options
     reglist->setUsedRegions(0);
     int num_colors=colorlist->getNumColorRegions();
     CMVision::RegionLinkedList * color=colorlist->getColorRegionArrayPointer();
-  
+
     // clear out the region list head table
     for(int i=0; i<num_colors; i++){
       color[i].reset();

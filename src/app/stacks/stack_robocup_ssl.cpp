@@ -19,6 +19,7 @@
 */
 //========================================================================
 #include "stack_robocup_ssl.h"
+#include <plugin_camera_intrinsic_calib.h>
 
 StackRoboCupSSL::StackRoboCupSSL(
     RenderOptions * _opts,
@@ -69,6 +70,9 @@ StackRoboCupSSL::StackRoboCupSSL(
   stack.push_back(new PluginCameraCalibration(_fb,*camera_parameters, *global_field));
 
   stack.push_back(new PluginColorThreshold(_fb,lut_yuv, *_image_mask));
+
+  stack.push_back(
+      new PluginCameraIntrinsicCalibration(_fb, *camera_parameters));
 
   stack.push_back(new PluginRunlengthEncode(_fb));
 

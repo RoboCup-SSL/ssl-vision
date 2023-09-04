@@ -209,6 +209,13 @@ public:
 
   void drawLine (int x0, int y0, int x1, int y1 , PIXEL val)
   {
+    if(abs((long) x0) > 50000L ||
+       abs((long) y0) > 50000L ||
+       abs((long) x1) > 50000L ||
+       abs((long) y1) > 50000L) {
+      // sanity check to avoid endless or very long loops
+      return;
+    }
 
   int x, y, dx, dy, sx, sy, ax, ay, decy, decx;
   x = x0;
@@ -263,6 +270,13 @@ public:
 
 void drawFatLine (int x0, int y0, int x1, int y1 , PIXEL val)
 {
+  if(abs((long) x0) > 50000L ||
+     abs((long) y0) > 50000L ||
+     abs((long) x1) > 50000L ||
+     abs((long) y1) > 50000L) {
+    // sanity check to avoid endless or very long loops
+    return;
+  }
 
   int x, y, dx, dy, sx, sy, ax, ay, decy, decx;
   x = x0;

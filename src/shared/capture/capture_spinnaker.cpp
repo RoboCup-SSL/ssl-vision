@@ -23,6 +23,12 @@
 #include <memory>
 #include <opencv2/opencv.hpp>
 
+#define CATCH_LOG_SPINNAKER(f) try { \
+f ;\
+} catch (Spinnaker::Exception &e) { \
+    fprintf(stderr, "Spinnaker: Could not read parameters: %s\n", e.GetFullErrorMessage()); \
+}
+
 CaptureSpinnaker::CaptureSpinnaker(VarList *_settings, int default_camera_id, QObject *parent) : QObject(parent), CaptureInterface(_settings) {
   is_capturing = false;
 
@@ -145,18 +151,18 @@ void CaptureSpinnaker::readAllParameterValues() {
 }
 
 void CaptureSpinnaker::init_camera() {
-  pCam->TriggerMode.SetValue(Spinnaker::TriggerMode_Off);
-  pCam->AcquisitionMode.SetValue(Spinnaker::AcquisitionMode_Continuous);
+    CATCH_LOG_SPINNAKER(pCam->TriggerMode.SetValue(Spinnaker::TriggerMode_Off))
+    CATCH_LOG_SPINNAKER(pCam->AcquisitionMode.SetValue(Spinnaker::AcquisitionMode_Continuous))
 
   if (IsWritable(pCam->GevSCPSPacketSize)) {
-    pCam->GevSCPSPacketSize.SetValue(9000);
+      CATCH_LOG_SPINNAKER(pCam->GevSCPSPacketSize.SetValue(9000));
   }
 
   if (v_image_width->getInt() == 0) {
-    v_image_width->setInt((int) pCam->WidthMax.GetValue());
+      CATCH_LOG_SPINNAKER(v_image_width->setInt((int) pCam->WidthMax.GetValue()))
   }
   if (v_image_height->getInt() == 0) {
-    v_image_height->setInt((int) pCam->HeightMax.GetValue());
+      CATCH_LOG_SPINNAKER(v_image_height->setInt((int) pCam->HeightMax.GetValue()))
   }
 }
 
@@ -164,39 +170,34 @@ void CaptureSpinnaker::readParameterValues() {
   if (!isCapturing())
     return;
 
-  try {
-    getCameraValueFloat(pCam->ExposureTime, v_expose_us);
-    v_expose_auto->setString(toString(pCam->ExposureAuto.GetValue()));
+  CATCH_LOG_SPINNAKER(getCameraValueFloat(pCam->ExposureTime, v_expose_us))
+  CATCH_LOG_SPINNAKER(v_expose_auto->setString(toString(pCam->ExposureAuto.GetValue())))
 
-    getCameraValueFloat(pCam->Gain, v_gain_db);
-    v_gain_auto->setString(toString(pCam->GainAuto.GetValue()));
+  CATCH_LOG_SPINNAKER(getCameraValueFloat(pCam->Gain, v_gain_db))
+  CATCH_LOG_SPINNAKER(v_gain_auto->setString(toString(pCam->GainAuto.GetValue())))
 
-    v_white_balance_auto->setString(toString(pCam->BalanceWhiteAuto.GetValue()));
-    pCam->BalanceRatioSelector.SetValue(Spinnaker::BalanceRatioSelector_Blue);
-    getCameraValueFloat(pCam->BalanceRatio, v_white_balance_blue);
-    pCam->BalanceRatioSelector.SetValue(Spinnaker::BalanceRatioSelector_Red);
-    getCameraValueFloat(pCam->BalanceRatio, v_white_balance_red);
+  CATCH_LOG_SPINNAKER(v_white_balance_auto->setString(toString(pCam->BalanceWhiteAuto.GetValue())))
+  CATCH_LOG_SPINNAKER(pCam->BalanceRatioSelector.SetValue(Spinnaker::BalanceRatioSelector_Blue))
+  CATCH_LOG_SPINNAKER(getCameraValueFloat(pCam->BalanceRatio, v_white_balance_blue))
+  CATCH_LOG_SPINNAKER(pCam->BalanceRatioSelector.SetValue(Spinnaker::BalanceRatioSelector_Red))
+  CATCH_LOG_SPINNAKER(getCameraValueFloat(pCam->BalanceRatio, v_white_balance_red))
 
-    getCameraValueInt(pCam->Width, v_image_width);
-    getCameraValueInt(pCam->Height, v_image_height);
-    getCameraValueInt(pCam->OffsetX, v_image_offset_x);
-    getCameraValueInt(pCam->OffsetY, v_image_offset_y);
+  CATCH_LOG_SPINNAKER(getCameraValueInt(pCam->Width, v_image_width))
+  CATCH_LOG_SPINNAKER(getCameraValueInt(pCam->Height, v_image_height))
+  CATCH_LOG_SPINNAKER(getCameraValueInt(pCam->OffsetX, v_image_offset_x))
+  CATCH_LOG_SPINNAKER(getCameraValueInt(pCam->OffsetY, v_image_offset_y))
 
-    v_gamma_enabled->setBool(pCam->GammaEnable.GetValue());
-    getCameraValueFloat(pCam->Gamma, v_gamma);
+  CATCH_LOG_SPINNAKER(v_gamma_enabled->setBool(pCam->GammaEnable.GetValue()))
+  CATCH_LOG_SPINNAKER(getCameraValueFloat(pCam->Gamma, v_gamma))
 
-    v_frame_rate_enable->setBool(pCam->AcquisitionFrameRateEnable.GetValue());
-    getCameraValueFloat(pCam->AcquisitionFrameRate, v_frame_rate);
-    getCameraValueFloat(pCam->AcquisitionResultingFrameRate, v_frame_rate_result);
+  CATCH_LOG_SPINNAKER(v_frame_rate_enable->setBool(pCam->AcquisitionFrameRateEnable.GetValue()))
+  CATCH_LOG_SPINNAKER(getCameraValueFloat(pCam->AcquisitionFrameRate, v_frame_rate))
+  CATCH_LOG_SPINNAKER(getCameraValueFloat(pCam->AcquisitionResultingFrameRate, v_frame_rate_result))
 
-    if (IsWritable(pCam->UserSetLoad)) {
-      v_trigger_reset->removeFlags(VARTYPE_FLAG_READONLY);
-    } else {
-      v_trigger_reset->addFlags(VARTYPE_FLAG_READONLY);
-    }
-  }
-  catch (Spinnaker::Exception &e) {
-    fprintf(stderr, "Spinnaker: Could not read parameters: %s\n", e.GetFullErrorMessage());
+  if (IsWritable(pCam->UserSetLoad)) {
+    v_trigger_reset->removeFlags(VARTYPE_FLAG_READONLY);
+  } else {
+    v_trigger_reset->addFlags(VARTYPE_FLAG_READONLY);
   }
 }
 

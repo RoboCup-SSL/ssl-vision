@@ -34,6 +34,7 @@ protected:
 
   VarList * _settings;
   VarInt * _v_min_blob_area;
+  VarDouble * _v_min_blob_area_ratio;
   VarBool * _v_enable;
   VarInt * v_max_regions;
 public:
