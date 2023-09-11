@@ -65,15 +65,16 @@ private:
 
     // capture parameters
     VarInt *v_cam_bus;
-    VarString *v_cam_network_prefix;
+    //VarString *v_cam_network_prefix;
     VarString *v_cam_ip;
+    VarString *v_cam_port;
     VarString *v_cam_username;
     VarString *v_cam_password;
     VarStringEnum *v_convert_to_mode;
 
     // camera parameters
     // VarBool *v_acquisition;
-    // VarStringEnum *v_capture_mode;
+    VarStringEnum *v_capture_mode;
     // VarStringEnum *v_expose_auto;
     // VarDouble *v_expose_us;
     // VarStringEnum *v_gain_auto;
@@ -92,17 +93,16 @@ private:
     // VarDouble *v_frame_rate_result;
     // VarTrigger *v_trigger_reset;
 
-    // VarList *capture_settings;
-    // VarList *dcam_parameters;
+    VarList *capture_settings;
+    VarList *dcam_parameters;
 
     // VAPIX specific data
-    string default_network_prefix = "192.168.1";
     const string image_route = "/axis-cgi/jpg/image.cgi";
-    CURL* curl;
-    CURLcode curl_res_code;
-    cv::Mat* p_image;
+    const string video_stream_route = "/axis-media/media.amp";
+    cv::VideoCapture camera;
+    cv::Mat p_image;
     string cam_response;
-    static int num_cams = 0; // Shared cam variable between instances
+    static int num_cams; // Shared cam variable between instances
 
 public:
     explicit CaptureVapix(VarList *_settings = nullptr, int default_camera_id = 0, QObject *parent = nullptr);
@@ -113,36 +113,27 @@ public:
 
     bool stopCapture() override;
 
-    bool isCapturing() override { return is_capturing; };
-
     RawImage getFrame() override;
 
-    void releaseFrame() override;
-
-    bool resetBus() override { return true; };
-
-    void readAllParameterValues() override;
-
-    bool copyAndConvertFrame(const RawImage &src, RawImage &target) override;
+    bool isCapturing() override { return is_capturing; };
 
     string getCaptureMethodName() const override { return "VAPIX"; };
 
+    bool copyAndConvertFrame(const RawImage & src, RawImage & target) override;
+
+    bool resetBus() override {return true;};
+    void releaseFrame() override;
+
+
 private:
-    void mvc_connect(VarList *group);
 
-    void readParameterValues();
+    // void readParameterValues();
 
-    void writeParameterValues();
+    // void writeParameterValues();
 
-    void reloadParameters();
+    // void reloadParameters();
 
-    void init_camera();
-
-    size_t camImageCallback(void* contents, size_t size, size_t nmemb, void* userptr);
-
-    void setupCurl(string url);
-
-    bool curlAvailable() {return curl};
+    // void init_camera();
 
     // static void setCameraValueInt(Spinnaker::GenApi::IInteger &cameraValue, VarInt *varValue) {
     //   if (IsWritable(cameraValue)) {

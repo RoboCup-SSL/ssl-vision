@@ -2,7 +2,7 @@
 buildDir=build
 
 #change to Debug for debug mode
-buildType=Release
+buildType=Debug
 
 all: build_cmake
 
@@ -10,7 +10,7 @@ $(buildDir):
 	mkdir -p $(buildDir)
 
 $(buildDir)/CMakeLists.txt.copy: CMakeLists.txt
-	cmake -B $(buildDir) -DCMAKE_BUILD_TYPE=$(buildType)
+	cmake -B $(buildDir) -DCMAKE_BUILD_TYPE=$(buildType) -DCMAKE_EXPORT_COMPILE_COMMANDS=True
 
 build_cmake: $(buildDir)/CMakeLists.txt.copy
 	$(MAKE) -C $(buildDir)
@@ -23,6 +23,9 @@ cleanup_cache:
 
 configure_spinnaker: $(buildDir)/CMakeLists.txt.copy
 	cmake -S . -B $(buildDir) -DUSE_SPINNAKER=true
+
+configure_vapix: $(buildDir)/CMakeLists.txt.copy
+	cmake -S . -B $(buildDir) -DUSE_VAPIX=true
 
 backup_configs: $(wildcard robocup-*) settings.xml
 		$(eval dir="backup/$(shell date +%Y-%m-%d_%H-%M-%S)")

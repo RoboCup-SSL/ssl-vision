@@ -244,6 +244,7 @@ void CaptureThread::selectCaptureMethod() {
   else if(captureModule->getString() == "VAPIX") {
     new_capture = captureVapix;
   }
+#endif
 #ifdef CAMERA_SPLITTER
   else if(captureModule->getString() == "Splitter") {
     new_capture = captureSplitter;

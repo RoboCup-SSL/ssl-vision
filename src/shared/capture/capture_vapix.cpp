@@ -22,20 +22,24 @@
 #include "capture_vapix.h"
 #include <memory>
 
+int CaptureVapix::num_cams = 0;
+
 CaptureVapix::CaptureVapix(VarList *_settings, int default_camera_id, QObject *parent) : QObject(parent), CaptureInterface(_settings) {
   is_capturing = false;
-  num_cams++;
+
 
   mutex.lock();
 
+  num_cams++;
   settings->addChild(capture_settings = new VarList("Capture Settings"));
-  // settings->addChild(dcam_parameters = new VarList("Camera Parameters"));
+  settings->addChild(dcam_parameters = new VarList("Camera Parameters"));
 
   //=======================CAPTURE SETTINGS==========================
-  v_cam_bus = new VarInt("cam idx", default_camera_id);
   //TODO: Keep?: v_cam_network_prefix = new VarString("cam network prefix", default_network_prefix);
 
+  v_cam_bus = new VarInt("cam idx", default_camera_id);
   v_cam_ip = new VarString("cam ip", "");
+  v_cam_port = new VarString("cam port", "");
   v_cam_username = new VarString("cam username", "");
   v_cam_password = new VarString("cam password", "");
 
@@ -45,6 +49,7 @@ CaptureVapix::CaptureVapix(VarList *_settings, int default_camera_id, QObject *p
 
   capture_settings->addChild(v_cam_bus);
   capture_settings->addChild(v_cam_ip);
+  capture_settings->addChild(v_cam_port);
   capture_settings->addChild(v_cam_username);
   capture_settings->addChild(v_cam_password);
   capture_settings->addChild(v_convert_to_mode);
@@ -52,8 +57,8 @@ CaptureVapix::CaptureVapix(VarList *_settings, int default_camera_id, QObject *p
   // //=======================CAMERA SETTINGS==========================
   // v_acquisition = new VarBool("Acquisition", true);
 
-  // v_capture_mode = new VarStringEnum("capture mode", Colors::colorFormatToString(COLOR_RAW8));
-  // v_capture_mode->addItem(Colors::colorFormatToString(COLOR_RAW8));
+  v_capture_mode = new VarStringEnum("capture mode", Colors::colorFormatToString(COLOR_RAW8));
+  v_capture_mode->addItem(Colors::colorFormatToString(COLOR_RAW8));
 
   // v_expose_auto = new VarStringEnum("Auto Expose", toString(Spinnaker::ExposureAuto_Off));
   // v_expose_auto->addItem(toString(Spinnaker::ExposureAuto_Off));
@@ -90,7 +95,7 @@ CaptureVapix::CaptureVapix(VarList *_settings, int default_camera_id, QObject *p
   // v_trigger_reset = new VarTrigger("Reset Parameters", "Reset");
 
   // dcam_parameters->addChild(v_acquisition);
-  // dcam_parameters->addChild(v_capture_mode);
+  dcam_parameters->addChild(v_capture_mode);
   // dcam_parameters->addChild(v_expose_auto);
   // dcam_parameters->addChild(v_expose_us);
   // dcam_parameters->addChild(v_gain_auto);
@@ -119,10 +124,10 @@ CaptureVapix::~CaptureVapix() {
   num_cams--;
 }
 
-void CaptureVapix::reloadParameters() {
-  writeParameterValues();
-  readParameterValues();
-}
+// void CaptureVapix::reloadParameters() {
+//   writeParameterValues();
+//   readParameterValues();
+// }
 
 void CaptureVapix::slotResetTriggered() {
   mutex.lock();
@@ -132,35 +137,17 @@ void CaptureVapix::slotResetTriggered() {
   mutex.unlock();
 }
 
-void CaptureVapix::readAllParameterValues() {
-  mutex.lock();
-  readParameterValues();
-  mutex.unlock();
-}
+// void CaptureVapix::readAllParameterValues() {
+//   mutex.lock();
+//   readParameterValues();
+//   mutex.unlock();
+// }
 
-void CaptureVapix::init_camera() {
-  //
-}
+// void CaptureVapix::init_camera() {
+//   //
+// }
 
-size_t camImageCallback(void* contents, size_t size, size_t nmemb, void* userptr) {
-    size_t total_size = size * nmemb;
-    string* response = static_cast<string*>(userptr);
-    response->append(static_cast<char*>(contents), total_size);
-    return total_size;
-}
-
-void setupCurl(string url) {
-  struct curl_slist* headers = NULL;
-  headers = curl_slist_append(headers, "COntent-Type: application/json");
-
-  // Set auth credentials
-  curl_easy_setopt(curl, CURLOPT_HTTPAUTH, (long)CURLAUTH_ANY);
-  curl_easy_setopt(curl, CURLOPT_USERPWD, v_cam_username->getString() + ":" + v_cam_password->getString());
-  curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-  curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-}
-
-void CaptureVapix::readParameterValues() {
+// void CaptureVapix::readParameterValues() {
 
   // Currently our cameras does not support getting parameters due to extremely old firmware...
 
@@ -201,9 +188,9 @@ void CaptureVapix::readParameterValues() {
   // catch (Spinnaker::Exception &e) {
   //   fprintf(stderr, "Spinnaker: Could not read parameters: %s\n", e.GetFullErrorMessage());
   // }
-}
+// }
 
-void CaptureVapix::writeParameterValues() {
+// void CaptureVapix::writeParameterValues() {
   // if (!isCapturing())
   //   return;
 
@@ -269,12 +256,12 @@ void CaptureVapix::writeParameterValues() {
   // catch (Spinnaker::Exception &e) {
   //   fprintf(stderr, "Spinnaker: Could not write parameters: %s\n", e.GetFullErrorMessage());
   // }
-}
+// }
 
 bool CaptureVapix::stopCapture() {
   if (isCapturing()) {
     is_capturing = false;
-    curl_easy_cleanup(curl);
+    camera.release();
     fprintf(stderr, "VAPIX: Stopping capture on cam %d - %s\n", v_cam_bus->getInt(), v_cam_ip->getString().c_str());
   }
 
@@ -296,49 +283,30 @@ bool CaptureVapix::startCapture() {
 
   //Spinnaker::CameraList camList = pSystem->GetCameras();
   fprintf(stderr, "VAPIX: Number of cams: %d\n", num_cams);
-  
-  curl = curl_easy_init();
-  if (!curl) {
-    fprintf(stderr, "VAPIX: Could not initialize CURL on camera %d - %s\n", v_cam_bus->getInt(), v_cam_ip->getString());
-    mutex.unlock();
-    return false;
-  }
 
   if (v_cam_bus->getInt() >= num_cams) {
     fprintf(stderr, "VAPIX: Invalid cam_id: %u\n", v_cam_bus->getInt());
     //pSystem->ReleaseInstance();
-    curl_easy_cleanup(curl);
     mutex.unlock();
     return false;
   }
-
-  // Perform a GET on the IP to check if it exists
-  curl_easy_setopt(curl, CURLOPT_URL, v_cam_ip->getString());
-  curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
-  curl_res_code = curl_easy_perform(curl);
-  bool alive_check_success = false;
-
-  if (curl_res_code == CURLE_OK) {
-    long response_code;
-    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
-    if (response_code >= 200 && response_code < 300) {
-      alive_check_success = true;
-    }
-  }
-
-  if (!alive_check_success) {
-    fprintf(stderr, "VAPIX: Could not connect camera %d to IP %s\n", v_cam_bus->getInt(), v_cam_ip->getString());
-    curl_easy_cleanup(curl);
+  // rtsp://root:root@192.168.1.1/axis-media/media.amp
+  string rtsp_url = "rtsp://" + v_cam_username->getString() + ":" + v_cam_password->getString() + "@" + v_cam_ip->getString() + ":" + v_cam_port->getString() + video_stream_route;
+  bool success = camera.open(rtsp_url);
+  
+  if (!success) {
+    fprintf(stderr, "VAPIX: Camera %d could not connect to %s\n", v_cam_bus->getInt(), rtsp_url.c_str());
+    camera.release();
     mutex.unlock();
     return false;
   }
-
+  
   // is_capturing must be set before reloadParameters()!
   is_capturing = true;
 
-  fprintf(stderr, "VAPIX: Camera %d connected to IP %s successfully!\n", v_cam_bus->getInt(), v_cam_ip->getString());
+  fprintf(stderr, "VAPIX: Camera %d connected to IP %s successfully!\n", v_cam_bus->getInt(), v_cam_ip->getString().c_str());
 
-  init_camera();
+  // init_camera();
 
   //reloadParameters();
 
@@ -390,58 +358,45 @@ RawImage CaptureVapix::getFrame() {
 
   ColorFormat out_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
   RawImage result;
-  result.setColorFormat(out_color);
+  result.setColorFormat(COLOR_RGBA8);
+
+  cv::Mat image;
   
-  setupCurl(v_cam_ip->getString() + image_route);
-
-  // curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, camImageCallback);
-
-  curl_res_code = curl_easy_perform(curl);
-
-  if (curl_res_code == CURLE_OK) {
-
-    long response_code;
-    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
-
-    if (response_code == 200) {
-      vector<unsigned char> image_data;
-      curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &image_data.size());
-      image_data.resize(static_cast<size_t>(image_data.size()));
-
-      p_image = new cv::Mat(cv::imdecode(image_data, out_color));
-
-      if (!image.empty()) {
-        result.setData(p_image->data);
-        result.setWidth(p_image->cols);
-        result.setHeight(p_image->rows);
+  bool success = camera.read(image);
+  image = cv::imread("image.jpg");
+  
+  
+  if (success) {
+    if (!image.empty()) {
+        cv::cvtColor(image, p_image, cv::COLOR_BGR2RGB);
+        result.setData(p_image.data);
+        result.setWidth(p_image.cols);
+        result.setHeight(p_image.rows);
         // Ignoring timestamp ATM since I don't know if we actually receive one...
         //result.setTimeCam
-
       }
       else {
-        fprintf(stderr, "Failed to read image from camera %d - %s\n", v_cam_bus->getInt(), v_cam_ip->getString());
+        fprintf(stderr, "VAPIX: Failed to read image from camera %d - %s\n", v_cam_bus->getInt(), v_cam_ip->getString().c_str());
       }
 
-    }
-    else {
-      fprinf(stderr, "Failed HTTP GET request to camera %d - %s with status code: %d\n", v_cam_bus->getInt(), v_cam_ip->getString(), response_code);
-    }
   }
   else {
-    fprintf(stderr, "VAPIX: Failed to send GET request on camera %d - %s: %s\n", 
-      v_cam_bus->intToString.c_str(), 
-      v_cam_ip->getString().c_str(), 
-      curl_easy_strerror(curl_res_code));
+    fprintf(stderr, "VAPIX: Could not read image from camera %d - %s\n", v_cam_bus->getInt(), v_cam_ip->getString().c_str());
   }
+
   mutex.unlock();
   return result;
 }
 
 void CaptureVapix::releaseFrame() {
   mutex.lock();
-  if (p_image != nullptr) {
-    delete p_image;
-    p_image = nullptr;
-  }
+  p_image.release();
+  mutex.unlock();
+}
+
+
+void CaptureVapix::changed(__attribute__((unused)) VarType *group) {
+  mutex.lock();
+  // TODO: Do something...
   mutex.unlock();
 }
