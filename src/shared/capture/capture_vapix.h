@@ -122,11 +122,11 @@ public:
     bool copyAndConvertFrame(const RawImage & src, RawImage & target) override;
 
     bool resetBus() override {return true;};
+
     void releaseFrame() override;
 
 
 private:
-
     // void readParameterValues();
 
     // void writeParameterValues();

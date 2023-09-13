@@ -191,71 +191,71 @@ void CaptureVapix::slotResetTriggered() {
 // }
 
 // void CaptureVapix::writeParameterValues() {
-  // if (!isCapturing())
-  //   return;
+//   if (!isCapturing())
+//     return;
 
-  // if (reset_parameters) {
-  //   try {
-  //     // Set default startup profile to default (ssl-vision stores and sets all necessary parameters on start)
-  //     pCam->UserSetDefault.SetValue(Spinnaker::UserSetDefault_Default);
+//   if (reset_parameters) {
+//     try {
+//       // Set default startup profile to default (ssl-vision stores and sets all necessary parameters on start)
+//       pCam->UserSetDefault.SetValue(Spinnaker::UserSetDefault_Default);
 
-  //     // Load default user set
-  //     pCam->UserSetSelector.SetValue(Spinnaker::UserSetSelector_Default);
+//       // Load default user set
+//       pCam->UserSetSelector.SetValue(Spinnaker::UserSetSelector_Default);
 
-  //     if (IsWritable(pCam->UserSetLoad)) {
-  //       pCam->UserSetLoad.Execute();
-  //       init_camera();
-  //     }
-  //   }
-  //   catch (Spinnaker::Exception &e) {
-  //     fprintf(stderr, "Spinnaker: Could not reset parameters: %s\n", e.GetFullErrorMessage());
-  //   }
-  //   reset_parameters = false;
-  //   return;
-  // }
+//       if (IsWritable(pCam->UserSetLoad)) {
+//         pCam->UserSetLoad.Execute();
+//         init_camera();
+//       }
+//     }
+//     catch (Spinnaker::Exception &e) {
+//       fprintf(stderr, "Spinnaker: Could not reset parameters: %s\n", e.GetFullErrorMessage());
+//     }
+//     reset_parameters = false;
+//     return;
+//   }
 
-  // try {
-  //   if (IsWritable(pCam->PixelFormat)) {
-  //     ColorFormat out_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
-  //     if (out_color == COLOR_RAW8) {
-  //       pCam->PixelFormat.SetValue(Spinnaker::PixelFormat_BayerRG8);
-  //     } else {
-  //       fprintf(stderr, "Spinnaker: Color format not supported: %s\n", Colors::colorFormatToString(COLOR_RAW8).c_str());
-  //     }
-  //     v_capture_mode->removeFlags(VARTYPE_FLAG_READONLY);
-  //   } else {
-  //     v_capture_mode->addFlags(VARTYPE_FLAG_READONLY);
-  //   }
+//   try {
+//     if (IsWritable(pCam->PixelFormat)) {
+//       ColorFormat out_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
+//       if (out_color == COLOR_RAW8) {
+//         pCam->PixelFormat.SetValue(Spinnaker::PixelFormat_BayerRG8);
+//       } else {
+//         fprintf(stderr, "Spinnaker: Color format not supported: %s\n", Colors::colorFormatToString(COLOR_RAW8).c_str());
+//       }
+//       v_capture_mode->removeFlags(VARTYPE_FLAG_READONLY);
+//     } else {
+//       v_capture_mode->addFlags(VARTYPE_FLAG_READONLY);
+//     }
 
-  //   pCam->ExposureAuto.SetValue(stringToExposureAuto(v_expose_auto->getString().c_str()));
-  //   setCameraValueFloat(pCam->ExposureTime, v_expose_us);
+//     pCam->ExposureAuto.SetValue(stringToExposureAuto(v_expose_auto->getString().c_str()));
+//     setCameraValueFloat(pCam->ExposureTime, v_expose_us);
 
-  //   pCam->GainAuto.SetValue(stringToGainAuto(v_gain_auto->getString().c_str()));
-  //   setCameraValueFloat(pCam->Gain, v_gain_db);
+//     pCam->GainAuto.SetValue(stringToGainAuto(v_gain_auto->getString().c_str()));
+//     setCameraValueFloat(pCam->Gain, v_gain_db);
 
-  //   pCam->GammaEnable.SetValue(v_gamma_enabled->getBool());
-  //   setCameraValueFloat(pCam->Gamma, v_gamma);
+//     pCam->GammaEnable.SetValue(v_gamma_enabled->getBool());
+//     setCameraValueFloat(pCam->Gamma, v_gamma);
 
-  //   pCam->BalanceWhiteAuto.SetValue(stringToBalanceWhiteAuto(v_white_balance_auto->getString().c_str()));
-  //   pCam->BalanceRatioSelector.SetValue(Spinnaker::BalanceRatioSelector_Blue);
-  //   setCameraValueFloat(pCam->BalanceRatio, v_white_balance_blue);
-  //   pCam->BalanceRatioSelector.SetValue(Spinnaker::BalanceRatioSelector_Red);
-  //   setCameraValueFloat(pCam->BalanceRatio, v_white_balance_red);
+//     pCam->BalanceWhiteAuto.SetValue(stringToBalanceWhiteAuto(v_white_balance_auto->getString().c_str()));
+//     pCam->BalanceRatioSelector.SetValue(Spinnaker::BalanceRatioSelector_Blue);
+//     setCameraValueFloat(pCam->BalanceRatio, v_white_balance_blue);
+//     pCam->BalanceRatioSelector.SetValue(Spinnaker::BalanceRatioSelector_Red);
+//     setCameraValueFloat(pCam->BalanceRatio, v_white_balance_red);
 
-  //   setCameraValueInt(pCam->OffsetX, v_image_offset_x);
-  //   setCameraValueInt(pCam->OffsetY, v_image_offset_y);
-  //   setCameraValueInt(pCam->Width, v_image_width);
-  //   setCameraValueInt(pCam->Height, v_image_height);
+//     setCameraValueInt(pCam->OffsetX, v_image_offset_x);
+//     setCameraValueInt(pCam->OffsetY, v_image_offset_y);
+//     setCameraValueInt(pCam->Width, v_image_width);
+//     setCameraValueInt(pCam->Height, v_image_height);
 
-  //   pCam->AcquisitionFrameRateEnable.SetValue(v_frame_rate_enable->getBool());
-  //   setCameraValueFloat(pCam->AcquisitionFrameRate, v_frame_rate);
+//     pCam->AcquisitionFrameRateEnable.SetValue(v_frame_rate_enable->getBool());
+//     setCameraValueFloat(pCam->AcquisitionFrameRate, v_frame_rate);
 
-  //   pCam->TLStream.StreamBufferHandlingMode.SetValue(Spinnaker::StreamBufferHandlingMode_NewestOnly);
-  //   pCam->TLStream.StreamBufferCountManual.SetValue(pCam->TLStream.StreamBufferCountManual.GetMin());
-  // }
-  // catch (Spinnaker::Exception &e) {
-  //   fprintf(stderr, "Spinnaker: Could not write parameters: %s\n", e.GetFullErrorMessage());
-  // }
+//     pCam->TLStream.StreamBufferHandlingMode.SetValue(Spinnaker::StreamBufferHandlingMode_NewestOnly);
+//     pCam->TLStream.StreamBufferCountManual.SetValue(pCam->TLStream.StreamBufferCountManual.GetMin());
+//   }
+//   catch (Spinnaker::Exception &e) {
+//     fprintf(stderr, "Spinnaker: Could not write parameters: %s\n", e.GetFullErrorMessage());
+//   }
 // }
 
 bool CaptureVapix::stopCapture() {
@@ -358,17 +358,19 @@ RawImage CaptureVapix::getFrame() {
 
   ColorFormat out_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
   RawImage result;
-  result.setColorFormat(COLOR_RGBA8);
+  result.setColorFormat(COLOR_RGB8);
 
-  cv::Mat image;
+  //fprintf(stderr, "%s", v_capture_mode->getSelection().c_str());
+  // cv::Mat image;
   
-  bool success = camera.read(image);
-  image = cv::imread("image.jpg");
-  
+  bool success = camera.read(p_image);
+  //image = cv::imread("image.jpg");
+  //cv::cvtColor(image, p_image, cv::COLOR_BGR2RGB);
+  //cv::imwrite("test_image.jpg", image);
+
   
   if (success) {
-    if (!image.empty()) {
-        cv::cvtColor(image, p_image, cv::COLOR_BGR2RGB);
+    if (!p_image.empty()) {
         result.setData(p_image.data);
         result.setWidth(p_image.cols);
         result.setHeight(p_image.rows);
