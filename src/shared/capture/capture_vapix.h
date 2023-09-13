@@ -26,13 +26,60 @@
 #include "VarTypes.h"
 #include "TimeSync.h"
 
+#include <atomic>
 #include <ctime>
 #include <cstdio>
 #include <cstdlib>
 #include <string.h>
 #include <QMutex>
-#include <curl/curl.h>
+#include <QThread>
+#include <QSemaphore>
 #include <opencv2/opencv.hpp>
+
+class RTSPReader : public QThread {
+public:
+  explicit RTSPReader(QObject* parent = nullptr): QThread(parent) {}
+
+  cv::Mat getFrame() {
+    sema.acquire();
+    return buffer_a;
+  }
+  
+  bool open(const std::string url) {
+    if (!capture.open(url, cv::CAP_FFMPEG)) {
+      return false;
+    }
+    running.store(true);
+    return true;
+  }
+
+  void run() override {
+    while (running.load()) {
+      capture.read(buffer_b);
+      if (sema.available() == 0) {
+        buffer_a = buffer_b;
+        buffer_b = cv::Mat();
+        sema.release();
+      }
+    }
+  }
+
+  void close() {
+    capture.release();
+    running.store(false);
+  }
+
+  
+
+private:
+  
+  cv::Mat buffer_a, buffer_b;
+  QSemaphore sema;
+
+  cv::VideoCapture capture;
+  std::atomic_bool running {false};
+
+};
 
 /*!
   \class  CaptureVapix
@@ -72,34 +119,14 @@ private:
     VarString *v_cam_password;
     VarStringEnum *v_convert_to_mode;
 
-    // camera parameters
-    // VarBool *v_acquisition;
     VarStringEnum *v_capture_mode;
-    // VarStringEnum *v_expose_auto;
-    // VarDouble *v_expose_us;
-    // VarStringEnum *v_gain_auto;
-    // VarDouble *v_gain_db;
-    // VarDouble *v_gamma;
-    // VarBool *v_gamma_enabled;
-    // VarStringEnum *v_white_balance_auto;
-    // VarDouble *v_white_balance_red;
-    // VarDouble *v_white_balance_blue;
-    // VarInt *v_image_width;
-    // VarInt *v_image_height;
-    // VarInt *v_image_offset_x;
-    // VarInt *v_image_offset_y;
-    // VarBool *v_frame_rate_enable;
-    // VarDouble *v_frame_rate;
-    // VarDouble *v_frame_rate_result;
-    // VarTrigger *v_trigger_reset;
 
     VarList *capture_settings;
     VarList *dcam_parameters;
 
     // VAPIX specific data
-    const string image_route = "/axis-cgi/jpg/image.cgi";
     const string video_stream_route = "/axis-media/media.amp";
-    cv::VideoCapture camera;
+    RTSPReader camera;
     cv::Mat p_image;
     string cam_response;
     static int num_cams; // Shared cam variable between instances
@@ -124,74 +151,5 @@ public:
     bool resetBus() override {return true;};
 
     void releaseFrame() override;
-
-
-private:
-    // void readParameterValues();
-
-    // void writeParameterValues();
-
-    // void reloadParameters();
-
-    // void init_camera();
-
-    // static void setCameraValueInt(Spinnaker::GenApi::IInteger &cameraValue, VarInt *varValue) {
-    //   if (IsWritable(cameraValue)) {
-    //     varValue->setMin((int) cameraValue.GetMin());
-    //     varValue->setMax((int) cameraValue.GetMax());
-    //     cameraValue.SetValue(cap((int) varValue->getInt(), varValue->getMin(), varValue->getMax()));
-    //     varValue->removeFlags(VARTYPE_FLAG_READONLY);
-    //   } else {
-    //     varValue->addFlags(VARTYPE_FLAG_READONLY);
-    //   }
-    // }
-
-    // static void setCameraValueFloat(Spinnaker::GenApi::IFloat &cameraValue, VarDouble *varValue) {
-    //   if (IsWritable(cameraValue)) {
-    //     varValue->setMin(cameraValue.GetMin());
-    //     varValue->setMax(cameraValue.GetMax());
-    //     cameraValue.SetValue(cap(varValue->getDouble(), varValue->getMin(), varValue->getMax()));
-    //     varValue->removeFlags(VARTYPE_FLAG_READONLY);
-    //   } else {
-    //     varValue->addFlags(VARTYPE_FLAG_READONLY);
-    //   }
-    // }
-
-    // static void getCameraValueInt(Spinnaker::GenApi::IInteger &cameraValue, VarInt *varValue) {
-    //   if (IsReadable(cameraValue)) {
-    //     varValue->setMin((int) cameraValue.GetMin());
-    //     varValue->setMax((int) cameraValue.GetMax());
-    //     varValue->setInt((int) cameraValue.GetValue());
-    //   }
-
-    //   if (IsWritable(cameraValue)) {
-    //     varValue->removeFlags(VARTYPE_FLAG_READONLY);
-    //   } else {
-    //     varValue->addFlags(VARTYPE_FLAG_READONLY);
-    //   }
-    // }
-
-    // static void getCameraValueFloat(Spinnaker::GenApi::IFloat &cameraValue, VarDouble *varValue) {
-    //   if (IsReadable(cameraValue)) {
-    //     varValue->setMin(cameraValue.GetMin());
-    //     varValue->setMax(cameraValue.GetMax());
-    //     varValue->setDouble(cameraValue.GetValue());
-    //   }
-
-    //   if (IsWritable(cameraValue)) {
-    //     varValue->removeFlags(VARTYPE_FLAG_READONLY);
-    //   } else {
-    //     varValue->addFlags(VARTYPE_FLAG_READONLY);
-    //   }
-    // }
-
-    // static double cap(double value, double v_min, double v_max) {
-    //   return max(v_min, min(v_max, value));
-    // }
-
-    // static int cap(int value, int v_min, int v_max) {
-    //   return max(v_min, min(v_max, value));
-    // }
 };
-
 #endif
