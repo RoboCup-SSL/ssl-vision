@@ -83,7 +83,7 @@ void CaptureVapix::slotResetTriggered() {
 bool CaptureVapix::stopCapture() {
   if (isCapturing()) {
     is_capturing = false;
-    camera.close();
+    camera.release();
     fprintf(stderr, "VAPIX: Stopping capture on cam %d - %s\n", v_cam_bus->getInt(), v_cam_ip->getString().c_str());
   }
 
@@ -118,10 +118,11 @@ bool CaptureVapix::startCapture() {
   
   if (!success) {
     fprintf(stderr, "VAPIX: Camera %d could not connect to %s\n", v_cam_bus->getInt(), rtsp_url.c_str());
+    camera.release();
     mutex.unlock();
     return false;
   }
-  camera.start();
+
   // is_capturing must be set before reloadParameters()!
   is_capturing = true;
 
@@ -181,10 +182,9 @@ RawImage CaptureVapix::getFrame() {
   RawImage result;
   result.setColorFormat(out_color);
   
-  p_image = camera.getFrame();
+  bool success = camera.read(p_image);
 
   
- 
   if (!p_image.empty()) {
       result.setData(p_image.data);
       result.setWidth(p_image.cols);

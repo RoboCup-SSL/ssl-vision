@@ -126,7 +126,7 @@ private:
 
     // VAPIX specific data
     const string video_stream_route = "/axis-media/media.amp";
-    RTSPReader camera;
+    cv::VideoCapture camera;
     cv::Mat p_image;
     string cam_response;
     static int num_cams; // Shared cam variable between instances
