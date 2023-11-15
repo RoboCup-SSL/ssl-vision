@@ -32,54 +32,9 @@
 #include <cstdlib>
 #include <string.h>
 #include <QMutex>
-#include <QThread>
 #include <QSemaphore>
 #include <opencv2/opencv.hpp>
-
-class RTSPReader : public QThread {
-public:
-  explicit RTSPReader(QObject* parent = nullptr): QThread(parent) {}
-
-  cv::Mat getFrame() {
-    sema.acquire();
-    return buffer_a;
-  }
-  
-  bool open(const std::string url) {
-    if (!capture.open(url, cv::CAP_FFMPEG)) {
-      return false;
-    }
-    running.store(true);
-    return true;
-  }
-
-  void run() override {
-    while (running.load()) {
-      capture.read(buffer_b);
-      if (sema.available() == 0) {
-        buffer_a = buffer_b;
-        buffer_b = cv::Mat();
-        sema.release();
-      }
-    }
-  }
-
-  void close() {
-    capture.release();
-    running.store(false);
-  }
-
-  
-
-private:
-  
-  cv::Mat buffer_a, buffer_b;
-  QSemaphore sema;
-
-  cv::VideoCapture capture;
-  std::atomic_bool running {false};
-
-};
+#include <curl/curl.h>
 
 /*!
   \class  CaptureVapix
@@ -103,7 +58,7 @@ public slots:
     void slotResetTriggered();
 
 private:
-    bool is_capturing;
+    bool is_capturing = false;
     bool reset_parameters = false;
 
 
@@ -112,11 +67,12 @@ private:
 
     // capture parameters
     VarInt *v_cam_bus;
-    //VarString *v_cam_network_prefix;
-    VarString *v_cam_ip;
-    VarString *v_cam_port;
+    VarString *v_cam_schema; // I.e. rtsp://, https://, etc.
     VarString *v_cam_username;
     VarString *v_cam_password;
+    VarString *v_cam_ip;
+    VarString *v_cam_port;
+    VarString *v_cam_video_stream_route; // "/axis-media/media.amp"
     VarStringEnum *v_convert_to_mode;
 
     VarStringEnum *v_capture_mode;
@@ -125,10 +81,11 @@ private:
     VarList *dcam_parameters;
 
     // VAPIX specific data
-    const string video_stream_route = "/axis-media/media.amp";
-    cv::VideoCapture camera;
-    cv::Mat p_image;
+    // const string video_stream_route = ;
+    CURL* curl;
     string cam_response;
+    cv::Mat p_image;
+    string complete_url;
     static int num_cams; // Shared cam variable between instances
 
 public:
@@ -151,5 +108,10 @@ public:
     bool resetBus() override {return true;};
 
     void releaseFrame() override;
+
+private:
+    static size_t camImageCallback(void* contents, size_t size, size_t nmemb, std::string* data);
+
+    void setupCurl();
 };
 #endif
