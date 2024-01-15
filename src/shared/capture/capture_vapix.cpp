@@ -75,27 +75,6 @@ CaptureVapix::~CaptureVapix() {
   num_cams--;
 }
 
-size_t CaptureVapix::camImageCallback(void* contents, size_t size, size_t nmemb, std::string* data) {
-    size_t total_size = size * nmemb;
-    data->append((char*)contents, total_size);
-    return total_size;
-}
-
-void CaptureVapix::setupCurl() {
-  curl = curl_easy_init();
-
-  struct curl_slist* headers = NULL;
-  headers = curl_slist_append(headers, "Content-Type: application/json");
-  complete_url = v_cam_schema->getString() + v_cam_ip->getString() + v_cam_port->getString() + v_cam_video_stream_route->getString();
-  
-  fprintf(stderr, "%s\n", complete_url.c_str());
-  // Set auth credentials
-  curl_easy_setopt(curl, CURLOPT_HTTPAUTH, (long)CURLAUTH_ANY);
-  curl_easy_setopt(curl, CURLOPT_URL, complete_url.c_str());
-  curl_easy_setopt(curl, CURLOPT_USERPWD, (v_cam_username->getString() + ":" + v_cam_password->getString()).c_str());
-  curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-}
-
 void CaptureVapix::slotResetTriggered() {
   mutex.lock();
 
@@ -108,7 +87,6 @@ bool CaptureVapix::stopCapture() {
 
   if (isCapturing()) {
     is_capturing = false;
-    curl_easy_cleanup(curl);
     fprintf(stderr, "VAPIX: Stopping capture on cam %d - %s\n", v_cam_bus->getInt(), v_cam_ip->getString().c_str());
   }
 
@@ -123,8 +101,6 @@ bool CaptureVapix::stopCapture() {
 bool CaptureVapix::startCapture() {
   mutex.lock();
 
-  setupCurl();
-
   fprintf(stderr, "VAPIX: Starting capture on camera %d - %s\n", v_cam_bus->getInt(), v_cam_ip->getString().c_str());
   
   //pSystem = Spinnaker::System::GetInstance();
@@ -132,38 +108,10 @@ bool CaptureVapix::startCapture() {
   //Spinnaker::CameraList camList = pSystem->GetCameras();
   fprintf(stderr, "VAPIX: Number of cams: %d\n", num_cams);
   
-  
-  if (!curl) {
-    fprintf(stderr, "VAPIX: Could not initialize CURL on camera %d - %s\n", v_cam_bus->getInt(), v_cam_ip->getString().c_str());
-    mutex.unlock();
-    return false;
-  }
 
   if (v_cam_bus->getInt() >= num_cams) {
     fprintf(stderr, "VAPIX: Invalid cam_id: %u\n", v_cam_bus->getInt());
     //pSystem->ReleaseInstance();
-    curl_easy_cleanup(curl);
-    mutex.unlock();
-    return false;
-  }
-
-  // Perform a GET on the IP to check if it exists
-  curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
-  CURLcode curl_res_code = curl_easy_perform(curl);
-  bool alive_check_success = false;
-
-  if (curl_res_code == CURLE_OK) {
-    long response_code;
-    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
-    if (response_code >= 200 && response_code < 300) {
-      alive_check_success = true;
-      fprintf(stderr, "VAPIX: Website alive check PASSED");
-    }
-  }
-
-  if (!alive_check_success) {
-    fprintf(stderr, "VAPIX: Could not connect camera %d to IP %s\n", v_cam_bus->getInt(), v_cam_ip->getString().c_str());
-    curl_easy_cleanup(curl);
     mutex.unlock();
     return false;
   }
@@ -224,44 +172,50 @@ RawImage CaptureVapix::getFrame() {
   ColorFormat out_color = Colors::stringToColorFormat(v_capture_mode->getSelection().c_str());
   RawImage result;
   result.setColorFormat(out_color);
+  
+  int camera_number;
+  if (v_cam_bus->getInt() == 0) camera_number = 1;
+  else camera_number = 3;
 
-  // Perform the HTTP request
-  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, camImageCallback);
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &cam_response);
-  CURLcode curl_res_code = curl_easy_perform(curl);
+  string img_file_name = img_file_prefix + to_string(camera_number) + ".txt";
 
-  if (curl_res_code == CURLE_OK) {
+  img_file = std::ifstream(img_file_name);
 
-    long response_code;
-    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+  // Create the image buffer
+  std::stringstream buffer;
+  buffer << img_file.rdbuf();
+  std::string encoded_image = buffer.str();
 
-    if (response_code >= 200 && response_code < 300) {
-      vector<unsigned char> image_data(cam_response.begin(), cam_response.end());
+  // Decode base64
+  std::string decoded_image = base64_decode(encoded_image);
 
-      p_image = cv::Mat(cv::imdecode(image_data, out_color));
+  // Reconstruct the cv::Mat object from the binary data
+  std::vector<uchar> data(decoded_image.begin(), decoded_image.end());
+  if (!data.size() == 0) {
+    p_image = cv::imdecode(data, cv::IMREAD_UNCHANGED);
 
-      if (!p_image.empty()) {
-        result.setData(p_image.data);
-        result.setWidth(p_image.cols);
-        result.setHeight(p_image.rows);
-        // Ignoring timestamp ATM since I don't know if we actually receive one...
-        //result.setTimeCam
-
-      }
-      else {
-        fprintf(stderr, "Failed to read image from camera %d - %s\n", v_cam_bus->getInt(), v_cam_ip->getString().c_str());
-      }
-    }
-    else {
-      fprintf(stderr, "Failed HTTP GET request to camera %d - %s with status code: %ld\n", v_cam_bus->getInt(), v_cam_ip->getString().c_str(), response_code);
+    // Display the image
+    if (!p_image.empty()) {
+      result.setData(p_image.data);
+      result.setWidth(p_image.cols);
+      result.setHeight(p_image.rows);
+    } else {
+      fprintf(stderr, 
+        "VAPIX: Failed to decode image for camera %d - %s\n",
+        v_cam_bus->getInt(),
+        v_cam_ip->getString().c_str()
+      );
     }
   }
   else {
-    fprintf(stderr, "VAPIX: Failed to send GET request on camera %d - %s | HTTP ERROR: %s\n", 
-      v_cam_bus->getInt(), 
-      v_cam_ip->getString().c_str(), 
-      curl_easy_strerror(curl_res_code));
+    fprintf(stderr, 
+      "VAPIX: Failed to get image data for camera %d - %s\n",
+      v_cam_bus->getInt(),
+      v_cam_ip->getString().c_str()
+    );
   }
+
+
   mutex.unlock();
   return result;
 }
@@ -276,4 +230,43 @@ void CaptureVapix::changed(__attribute__((unused)) VarType *group) {
   mutex.lock();
   // TODO: Do something...
   mutex.unlock();
+}
+
+
+string CaptureVapix::base64_encode(const string &in) {
+
+    std::string out;
+
+    int val = 0, valb = -6;
+    for (uchar c : in) {
+        val = (val << 8) + c;
+        valb += 8;
+        while (valb >= 0) {
+            out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[(val>>valb)&0x3F]);
+            valb -= 6;
+        }
+    }
+    if (valb>-6) out.push_back("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[((val<<8)>>(valb+8))&0x3F]);
+    while (out.size()%4) out.push_back('=');
+    return out;
+}
+
+string CaptureVapix::base64_decode(const string &in) {
+
+    std::string out;
+
+    std::vector<int> T(256,-1);
+    for (int i=0; i<64; i++) T["ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[i]] = i;
+
+    int val=0, valb=-8;
+    for (uchar c : in) {
+        if (T[c] == -1) break;
+        val = (val << 6) + T[c];
+        valb += 6;
+        if (valb >= 0) {
+            out.push_back(char((val>>valb)&0xFF));
+            valb -= 8;
+        }
+    }
+    return out;
 }

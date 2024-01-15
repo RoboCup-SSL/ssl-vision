@@ -34,7 +34,10 @@
 #include <QMutex>
 #include <QSemaphore>
 #include <opencv2/opencv.hpp>
-#include <curl/curl.h>
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 /*!
   \class  CaptureVapix
@@ -82,10 +85,10 @@ private:
 
     // VAPIX specific data
     // const string video_stream_route = ;
-    CURL* curl;
-    string cam_response;
     cv::Mat p_image;
     string complete_url;
+    string img_file_prefix = "camera";
+    std::ifstream img_file;
     static int num_cams; // Shared cam variable between instances
 
 public:
@@ -112,6 +115,8 @@ public:
 private:
     static size_t camImageCallback(void* contents, size_t size, size_t nmemb, std::string* data);
 
-    void setupCurl();
+
+    string base64_encode(const string &in);
+    string base64_decode(const string &in);
 };
 #endif

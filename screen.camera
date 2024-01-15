@@ -1,0 +1,28 @@
+# Configuration
+deflogin on
+autodetach off
+
+caption always
+
+bindkey ^w screen
+bindkey ^p prev
+bindkey ^n next
+bindkey ^x quit
+bind q quit
+bindkey ^l windowlist
+bindkey ^e copy
+
+# Pre-defined tabs
+
+screen 0
+title "cpp"
+stuff "export LD_LIBRARY_PATH=; ./bin/vision\015"
+
+# Change arg numbers below to change camera
+screen 1
+title "python1"
+stuff "python3 video_stream_file_capture.py 1\015"
+
+screen 2
+title "python2"
+stuff "python3 video_stream_file_capture.py 3\015"
