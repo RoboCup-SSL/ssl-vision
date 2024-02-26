@@ -3,8 +3,11 @@ import requests
 import numpy as np
 import base64
 import sys
+import os
 
 list_of_arguments = sys.argv
+
+script_dir = os.path.dirname(os.path.realpath(__file__))
 
 camera_number = list_of_arguments[1]
 url = "http://192.168.1." + camera_number + "/mjpg/video.mjpg"
@@ -41,7 +44,7 @@ try:
                 frame = frame[b + 2:]
                 # img = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
                 encoded_img = base64.b64encode(jpg).decode('utf-8')
-                with open(f"/home/sebbe/ssl-vision/camera{camera_number}.txt", "w") as file:
+                with open(f"{script_dir}/camera{camera_number}.txt", "w") as file:
                     file.write(encoded_img)
                 # Display the MJPEG video stream
                 # cv2.imshow("MJPEG Stream", img)
