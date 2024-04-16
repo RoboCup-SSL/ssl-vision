@@ -176,4 +176,12 @@
 			149.000000
 		</Var>
 	</Var>
+	<Var name="GreenTea" type="list">
+		<Var name="Team Name" type="string">
+			GreenTea
+		</Var>
+		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
+			148.000000
+		</Var>
+	</Var>
 </VarXML>
