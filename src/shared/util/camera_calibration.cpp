@@ -586,23 +586,19 @@ void CameraParameters::calibrateExtrinsicModel(
     std::vector<GVector::vector2d<double>> &p_i,
     int cal_type) const {
 
-    std::vector<cv::Point3d> calib_field_points;
-    std::vector<cv::Point2d> calib_image_points;
+  std::vector<cv::Point3d> calib_field_points = extrinsic_parameters->getCalibFieldPoints();
+  std::vector<cv::Point2d> calib_image_points = extrinsic_parameters->getCalibImagePoints();
 
-  if (cal_type & FOUR_POINT_INITIAL) {
+  if (cal_type & FULL_ESTIMATION && calib_field_points.size() < 4) {
+    std::cerr << "Not enough calibration points for full estimation: " << calib_field_points.size() << std::endl;
+  }
+
+  if (cal_type & FOUR_POINT_INITIAL || calib_field_points.size() < 4) {
     // Use calibration points
     for (uint i = 0; i < p_f.size(); i++) {
       calib_field_points.emplace_back(p_f[i].x, p_f[i].y, p_f[i].z);
       calib_image_points.emplace_back(p_i[i].x, p_i[i].y);
     }
-  } else {
-    calib_field_points = extrinsic_parameters->getCalibFieldPoints();
-    calib_image_points = extrinsic_parameters->getCalibImagePoints();
-  }
-
-  if (calib_field_points.size() < 4) {
-    std::cerr << "Not enough calibration points: " << calib_field_points.size() << std::endl;
-    return;
   }
 
   std::vector<std::vector<cv::Point3f>> object_points(1);
@@ -753,13 +749,13 @@ void CameraParameters::detectCalibrationCorners() {
       } else {
         std::cout << "No calibration points found for "
             << line_field1 << " -> " << line_field2
-            << "( " << line_img1 << " -> " << line_img2 << " )"
+            << " ( " << line_img1 << " -> " << line_img2 << " )"
             << std::endl
             << "found_img: " << found_img
-            << "found_field: " << found_field
+            << " found_field: " << found_field
             << std::endl
             << "intersection img: " << p_intersection_img_undistorted
-            << "intersection_field: " << p_intersection_field
+            << " intersection_field: " << p_intersection_field
             << std::endl;
       }
     }
