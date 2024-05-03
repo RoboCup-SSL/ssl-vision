@@ -1,0 +1,7 @@
+image: gitpod/workspace-full-vnc
+
+tasks:
+  - name: "SSL Vision"
+    before: ./InstallPackagesUbuntu.sh
+    init: make && make install_test_data
+    command: make run
