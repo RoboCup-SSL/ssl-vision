@@ -30,7 +30,6 @@ CaptureVideo::CaptureVideo(VarList* settings) : CaptureInterface(settings) {
 
 
 RawImage CaptureVideo::getFrame() {
-  cv::Mat frame;
   if(!capture.read(frame)) {
     std::cout << "End of video stream reached" << std::endl;
     return img;
@@ -54,13 +53,12 @@ RawImage CaptureVideo::getFrame() {
   return img;
 }
 
-void CaptureVideo::releaseFrame() {
-  //img.clear();
-}
+void CaptureVideo::releaseFrame() {}
 
 
 bool CaptureVideo::startCapture() {
   timestamp = 0.0;
+  frame = cv::Mat();
   capture = cv::VideoCapture(v_cap_file->getString());
   is_capturing = capture.isOpened();
   return is_capturing;
@@ -68,6 +66,7 @@ bool CaptureVideo::startCapture() {
 
 bool CaptureVideo::stopCapture() {
   capture.release();
+  frame.release();
   is_capturing = false;
   return !is_capturing;
 }
