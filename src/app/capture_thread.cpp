@@ -24,6 +24,8 @@
 #include <iostream>
 #include <iomanip>
 
+#include "capture_video.h"
+
 CaptureThread::CaptureThread(int cam_id)
 {
   camId=cam_id;
@@ -41,9 +43,11 @@ CaptureThread::CaptureThread(int cam_id)
   control->addChild( (VarType*) (captureModule= new VarStringEnum("Capture Module",camId < 1 ? "Read from files" : "None")));
   captureModule->addFlags(VARTYPE_FLAG_NOLOAD_ENUM_CHILDREN);
   captureModule->addItem("None");
+  captureModule->addItem("Video");
   captureModule->addItem("Read from files");
   captureModule->addItem("Generator");
   settings->addChild( (VarType*) (fromfile = new VarList("Read from files")));
+  settings->addChild( (VarType*) (video = new VarList("Video")));
   settings->addChild( (VarType*) (generator = new VarList("Generator")));
   settings->addFlags( VARTYPE_FLAG_AUTO_EXPAND_TREE );
   c_stop->addFlags( VARTYPE_FLAG_READONLY );
@@ -57,6 +61,7 @@ CaptureThread::CaptureThread(int cam_id)
   counter=new FrameCounter();
   capture=nullptr;
   captureFiles = new CaptureFromFile(fromfile, camId);
+  captureVideo = new CaptureVideo(video);
   captureGenerator = new CaptureGenerator(generator);
 
 #ifdef DC1394
@@ -136,6 +141,7 @@ VarList * CaptureThread::getSettings() {
 
 CaptureThread::~CaptureThread()
 {
+  delete captureVideo;
   delete captureFiles;
   delete captureGenerator;
   delete counter;
@@ -191,6 +197,8 @@ void CaptureThread::selectCaptureMethod() {
   CaptureInterface * new_capture=nullptr;
   if(captureModule->getString() == "Read from files") {
     new_capture = captureFiles;
+  } else if(captureModule->getString() == "Video") {
+    new_capture = captureVideo;
   } else if(captureModule->getString() == "Generator") {
     new_capture = captureGenerator;
   }

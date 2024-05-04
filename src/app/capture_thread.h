@@ -76,6 +76,7 @@ protected:
   CaptureInterface * captureBlueFox3 = nullptr;
   CaptureInterface * captureFlycap = nullptr;
   CaptureInterface * captureFiles = nullptr;
+  CaptureInterface * captureVideo = nullptr;
   CaptureInterface * captureGenerator = nullptr;
   CaptureInterface * captureBasler = nullptr;
   CaptureInterface * captureSpinnaker = nullptr;
@@ -92,6 +93,7 @@ protected:
   VarList * flycap = nullptr;
   VarList * generator = nullptr;
   VarList * fromfile = nullptr;
+  VarList * video = nullptr;
   VarList * basler = nullptr;
   VarList * spinnaker = nullptr;
   VarList * splitter = nullptr;

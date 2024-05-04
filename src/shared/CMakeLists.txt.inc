@@ -14,6 +14,7 @@ include_directories(${shared_dir}/vartypes/xml)
 
 set (SHARED_SRCS
 	${shared_dir}/capture/capturefromfile.cpp
+	${shared_dir}/capture/capture_video.cpp
 	${shared_dir}/capture/capture_generator.cpp
 	${shared_dir}/capture/captureinterface.cpp
 
