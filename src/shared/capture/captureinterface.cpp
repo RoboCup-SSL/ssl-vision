@@ -46,6 +46,9 @@ void CaptureInterface::readAllParameterValues() {
 }
 
 bool CaptureInterface::copyAndConvertFrame(const RawImage & src, RawImage & target) {
+  if(target.getColorFormat() == COLOR_UNDEFINED)
+    target.setColorFormat(src.getColorFormat());
+
   target.ensure_allocation(target.getColorFormat(),src.getWidth(),src.getHeight());
   target.setTime(src.getTime());
   target.setTimeCam ( src.getTimeCam() );

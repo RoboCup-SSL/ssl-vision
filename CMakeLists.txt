@@ -31,7 +31,7 @@ find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
 # Note: Bluefox SDK is not compatible with some components of OpenCV. Take care when enabling more.
-find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs )
+find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio)
 
 include(src/shared/CMakeLists.txt.inc)
 
