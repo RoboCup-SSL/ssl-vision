@@ -41,6 +41,7 @@ class CaptureVideo : public CaptureInterface {
   VarString* v_cap_file;
   VarBool* v_cap_upscale;
 
+  cv::Mat frame;
   cv::VideoCapture capture;
   RawImage img;
   double timestamp;
