@@ -5,6 +5,7 @@
 #include <sys/time.h>
 #include <iostream>
 #include <cmath>
+#include <cstdint>
 
 class TimeSync {
 

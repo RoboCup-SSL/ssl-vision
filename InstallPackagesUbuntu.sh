@@ -3,7 +3,7 @@
 sudo apt-get update
 
 readonly ubuntu_release="$(grep "DISTRIB_RELEASE" /etc/lsb-release | sed -e 's/DISTRIB_RELEASE=//')"
-if [[ "${ubuntu_release}" == "22.04" ]]; then
+if [[ "${ubuntu_release}" == "22.04" ]] || [[ "${ubuntu_release}" == "24.04" ]]; then
   sudo apt-get install -qq \
     g++ cmake \
     libeigen3-dev freeglut3-dev libopencv-dev \
