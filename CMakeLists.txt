@@ -1,4 +1,7 @@
+# Minimum cmake version is set to current version in Ubuntu 20.04
+cmake_minimum_required(VERSION 3.16.3)
 project(ssl-vision)
+
 set(OpenGL_GL_PREFERENCE LEGACY)
 set(USE_DC1394 TRUE CACHE BOOL "Compile with DC1394 driver (firewire cameras)")
 set(USE_SPINNAKER FALSE CACHE BOOL "Compile with Spinnaker driver (FLIR cameras)")
@@ -11,9 +14,6 @@ set(USE_SPLITTER FALSE CACHE BOOL "Compile with Camera splitter support (virtual
 if(USE_DC1394 AND USE_mvIMPACT)
 	message(FATAL_ERROR "DC1394 and mvImpact are not compatible: mvImpact crashes when creating device manager")
 endif()
-
-# Minimum cmake version is set to current version in Ubuntu 20.04
-cmake_minimum_required(VERSION 3.16.3)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
