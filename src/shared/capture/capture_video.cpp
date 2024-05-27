@@ -39,6 +39,11 @@ RawImage CaptureVideo::getFrame() {
   img.ensure_allocation(ColorFormat::COLOR_RGB8, factor*frame.cols, factor*frame.rows);
   cv::Mat dstImg(img.getHeight(), img.getWidth(), CV_8UC3, img.getData());
 
+  /* ssl-vision expects typical color images scaled up from the raw bayer matrix
+   * (4 sensor fields RG-GB are interpolated into four RGB pixels).
+   * To support downscaled image formats (4 color fields RG-GB into 1 RGB value)
+   * where ssl-vision needs the interpolated resolution to work as usual
+   * this upscaling option has been added. */
   if (v_cap_upscale->getBool()) {
     cv::resize(frame, dstImg, dstImg.size());
     cvtColor(dstImg, dstImg, cv::COLOR_BGR2RGB);
@@ -53,7 +58,9 @@ RawImage CaptureVideo::getFrame() {
   return img;
 }
 
-void CaptureVideo::releaseFrame() {}
+void CaptureVideo::releaseFrame() {
+  // frame and img are not cleared here to prevent unnecessary reallocation with the next frame.
+}
 
 
 bool CaptureVideo::startCapture() {
