@@ -50,6 +50,7 @@ workflows:
     jobs:
       - build-ubuntu-2004
       - build-ubuntu-2204
-      - build-ubuntu-2404
+      # Image 'cimg/base:current-24.04' is not yet available. Once it is, uncomment the following block.
+      #      - build-ubuntu-2404
       - build-splitter
       - build-spinnaker
