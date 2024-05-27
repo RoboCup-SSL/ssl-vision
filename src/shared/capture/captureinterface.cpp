@@ -46,10 +46,8 @@ void CaptureInterface::readAllParameterValues() {
 }
 
 bool CaptureInterface::copyAndConvertFrame(const RawImage & src, RawImage & target) {
-  if(target.getColorFormat() == COLOR_UNDEFINED) // pixel size of COLOR_UNDEFINED is 0, causing a segmentation fault during the memcpy
-    target.setColorFormat(src.getColorFormat());
-
-  target.ensure_allocation(target.getColorFormat(),src.getWidth(),src.getHeight());
+  target.setColorFormat(src.getColorFormat());
+  target.ensure_allocation(src.getColorFormat(),src.getWidth(),src.getHeight());
   target.setTime(src.getTime());
   target.setTimeCam ( src.getTimeCam() );
   memcpy(target.getData(),src.getData(),src.getNumBytes());
