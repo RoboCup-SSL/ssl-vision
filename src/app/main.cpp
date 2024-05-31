@@ -82,6 +82,8 @@ void printPathWarning() {
 int main(int argc, char *argv[])
 {
   signal(SIGINT,HandleStop);
+  // ssl-vision does not currently support High Dpi scaling in the LUT widget. Disabling it completely for now.
+  QApplication::setAttribute( Qt::AA_DisableHighDpiScaling );
   QApplication app(argc, argv);
 
   GetOpt opts(argc, argv);
