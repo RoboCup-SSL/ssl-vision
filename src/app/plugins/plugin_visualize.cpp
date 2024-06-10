@@ -19,6 +19,7 @@
 */
 //========================================================================
 #include "plugin_visualize.h"
+#include "plugin_camera_intrinsic_calib.h"
 #include <sobel.h>
 #include <opencv2/opencv.hpp>
 #include "convex_hull.h"
@@ -40,10 +41,14 @@ PluginVisualize::PluginVisualize(
   _v_thresholded = new VarBool("thresholded", true);
   _v_blobs = new VarBool("blobs", true);
   _v_camera_calibration = new VarBool("camera calibration", true);
+  _v_camera_calibration_markers = new VarBool("camera calibration markers", false);
   _v_calibration_result = new VarBool("calibration result", true);
+  _v_calibration_result_pillars = new VarBool("calibration result pillars", false);
+  _v_calibration_result_pillars_height = new VarDouble("calibration result pillars height", 150.0);
   _v_detected_edges = new VarBool("detected edges", false);
   _v_complete_sobel = new VarBool("complete edge detection", false);
   _v_complete_sobel->setBool(false);
+  _v_chessboard = new VarBool("chessboard", false);
 
   _v_mask_hull = new VarBool("image mask hull", true);
 
@@ -54,10 +59,14 @@ PluginVisualize::PluginVisualize(
   _settings->addChild(_v_thresholded);
   _settings->addChild(_v_blobs);
   _settings->addChild(_v_camera_calibration);
+  _settings->addChild(_v_camera_calibration_markers);
   _settings->addChild(_v_calibration_result);
+  _settings->addChild(_v_calibration_result_pillars);
+  _settings->addChild(_v_calibration_result_pillars_height);
   _settings->addChild(_v_detected_edges);
   _settings->addChild(_v_complete_sobel);
   _settings->addChild(_v_mask_hull);
+  _settings->addChild(_v_chessboard);
   _threshold_lut=0;
   edge_image = 0;
   temp_grey_image = 0;
@@ -113,6 +122,10 @@ void PluginVisualize::DrawCameraImage(
       color.r = color.g = color.b = ((color.r + color.g + color.b)/3);
       vis_ptr[i] = color;
     }
+  }
+  if (_v_chessboard->getBool()) {
+    DrawChessboard(data, vis_frame);
+    DrawChessboardCalibrationPoints(data, vis_frame);
   }
 }
 
@@ -173,8 +186,15 @@ void PluginVisualize::DrawCameraCalibration(
   // Principal point
   rgb ppoint_draw_color;
   ppoint_draw_color.set(255, 0, 0);
-  int x = camera_parameters.principal_point_x->getDouble();
-  int y = camera_parameters.principal_point_y->getDouble();
+  int x;
+  int y;
+  if (camera_parameters.use_opencv_model->getBool()) {
+    x = (int) camera_parameters.intrinsic_parameters->principal_point_x->getDouble();
+    y = (int) camera_parameters.intrinsic_parameters->principal_point_y->getDouble();
+  } else {
+    x = (int) camera_parameters.principal_point_x->getDouble();
+    y = (int) camera_parameters.principal_point_y->getDouble();
+  }
   vis_frame->data.drawFatLine(x-15, y-15, x+15, y+15, ppoint_draw_color);
   vis_frame->data.drawFatLine(x+15, y-15, x-15, y+15, ppoint_draw_color);
   // Calibration points
@@ -200,6 +220,24 @@ void PluginVisualize::DrawCameraCalibration(
   }
 }
 
+void PluginVisualize::DrawCameraCalibrationMarkers(
+    FrameData* data, VisualizationFrame* vis_frame) {
+  if (camera_parameters.use_opencv_model->getBool()) {
+    int size = 3;
+    int sizeFat = 11;
+    const rgb color = RGB::Pink;
+    for (const auto &point : camera_parameters.extrinsic_parameters->getCalibImagePoints()) {
+      int px = (int) point.x - size/2;
+      int py = (int) point.y - size/2;
+      vis_frame->data.drawBox(px, py, size, size, color);
+      int pfx = (int) point.x - sizeFat/2;
+      int pfy = (int) point.y - sizeFat/2;
+      vis_frame->data.drawFatBox(pfx, pfy, sizeFat, sizeFat, color);
+    }
+  }
+}
+
+
 void PluginVisualize::DrawCalibrationResult(
     FrameData* data, VisualizationFrame* vis_frame) {
   int steps_per_line(20);
@@ -220,6 +258,25 @@ void PluginVisualize::DrawCalibrationResult(
     drawFieldArc(center, arc.radius->getDouble(), arc.a1->getDouble(),
                  arc.a2->getDouble(), steps_per_line, vis_frame);
   }
+
+  if (_v_calibration_result_pillars->getBool()) {
+    for (size_t i = 0; i < real_field.field_lines.size(); ++i) {
+      const FieldLine &line_segment = *(real_field.field_lines[i]);
+      const GVector::vector3d<double> p1z0(line_segment.p1_x->getDouble(),
+                                           line_segment.p1_y->getDouble(), 0.0);
+      const GVector::vector3d<double> p2z0(line_segment.p2_x->getDouble(),
+                                           line_segment.p2_y->getDouble(), 0.0);
+      const GVector::vector3d<double> p1z1(line_segment.p1_x->getDouble(),
+                                           line_segment.p1_y->getDouble(),
+                                           _v_calibration_result_pillars_height->getDouble());
+      const GVector::vector3d<double> p2z1(line_segment.p2_x->getDouble(),
+                                           line_segment.p2_y->getDouble(),
+                                           _v_calibration_result_pillars_height->getDouble());
+      drawFieldLine(p1z0, p1z1, steps_per_line, vis_frame);
+      drawFieldLine(p2z0, p2z1, steps_per_line, vis_frame);
+    }
+  }
+
   real_field.field_markings_mutex.unlock();
 }
 
@@ -302,9 +359,10 @@ void PluginVisualize::DrawDetectedEdges(
   for (size_t ls = 0; ls < camera_parameters.calibrationSegments.size(); ++ls) {
     const CameraParameters::CalibrationData& segment =
         camera_parameters.calibrationSegments[ls];
-    for(unsigned int edge=0; edge<segment.imgPts.size(); ++edge) {
-      if (!(segment.imgPts[edge].second)) continue;
-      const GVector::vector2d<double>& image_point = segment.imgPts[edge].first;
+    for(unsigned int edge=0; edge<segment.points.size(); ++edge) {
+      if (!(segment.points[edge].detected)) continue;
+      const GVector::vector2d<double>& image_point = segment.points[edge].img_point;
+      const GVector::vector2d<double>& image_closest_point = segment.points[edge].img_closestPointToSegment;
       vis_frame->data.drawBox(
           image_point.x - 5, image_point.y - 5, 11, 11, edge_draw_color);
       const double alpha = segment.alphas[edge];
@@ -315,6 +373,13 @@ void PluginVisualize::DrawDetectedEdges(
             (segment.p2 - segment.p1).norm();
         DrawEdgeTangent(image_point, field_point, field_tangent, vis_frame,
                         edge_draw_color);
+        if (image_closest_point.nonzero()) {
+          vis_frame->data.drawLine((int)image_point.x,
+                                   (int)image_point.y,
+                                   (int)image_closest_point.x,
+                                   (int)image_closest_point.y,
+                                   RGB::Pink);
+        }
       } else {
         const double angle =
             alpha * segment.theta1 + (1.0 - alpha) * segment.theta2;
@@ -430,6 +495,11 @@ ProcessResult PluginVisualize::process(
       DrawCameraCalibration(data, vis_frame);
     }
 
+    // Camera calibration
+    if (_v_camera_calibration_markers->getBool()) {
+      DrawCameraCalibrationMarkers(data, vis_frame);
+    }
+
     // Result of camera calibration, draws field to image
     if (_v_calibration_result->getBool()) {
       DrawCalibrationResult(data, vis_frame);
@@ -504,5 +574,38 @@ void PluginVisualize::drawFieldLine(
 
     lastInWorld = nextInWorld;
     lastInImage = nextInImage;
+  }
+}
+
+void PluginVisualize::DrawChessboard(FrameData *data,
+                                     VisualizationFrame *vis_frame) {
+  Chessboard *chessboard;
+  if ((chessboard = reinterpret_cast<Chessboard*>(data->map.get("chessboard"))) == nullptr) {
+    std::cerr << "chessboard_found key missing from data map.\n";
+    return;
+  }
+
+  cv::Mat chessboard_img(vis_frame->data.getHeight(),
+                         vis_frame->data.getWidth(), CV_8UC3,
+                         vis_frame->data.getData());
+
+  cv::drawChessboardCorners(chessboard_img, chessboard->pattern_size, chessboard->corners,
+                            chessboard->pattern_was_found);
+}
+
+void PluginVisualize::DrawChessboardCalibrationPoints(FrameData *data, VisualizationFrame *vis_frame) {
+  std::vector<std::vector<cv::Point2f>> *chessboard_img_points;
+  if ((chessboard_img_points = reinterpret_cast<std::vector<std::vector<cv::Point2f>> *>(data->map.get("chessboard_img_points"))) == nullptr) {
+    return;
+  }
+
+  int size = 3;
+  const rgb color = RGB::Blue;
+  for (const auto &points : *chessboard_img_points) {
+    for (const auto &point : points) {
+      int x = (int) point.x - size/2;
+      int y = (int) point.y - size/2;
+      vis_frame->data.drawBox(x, y, size, size, color);
+    }
   }
 }

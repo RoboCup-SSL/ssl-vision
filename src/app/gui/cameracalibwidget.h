@@ -37,16 +37,19 @@ public:
     void focusInEvent ( QFocusEvent * event );
     CameraCalibrationWidget(CameraParameters &cp);
     ~CameraCalibrationWidget();
-    
+
     CameraParameters& camera_parameters;
-    
+
     bool getDetectEdges() {return detectEdges;}
-    
+
     void resetDetectEdges() {detectEdges = false;}
-    
-    void set_slider_from_vars();    
-    
+
+    void set_slider_from_vars();
+
   protected:
+    QPushButton* fullCalibrationButton;
+    QLabel* errorValueLabel;
+
     QSlider* lineSearchCorridorWidthSlider;
     QLabel* lineSearchCorridorWidthLabelRight;
     QSlider* cameraHeightSlider;
@@ -54,6 +57,7 @@ public:
     QSlider* distortionSlider;
     QLabel* distortionLabelRight;
     QLineEdit* globalCameraId;
+    QCheckBox* openCvCalibrationCheckBox;
     bool detectEdges;
 
     public slots:
@@ -65,6 +69,13 @@ public:
     void cameraheight_slider_changed(int val);
     void distortion_slider_changed(int val);
     void line_search_slider_changed(int val);
+    void global_camera_id_changed();
+    void global_camera_id_vartype_changed();
+    void opencvCalibrationTypeChanged(int val);
+    void opencvCalibrationTypeChangedVarType();
+
+private:
+  void setEnabledBasedOnModel();
 };
 
 #endif

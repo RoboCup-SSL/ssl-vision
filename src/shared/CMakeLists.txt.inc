@@ -35,7 +35,9 @@ set (SHARED_SRCS
 
 	${shared_dir}/util/affinity_manager.cpp
 	${shared_dir}/util/camera_calibration.cpp
+	${shared_dir}/util/camera_parameters.cpp
 	${shared_dir}/util/conversions.cpp
+	${shared_dir}/util/conversions_greyscale.cpp
 	${shared_dir}/util/global_random.cpp
 	${shared_dir}/util/image.cpp
 	${shared_dir}/util/image_io.cpp
