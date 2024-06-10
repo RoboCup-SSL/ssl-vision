@@ -736,11 +736,7 @@ void CameraParameters::detectCalibrationCorners() {
           && found_field
           // check if intersection is on line segment
           && contains(rect_line1, p_intersection_field, 10)
-          && contains(rect_line2, p_intersection_field, 10)
-          && p_intersection_img_undistorted.x >= 0
-          && p_intersection_img_undistorted.y >= 0
-          && p_intersection_img_undistorted.x < additional_calibration_information->imageWidth->getInt()
-          && p_intersection_img_undistorted.y < additional_calibration_information->imageHeight->getInt()) {
+          && contains(rect_line2, p_intersection_field, 10)) {
         cv::Point3d p_intersection_img_undistorted_3d(
             p_intersection_img_undistorted.x, p_intersection_img_undistorted.y, 0);
         points_intersection_img_undistorted.push_back(p_intersection_img_undistorted_3d);
@@ -771,7 +767,16 @@ void CameraParameters::detectCalibrationCorners() {
                       intrinsic_parameters->dist_coeffs,
                       points_img_intersect);
     for (int i = 0; i < (int) points_img_intersect.size(); i++) {
-      extrinsic_parameters->addCalibrationPointSet(points_img_intersect[i], points_intersection_field[i]);
+      if (points_img_intersect[i].x >= 0
+         && points_img_intersect[i].y >= 0
+         && points_img_intersect[i].x < additional_calibration_information->imageWidth->getInt()
+         && points_img_intersect[i].y < additional_calibration_information->imageHeight->getInt()) {
+        extrinsic_parameters->addCalibrationPointSet(points_img_intersect[i], points_intersection_field[i]);
+      } else {
+        std::cout << "Calibration point outside image: "
+          << points_img_intersect[i]
+          << std::endl;
+      }
     }
   }
 }
