@@ -191,6 +191,7 @@ public:
   VarDouble* max_robot_radius;
   VarInt* num_cameras_total;
   VarInt* num_cameras_local;
+  VarBool* center_line;
   VarInt* var_num_lines;
   VarInt* var_num_arcs;
   VarList* field_lines_list;
