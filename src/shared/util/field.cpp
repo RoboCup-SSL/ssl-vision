@@ -427,7 +427,10 @@ RoboCupField::RoboCupField() {
   shapeTypeMap["RightFieldLeftPenaltyStretch"] = RightFieldLeftPenaltyStretch;
   shapeTypeMap["RightFieldRightPenaltyStretch"] = RightFieldRightPenaltyStretch;
 
-  updateFieldLinesAndArcs();
+  if (field_lines.empty() && field_arcs.empty()) {
+    // Generate default field lines and arcs
+    updateFieldLinesAndArcs();
+  }
 
   emit calibrationChanged();
 }
