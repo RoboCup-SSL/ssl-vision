@@ -184,4 +184,12 @@
 			148.000000
 		</Var>
 	</Var>
+  <Var name="DelftMercurians" type="list">
+		<Var name="Team Name" type="string">
+			DelftMercurians
+		</Var>
+		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
+			150.000000
+		</Var>
+	</Var>
 </VarXML>
