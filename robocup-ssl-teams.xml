@@ -72,6 +72,14 @@
 			146.000000
 		</Var>
 	</Var>
+	<Var name="TurtleRabbit" type="list">
+		<Var name="Team Name" type="string">
+			TurtleRabbit
+		</Var>
+		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
+			150.000000
+		</Var>
+	</Var>
 	<Var name="UMass Minutebots" type="list">
 		<Var name="Team Name" type="string">
 			UMass Minutebots
