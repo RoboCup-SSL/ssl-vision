@@ -61,7 +61,7 @@
 			RoboTeam Twente
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			148.000000
+			145.000000
 		</Var>
 	</Var>
 	<Var name="TIGERs Mannheim" type="list">
