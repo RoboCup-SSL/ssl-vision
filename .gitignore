@@ -1,7 +1,5 @@
 /bin/**
 /build/**
-/robocup-*
-/settings.xml
 /backup
 /test-data
 /.idea
