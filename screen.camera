@@ -16,7 +16,7 @@ bindkey ^e copy
 
 screen 0
 title "cpp"
-stuff "export LD_LIBRARY_PATH=; ./bin/vision\015"
+stuff "export LD_LIBRARY_PATH=; ./bin/vision -s\015"
 
 # Change arg numbers below to change camera
 screen 1

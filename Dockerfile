@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y \
 RUN pip install opencv-python requests
 
 # Clone the GitHub repository
+ADD https://api.github.com/repos/LiU-SeeGoals/ssl-vision/git/refs/heads/image-file-reading version.json
 RUN git clone https://github.com/LiU-SeeGoals/ssl-vision.git
 
 # Change working directory to the cloned repository
