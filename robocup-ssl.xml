@@ -6832,7 +6832,7 @@
 				<Var name="re-read params" type="trigger">
 				</Var>
 				<Var name="Capture Module" type="stringenum">
-					None
+					VAPIX
 					<Var name="0" type="string">
 						None
 					</Var>
@@ -7729,37 +7729,37 @@
 		<Var name="Camera Calibrator" type="list">
 			<Var name="Camera Parameters" type="list">
 				<Var name="focal length" type="double" minval="" maxval="">
-					500,000000
+					907,443616
 				</Var>
 				<Var name="principal point x" type="double" minval="" maxval="">
-					390,000000
+					720,483966
 				</Var>
 				<Var name="principal point y" type="double" minval="" maxval="">
-					290,000000
+					653,543924
 				</Var>
 				<Var name="distortion" type="double" minval="-1,000000" maxval="2,000000">
-					0,000000
+					0,740000
 				</Var>
 				<Var name="q0" type="double" minval="" maxval="">
-					0,700000
+					-0,685595
 				</Var>
 				<Var name="q1" type="double" minval="" maxval="">
-					-0,700000
+					-0,711962
 				</Var>
 				<Var name="q2" type="double" minval="" maxval="">
-					0,000000
+					0,151051
 				</Var>
 				<Var name="q3" type="double" minval="" maxval="">
-					0,000000
+					0,015937
 				</Var>
 				<Var name="tx" type="double" minval="" maxval="">
-					0,000000
+					872,498272
 				</Var>
 				<Var name="ty" type="double" minval="" maxval="">
-					1250,000000
+					-2074,423242
 				</Var>
 				<Var name="tz" type="double" minval="0,000000" maxval="6500,000000">
-					3500,000000
+					2600,000000
 				</Var>
 			</Var>
 			<Var name="Calibration Parameters" type="list">
@@ -7768,16 +7768,16 @@
 						CP 0
 					</Var>
 					<Var name="Control point 0 image x" type="double" minval="" maxval="">
-						50,000000
+						456,000000
 					</Var>
 					<Var name="Control point 0 image y" type="double" minval="" maxval="">
-						50,000000
+						159,000000
 					</Var>
 					<Var name="Control point 0 field x" type="double" minval="" maxval="">
 						0,000000
 					</Var>
 					<Var name="Control point 0 field y" type="double" minval="" maxval="">
-						0,000000
+						-2175,000000
 					</Var>
 				</Var>
 				<Var name="Control Point 1" type="list">
@@ -7785,16 +7785,16 @@
 						CP 1
 					</Var>
 					<Var name="Control point 1 image x" type="double" minval="" maxval="">
-						50,000000
+						1473,000000
 					</Var>
 					<Var name="Control point 1 image y" type="double" minval="" maxval="">
-						100,000000
+						143,000000
 					</Var>
 					<Var name="Control point 1 field x" type="double" minval="" maxval="">
 						0,000000
 					</Var>
 					<Var name="Control point 1 field y" type="double" minval="" maxval="">
-						0,000000
+						2175,000000
 					</Var>
 				</Var>
 				<Var name="Control Point 2" type="list">
@@ -7802,16 +7802,16 @@
 						CP 2
 					</Var>
 					<Var name="Control point 2 image x" type="double" minval="" maxval="">
-						50,000000
+						1619,000000
 					</Var>
 					<Var name="Control point 2 image y" type="double" minval="" maxval="">
-						150,000000
+						930,000000
 					</Var>
 					<Var name="Control point 2 field x" type="double" minval="" maxval="">
-						0,000000
+						3050,000000
 					</Var>
 					<Var name="Control point 2 field y" type="double" minval="" maxval="">
-						0,000000
+						2175,000000
 					</Var>
 				</Var>
 				<Var name="Control Point 3" type="list">
@@ -7819,16 +7819,16 @@
 						CP 3
 					</Var>
 					<Var name="Control point 3 image x" type="double" minval="" maxval="">
-						50,000000
+						312,000000
 					</Var>
 					<Var name="Control point 3 image y" type="double" minval="" maxval="">
-						200,000000
+						913,000000
 					</Var>
 					<Var name="Control point 3 field x" type="double" minval="" maxval="">
-						0,000000
+						3050,000000
 					</Var>
 					<Var name="Control point 3 field y" type="double" minval="" maxval="">
-						0,000000
+						-2175,000000
 					</Var>
 				</Var>
 				<Var name="camera index" type="int" minval="" maxval="">
@@ -7838,7 +7838,7 @@
 					1,000000
 				</Var>
 				<Var name="line search corridor width" type="double" minval="" maxval="">
-					280,000000
+					793,000000
 				</Var>
 				<Var name="Image boundary for edge detection" type="double" minval="" maxval="">
 					10,000000
@@ -7865,10 +7865,10 @@
 					150,000000
 				</Var>
 				<Var name="Image width" type="int" minval="0" maxval="">
-					0
+					1920
 				</Var>
 				<Var name="Image height" type="int" minval="0" maxval="">
-					0
+					1080
 				</Var>
 			</Var>
 		</Var>
@@ -7897,6 +7897,4234 @@
 		</Var>
 		<Var name="Auto Color Calibration" type="list">
 			<Var name="Calibration Points" type="list">
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						119
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						106
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						126
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						93
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						108
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						92
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						110
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						89
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						112
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						124
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						121
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						106
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						93
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						111
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						115
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						106
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						120
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						106
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						133
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						103
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						133
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						123
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						108
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						126
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						111
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						108
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						125
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Orange sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						111
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						209
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						101
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						2
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Orange sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						113
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						207
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						97
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						2
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Orange sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						95
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						209
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						104
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						2
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Orange sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						118
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						142
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						117
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						2
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Orange sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						77
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						201
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						109
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						2
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Orange sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						91
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						188
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						109
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						2
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Orange sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						82
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						209
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						99
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						2
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Orange sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						59
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						213
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						106
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						2
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Orange sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						124
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						166
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						117
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						2
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Orange sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						86
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						176
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						111
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						2
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Orange sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						107
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						156
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						118
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						2
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Yellow sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						230
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						141
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						99
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						3
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Yellow sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						222
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						144
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						91
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						3
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Yellow sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						218
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						148
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						90
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						3
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Yellow sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						205
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						155
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						74
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						3
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Yellow sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						202
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						155
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						65
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						3
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Yellow sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						199
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						153
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						68
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						3
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Yellow sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						213
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						151
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						69
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						3
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Yellow sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						189
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						153
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						70
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						3
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Yellow sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						221
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						147
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						95
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						3
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Yellow sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						226
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						144
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						92
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						3
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Yellow sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						218
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						146
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						84
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						3
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Yellow sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						211
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						152
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						83
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						3
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Yellow sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						196
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						157
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						67
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						3
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Yellow sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						218
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						148
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						74
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						3
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Yellow sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						226
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						144
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						93
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						3
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						199
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						107
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						187
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						109
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						179
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						127
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						118
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						184
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						117
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						201
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						133
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						109
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						194
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						112
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						199
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						111
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						195
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						110
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						206
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						127
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						116
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						203
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						107
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						207
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						112
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						207
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						114
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						206
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						112
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						209
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						112
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						212
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						116
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						208
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						115
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						208
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						113
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						202
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						114
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						201
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						113
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						205
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						112
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						214
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						112
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						210
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						114
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						213
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						115
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						200
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						116
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						7
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Pink sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						125
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						165
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						164
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						5
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Pink sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						165
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						164
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						5
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Pink sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						127
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						159
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						160
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						5
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Pink sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						160
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						160
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						5
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Pink sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						149
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						162
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						157
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						5
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Pink sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						146
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						156
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						152
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						5
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Pink sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						134
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						159
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						157
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						5
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Pink sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						169
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						165
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						5
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Pink sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						122
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						167
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						164
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						5
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Pink sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						116
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						173
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						170
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						5
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Pink sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						164
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						161
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						5
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Pink sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						110
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						164
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						158
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						5
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Pink sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						97
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						158
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						157
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						5
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						107
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						133
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						107
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						108
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						110
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						127
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						115
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						111
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						126
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						105
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						107
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						124
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						114
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						133
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						105
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						109
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						123
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						108
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						127
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						101
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						103
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						103
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						111
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						126
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						116
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						114
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						122
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						127
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						116
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						124
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						121
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						126
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						126
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						114
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						134
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						109
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						126
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						110
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						133
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						107
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						125
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						113
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						125
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						134
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						114
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						127
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						116
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						112
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						112
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						127
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						111
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						127
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						114
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						109
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						111
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						111
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						115
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						133
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						133
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						113
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						134
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						112
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						112
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						112
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						114
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						114
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						115
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						115
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						134
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						112
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						114
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						112
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						134
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						113
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						114
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						112
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						127
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						112
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						115
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						126
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						125
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						126
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						111
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						127
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						109
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						127
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						126
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Black sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						99
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						9
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						116
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						108
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						125
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						111
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						108
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						124
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						105
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						109
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						121
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						108
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						109
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						124
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						104
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						110
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						122
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						107
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						109
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						120
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						100
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						109
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						125
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						105
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						110
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						123
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						105
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						109
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						125
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="Field Green sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						107
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						109
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						124
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						1
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="White sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						232
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						8
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="White sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						229
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						8
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="White sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						235
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						8
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="White sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						232
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						127
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						8
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="White sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						233
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						8
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="White sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						232
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						132
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						8
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="White sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						230
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						130
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						131
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						8
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="White sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						236
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						8
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="White sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						247
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						125
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						128
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						8
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="White sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						247
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						127
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						127
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						8
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
+				<Var name="White sample" type="list">
+					<Var name="use" type="bool">
+						true
+					</Var>
+					<Var name="y" type="int" minval="0" maxval="255">
+						248
+					</Var>
+					<Var name="u" type="int" minval="0" maxval="255">
+						127
+					</Var>
+					<Var name="v" type="int" minval="0" maxval="255">
+						129
+					</Var>
+					<Var name="channel" type="int" minval="0" maxval="">
+						8
+					</Var>
+					<Var name="maxAngle" type="double" minval="0,010000" maxval="1,570000">
+						0,300000
+					</Var>
+					<Var name="maxDistance" type="double" minval="0,000000" maxval="10000,000000">
+						3000,000000
+					</Var>
+					<Var name="weight" type="double" minval="0,000000" maxval="10,000000">
+						1,000000
+					</Var>
+					<Var name="Remove" type="trigger">
+					</Var>
+				</Var>
 			</Var>
 			<Var name="Defaults" type="list">
 				<Var name="Weights" type="list">

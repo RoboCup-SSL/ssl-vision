@@ -4,7 +4,7 @@ FROM ubuntu:22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Set Qt to use the offscreen platform
-ENV QT_QPA_PLATFORM=offscreen
+#ENV QT_QPA_PLATFORM=offscreen
 
 # Pre-set timezone to Europe/Stockholm to avoid tzdata interactive prompt
 RUN ln -fs /usr/share/zoneinfo/Europe/Stockholm /etc/localtime && \
