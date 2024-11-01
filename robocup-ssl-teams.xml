@@ -192,7 +192,7 @@
 			148.000000
 		</Var>
 	</Var>
-  <Var name="DelftMercurians" type="list">
+	<Var name="DelftMercurians" type="list">
 		<Var name="Team Name" type="string">
 			DelftMercurians
 		</Var>
@@ -200,12 +200,20 @@
 			150.000000
 		</Var>
 	</Var>
-  <Var name="luhbots" type="list">
+	<Var name="luhbots" type="list">
 		<Var name="Team Name" type="string">
 			luhbots
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
 			138.000000
+		</Var>
+	</Var>
+	<Var name="ITAndroids" type="list">
+		<Var name="Team Name" type="string">
+			ITAndroids
+		</Var>
+		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
+			141.000000
 		</Var>
 	</Var>
 </VarXML>
