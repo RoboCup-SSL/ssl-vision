@@ -232,4 +232,12 @@
 			90.000000
 		</Var>
 	</Var>
+  <Var name="The Bots" type="list">
+		<Var name="Team Name" type="string">
+			The Bots
+		</Var>
+		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
+			110.000000
+		</Var>
+	</Var>
 </VarXML>
