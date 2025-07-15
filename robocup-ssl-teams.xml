@@ -69,7 +69,7 @@
 			TIGERs Mannheim
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			146.000000
+			143.000000
 		</Var>
 	</Var>
 	<Var name="TurtleRabbit" type="list">
