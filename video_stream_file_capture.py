@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import cv2
 import requests
 import numpy as np
@@ -14,7 +16,7 @@ url = "http://192.168.1." + camera_number + "/mjpg/video.mjpg"
 
 # Open a connection to the MJPEG stream
 username = "root"
-password = "XdXK3KupL5AGb"
+password = "raswa151"
 response = requests.get(url, auth=(username, password), stream=True)
 bytes_iterator = response.iter_content(chunk_size=4096)
 
