@@ -361,6 +361,8 @@ RoboCupField::RoboCupField() {
        "Total Number of Cameras", 2);
   num_cameras_local = new VarInt(
        "Local Number of Cameras", 2);
+  center_line = new VarBool(
+    "Center Line", true);
 
   updateShapes = new VarTrigger("Field Lines/Arcs","Update");
   applyDivisionA = new VarTrigger("Division A", "Apply");
@@ -390,6 +392,7 @@ RoboCupField::RoboCupField() {
   settings->addChild(max_robot_radius);
   settings->addChild(num_cameras_total);
   settings->addChild(num_cameras_local);
+  settings->addChild(center_line);
   settings->addChild(var_num_lines);
   settings->addChild(var_num_arcs);
   settings->addChild(updateShapes);
@@ -424,7 +427,10 @@ RoboCupField::RoboCupField() {
   shapeTypeMap["RightFieldLeftPenaltyStretch"] = RightFieldLeftPenaltyStretch;
   shapeTypeMap["RightFieldRightPenaltyStretch"] = RightFieldRightPenaltyStretch;
 
-  updateFieldLinesAndArcs();
+  if (field_lines.empty() && field_arcs.empty()) {
+    // Generate default field lines and arcs
+    updateFieldLinesAndArcs();
+  }
 
   emit calibrationChanged();
 }
@@ -445,6 +451,7 @@ RoboCupField::~RoboCupField() {
   delete max_robot_radius;
   delete num_cameras_total;
   delete num_cameras_local;
+  delete center_line;
   delete var_num_lines;
   delete var_num_arcs;
   for (size_t i = 0; i < field_lines.size(); ++i) {
@@ -699,13 +706,17 @@ void RoboCupField::updateFieldLinesAndArcs() {
     field_lines.push_back(new FieldLine("LeftGoalLine", -fieldLengthHalf, -fieldWidthHalf, -fieldLengthHalf, fieldWidthHalf, line_thickness->getDouble()));
     field_lines.push_back(new FieldLine("RightGoalLine", fieldLengthHalf, -fieldWidthHalf, fieldLengthHalf, fieldWidthHalf, line_thickness->getDouble()));
     field_lines.push_back(new FieldLine("HalfwayLine", 0, -fieldWidthHalf, 0, fieldWidthHalf, line_thickness->getDouble()));
-    field_lines.push_back(new FieldLine("CenterLine", -fieldLengthHalf, 0, fieldLengthHalf, 0, line_thickness->getDouble()));
     field_lines.push_back(new FieldLine("LeftPenaltyStretch", -penAreaX, -penAreaY, -penAreaX, penAreaY, line_thickness->getDouble()));
     field_lines.push_back(new FieldLine("RightPenaltyStretch", penAreaX, -penAreaY, penAreaX, penAreaY, line_thickness->getDouble()));
     field_lines.push_back(new FieldLine("LeftFieldLeftPenaltyStretch", -fieldLengthHalf, -penAreaY, -penAreaX, -penAreaY, line_thickness->getDouble()));
     field_lines.push_back(new FieldLine("LeftFieldRightPenaltyStretch", -fieldLengthHalf, penAreaY, -penAreaX, penAreaY, line_thickness->getDouble()));
     field_lines.push_back(new FieldLine("RightFieldRightPenaltyStretch", fieldLengthHalf, -penAreaY, penAreaX, -penAreaY, line_thickness->getDouble()));
     field_lines.push_back(new FieldLine("RightFieldLeftPenaltyStretch", fieldLengthHalf, penAreaY, penAreaX, penAreaY, line_thickness->getDouble()));
+
+    if (center_line->getBool()) {
+      field_lines.push_back(
+        new FieldLine("CenterLine", -fieldLengthHalf, 0, fieldLengthHalf, 0, line_thickness->getDouble()));
+    }
 
     var_num_lines->setInt(field_lines.size());
     for (size_t i = 0; i < field_lines.size(); ++i) {

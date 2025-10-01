@@ -61,7 +61,7 @@
 			RoboTeam Twente
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			148.000000
+			145.000000
 		</Var>
 	</Var>
 	<Var name="TIGERs Mannheim" type="list">
@@ -69,7 +69,15 @@
 			TIGERs Mannheim
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			146.000000
+			143.000000
+		</Var>
+	</Var>
+	<Var name="TurtleRabbit" type="list">
+		<Var name="Team Name" type="string">
+			TurtleRabbit
+		</Var>
+		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
+			150.000000
 		</Var>
 	</Var>
 	<Var name="UMass Minutebots" type="list">
@@ -173,7 +181,63 @@
 			RobôCIn
 		</Var>
 		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
-			149.000000
+			144.000000
+		</Var>
+	</Var>
+	<Var name="GreenTea" type="list">
+		<Var name="Team Name" type="string">
+			GreenTea
+		</Var>
+		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
+			148.000000
+		</Var>
+	</Var>
+	<Var name="DelftMercurians" type="list">
+		<Var name="Team Name" type="string">
+			DelftMercurians
+		</Var>
+		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
+			150.000000
+		</Var>
+	</Var>
+	<Var name="luhbots" type="list">
+		<Var name="Team Name" type="string">
+			luhbots
+		</Var>
+		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
+			138.000000
+		</Var>
+	</Var>
+	<Var name="ITAndroids" type="list">
+		<Var name="Team Name" type="string">
+			ITAndroids
+		</Var>
+		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
+			141.000000
+		</Var>
+	</Var>
+	<Var name="RoboCIn-B" type="list">
+		<Var name="Team Name" type="string">
+			RobôCIn-B
+		</Var>
+		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
+			150.000000
+		</Var>
+	</Var>
+	<Var name="ibis" type="list">
+		<Var name="Team Name" type="string">
+			ibis
+		</Var>
+		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
+			90.000000
+		</Var>
+	</Var>
+	<Var name="The Bots" type="list">
+		<Var name="Team Name" type="string">
+			The Bots
+		</Var>
+		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
+			110.000000
 		</Var>
 	</Var>
 	<Var name="New Team 22" type="list">

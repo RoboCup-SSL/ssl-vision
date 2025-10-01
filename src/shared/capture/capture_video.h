@@ -13,43 +13,40 @@
 //  If not, see <http://www.gnu.org/licenses/>.
 //========================================================================
 /*!
-  \file    captureinterface.h
-  \brief   C++ Implementation: CaptureInterface
-  \author  Stefan Zickler, (C) 2008
+  \file    capture_video.h
+  \brief   C++ Interface: CaptureVideo
+  \author  Felix Weinmann, (C) 2024
 */
 //========================================================================
 
+#ifndef SSL_VISION_CAPTURE_VIDEO_H
+#define SSL_VISION_CAPTURE_VIDEO_H
+
+#include <opencv2/videoio.hpp>
+
 #include "captureinterface.h"
 
-CaptureInterface::CaptureInterface(VarList * _settings)
-{
-  if (_settings!=0) {
-    settings=_settings;
-  } else {
-    settings=new VarList("capture settings");
-  }
-}
+class CaptureVideo : public CaptureInterface {
+ public:
+  explicit CaptureVideo(VarList* settings);
 
+  RawImage getFrame() override;
+  bool isCapturing() override;
+  void releaseFrame() override;
+  bool startCapture() override;
+  bool stopCapture() override;
+  string getCaptureMethodName() const override;
 
-CaptureInterface::~CaptureInterface()
-{
-  delete settings;
-}
+ private:
+  VarString* v_cap_file;
+  VarBool* v_cap_upscale;
 
+  cv::Mat frame;
+  cv::VideoCapture capture;
+  RawImage img;
+  double timestamp;
 
-bool CaptureInterface::resetBus() {
-  return true;
-}
+  bool is_capturing = false;
+};
 
-void CaptureInterface::readAllParameterValues() {
-
-}
-
-bool CaptureInterface::copyAndConvertFrame(const RawImage & src, RawImage & target) {
-  target.setColorFormat(src.getColorFormat());
-  target.ensure_allocation(src.getColorFormat(),src.getWidth(),src.getHeight());
-  target.setTime(src.getTime());
-  target.setTimeCam ( src.getTimeCam() );
-  memcpy(target.getData(),src.getData(),src.getNumBytes());
-  return true;
-}
+#endif  // SSL_VISION_CAPTURE_VIDEO_H

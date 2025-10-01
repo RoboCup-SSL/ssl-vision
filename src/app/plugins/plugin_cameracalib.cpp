@@ -33,8 +33,8 @@ PluginCameraCalibration::PluginCameraCalibration(
     RoboCupField& _field) :
     VisionPlugin(_buffer), camera_parameters(camera_params),
     field(_field),
-    ccw(0), grey_image(0), rgb_image(0), doing_drag(false), drag_x(0),
-    drag_y(0) {
+    ccw(nullptr), grey_image(nullptr), rgb_image(nullptr), drag_x(nullptr),
+    drag_y(nullptr), calib_drag_x(nullptr), calib_drag_y(nullptr) {
   video_width=video_height=0;
   settings=new VarList("Camera Calibrator");
   settings->addChild(camera_settings = new VarList("Camera Parameters"));
@@ -97,6 +97,11 @@ void PluginCameraCalibration::detectEdges(FrameData* data) {
     detectEdgesOnSingleArc(center, arc.radius->getDouble(), arc.a1->getDouble(),
         arc.a2->getDouble(), arc.thickness->getDouble(), point_separation);
   }
+
+  if (camera_parameters.use_opencv_model->getBool()) {
+    camera_parameters.detectCalibrationCorners();
+  }
+
   field.field_markings_mutex.unlock();
 }
 
@@ -199,10 +204,11 @@ void PluginCameraCalibration::detectEdgesOnSingleLine(
     Sobel::centerOfLine(
         *grey_image, start_image.x, end_image.x, start_image.y,
         end_image.y, point_image, center_found, kSobelThreshold);
-    calibration_data.imgPts.push_back(std::make_pair(point_image,center_found));
+    CameraParameters::CalibrationDataPoint point(point_image, center_found);
+    calibration_data.points.push_back(point);
     calibration_data.alphas.push_back(alpha);
   }
-  if (calibration_data.imgPts.size() > 2) {
+  if (calibration_data.points.size() > 2) {
     // Need at least two points to uniquely define a line segment.
     camera_parameters.calibrationSegments.push_back(calibration_data);
   }
@@ -266,19 +272,14 @@ void PluginCameraCalibration::detectEdgesOnSingleArc(
     Sobel::centerOfLine(
         *grey_image, start_image.x, end_image.x, start_image.y,
         end_image.y, point_image, center_found, kSobelThreshold);
-    calibration_data.imgPts.push_back(std::make_pair(point_image,center_found));
+    CameraParameters::CalibrationDataPoint point(point_image, center_found);
+    calibration_data.points.push_back(point);
     calibration_data.alphas.push_back(alpha);
   }
-  if (calibration_data.imgPts.size() > 3) {
+  if (calibration_data.points.size() > 3) {
     // Need at least three points to uniquely define a circular arc.
     camera_parameters.calibrationSegments.push_back(calibration_data);
   }
-}
-
-void PluginCameraCalibration::mouseEvent( QMouseEvent * event, pixelloc loc)
-{
-  (void) event;
-  (void) loc;
 }
 
 void PluginCameraCalibration::keyPressEvent ( QKeyEvent * event )
@@ -288,14 +289,26 @@ void PluginCameraCalibration::keyPressEvent ( QKeyEvent * event )
 
 void PluginCameraCalibration::mousePressEvent ( QMouseEvent * event, pixelloc loc )
 {
-  QTabWidget* tabw = (QTabWidget*) ccw->parentWidget()->parentWidget();
+  auto tabw = (QTabWidget*) ccw->parentWidget()->parentWidget();
   double drag_threshold = 20; //in px
   if (tabw->currentWidget() == ccw && (event->buttons() & Qt::LeftButton)!=0) {
-    drag_x = 0;
-    drag_y = 0;
-    for (int i = 0;
-        i < CameraParameters::AdditionalCalibrationInformation::kNumControlPoints;
-        ++i) {
+    drag_x = nullptr;
+    drag_y = nullptr;
+    calib_drag_x = nullptr;
+    calib_drag_y = nullptr;
+    for (int i = 0; i < camera_parameters.extrinsic_parameters->getCalibrationPointSize(); i++) {
+      auto point_x = camera_parameters.extrinsic_parameters->getCalibImageValueX(i);
+      auto point_y = camera_parameters.extrinsic_parameters->getCalibImageValueY(i);
+      double x_diff = point_x->getDouble() - loc.x;
+      double y_diff = point_y->getDouble() - loc.y;
+      if (sqrt(x_diff*x_diff + y_diff*y_diff) < drag_threshold) {
+        calib_drag_x = point_x;
+        calib_drag_y = point_y;
+        event->accept();
+        return;
+      }
+    }
+    for (int i = 0; i < CameraParameters::AdditionalCalibrationInformation::kNumControlPoints; ++i) {
       const double x_diff =
           camera_parameters.additional_calibration_information->
               control_point_image_xs[i]->getDouble() - loc.x;
@@ -307,29 +320,24 @@ void PluginCameraCalibration::mousePressEvent ( QMouseEvent * event, pixelloc lo
             control_point_image_xs[i];
         drag_y = camera_parameters.additional_calibration_information->
             control_point_image_ys[i];
-        break;
+        event->accept();
+        return;
       }
     }
-    if (drag_x != 0 && drag_y != 0)
-    {
-      event->accept();
-      doing_drag = true;
-    }
-    else
-      event->ignore();
-  } else {
-    event->ignore();
   }
-
+  event->ignore();
 }
 
 void PluginCameraCalibration::mouseReleaseEvent ( QMouseEvent * event, pixelloc loc )
 {
   (void)loc;
-  QTabWidget* tabw = (QTabWidget*) ccw->parentWidget()->parentWidget();
+  auto tabw = (QTabWidget*) ccw->parentWidget()->parentWidget();
   if (tabw->currentWidget() == ccw)
   {
-    doing_drag =false;
+    drag_x = nullptr;
+    drag_y = nullptr;
+    calib_drag_x = nullptr;
+    calib_drag_y = nullptr;
     event->accept();
   }
   else
@@ -338,16 +346,22 @@ void PluginCameraCalibration::mouseReleaseEvent ( QMouseEvent * event, pixelloc 
 
 void PluginCameraCalibration::mouseMoveEvent ( QMouseEvent * event, pixelloc loc )
 {
-  QTabWidget* tabw = (QTabWidget*) ccw->parentWidget()->parentWidget();
-  if (doing_drag && tabw->currentWidget() == ccw && (event->buttons() & Qt::LeftButton)!=0)
+  auto tabw = (QTabWidget*) ccw->parentWidget()->parentWidget();
+  if (tabw->currentWidget() == ccw && (event->buttons() & Qt::LeftButton)!=0)
   {
     if (loc.x < 0) loc.x=0;
     if (loc.y < 0) loc.y=0;
     if (video_width > 0 && loc.x >= video_width) loc.x=video_width-1;
     if (video_height > 0 && loc.y >= video_height) loc.y=video_height-1;
-    drag_x->setDouble(loc.x);
-    drag_y->setDouble(loc.y);
-    event->accept();
+    if (drag_x != nullptr && drag_y != nullptr) {
+      drag_x->setDouble(loc.x);
+      drag_y->setDouble(loc.y);
+      event->accept();
+    } else if (calib_drag_x != nullptr && calib_drag_y != nullptr) {
+      calib_drag_x->setDouble(loc.x);
+      calib_drag_y->setDouble(loc.y);
+      event->accept();
+    }
   }
   else
     event->ignore();

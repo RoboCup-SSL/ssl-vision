@@ -1059,7 +1059,7 @@ void GLLUTWidget::drawSample(int i, int x, int y) {
     }
 }
 
-void GLLUTWidget::sampleImage(const RawImage & img) {
+void GLLUTWidget::sampleImage(const RawImage & img, ConvexHullImageMask & mask) {
   //compute slice it sits on:
   ColorFormat source_format=img.getColorFormat();
 
@@ -1067,6 +1067,7 @@ void GLLUTWidget::sampleImage(const RawImage & img) {
 
   yuv color;
   int i=0;
+  raw8 * mask_pixel = mask.getMask().getPixelData();
 
   if (img.getWidth() > 1 && img.getHeight() > 1) {
     if (source_format==COLOR_RGB8) {
@@ -1075,12 +1076,14 @@ void GLLUTWidget::sampleImage(const RawImage & img) {
       for (int j=0;j<n;j++) {
         color=Conversions::rgb2yuv(*color_rgb);
         i=_lut->norm2lutX(color.y);
-        if (i >= 0 && i < (int)slices.size()) {
+
+        if (i >= 0 && i < (int)slices.size() && *mask_pixel != 0) {
           drawSample(i,_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v));
           //slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
           slices[i]->sampler_update_pending=true;
         }
         color_rgb++;
+        mask_pixel++;
       }
     } else if (source_format==COLOR_YUV444) {
       yuvImage yuv_img(img);
@@ -1088,12 +1091,13 @@ void GLLUTWidget::sampleImage(const RawImage & img) {
       for (int j=0;j<n;j++) {
         color=(*color_yuv);
         i=_lut->norm2lutX(color.y);
-        if (i >= 0 && i < (int)slices.size()) {
+        if (i >= 0 && i < (int)slices.size() && *mask_pixel != 0) {
           //slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
           drawSample(i,_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v));
           slices[i]->sampler_update_pending=true;
         }
         color_yuv++;
+        mask_pixel++;
       }
     } else if (source_format==COLOR_YUV422_UYVY) {
         uyvy * color_uyvy = (uyvy*)img.getData();
@@ -1105,7 +1109,7 @@ void GLLUTWidget::sampleImage(const RawImage & img) {
 
           color.y=color_uyvy_tmp.y1;
           i=_lut->norm2lutX(color.y);
-          if (i >= 0 && i < (int)slices.size()) {
+          if (i >= 0 && i < (int)slices.size() && *mask_pixel != 0) {
             //slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
             drawSample(i,_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v));
             slices[i]->sampler_update_pending=true;
@@ -1113,12 +1117,13 @@ void GLLUTWidget::sampleImage(const RawImage & img) {
 
           color.y=color_uyvy_tmp.y2;
           i=_lut->norm2lutX(color.y);
-          if (i >= 0 && i < (int)slices.size()) {
+          if (i >= 0 && i < (int)slices.size() && *mask_pixel != 0) {
             //slices[i]->sampler->surface.setPixel(_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v),rgba(255,255,255,255));
             drawSample(i,_lut->norm2lutY(color.u),_lut->norm2lutZ(color.v));
             slices[i]->sampler_update_pending=true;
           }
           color_uyvy++;
+          mask_pixel+=2;
         }
     } else {
       fprintf(stderr,"Unable to sample colors from frame of format: %s\n",Colors::colorFormatToString(source_format).c_str());

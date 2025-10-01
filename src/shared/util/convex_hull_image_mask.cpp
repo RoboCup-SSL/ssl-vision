@@ -25,7 +25,7 @@ void computeMask(const ConvexHull &convex_hull, Image<raw8> &mask) {
   // linescan, top - bot, left - right
   // first find where the whites should be painted, and then paint them
   for (int y = 0; y < mask.getHeight(); ++y) {
-    int minX = mask.getHeight();  // never min
+    int minX = mask.getWidth();  // never min
     int maxX = 0;
     for (int x = 0; x < mask.getWidth(); ++x) {
       if (mask.getPixel(x, y) == WHITE) {
@@ -33,7 +33,7 @@ void computeMask(const ConvexHull &convex_hull, Image<raw8> &mask) {
         maxX = x;
       }
     }
-    if (minX == mask.getHeight() ||  // no whites
+    if (minX == mask.getWidth() ||  // no whites
 	minX == maxX)                // single white
       continue;
 

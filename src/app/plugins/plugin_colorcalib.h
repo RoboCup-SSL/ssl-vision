@@ -26,6 +26,7 @@
 #include "visionplugin.h"
 #include "lut3d.h"
 #include "lutwidget.h"
+#include "convex_hull_image_mask.h"
 
 /**
 	@author Stefan Zickler <szickler@cs.cmu.edu>
@@ -35,6 +36,7 @@ class PluginColorCalibration : public VisionPlugin
 Q_OBJECT
 protected:
     YUVLUT * lut;
+    ConvexHullImageMask& _image_mask;
     VarList * settings;
     LUTWidget * lutw;
     VarStringEnum * v_lut_sources;
@@ -47,7 +49,7 @@ protected:
 protected slots:
     void slotCopyLUT();
 public:
-    PluginColorCalibration(FrameBuffer * _buffer, YUVLUT * _lut, LUTChannelMode _mode=LUTChannelMode_Numeric);
+    PluginColorCalibration(FrameBuffer * _buffer, YUVLUT * _lut, ConvexHullImageMask& mask, LUTChannelMode _mode=LUTChannelMode_Numeric);
     virtual VarList * getSettings();
     virtual string getName();
     virtual ~PluginColorCalibration();

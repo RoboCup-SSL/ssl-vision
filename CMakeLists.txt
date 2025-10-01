@@ -1,4 +1,7 @@
+# Minimum cmake version is set to current version in Ubuntu 20.04
+cmake_minimum_required(VERSION 3.16.3)
 project(ssl-vision)
+
 set(OpenGL_GL_PREFERENCE LEGACY)
 set(USE_DC1394 TRUE CACHE BOOL "Compile with DC1394 driver (firewire cameras)")
 set(USE_SPINNAKER FALSE CACHE BOOL "Compile with Spinnaker driver (FLIR cameras)")
@@ -12,9 +15,6 @@ set(USE_SPLITTER FALSE CACHE BOOL "Compile with Camera splitter support (virtual
 if(USE_DC1394 AND USE_mvIMPACT)
 	message(FATAL_ERROR "DC1394 and mvImpact are not compatible: mvImpact crashes when creating device manager")
 endif()
-
-# Minimum cmake version is set to current version in Ubuntu 20.04
-cmake_minimum_required(VERSION 3.16.3)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
@@ -32,7 +32,7 @@ find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
 # Note: Bluefox SDK is not compatible with some components of OpenCV. Take care when enabling more.
-find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio )
+find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs videoio calib3d)
 
 include(src/shared/CMakeLists.txt.inc)
 
@@ -152,6 +152,7 @@ set (SRCS ${SRCS}
 
     src/app/gui/maskwidget.cpp
 	src/app/gui/automatedcolorcalibwidget.cpp
+	src/app/gui/camera_intrinsic_calib_widget.cpp
 	src/app/gui/cameracalibwidget.cpp
 	src/app/gui/colorpicker.cpp
 	src/app/gui/glLUTwidget.cpp
@@ -165,6 +166,7 @@ set (SRCS ${SRCS}
 
 	src/app/plugins/plugin_mask.cpp
 	src/app/plugins/plugin_cameracalib.cpp
+	src/app/plugins/plugin_camera_intrinsic_calib.cpp
 	src/app/plugins/plugin_colorcalib.cpp
 	src/app/plugins/plugin_colorthreshold.cpp
 	src/app/plugins/plugin_detect_balls.cpp
@@ -193,6 +195,7 @@ qt5_wrap_cpp (MOC_SRCS
 
 	src/app/gui/maskwidget.h
 	src/app/gui/automatedcolorcalibwidget.h
+	src/app/gui/camera_intrinsic_calib_widget.h
 	src/app/gui/cameracalibwidget.h
 	src/app/gui/glLUTwidget.h
 	src/app/gui/glwidget.h
@@ -211,8 +214,11 @@ qt5_wrap_cpp (MOC_SRCS
 	src/app/plugins/plugin_colorcalib.h
 	src/app/plugins/plugin_colorthreshold.h
 	src/app/plugins/plugin_auto_color_calibration.h
+	src/app/plugins/plugin_camera_intrinsic_calib.h
 
 	src/app/stacks/multistack_robocup_ssl.h
+
+	src/shared/util/camera_parameters.h
 
 	${OPTIONAL_HEADERS}
 )
