@@ -174,8 +174,19 @@ RawImage CaptureVapix::getFrame() {
   result.setColorFormat(out_color);
   
   int camera_number;
-  if (v_cam_bus->getInt() == 0) camera_number = 10;
-  else camera_number = 3;
+  if (v_cam_bus->getInt() == 0)
+  {
+    camera_number = 10;
+  }
+  else if (v_cam_bus->getInt() == 1)
+  {
+    camera_number = 11;
+  }
+  else
+  {
+    camera_number = 12;
+  }
+
 
   string img_file_name = img_file_prefix + to_string(camera_number) + ".txt";
 

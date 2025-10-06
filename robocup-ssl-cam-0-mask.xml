@@ -681,5 +681,29 @@
 				1010
 			</Var>
 		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				349
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				146
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				529
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				74
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				990
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				43
+			</Var>
+		</Var>
 	</Var>
 </VarXML>
