@@ -51,7 +51,7 @@ try:
                     _, jpg = cv2.imencode('.jpg', img_rgb)
                     encoded_img = base64.b64encode(jpg).decode('utf-8')
 
-                    with open(f"{script_dir}/camera{camera_number}.txt", "w") as file:
+                    with open(f"{script_dir}/camera{camera_number}.base64", "w") as file:
                         file.write(encoded_img)
                     # cv2.imshow("MJPEG Stream", img_rgb)
                     # if cv2.waitKey(1) & 0xFF == ord('q'):

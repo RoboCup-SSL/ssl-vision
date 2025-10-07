@@ -1340,6 +1340,7 @@
 				10006
 			</Var>
 			<Var name="Multicast Interface" type="string">
+				enp4s0
 			</Var>
 		</Var>
 		<Var name="Legacy Network Output" type="list">
@@ -1350,6 +1351,7 @@
 				10005
 			</Var>
 			<Var name="Multicast Interface" type="string">
+				enp4s0
 			</Var>
 		</Var>
 	</Var>

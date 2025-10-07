@@ -188,7 +188,7 @@ RawImage CaptureVapix::getFrame() {
   }
 
 
-  string img_file_name = img_file_prefix + to_string(camera_number) + ".txt";
+  string img_file_name = img_file_prefix + to_string(camera_number) + ".base64";
 
   img_file = std::ifstream(img_file_name);
 
