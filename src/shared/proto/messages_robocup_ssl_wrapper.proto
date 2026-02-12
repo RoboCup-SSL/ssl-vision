@@ -2,7 +2,17 @@ syntax = "proto2";
 import "messages_robocup_ssl_detection.proto";
 import "messages_robocup_ssl_geometry.proto";
 
+enum SSL_Source {
+  SSL_SOURCE_UNKNOWN = 0;
+  SSL_SOURCE_OTHER = 1;
+  SSL_SOURCE_SSL_VISION = 2;
+  SSL_SOURCE_VISION_PROCESSOR = 3;
+  SSL_SOURCE_GRSIM = 4;
+  SSL_SOURCE_ERFORCE_SIM = 5;
+}
+
 message SSL_WrapperPacket {
   optional SSL_DetectionFrame detection = 1;
   optional SSL_GeometryData geometry = 2;
+  optional SSL_Source source = 3;
 }

@@ -66,6 +66,7 @@ bool RoboCupSSLServer::open() {
 
 bool RoboCupSSLServer::send(const SSL_DetectionFrame & frame) {
   SSL_WrapperPacket pkt;
+  pkt.set_source(SSL_SOURCE_SSL_VISION);
   SSL_DetectionFrame * nframe = pkt.mutable_detection();
   nframe->CopyFrom(frame);
   mutex.lock();
@@ -77,6 +78,7 @@ bool RoboCupSSLServer::send(const SSL_DetectionFrame & frame) {
 
 bool RoboCupSSLServer::send(const SSL_GeometryData & geometry) {
   SSL_WrapperPacket pkt;
+  pkt.set_source(SSL_SOURCE_SSL_VISION);
   SSL_GeometryData * gdata = pkt.mutable_geometry();
   gdata->CopyFrom(geometry);
   mutex.lock();
