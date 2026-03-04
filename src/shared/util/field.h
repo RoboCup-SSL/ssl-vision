@@ -189,6 +189,8 @@ public:
   VarDouble*goal_center_to_penalty_mark;
   VarDouble* ball_radius;
   VarDouble* max_robot_radius;
+  VarDouble* boundary_width_goal_line;
+  VarDouble* goal_substitution_area_width;
   VarInt* num_cameras_total;
   VarInt* num_cameras_local;
   VarBool* center_line;

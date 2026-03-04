@@ -36,6 +36,8 @@ namespace FieldConstantsRoboCup2018A {
     const double kGoalDepth = 180.0;
     const double kGoalHeight = 155.0;
     const double kBoundaryWidth = 300.0;
+    const double kBoundaryWidthGoalLine = 600.0;
+    const double kGoalSubstitutionAreaWidth = 300.0;
     const double kLineThickness = 10.0;
     const double kPenaltyAreaDepth = 1800.0;
     const double kPenaltyAreaWidth = 3600.0;
@@ -54,6 +56,8 @@ namespace FieldConstantsRoboCup2018B {
     const double kGoalDepth = 180.0;
     const double kGoalHeight = 155.0;
     const double kBoundaryWidth = 300.0;
+    const double kBoundaryWidthGoalLine = 600.0;
+    const double kGoalSubstitutionAreaWidth = 300.0;
     const double kLineThickness = 10.0;
     const double kPenaltyAreaDepth = 1000.0;
     const double kPenaltyAreaWidth = 2000.0;
