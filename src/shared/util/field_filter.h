@@ -39,6 +39,7 @@ protected:
   double half_goal_width;
   double goal_depth;
   double boundary_width;
+  double boundary_width_goal_line;
 public:
   FieldFilter()
   {
@@ -47,6 +48,7 @@ public:
     half_goal_width = 0.0;
     goal_depth = 0.0;
     boundary_width = 0.0;
+    boundary_width_goal_line = 0.0;
   }
 
   void update(const RoboCupField & field) {
@@ -55,11 +57,12 @@ public:
     half_goal_width = field.goal_width->getDouble();
     goal_depth = field.goal_depth->getDouble();
     boundary_width = field.boundary_width->getDouble();
+    boundary_width_goal_line = field.boundary_width_goal_line->getDouble();
   }
 
   ///check whether a point is within the legal field or the boundary (but not the referee walking area)
   bool isInFieldOrPlayableBoundary(const vector2d & pos) {
-    return (fabs(pos.x) <= (half_field_length+boundary_width) &&
+    return (fabs(pos.x) <= (half_field_length+boundary_width_goal_line) &&
             fabs(pos.y) <= (half_field_width+boundary_width));
   }
 
