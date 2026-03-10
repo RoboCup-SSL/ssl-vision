@@ -387,6 +387,7 @@ RoboCupField::RoboCupField() {
   settings->addChild(goal_depth);
   settings->addChild(goal_height);
   settings->addChild(boundary_width);
+  settings->addChild(boundary_width_goal_line);
   settings->addChild(line_thickness);
   settings->addChild(penalty_area_depth);
   settings->addChild(penalty_area_width);
@@ -394,7 +395,6 @@ RoboCupField::RoboCupField() {
   settings->addChild(center_circle_radius);
   settings->addChild(ball_radius);
   settings->addChild(max_robot_radius);
-  settings->addChild(boundary_width_goal_line);
   settings->addChild(goal_substitution_area_width);
   settings->addChild(num_cameras_total);
   settings->addChild(num_cameras_local);
@@ -448,6 +448,7 @@ RoboCupField::~RoboCupField() {
   delete goal_depth;
   delete goal_height;
   delete boundary_width;
+  delete boundary_width_goal_line;
   delete line_thickness;
   delete penalty_area_depth;
   delete penalty_area_width;
@@ -455,7 +456,6 @@ RoboCupField::~RoboCupField() {
   delete center_circle_radius;
   delete ball_radius;
   delete max_robot_radius;
-  delete boundary_width_goal_line;
   delete goal_substitution_area_width;
   delete num_cameras_total;
   delete num_cameras_local;
@@ -479,6 +479,7 @@ void RoboCupField::applyGeometryDivisionA() {
     goal_depth->setDouble(FieldConstantsRoboCup2018A::kGoalDepth);
     goal_height->setDouble(FieldConstantsRoboCup2018A::kGoalHeight);
     boundary_width->setDouble(FieldConstantsRoboCup2018A::kBoundaryWidth);
+    boundary_width_goal_line->setDouble(FieldConstantsRoboCup2018A::kBoundaryWidthGoalLine);
     line_thickness->setDouble(FieldConstantsRoboCup2018A::kLineThickness);
     penalty_area_depth->setDouble(FieldConstantsRoboCup2018A::kPenaltyAreaDepth);
     penalty_area_width->setDouble(FieldConstantsRoboCup2018A::kPenaltyAreaWidth);
@@ -486,7 +487,6 @@ void RoboCupField::applyGeometryDivisionA() {
     center_circle_radius->setDouble(FieldConstantsRoboCup2018A::kCenterCircleRadius);
     ball_radius->setDouble(FieldConstantsRoboCup2018A::kBallRadius);
     max_robot_radius->setDouble(FieldConstantsRoboCup2018A::kMaxRobotRadius);
-    boundary_width_goal_line->setDouble(FieldConstantsRoboCup2018A::kBoundaryWidthGoalLine);
     goal_substitution_area_width->setDouble(FieldConstantsRoboCup2018A::kGoalSubstitutionAreaWidth);
     num_cameras_total->setDouble(FieldConstantsRoboCup2018A::kNumCamerasTotal);
     num_cameras_local->setDouble(FieldConstantsRoboCup2018A::kNumCamerasLocal);
@@ -499,6 +499,7 @@ void RoboCupField::applyGeometryDivisionB() {
     goal_depth->setDouble(FieldConstantsRoboCup2018B::kGoalDepth);
     goal_height->setDouble(FieldConstantsRoboCup2018B::kGoalHeight);
     boundary_width->setDouble(FieldConstantsRoboCup2018B::kBoundaryWidth);
+    boundary_width_goal_line->setDouble(FieldConstantsRoboCup2018B::kBoundaryWidthGoalLine);
     line_thickness->setDouble(FieldConstantsRoboCup2018B::kLineThickness);
     penalty_area_depth->setDouble(FieldConstantsRoboCup2018B::kPenaltyAreaDepth);
     penalty_area_width->setDouble(FieldConstantsRoboCup2018B::kPenaltyAreaWidth);
@@ -506,7 +507,6 @@ void RoboCupField::applyGeometryDivisionB() {
     center_circle_radius->setDouble(FieldConstantsRoboCup2018B::kCenterCircleRadius);
     ball_radius->setDouble(FieldConstantsRoboCup2018B::kBallRadius);
     max_robot_radius->setDouble(FieldConstantsRoboCup2018B::kMaxRobotRadius);
-    boundary_width_goal_line->setDouble(FieldConstantsRoboCup2018B::kBoundaryWidthGoalLine);
     goal_substitution_area_width->setDouble(FieldConstantsRoboCup2018B::kGoalSubstitutionAreaWidth);
     num_cameras_total->setDouble(FieldConstantsRoboCup2018B::kNumCamerasTotal);
     num_cameras_local->setDouble(FieldConstantsRoboCup2018B::kNumCamerasLocal);
@@ -528,6 +528,7 @@ void RoboCupField::toProtoBuffer(SSL_GeometryFieldSize& buffer) const {
   buffer.set_goal_width((int) goal_width->getDouble());
   buffer.set_goal_depth((int) goal_depth->getDouble());
   buffer.set_boundary_width((int) boundary_width->getDouble());
+  buffer.set_boundary_width_goal_line((int) boundary_width_goal_line->getDouble());
   buffer.set_penalty_area_depth((int) penalty_area_depth->getDouble());
   buffer.set_penalty_area_width((int) penalty_area_width->getDouble());
   buffer.set_center_circle_radius((int) center_circle_radius->getDouble());
@@ -536,7 +537,6 @@ void RoboCupField::toProtoBuffer(SSL_GeometryFieldSize& buffer) const {
   buffer.set_goal_height((int) goal_height->getDouble());
   buffer.set_ball_radius((float) ball_radius->getDouble());
   buffer.set_max_robot_radius((float) max_robot_radius->getDouble());
-  buffer.set_boundary_width_goal_line((int) boundary_width_goal_line->getDouble());
   buffer.set_goal_substitution_area_width((int) goal_substitution_area_width->getDouble());
 
   for (size_t i = 0; i < field_lines.size(); ++i) {
