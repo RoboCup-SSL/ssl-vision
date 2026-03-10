@@ -76,7 +76,7 @@ message SSL_GeometryFieldSize {
   optional float ball_radius = 14;
   // Max allowed robot radius in mm (note that this is a float type to represent sub-mm precision)
   optional float max_robot_radius = 15;
-  // Width of the goal substitution area (distance from goal line center plus boundary width to boundary walls) in mm
+  // Width of the goal substitution area (distance from boundary walls that count as "inside the substitution area") in mm
   optional int32 goal_substitution_area_width = 17;
 }
 
