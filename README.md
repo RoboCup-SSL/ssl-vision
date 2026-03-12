@@ -3,7 +3,7 @@
 # RoboCup Small Size League Shared Vision System
 
 In the past, RoboCup Small Size League rules allowed every team to set up their own global vision system as a primary sensor. 
-This option beared several organizational limitations and costs for the teams, thus impairing the league's progress. 
+This option bore several organizational limitations and costs for the teams, thus impairing the league's progress. 
 Additionally, most teams had converged on similar solutions and produced few significant research results to this global vision problem over the last years.
 
 In 2009, the league committees decided to migrate to a shared vision system (including hardware) that could be used by all teams. 
@@ -14,10 +14,10 @@ please visit the [Wiki Documentation Page](https://github.com/RoboCup-SSL/ssl-vi
  
 ## Software Requirements
 
-Following dependencies are required to build the software:
+The following dependencies are required to build the software:
 
  * g++
- * QT >= 4.3 with opengl and networking support
+ * Qt >= 4.3 with OpenGL and networking support
  * cmake
  * Eigen3
  * Google protocol buffers (protoc)
@@ -27,17 +27,17 @@ Following dependencies are required to build the software:
  * libpng
  * OpenCV >= 3
  * libdc1394 Version >= 2.0
- * video for linux 2 (v4l)
+ * Video for Linux 2 (V4L)
 
-To get all of these packages in (k)ubuntu, run the `InstallPackagesUbuntu.sh` script.
+To get all of these packages in (K)Ubuntu, run the `InstallPackagesUbuntu.sh` script.
 
-Or, in archlinux, run the `InstallPackagesArch.sh` script.
+Or, in Arch Linux, run the `InstallPackagesArch.sh` script.
 
 ## Test data
 
 If you do not have a camera available and want to test or improve ssl-vision, you can use the `CaptureFromFile` capture module to play back images.
 To install some test data, run: `make install_test_data`. It will download several test images to [test-data](./test-data).
-The default configuration of ssl-vision will peak this up automatically.
+The default configuration of ssl-vision will pick this up automatically.
 
 ## Supported cameras
 
@@ -68,7 +68,7 @@ In addition to the physical cameras, you can activate virtual cameras with `-DUS
 There will be an additional 'Distributor Thread' that captures from a single physical camera (or from file).
 The capture mode of the normal camera threads can be set to 'splitter'. That way, a part of the original image from the
 distributor thread is used as input.
-This may speedup processing time for cameras with large resolutions, but at the trait-of of multiple cameras with the
+This may speedup processing time for cameras with large resolutions, but at the trade-off of multiple cameras with the
 same camera center, which may not work well with some consumers.
 
 
@@ -76,7 +76,7 @@ same camera center, which may not work well with some consumers.
 
 USB 2.0 [BlueFox MLC](https://www.matrix-vision.com/USB2.0-single-board-camera-mvbluefox-mlc.html) and 
 USB 3.0 [BlueFox3-2](https://www.matrix-vision.com/USB3-vision-camera-mvbluefox3-2.html) cameras are supported.
-Please note, that they require different SDKs. The SDK look very similar, but are not compatible. They get installed into the same directory by default.
+Please note, that they require different SDKs. The SDKs look very similar, but are not compatible. They get installed into the same directory by default.
  
 Tested cameras: 
  * mvBlueFOX-MLC200wC
