@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VarXML>
+	<Var name="Vision System" type="list">
+		<Var name="Save Settings" type="trigger">
+		</Var>
+		<Var name="RoboCup SSL Multi-Cam" type="external" filename="robocup-ssl.xml">
+		</Var>
+	</Var>
+</VarXML>
