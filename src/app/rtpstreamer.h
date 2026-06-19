@@ -27,6 +27,10 @@ typedef struct AVFrame AVFrame;
 typedef struct AVPacket AVPacket;
 struct SwsContext;
 
+// Downscale filter for the monitor stream. Cost (5 MP -> 1080p): POINT is
+// cheapest but aliases; FAST_BILINEAR is a good speed/quality balance.
+enum RTPScaler { RTP_SCALE_FAST_BILINEAR, RTP_SCALE_BILINEAR, RTP_SCALE_POINT };
+
 /*!
   \class  RTPStreamer
   \brief  Encodes captured frames to H.264 (hardware encoder if available) and
@@ -36,7 +40,10 @@ struct SwsContext;
 */
 class RTPStreamer {
 public:
-  RTPStreamer(bool active, std::string uri, int framerate = 30);
+  // outWidth/outHeight <= 0 means "keep the source resolution" (no downscale).
+  RTPStreamer(bool active, std::string uri, int framerate = 30,
+              int outWidth = 0, int outHeight = 0,
+              RTPScaler scaler = RTP_SCALE_FAST_BILINEAR);
   ~RTPStreamer();
 
   // Copies the frame (RGB8 / RGBA8 / YUV422 / MONO8) into the queue and returns
@@ -53,11 +60,17 @@ private:
   const std::string uri;
   const int framerate;
   const int frametime_us;
+  const int cfgOutWidth;   // configured output width  (<=0 => match source)
+  const int cfgOutHeight;  // configured output height (<=0 => match source)
+  const int swsFlags;      // libswscale algorithm flag
 
-  // Geometry/format the encoder is currently configured for.
+  // Source geometry/format the encoder is currently configured for.
   int width = 0;
   int height = 0;
   ColorFormat srcFormat = COLOR_UNDEFINED;
+  // Output (encoded) geometry currently in use.
+  int outWidth = 0;
+  int outHeight = 0;
 
   bool stopEncoding = false;
   std::thread encoder;

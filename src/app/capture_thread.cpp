@@ -131,6 +131,15 @@ CaptureThread::CaptureThread(int cam_id)
       "224.5.23." + std::to_string(100 + camId))));
   rtpstream->addChild((VarType*) (s_port = new VarInt("port", 10100)));
   rtpstream->addChild((VarType*) (s_framerate = new VarInt("stream fps", 30)));
+  // Output resolution for the monitor stream (0 = keep full camera resolution).
+  // Downscaling cuts the encode cost roughly in proportion to the pixel count.
+  rtpstream->addChild((VarType*) (s_width = new VarInt("stream width", 1920)));
+  rtpstream->addChild((VarType*) (s_height = new VarInt("stream height", 1080)));
+  s_scaler = new VarStringEnum("scaler", "fast_bilinear");
+  s_scaler->addItem("fast_bilinear");
+  s_scaler->addItem("bilinear");
+  s_scaler->addItem("point");
+  rtpstream->addChild((VarType*) s_scaler);
 #endif
 
   selectCaptureMethod();
@@ -350,9 +359,12 @@ void CaptureThread::run() {
             // Construct the streamer lazily so the configured address/port/fps
             // (loaded from the settings file after construction) are honoured.
             if (!rtpStreamerInit) {
+              RTPScaler scaler = RTP_SCALE_FAST_BILINEAR;
+              if (s_scaler->getString() == "point") scaler = RTP_SCALE_POINT;
+              else if (s_scaler->getString() == "bilinear") scaler = RTP_SCALE_BILINEAR;
               rtpStreamer = new RTPStreamer(true,
                   "rtp://" + s_address->getString() + ":" + std::to_string(s_port->getInt()),
-                  s_framerate->getInt());
+                  s_framerate->getInt(), s_width->getInt(), s_height->getInt(), scaler);
               rtpStreamerInit = true;
             }
             rtpStreamer->sendFrame(d->video);

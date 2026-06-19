@@ -39,11 +39,24 @@ static enum AVPixelFormat toAVPixFmt(ColorFormat f) {
   }
 }
 
-RTPStreamer::RTPStreamer(bool active, std::string uri, int framerate)
+static int scalerToSwsFlag(RTPScaler s) {
+  switch (s) {
+    case RTP_SCALE_POINT:    return SWS_POINT;
+    case RTP_SCALE_BILINEAR: return SWS_BILINEAR;
+    case RTP_SCALE_FAST_BILINEAR:
+    default:                 return SWS_FAST_BILINEAR;
+  }
+}
+
+RTPStreamer::RTPStreamer(bool active, std::string uri, int framerate,
+                         int outWidth, int outHeight, RTPScaler scaler)
     : active(active),
       uri(std::move(uri)),
       framerate(framerate > 0 ? framerate : 30),
-      frametime_us(1000000 / (framerate > 0 ? framerate : 30)) {
+      frametime_us(1000000 / (framerate > 0 ? framerate : 30)),
+      cfgOutWidth(outWidth),
+      cfgOutHeight(outHeight),
+      swsFlags(scalerToSwsFlag(scaler)) {
   if (active)
     encoder = std::thread(&RTPStreamer::encoderRun, this);
 }
@@ -80,6 +93,10 @@ void RTPStreamer::allocResources() {
   if (codecCtx != nullptr)
     return;
 
+  // Output resolution: configured value, or the source resolution if unset.
+  outWidth = (cfgOutWidth > 0) ? cfgOutWidth : width;
+  outHeight = (cfgOutHeight > 0) ? cfgOutHeight : height;
+
   const AVCodec* codec = nullptr;
   // h264_vaapi is intentionally omitted: it requires a hardware frames context
   // (AV_PIX_FMT_VAAPI surfaces), which this software-NV12 path does not set up.
@@ -92,8 +109,8 @@ void RTPStreamer::allocResources() {
 
     codecCtx = avcodec_alloc_context3(codec);
     codecCtx->bit_rate = 3500000;
-    codecCtx->width = width;
-    codecCtx->height = height;
+    codecCtx->width = outWidth;
+    codecCtx->height = outHeight;
     codecCtx->time_base.num = 1;
     codecCtx->time_base.den = framerate;
     codecCtx->gop_size = framerate;
@@ -121,8 +138,8 @@ void RTPStreamer::allocResources() {
     return;
   }
   std::cout << "[RTPStreamer] Using codec: " << codec->long_name
-            << " (" << width << "x" << height << " @ " << framerate << "fps -> "
-            << uri << ")" << std::endl;
+            << " (" << width << "x" << height << " -> " << outWidth << "x" << outHeight
+            << " @ " << framerate << "fps -> " << uri << ")" << std::endl;
 
   const AVOutputFormat* ofmt = av_guess_format("rtp", nullptr, nullptr);
   avformat_alloc_output_context2(&fmtCtx, ofmt, ofmt->name, uri.c_str());
@@ -140,15 +157,15 @@ void RTPStreamer::allocResources() {
 
   frame = av_frame_alloc();
   frame->format = AV_PIX_FMT_NV12;
-  frame->width = width;
-  frame->height = height;
+  frame->width = outWidth;
+  frame->height = outHeight;
   av_frame_get_buffer(frame, 32);
 
   pkt = av_packet_alloc();
 
   sws = sws_getContext(width, height, toAVPixFmt(srcFormat),
-                       width, height, AV_PIX_FMT_NV12,
-                       SWS_BILINEAR, nullptr, nullptr, nullptr);
+                       outWidth, outHeight, AV_PIX_FMT_NV12,
+                       swsFlags, nullptr, nullptr, nullptr);
 }
 
 void RTPStreamer::freeResources() {

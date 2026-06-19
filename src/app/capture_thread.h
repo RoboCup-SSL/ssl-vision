@@ -119,6 +119,9 @@ protected:
   VarString * s_address = nullptr;
   VarInt * s_port = nullptr;
   VarInt * s_framerate = nullptr;
+  VarInt * s_width = nullptr;
+  VarInt * s_height = nullptr;
+  VarStringEnum * s_scaler = nullptr;
 #endif
 
 public slots:
