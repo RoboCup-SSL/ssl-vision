@@ -15,6 +15,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <chrono>
 
 #include "rawimage.h"
 #include "colors.h"
@@ -84,6 +85,10 @@ private:
   std::mutex queueMutex;
   std::condition_variable queueSignal;
   long currentFrameId = 0;
+  // Input-side rate limit: only accept ~framerate frames/s so the capture
+  // thread doesn't memcpy frames that would be dropped anyway. Touched only
+  // by the capture thread (in sendFrame).
+  std::chrono::steady_clock::time_point lastAccept{};
 
   AVCodecContext* codecCtx = nullptr;
   AVFormatContext* fmtCtx = nullptr;

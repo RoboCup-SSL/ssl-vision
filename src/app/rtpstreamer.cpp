@@ -78,6 +78,13 @@ void RTPStreamer::sendFrame(const RawImage &image) {
   if (toAVPixFmt(image.getColorFormat()) == AV_PIX_FMT_NONE)
     return;  // unsupported source format, silently skip
 
+  // Drop frames arriving faster than the target rate before paying for a copy.
+  // (first call: now - epoch is huge, so it always passes)
+  auto now = std::chrono::steady_clock::now();
+  if (now - lastAccept < std::chrono::microseconds(frametime_us))
+    return;
+  lastAccept = now;
+
   std::unique_lock<std::mutex> lock(queueMutex);
   const int n = image.getNumBytes();
   queueData.resize(n);
