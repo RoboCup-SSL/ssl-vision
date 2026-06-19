@@ -140,6 +140,9 @@ CaptureThread::CaptureThread(int cam_id)
   s_scaler->addItem("bilinear");
   s_scaler->addItem("point");
   rtpstream->addChild((VarType*) s_scaler);
+  // Offload RGB->NV12 + H.264 encode to the iGPU via VAAPI (route-b). Falls
+  // back to the CPU path automatically if VAAPI is unavailable.
+  rtpstream->addChild((VarType*) (s_hwaccel = new VarBool("use hardware (VAAPI)", false)));
 #endif
 
   selectCaptureMethod();
@@ -364,7 +367,8 @@ void CaptureThread::run() {
               else if (s_scaler->getString() == "bilinear") scaler = RTP_SCALE_BILINEAR;
               rtpStreamer = new RTPStreamer(true,
                   "rtp://" + s_address->getString() + ":" + std::to_string(s_port->getInt()),
-                  s_framerate->getInt(), s_width->getInt(), s_height->getInt(), scaler);
+                  s_framerate->getInt(), s_width->getInt(), s_height->getInt(), scaler,
+                  s_hwaccel->getBool());
               rtpStreamerInit = true;
             }
             rtpStreamer->sendFrame(d->video);

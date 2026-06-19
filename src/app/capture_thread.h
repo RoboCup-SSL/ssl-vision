@@ -122,6 +122,7 @@ protected:
   VarInt * s_width = nullptr;
   VarInt * s_height = nullptr;
   VarStringEnum * s_scaler = nullptr;
+  VarBool * s_hwaccel = nullptr;
 #endif
 
 public slots:

@@ -25,6 +25,9 @@ typedef struct AVFormatContext AVFormatContext;
 typedef struct AVStream AVStream;
 typedef struct AVFrame AVFrame;
 typedef struct AVPacket AVPacket;
+typedef struct AVBufferRef AVBufferRef;
+typedef struct AVFilterGraph AVFilterGraph;
+typedef struct AVFilterContext AVFilterContext;
 struct SwsContext;
 
 // Downscale filter for the monitor stream. Cost (5 MP -> 1080p): POINT is
@@ -41,9 +44,11 @@ enum RTPScaler { RTP_SCALE_FAST_BILINEAR, RTP_SCALE_BILINEAR, RTP_SCALE_POINT };
 class RTPStreamer {
 public:
   // outWidth/outHeight <= 0 means "keep the source resolution" (no downscale).
+  // hwaccel=true uses the VAAPI GPU path (RGB->NV12 + H.264 on the iGPU);
+  // false uses the CPU path (libswscale + h264_qsv/nvenc/libx264).
   RTPStreamer(bool active, std::string uri, int framerate = 30,
               int outWidth = 0, int outHeight = 0,
-              RTPScaler scaler = RTP_SCALE_FAST_BILINEAR);
+              RTPScaler scaler = RTP_SCALE_FAST_BILINEAR, bool hwaccel = false);
   ~RTPStreamer();
 
   // Copies the frame (RGB8 / RGBA8 / YUV422 / MONO8) into the queue and returns
@@ -53,8 +58,11 @@ public:
 
 private:
   void encoderRun();
-  void allocResources();
+  void allocResources();      // dispatches to CPU or VAAPI setup
+  void allocResourcesSw();    // CPU path: libswscale -> sw encoder
+  bool allocResourcesHw();    // VAAPI path: hwupload -> scale_vaapi -> h264_vaapi
   void freeResources();
+  bool encodeAndSend();       // drain encoder -> RTP (shared by both paths)
 
   const bool active;
   const std::string uri;
@@ -63,6 +71,7 @@ private:
   const int cfgOutWidth;   // configured output width  (<=0 => match source)
   const int cfgOutHeight;  // configured output height (<=0 => match source)
   const int swsFlags;      // libswscale algorithm flag
+  const bool hwaccel;      // use the VAAPI GPU path
 
   // Source geometry/format the encoder is currently configured for.
   int width = 0;
@@ -71,6 +80,7 @@ private:
   // Output (encoded) geometry currently in use.
   int outWidth = 0;
   int outHeight = 0;
+  bool useHw = false;  // hwaccel, but cleared at runtime if VAAPI setup fails
 
   bool stopEncoding = false;
   std::thread encoder;
@@ -88,9 +98,17 @@ private:
   AVCodecContext* codecCtx = nullptr;
   AVFormatContext* fmtCtx = nullptr;
   AVStream* stream = nullptr;
-  AVFrame* frame = nullptr;
+  AVFrame* frame = nullptr;       // CPU path: NV12 frame fed to the encoder
   AVPacket* pkt = nullptr;
-  SwsContext* sws = nullptr;
+  SwsContext* sws = nullptr;      // CPU path: src -> NV12 (or src -> BGR0 for HW)
+
+  // VAAPI (route-b) path
+  AVBufferRef* hwDeviceRef = nullptr;
+  AVFilterGraph* fgraph = nullptr;
+  AVFilterContext* fsrc = nullptr;   // buffersrc (BGR0 in)
+  AVFilterContext* fsink = nullptr;  // buffersink (NV12 VAAPI surface out)
+  AVFrame* swFrame = nullptr;        // BGR0 staging frame pushed into the graph
+  AVFrame* hwFrame = nullptr;        // VAAPI NV12 surface pulled from the graph
 };
 
 #endif // RTP_STREAM

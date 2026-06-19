@@ -132,7 +132,7 @@ else()
 endif()
 
 if( USE_RTP_STREAM )
-	pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET libavformat libavcodec libavutil libswscale)
+	pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET libavformat libavcodec libavutil libswscale libavfilter)
 	add_definitions( -D RTP_STREAM )
 	set (SRCS ${SRCS} src/app/rtpstreamer.cpp)
 	set (RTP_LIBS PkgConfig::LIBAV)
