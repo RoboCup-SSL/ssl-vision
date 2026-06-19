@@ -120,6 +120,19 @@ CaptureThread::CaptureThread(int cam_id)
   captureSplitter = new CaptureSplitter(splitter, camId);
 #endif
 
+#ifdef RTP_STREAM
+  // RTP H.264 livestream settings. The stream is one multicast group per camera
+  // (default 224.5.23.{100+camId}:10100) so any number of viewers can subscribe
+  // without affecting the capture/detection path.
+  rtpstream = new VarList("RTP Stream");
+  settings->addChild((VarType*) rtpstream);
+  rtpstream->addChild((VarType*) (s_enable = new VarBool("enable", false)));
+  rtpstream->addChild((VarType*) (s_address = new VarString("multicast address",
+      "224.5.23." + std::to_string(100 + camId))));
+  rtpstream->addChild((VarType*) (s_port = new VarInt("port", 10100)));
+  rtpstream->addChild((VarType*) (s_framerate = new VarInt("stream fps", 30)));
+#endif
+
   selectCaptureMethod();
   _kill =false;
   rb=0;
@@ -145,6 +158,10 @@ CaptureThread::~CaptureThread()
   delete captureFiles;
   delete captureGenerator;
   delete counter;
+
+#ifdef RTP_STREAM
+  delete rtpStreamer;
+#endif
 
 #ifdef DC1394
   delete captureDC1394;
@@ -327,6 +344,20 @@ void CaptureThread::run() {
           bool bSuccess = capture->copyAndConvertFrame( pic_raw,d->video);
           auto t_convert = std::chrono::steady_clock::now();
           capture_mutex.unlock();
+
+#ifdef RTP_STREAM
+          if (bSuccess && s_enable->getBool()) {
+            // Construct the streamer lazily so the configured address/port/fps
+            // (loaded from the settings file after construction) are honoured.
+            if (!rtpStreamerInit) {
+              rtpStreamer = new RTPStreamer(true,
+                  "rtp://" + s_address->getString() + ":" + std::to_string(s_port->getInt()),
+                  s_framerate->getInt());
+              rtpStreamerInit = true;
+            }
+            rtpStreamer->sendFrame(d->video);
+          }
+#endif
 
           if (bSuccess) {           //only on a good frame read do we proceed
               counter->count();

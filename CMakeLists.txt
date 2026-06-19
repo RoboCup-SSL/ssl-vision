@@ -10,6 +10,7 @@ set(USE_PYLON FALSE CACHE BOOL "Compile with pylon driver (Basler cameras)")
 set(USE_FLYCAP FALSE CACHE BOOL "Compile with flycap driver (FLIR cameras, predecessor of Spinnaker)")
 set(USE_V4L TRUE CACHE BOOL "Compile with Video4Linux support (generic webcams)")
 set(USE_SPLITTER FALSE CACHE BOOL "Compile with Camera splitter support (virtual cameras with part of a full image)")
+set(USE_RTP_STREAM FALSE CACHE BOOL "Compile with RTP H.264 livestream output (libav/FFmpeg)")
 
 if(USE_DC1394 AND USE_mvIMPACT)
 	message(FATAL_ERROR "DC1394 and mvImpact are not compatible: mvImpact crashes when creating device manager")
@@ -128,6 +129,17 @@ if( USE_SPLITTER )
 	message(STATUS "Camera splitter enabled")
 else()
 	message(STATUS "Camera splitter disabled")
+endif()
+
+if( USE_RTP_STREAM )
+	pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET libavformat libavcodec libavutil libswscale)
+	add_definitions( -D RTP_STREAM )
+	set (SRCS ${SRCS} src/app/rtpstreamer.cpp)
+	set (RTP_LIBS PkgConfig::LIBAV)
+	message(STATUS "RTP H.264 livestream enabled")
+else()
+	set (RTP_LIBS "")
+	message(STATUS "RTP H.264 livestream disabled")
 endif()
 
 include_directories(${PROJECT_SOURCE_DIR}/src/app)
@@ -271,7 +283,7 @@ set (libs ${libs} sslvision)
 
 ## build the main app
 add_executable(vision ${UI_SRCS} ${MOC_SRCS} ${RC_SRCS} ${SRCS})
-target_link_libraries(vision ${libs} Qt5::Widgets Qt5::OpenGL)
+target_link_libraries(vision ${libs} Qt5::Widgets Qt5::OpenGL ${RTP_LIBS})
 
 ## build non graphical client
 add_executable(client src/client/main.cpp )

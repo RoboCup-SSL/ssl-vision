@@ -56,6 +56,11 @@
 #include "capture_spinnaker.h"
 #endif
 
+#ifdef RTP_STREAM
+#include "VarTypes.h"
+#include "rtpstreamer.h"
+#endif
+
 /*!
   \class   CaptureThread
   \brief   A thread for capturing and processing video data
@@ -105,6 +110,16 @@ protected:
   VarBool * c_auto_refresh;
   VarBool * c_print_timings;
   VarStringEnum * captureModule;
+
+#ifdef RTP_STREAM
+  RTPStreamer * rtpStreamer = nullptr;
+  bool rtpStreamerInit = false;
+  VarList * rtpstream = nullptr;
+  VarBool * s_enable = nullptr;
+  VarString * s_address = nullptr;
+  VarInt * s_port = nullptr;
+  VarInt * s_framerate = nullptr;
+#endif
 
 public slots:
   bool init();
