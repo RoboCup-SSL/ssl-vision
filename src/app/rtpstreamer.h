@@ -35,9 +35,11 @@ enum RTPScaler { RTP_SCALE_FAST_BILINEAR, RTP_SCALE_BILINEAR, RTP_SCALE_POINT };
 /*!
   \class  RTPStreamer
   \brief  Encodes captured frames to H.264 (hardware encoder if available) and
-          sends them out as an RTP stream. A dedicated encoder thread is fed by
-          a single-slot, drop-newest queue so the capture thread is never
-          blocked by encoding or the network.
+          sends them out as an MPEG-TS stream over UDP (multicast). MPEG-TS is
+          self-describing, so viewers can open it directly (e.g.
+          `ffplay udp://@<group>:<port>`) with no SDP file. A dedicated encoder
+          thread is fed by a single-slot, drop-newest queue so the capture
+          thread is never blocked by encoding or the network.
 */
 class RTPStreamer {
 public:

@@ -121,9 +121,11 @@ CaptureThread::CaptureThread(int cam_id)
 #endif
 
 #ifdef RTP_STREAM
-  // RTP H.264 livestream settings. The stream is one multicast group per camera
-  // (default 224.5.23.{100+camId}:10100) so any number of viewers can subscribe
-  // without affecting the capture/detection path.
+  // H.264 livestream settings. The stream is MPEG-TS over UDP, one multicast
+  // group per camera (default 224.5.23.{100+camId}:10100), so any number of
+  // viewers can subscribe without affecting the capture/detection path and
+  // open it directly with `ffplay udp://@224.5.23.{100+camId}:10100` (MPEG-TS
+  // is self-describing, no SDP file needed).
   rtpstream = new VarList("RTP Stream");
   settings->addChild((VarType*) rtpstream);
   rtpstream->addChild((VarType*) (s_enable = new VarBool("enable", false)));
@@ -362,8 +364,11 @@ void CaptureThread::run() {
               RTPScaler scaler = RTP_SCALE_FAST_BILINEAR;
               if (s_scaler->getString() == "point") scaler = RTP_SCALE_POINT;
               else if (s_scaler->getString() == "bilinear") scaler = RTP_SCALE_BILINEAR;
+              // MPEG-TS over UDP multicast. pkt_size=1316 (7*188) packs whole
+              // TS cells into one sub-MTU datagram (no IP fragmentation).
               rtpStreamer = new RTPStreamer(true,
-                  "rtp://" + s_address->getString() + ":" + std::to_string(s_port->getInt()),
+                  "udp://" + s_address->getString() + ":" + std::to_string(s_port->getInt())
+                      + "?pkt_size=1316",
                   s_framerate->getInt(), s_width->getInt(), s_height->getInt(), scaler);
               rtpStreamerInit = true;
             }

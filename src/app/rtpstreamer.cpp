@@ -148,7 +148,10 @@ void RTPStreamer::allocResources() {
             << " (" << width << "x" << height << " -> " << outWidth << "x" << outHeight
             << " @ " << framerate << "fps -> " << uri << ")" << std::endl;
 
-  const AVOutputFormat* ofmt = av_guess_format("rtp", nullptr, nullptr);
+  // MPEG-TS over UDP: self-describing container (PAT/PMT + in-band SPS/PPS), so
+  // ffplay/VLC open `udp://@<group>:<port>` directly with no SDP file. The uri
+  // carries the udp:// scheme + pkt_size (built in capture_thread).
+  const AVOutputFormat* ofmt = av_guess_format("mpegts", nullptr, nullptr);
   avformat_alloc_output_context2(&fmtCtx, ofmt, ofmt->name, uri.c_str());
   if (avio_open(&fmtCtx->pb, uri.c_str(), AVIO_FLAG_WRITE) < 0) {
     std::cerr << "[RTPStreamer] Failed to open output: " << uri << std::endl;
@@ -159,7 +162,7 @@ void RTPStreamer::allocResources() {
   stream->time_base = codecCtx->time_base;
 
   if (avformat_write_header(fmtCtx, nullptr) < 0) {
-    std::cerr << "[RTPStreamer] Failed to write RTP header." << std::endl;
+    std::cerr << "[RTPStreamer] Failed to write stream header." << std::endl;
   }
 
   frame = av_frame_alloc();
