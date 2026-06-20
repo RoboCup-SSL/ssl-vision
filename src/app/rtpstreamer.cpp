@@ -124,9 +124,21 @@ void RTPStreamer::allocResources() {
     codecCtx->max_b_frames = 0;
     codecCtx->pix_fmt = AV_PIX_FMT_NV12;
     codecCtx->codec_type = AVMEDIA_TYPE_VIDEO;
+    // Keep SPS/PPS in-band (NOT in extradata) so viewers who join the multicast
+    // mid-stream get the parameter sets at the next keyframe. Setting
+    // AV_CODEC_FLAG_GLOBAL_HEADER here would move them out of band and break
+    // late joiners with "non-existing PPS" errors; we explicitly clear it.
+    codecCtx->flags &= ~AV_CODEC_FLAG_GLOBAL_HEADER;
 
     if (strcmp(codecName, "h264_qsv") == 0) {
       av_opt_set(codecCtx->priv_data, "preset", "veryfast", 0);
+      // QSV is the one encoder that does not repeat SPS/PPS per IDR by default.
+      av_opt_set(codecCtx->priv_data, "repeat_pps", "1", 0);
+    }
+    if (strcmp(codecName, "h264_nvenc") == 0) {
+      // Make every keyframe an IDR so any-time joiners always get a clean
+      // resync point (nvenc/libx264 already repeat SPS/PPS per IDR by default).
+      av_opt_set(codecCtx->priv_data, "forced-idr", "1", 0);
     }
     if (strcmp(codecName, "libx264") == 0) {
       av_opt_set(codecCtx->priv_data, "preset", "ultrafast", 0);
