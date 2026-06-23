@@ -1,0 +1,709 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VarXML>
+	<Var name="Convex Hull Points" type="list">
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				385
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				285
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				560
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1047
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				812
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1066
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				875
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1059
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				931
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1069
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				973
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1069
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1107
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1064
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1141
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1054
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1266
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1047
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1327
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1037
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1429
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1013
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1495
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1003
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1525
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				996
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1559
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				981
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1583
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				964
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1666
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				222
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1625
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				202
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1537
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				190
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1451
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				187
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1359
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				175
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1112
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				170
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1058
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				170
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				953
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				170
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				858
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				185
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				790
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				195
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				660
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				222
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				575
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				227
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				438
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				268
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				570
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				185
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				394
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				444
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				387
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				534
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				399
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				605
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				453
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				771
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				465
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				854
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				475
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				915
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				494
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				956
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				507
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				998
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1622
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				85
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1527
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				70
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1261
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				68
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1168
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				65
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				997
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				68
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				831
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				80
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				758
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				102
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				682
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				117
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				519
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				156
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				678
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				102
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				446
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				195
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				394
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				241
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				360
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				317
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				360
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				266
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				380
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				500
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				380
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				541
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				385
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				583
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				404
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				668
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				409
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				751
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				472
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				910
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1530
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1013
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1520
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1032
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1503
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1042
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1395
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1054
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				880
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1069
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				812
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1074
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				770
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1074
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				731
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1074
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				682
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1076
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				399
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				222
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1652
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				707
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1678
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				554
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1686
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				414
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1678
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				258
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1652
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				126
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1678
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				165
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				382
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				224
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				416
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				202
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				443
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				178
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				468
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				158
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				521
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				136
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				548
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1057
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				538
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1074
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1361
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1074
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1478
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1071
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1542
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1074
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1554
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1074
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				1581
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				1010
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				349
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				146
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				529
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				74
+			</Var>
+		</Var>
+		<Var name="" type="list">
+			<Var name="x" type="int" minval="" maxval="">
+				990
+			</Var>
+			<Var name="y" type="int" minval="" maxval="">
+				43
+			</Var>
+		</Var>
+	</Var>
+</VarXML>

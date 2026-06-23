@@ -1,7 +1,5 @@
 /bin/**
 /build/**
-/robocup-*
-/settings.xml
 /backup
 /test-data
 /.idea
@@ -10,3 +8,4 @@ cmake-build*
 .ccls-cache
 *~
 /compile_commands.json
+camera*.base64

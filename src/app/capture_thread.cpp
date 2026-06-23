@@ -113,6 +113,13 @@ CaptureThread::CaptureThread(int cam_id)
   captureSpinnaker = new CaptureSpinnaker(spinnaker, camId);
 #endif
 
+#ifdef VAPIX
+  captureModule->addItem("VAPIX");
+  vapix = new VarList("VAPIX");
+  settings->addChild(vapix);
+  captureVapix = new CaptureVapix(vapix, camId);
+#endif
+
 #ifdef CAMERA_SPLITTER
   splitter = new VarList("Splitter");
   captureModule->addItem("Splitter");
@@ -172,6 +179,10 @@ CaptureThread::~CaptureThread()
 
 #ifdef SPINNAKER
   delete captureSpinnaker;
+#endif
+
+#ifdef VAPIX
+  delete captureVapix;
 #endif
 
 #ifdef CAMERA_SPLITTER
@@ -235,6 +246,11 @@ void CaptureThread::selectCaptureMethod() {
 #ifdef SPINNAKER
   else if(captureModule->getString() == "Spinnaker") {
     new_capture = captureSpinnaker;
+  }
+#endif
+#ifdef VAPIX
+  else if(captureModule->getString() == "VAPIX") {
+    new_capture = captureVapix;
   }
 #endif
 #ifdef CAMERA_SPLITTER
