@@ -248,4 +248,12 @@
 			110.000000
 		</Var>
 	</Var>
+  <Var name="Robocup Junior SSL Team" type="list">
+		<Var name="Team Name" type="string">
+			Robocup Junior SSL Team
+		</Var>
+		<Var name="Robot Height (mm)" type="double" minval="" maxval="">
+			180.000000
+		</Var>
+	</Var>
 </VarXML>
