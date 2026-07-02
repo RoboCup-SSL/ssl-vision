@@ -122,7 +122,7 @@ bool UDP::open(int port, bool share_port_for_multicasting, bool multicast_includ
   }
 
   yes = 1;
-  ret = setsockopt(fd, IPPROTO_IP, SO_BROADCAST, &yes, sizeof(yes));
+  ret = setsockopt(fd, SOL_SOCKET, SO_BROADCAST, &yes, sizeof(yes));
   if(ret != 0)
   {
     printf("ERROR %d WHEN SETTING SO_BROADCAST\n", ret);
