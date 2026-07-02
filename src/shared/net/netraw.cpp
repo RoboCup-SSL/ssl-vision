@@ -93,9 +93,9 @@ bool UDP::open(int port, bool share_port_for_multicasting, bool multicast_includ
   if(flags < 0) flags = 0;
   fcntl(fd, F_SETFL, flags | (blocking ? 0 : O_NONBLOCK));
 
+  int yes = 1;
   if (share_port_for_multicasting) {
-    int reuse=1;
-    if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse,sizeof(reuse))!=0) {
+    if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (const char*)&yes, sizeof(yes))!=0) {
       fprintf(stderr,"ERROR WHEN SETTING SO_REUSEADDR ON UDP SOCKET\n");
       fflush(stderr);
     }
@@ -106,7 +106,6 @@ bool UDP::open(int port, bool share_port_for_multicasting, bool multicast_includ
   }
 
   if (multicast_include_localhost) {
-    int yes = 1;
     // allow packets to be received on this host
     if (setsockopt(fd, IPPROTO_IP, IP_MULTICAST_LOOP, (const char*)&yes, sizeof(yes))!=0) {
         fprintf(stderr,"ERROR WHEN SETTING IP_MULTICAST_LOOP ON UDP SOCKET\n");
@@ -118,6 +117,13 @@ bool UDP::open(int port, bool share_port_for_multicasting, bool multicast_includ
   if(ret != 0)
   {
     printf("ERROR %d WHEN SETTING IP_MULTICAST_TTL\n", ret);
+    return false;
+  }
+
+  ret = setsockopt(fd, IPPROTO_IP, SO_BROADCAST, &yes, sizeof(yes));
+  if(ret != 0)
+  {
+    printf("ERROR %d WHEN SETTING SO_BROADCAST\n", ret);
     return false;
   }
 
